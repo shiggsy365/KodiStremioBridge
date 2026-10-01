@@ -34,6 +34,28 @@ v0.8.6 - Extended info: icon action tiles; one-line scrolling detail rows.
 v0.8.5 - Settings shortcut to show/hide Kodi's ".." entry.</news>
     </extension>
 </addon>
+<addon id="script.shiggsy365.globalsearch"
+       name="Global Search"
+       version="1.0.0"
+       provider-name="shiggsy365">
+    <requires>
+        <import addon="xbmc.python" version="3.0.1"/>
+    </requires>
+    <extension point="xbmc.python.script" library="default.py">
+        <provides>executable video audio</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Search your library, Stremio Bridge and Spotify at once</summary>
+        <description lang="en_GB">Type a search and see results from your Kodi library, Stremio Bridge's search catalogs and Spotify (music and podcasts) in one page of rows. Put RunScript(script.shiggsy365.globalsearch) on any menu item or button to open it.</description>
+        <platform>all</platform>
+        <license>GPL-3.0-or-later</license>
+        <source>https://github.com/shiggsy365/KodiStremioBridge</source>
+        <news>v1.0.0 - First release.</news>
+        <assets>
+            <icon>resources/icon.png</icon>
+        </assets>
+    </extension>
+</addon>
 <addon id="service.shiggsy365.tidycache"
        name="Tidy Cache"
        version="1.0.0"

@@ -100,6 +100,24 @@ Install from the repository, so updates arrive automatically:
 Kodi installs `script.module.requests` with it. For the pop-up between episodes, also install
 **Up Next** from the official Kodi repository.
 
+### Also in the repository: Global Search
+
+**Global Search** (`script.shiggsy365.globalsearch`, under *Program add-ons*) searches everything at
+once and shows the results as rows, in the same layout as Stremio Bridge's search:
+
+- your Kodi library: movies, TV shows, episodes, artists, albums and songs;
+- Stremio Bridge: a row for each of its search catalogs;
+- Spotify (with the Spotify2 add-on): a row of shortcuts (Songs, Artists, Albums, Playlists,
+  Podcasts, Podcast episodes) that open Spotify's results for your search.
+
+Put `RunScript(script.shiggsy365.globalsearch)` on any menu item, button or key: it asks for the
+search, then shows the results. `RunScript(script.shiggsy365.globalsearch,query=batman)` searches
+straight away. Selecting a result plays it or opens it; Back returns to the results.
+
+Spotify shows shortcuts rather than results by default because Spotify2 allows only 8 Web API
+requests every 30 seconds, and each Spotify search page costs about 4. *Load Spotify results in the
+page* (settings) fills rows instead, for the categories you pick.
+
 ### Also in the repository: Tidy Cache
 
 **Tidy Cache** (`service.shiggsy365.tidycache`, under *Services*) keeps a low-storage device, such as a
@@ -186,6 +204,7 @@ plugin.video.stremiobridge/        the add-on itself
             └── service.py         playback tracker, scrobbling, Up Next, background jobs
 repository.shiggsy365/             the Kodi repository add-on
 service.shiggsy365.tidycache/      Tidy Cache add-on
+script.shiggsy365.globalsearch/    Global Search add-on
 docs/                              the published repository (GitHub Pages), built by tools/build_repo.py
 tests/                             pytest suite with a fake addon HTTP server and Kodistubs
 tools/                             dev install, zip/repository builds, artwork generators
