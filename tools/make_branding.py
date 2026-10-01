@@ -2,8 +2,9 @@
 
     .venv/bin/python tools/make_branding.py
 
-Writes plugin.video.stremiobridge/resources/{icon.png,fanart.jpg} and
-repository.shiggsy365/icon.png. Needs Pillow.
+Writes plugin.video.stremiobridge/resources/{icon.png,fanart.jpg},
+repository.shiggsy365/icon.png and service.shiggsy365.tidycache/resources/icon.png.
+Needs Pillow.
 """
 
 import os
@@ -66,6 +67,32 @@ def icon(path, repo=False):
     print(os.path.normpath(path))
 
 
+def tidy_icon(path):
+    """Tidy Cache: a broom with sparkles."""
+    scale, size = 4, 512
+    s = size * scale
+    image = gradient(s, s)
+    glow(image, [s * 0.1, s * 0.05, s * 0.9, s * 0.8], 90, 70 * scale)
+    draw = ImageDraw.Draw(image)
+    draw.line([(s * 0.72, s * 0.14), (s * 0.47, s * 0.56)], fill=(255, 255, 255), width=24 * scale)
+    draw.polygon([(s * 0.36, s * 0.50), (s * 0.58, s * 0.62), (s * 0.44, s * 0.88), (s * 0.14, s * 0.72)],
+                 fill=ACCENT)
+    for i in range(1, 4):  # bristle lines
+        t = i / 4
+        top = (s * (0.36 + 0.22 * t), s * (0.50 + 0.12 * t))
+        bottom = (s * (0.14 + 0.30 * t), s * (0.72 + 0.16 * t))
+        draw.line([top, bottom], fill=BOTTOM, width=6 * scale)
+
+    def star(cx, cy, r):
+        k = r * 0.28
+        draw.polygon([(cx, cy - r), (cx + k, cy - k), (cx + r, cy), (cx + k, cy + k), (cx, cy + r),
+                      (cx - k, cy + k), (cx - r, cy), (cx - k, cy - k)], fill=(255, 255, 255))
+    star(s * 0.74, s * 0.66, s * 0.10)
+    star(s * 0.84, s * 0.44, s * 0.05)
+    image.resize((size, size), Image.LANCZOS).save(path, optimize=True)
+    print(os.path.normpath(path))
+
+
 def fanart(path):
     w, h = 1920, 1080
     image = gradient(w, h, (22, 32, 44), (6, 9, 13))
@@ -84,3 +111,4 @@ if __name__ == "__main__":
     repo_dir = os.path.join(ROOT, "repository.shiggsy365")
     os.makedirs(repo_dir, exist_ok=True)
     icon(os.path.join(repo_dir, "icon.png"), repo=True)
+    tidy_icon(os.path.join(ROOT, "service.shiggsy365.tidycache", "resources", "icon.png"))

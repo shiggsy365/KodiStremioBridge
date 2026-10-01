@@ -1,0 +1,55 @@
+# Kodi Media Center language file
+# Addon Name: Tidy Cache
+# Addon id: service.shiggsy365.tidycache
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: en_GB\n"
+
+msgctxt "#32000"
+msgid "General"
+msgstr ""
+
+msgctxt "#32001"
+msgid "Tidy up every (days)"
+msgstr ""
+
+msgctxt "#32002"
+msgid "How often to tidy up. It waits if something is playing."
+msgstr ""
+
+msgctxt "#32003"
+msgid "Remove artwork not shown for (days)"
+msgstr ""
+
+msgctxt "#32004"
+msgid "Cached posters, fanart and thumbnails not shown for this many days are removed; Kodi downloads them again if needed. 0 removes all cached artwork."
+msgstr ""
+
+msgctxt "#32005"
+msgid "Remove downloaded add-on zips"
+msgstr ""
+
+msgctxt "#32006"
+msgid "Kodi keeps a zip of every add-on it installs or updates (addons/packages). They aren't needed afterwards."
+msgstr ""
+
+msgctxt "#32007"
+msgid "Show a notification when done"
+msgstr ""
+
+msgctxt "#32008"
+msgid "Say how much space was freed after each scheduled tidy-up."
+msgstr ""
+
+msgctxt "#32009"
+msgid "Tidy up now"
+msgstr ""
+
+msgctxt "#32010"
+msgid "Removed {images} images and {packages} zips, freeing {size}"
+msgstr ""
+
+msgctxt "#32011"
+msgid "Run a tidy-up straight away with the settings above."
+msgstr ""

@@ -99,6 +99,18 @@ Install from the repository, so updates arrive automatically:
 Kodi installs `script.module.requests` with it. For the pop-up between episodes, also install
 **Up Next** from the official Kodi repository.
 
+### Also in the repository: Tidy Cache
+
+**Tidy Cache** (`service.shiggsy365.tidycache`, under *Services*) keeps a low-storage device, such as a
+Fire TV Stick, from filling up. By default, every 7 days it:
+
+- removes cached artwork (posters, fanart, thumbnails) that Kodi hasn't shown in the last 7 days.
+  It goes through Kodi itself, so it's safe while Kodi runs, and Kodi downloads anything it needs again;
+- deletes the add-on zips Kodi keeps in `addons/packages` after installing or updating.
+
+It waits while something is playing. Change how often it runs and how old artwork must be (0
+removes all cached artwork) in its settings, which also have a *Tidy up now* button.
+
 ## Getting started
 
 1. **Add your addons:** open Stremio Bridge's settings, then **Addons → Manage addons → Add
@@ -161,6 +173,7 @@ plugin.video.stremiobridge/        the add-on itself
             ├── manage.py          Manage addons
             └── service.py         playback tracker, scrobbling, Up Next, background jobs
 repository.shiggsy365/             the Kodi repository add-on
+service.shiggsy365.tidycache/      Tidy Cache add-on
 docs/                              the published repository (GitHub Pages), built by tools/build_repo.py
 tests/                             pytest suite with a fake addon HTTP server and Kodistubs
 tools/                             dev install, zip/repository builds, artwork generators

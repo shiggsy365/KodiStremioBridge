@@ -21,7 +21,7 @@ import zipfile
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 OUT = os.path.join(ROOT, "docs")
-ADDONS = ["plugin.video.stremiobridge", "repository.shiggsy365"]
+ADDONS = ["plugin.video.stremiobridge", "service.shiggsy365.tidycache", "repository.shiggsy365"]
 REPOSITORY = "repository.shiggsy365"
 SKIP_DIRS = {"__pycache__", ".pytest_cache"}
 SKIP_SUFFIXES = (".pyc", ".pyo", ".orig", ".rej", "~")
