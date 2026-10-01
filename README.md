@@ -41,6 +41,8 @@ Needs **Kodi 21 Omega or later**.
 - **Fits your skin.** Choose a default view for movie, show, season and episode lists from the
   views your skin offers, with previews.
 
+[<img src="https://github.com/shiggsy365/AIOStreamsKODI/blob/main/.github/support_me_on_kofi_red.png?raw=true">](https://ko-fi.com/shiggsy365)
+
 ## The best setup
 
 Stremio Bridge works with any Stremio addon, but it was built around one combination. Together
