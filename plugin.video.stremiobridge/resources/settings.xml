@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings version="1">
+    <section id="plugin.video.stremiobridge">
+        <category id="addons" label="30115">
+            <group id="1">
+                <setting id="organise_catalogs" type="action" label="30340" help="30355">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=open&amp;target=organise)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="manage_addons" type="action" label="30000" help="30116">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=open&amp;target=manage)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="network" label="30100">
+            <group id="1">
+                <setting id="request_timeout" type="integer" label="30101" help="30102">
+                    <level>0</level>
+                    <default>15</default>
+                    <constraints>
+                        <minimum>3</minimum>
+                        <step>1</step>
+                        <maximum>60</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                        <formatlabel>30103</formatlabel>
+                    </control>
+                </setting>
+                <setting id="auto_refresh_manifests" type="boolean" label="30104" help="30105">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+        </category>
+        <category id="playback" label="30140">
+            <group id="1">
+                <setting id="autoplay" type="boolean" label="30141" help="30142">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="sort_mode" type="integer" label="30143">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30144">0</option>
+                            <option label="30145">1</option>
+                            <option label="30146">2</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="max_resolution" type="integer" label="30147">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30148">0</option>
+                            <option label="30149">1</option>
+                            <option label="30150">2</option>
+                            <option label="30151">3</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="hide_cam" type="boolean" label="30152">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="exclude_keywords" type="string" label="30153" help="30154">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30153</heading>
+                    </control>
+                </setting>
+                <setting id="torrent_mode" type="integer" label="30155" help="30158">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30156">0</option>
+                            <option label="30157">1</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+            </group>
+        </category>
+        <category id="subtitles" label="30160">
+            <group id="1">
+                <setting id="subtitles_enabled" type="boolean" label="30161">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="subtitle_languages" type="string" label="30162" help="30163">
+                    <level>0</level>
+                    <default>eng</default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30162</heading>
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="watchstate" label="30182">
+            <group id="1">
+                <setting id="watched_percent" type="integer" label="30183">
+                    <level>0</level>
+                    <default>90</default>
+                    <constraints>
+                        <minimum>50</minimum>
+                        <step>5</step>
+                        <maximum>100</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                        <formatlabel>30184</formatlabel>
+                    </control>
+                </setting>
+                <setting id="min_resume_seconds" type="integer" label="30185">
+                    <level>0</level>
+                    <default>120</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>30</step>
+                        <maximum>600</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                        <formatlabel>30186</formatlabel>
+                    </control>
+                </setting>
+                <setting id="show_continue" type="boolean" label="30187">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="show_next_up" type="boolean" label="30188">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="continue_with_next_up" type="boolean" label="30329" help="30330">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="upnext_enabled" type="boolean" label="30189" help="30196">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="same_source_next" type="boolean" label="30197" help="30198">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="clear_watch_history" type="action" label="30193">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=clear_watch_history)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="mdblist" label="30200">
+            <group id="1">
+                <setting id="mdblist_enabled" type="boolean" label="30201">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="mdblist_api_key" type="string" label="30202" help="30203">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable" setting="mdblist_enabled">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30202</heading>
+                        <hidden>true</hidden>
+                    </control>
+                </setting>
+                <setting id="show_watchlist" type="boolean" label="30305">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable" setting="mdblist_enabled">true</dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="mdblist_scrobble" type="boolean" label="30204" help="30205">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable" setting="mdblist_enabled">true</dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="mdblist_sync_hours" type="integer" label="30206" help="30208">
+                    <level>0</level>
+                    <default>6</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>48</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable" setting="mdblist_enabled">true</dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                        <formatlabel>30207</formatlabel>
+                    </control>
+                </setting>
+                <setting id="mdblist_test" type="action" label="30209">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=mdblist_test)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable" setting="mdblist_enabled">true</dependency>
+                    </dependencies>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="mdblist_sync" type="action" label="30210">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=mdblist_sync)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable" setting="mdblist_enabled">true</dependency>
+                    </dependencies>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="search" label="30070">
+            <group id="1">
+                <setting id="manage_search_catalogs" type="action" label="30250" help="30253">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=open&amp;target=search_catalogs)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="library" label="30260">
+            <group id="1">
+                <setting id="library_setup" type="action" label="30261" help="30262">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=library_setup)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="library_update" type="action" label="30263" help="30275">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=library_update)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="library_watchlist" type="boolean" label="30264" help="30265">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable" setting="mdblist_enabled">true</dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+        </category>
+        <category id="views" label="30280">
+            <group id="1">
+                <setting id="view_movies" type="string" label="30281" help="30286">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30281</heading>
+                    </control>
+                </setting>
+                <setting id="choose_view_movies" type="action" label="30287">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=choose_view&amp;content=movies)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="view_tvshows" type="string" label="30282" help="30286">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30282</heading>
+                    </control>
+                </setting>
+                <setting id="choose_view_tvshows" type="action" label="30288">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=choose_view&amp;content=tvshows)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="view_seasons" type="string" label="30283" help="30286">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30283</heading>
+                    </control>
+                </setting>
+                <setting id="choose_view_seasons" type="action" label="30289">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=choose_view&amp;content=seasons)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="view_episodes" type="string" label="30284" help="30286">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30284</heading>
+                    </control>
+                </setting>
+                <setting id="choose_view_episodes" type="action" label="30290">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=choose_view&amp;content=episodes)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="metadata" label="30130">
+            <group id="1">
+                <setting id="cinemeta_fallback" type="boolean" label="30133" help="30134">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="toggle_parent_items" type="action" label="30310" help="30311">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=toggle_parent_items)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="select_opens_info" type="boolean" label="30323" help="30324">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="hide_watched" type="boolean" label="30325" help="30326">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="show_widgets_folder" type="boolean" label="30327" help="30328">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="tidy_names" type="boolean" label="30353" help="30354">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="genre_filter" type="boolean" label="30297" help="30298">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="show_specials" type="boolean" label="30131">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="hide_unaired" type="boolean" label="30132">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+        </category>
+        <category id="cache" label="30120">
+            <group id="1">
+                <setting id="cache_catalog_minutes" type="integer" label="30121" help="30125">
+                    <level>0</level>
+                    <default>60</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>5</step>
+                        <maximum>1440</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                        <formatlabel>30126</formatlabel>
+                    </control>
+                </setting>
+                <setting id="cache_meta_hours" type="integer" label="30122" help="30125">
+                    <level>0</level>
+                    <default>24</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>1</step>
+                        <maximum>168</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                        <formatlabel>30127</formatlabel>
+                    </control>
+                </setting>
+                <setting id="prewarm" type="boolean" label="30331" help="30332">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="clear_cache" type="action" label="30123">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=clear_cache)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="advanced" label="30110">
+            <group id="1">
+                <setting id="debug_logging" type="boolean" label="30111" help="30112">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+        </category>
+    </section>
+</settings>

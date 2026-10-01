@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Extended info dialog. Filled in by kodi_ui/infodialog.py via window properties,
+     the cast list (50) and the action tiles (list 9000). 1920x1080 coordinates. -->
+<window>
+    <defaultcontrol always="true">9000</defaultcontrol>
+    <animation effect="fade" time="200">WindowOpen</animation>
+    <animation effect="fade" time="150">WindowClose</animation>
+    <controls>
+        <!-- Background: fanart, darkened -->
+        <control type="image">
+            <left>0</left><top>0</top><width>1920</width><height>1080</height>
+            <texture colordiffuse="FF000000">stremiobridge-white.png</texture>
+        </control>
+        <control type="image">
+            <left>0</left><top>0</top><width>1920</width><height>1080</height>
+            <aspectratio>scale</aspectratio>
+            <texture background="true" colordiffuse="40FFFFFF">$INFO[Window.Property(fanart)]</texture>
+        </control>
+        <control type="image">
+            <left>0</left><top>0</top><width>1920</width><height>1080</height>
+            <texture colordiffuse="99102030">stremiobridge-white.png</texture>
+        </control>
+
+        <!-- Title (year) -->
+        <control type="label">
+            <left>100</left><top>30</top><width>1720</width><height>80</height>
+            <align>center</align><aligny>center</aligny>
+            <font>font45</font>
+            <textcolor>FFFFFFFF</textcolor>
+            <label>$INFO[Window.Property(title)]</label>
+        </control>
+
+        <!-- Poster -->
+        <control type="image">
+            <left>100</left><top>130</top><width>520</width><height>780</height>
+            <aspectratio aligny="top">keep</aspectratio>
+            <texture background="true">$INFO[Window.Property(poster)]</texture>
+        </control>
+
+        <!-- Cast (clickable) -->
+        <control type="list" id="50">
+            <left>660</left><top>130</top><width>1160</width><height>290</height>
+            <orientation>horizontal</orientation>
+            <onup>9000</onup><ondown>9000</ondown>
+            <onleft>50</onleft><onright>50</onright>
+            <scrolltime>200</scrolltime>
+            <visible>Integer.IsGreater(Container(50).NumItems,0)</visible>
+            <itemlayout width="245" height="290">
+                <control type="image">
+                    <left>5</left><top>5</top><width>225</width><height>275</height>
+                    <texture colordiffuse="CC111111">stremiobridge-white.png</texture>
+                </control>
+                <control type="image">
+                    <left>5</left><top>5</top><width>225</width><height>215</height>
+                    <aspectratio>scale</aspectratio>
+                    <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                </control>
+                <control type="label">
+                    <left>10</left><top>222</top><width>215</width><height>30</height>
+                    <align>center</align><font>font12</font><textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                </control>
+                <control type="label">
+                    <left>10</left><top>250</top><width>215</width><height>26</height>
+                    <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                    <label>$INFO[ListItem.Label2]</label>
+                </control>
+            </itemlayout>
+            <focusedlayout width="245" height="290">
+                <control type="image">
+                    <left>0</left><top>0</top><width>235</width><height>285</height>
+                    <texture colordiffuse="FF12A0C7">stremiobridge-white.png</texture>
+                    <visible>Control.HasFocus(50)</visible>
+                </control>
+                <control type="image">
+                    <left>5</left><top>5</top><width>225</width><height>275</height>
+                    <texture colordiffuse="FF111111">stremiobridge-white.png</texture>
+                </control>
+                <control type="image">
+                    <left>5</left><top>5</top><width>225</width><height>215</height>
+                    <aspectratio>scale</aspectratio>
+                    <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                </control>
+                <control type="label">
+                    <left>10</left><top>222</top><width>215</width><height>30</height>
+                    <align>center</align><font>font12</font><textcolor>FFFFFFFF</textcolor>
+                    <scroll>true</scroll>
+                    <label>$INFO[ListItem.Label]</label>
+                </control>
+                <control type="label">
+                    <left>10</left><top>250</top><width>215</width><height>26</height>
+                    <align>center</align><font>font10</font><textcolor>FFCCCCCC</textcolor>
+                    <scroll>true</scroll>
+                    <label>$INFO[ListItem.Label2]</label>
+                </control>
+            </focusedlayout>
+        </control>
+
+        <!-- Plot -->
+        <control type="image">
+            <left>660</left><top>440</top><width>720</width><height>380</height>
+            <texture colordiffuse="99111111">stremiobridge-white.png</texture>
+        </control>
+        <control type="textbox">
+            <left>685</left><top>455</top><width>670</width><height>350</height>
+            <font>font13</font><textcolor>FFFFFFFF</textcolor>
+            <autoscroll delay="8000" time="3000" repeat="10000">true</autoscroll>
+            <label>$INFO[Window.Property(plot)]</label>
+        </control>
+
+        <!-- Details -->
+        <control type="image">
+            <left>1400</left><top>440</top><width>420</width><height>380</height>
+            <texture colordiffuse="99111111">stremiobridge-white.png</texture>
+        </control>
+        <!-- One line per field; long ones scroll sideways -->
+        <control type="label">
+            <left>1420</left><top>455</top><width>380</width><height>40</height>
+            <font>font12</font><textcolor>FFFFFFFF</textcolor><aligny>center</aligny>
+            <scroll>true</scroll><scrollspeed>40</scrollspeed>
+            <label>$INFO[Window.Property(detail1)]</label>
+        </control>
+        <control type="label">
+            <left>1420</left><top>498</top><width>380</width><height>40</height>
+            <font>font12</font><textcolor>FFFFFFFF</textcolor><aligny>center</aligny>
+            <scroll>true</scroll><scrollspeed>40</scrollspeed>
+            <label>$INFO[Window.Property(detail2)]</label>
+        </control>
+        <control type="label">
+            <left>1420</left><top>541</top><width>380</width><height>40</height>
+            <font>font12</font><textcolor>FFFFFFFF</textcolor><aligny>center</aligny>
+            <scroll>true</scroll><scrollspeed>40</scrollspeed>
+            <label>$INFO[Window.Property(detail3)]</label>
+        </control>
+        <control type="label">
+            <left>1420</left><top>584</top><width>380</width><height>40</height>
+            <font>font12</font><textcolor>FFFFFFFF</textcolor><aligny>center</aligny>
+            <scroll>true</scroll><scrollspeed>40</scrollspeed>
+            <label>$INFO[Window.Property(detail4)]</label>
+        </control>
+        <control type="label">
+            <left>1420</left><top>627</top><width>380</width><height>40</height>
+            <font>font12</font><textcolor>FFFFFFFF</textcolor><aligny>center</aligny>
+            <scroll>true</scroll><scrollspeed>40</scrollspeed>
+            <label>$INFO[Window.Property(detail5)]</label>
+        </control>
+        <control type="label">
+            <left>1420</left><top>670</top><width>380</width><height>40</height>
+            <font>font12</font><textcolor>FFFFFFFF</textcolor><aligny>center</aligny>
+            <scroll>true</scroll><scrollspeed>40</scrollspeed>
+            <label>$INFO[Window.Property(detail6)]</label>
+        </control>
+        <control type="label">
+            <left>1420</left><top>713</top><width>380</width><height>40</height>
+            <font>font12</font><textcolor>FFFFFFFF</textcolor><aligny>center</aligny>
+            <scroll>true</scroll><scrollspeed>40</scrollspeed>
+            <label>$INFO[Window.Property(detail7)]</label>
+        </control>
+        <control type="label">
+            <left>1420</left><top>756</top><width>380</width><height>40</height>
+            <font>font12</font><textcolor>FFFFFFFF</textcolor><aligny>center</aligny>
+            <scroll>true</scroll><scrollspeed>40</scrollspeed>
+            <label>$INFO[Window.Property(detail8)]</label>
+        </control>
+
+        <!-- Actions: icon tiles (list 9000, filled from Python), caption = highlighted action -->
+        <control type="list" id="9000">
+            <left>660</left><top>835</top><width>1160</width><height>110</height>
+            <orientation>horizontal</orientation>
+            <onup>50</onup><ondown>50</ondown>
+            <scrolltime>150</scrolltime>
+            <itemlayout width="125" height="110">
+                <control type="image">
+                    <left>0</left><top>0</top><width>110</width><height>110</height>
+                    <texture colordiffuse="CC1A1A1A">stremiobridge-white.png</texture>
+                </control>
+                <control type="image">
+                    <left>25</left><top>25</top><width>60</width><height>60</height>
+                    <texture colordiffuse="DDFFFFFF">$INFO[ListItem.Art(icon)]</texture>
+                </control>
+            </itemlayout>
+            <focusedlayout width="125" height="110">
+                <control type="image">
+                    <left>0</left><top>0</top><width>110</width><height>110</height>
+                    <texture colordiffuse="CC1A1A1A">stremiobridge-white.png</texture>
+                    <visible>!Control.HasFocus(9000)</visible>
+                </control>
+                <control type="image">
+                    <left>0</left><top>0</top><width>110</width><height>110</height>
+                    <texture colordiffuse="FF12A0C7">stremiobridge-white.png</texture>
+                    <visible>Control.HasFocus(9000)</visible>
+                </control>
+                <control type="image">
+                    <left>25</left><top>25</top><width>60</width><height>60</height>
+                    <texture>$INFO[ListItem.Art(icon)]</texture>
+                </control>
+            </focusedlayout>
+        </control>
+        <control type="label">
+            <left>660</left><top>950</top><width>1160</width><height>40</height>
+            <font>font13</font><textcolor>FFFFFFFF</textcolor>
+            <label>$INFO[Container(9000).ListItem.Label]</label>
+            <visible>Control.HasFocus(9000)</visible>
+        </control>
+
+        <!-- Badges -->
+        <control type="label">
+            <left>660</left><top>990</top><width>1160</width><height>50</height>
+            <align>right</align><aligny>center</aligny>
+            <font>font12</font><textcolor>FFDDDDDD</textcolor>
+            <label>$INFO[Window.Property(badges)]</label>
+        </control>
+    </controls>
+</window>

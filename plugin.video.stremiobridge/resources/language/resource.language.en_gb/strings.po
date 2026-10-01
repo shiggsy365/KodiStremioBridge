@@ -1,0 +1,1066 @@
+# Kodi Media Center language file
+# Addon Name: Stremio Bridge
+# Addon id: plugin.video.stremiobridge
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.video.stremiobridge\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Menus
+
+msgctxt "#30000"
+msgid "Manage addons"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Add addon…"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Stremio addon manifest URL"
+msgstr ""
+
+msgctxt "#30003"
+msgid "disabled"
+msgstr ""
+
+msgctxt "#30004"
+msgid "No addons installed yet. Select here to add one."
+msgstr ""
+
+# Addon actions
+
+msgctxt "#30010"
+msgid "Disable"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Enable"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Move up"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Move down"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Refresh manifest"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Remove"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Details"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Catalogs"
+msgstr ""
+
+msgctxt "#30018"
+msgid "Remove \"{name}\"?"
+msgstr ""
+
+# Catalog preferences
+
+msgctxt "#30020"
+msgid "Browse"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Show in its type menu"
+msgstr ""
+
+msgctxt "#30023"
+msgid "Use for search"
+msgstr ""
+
+msgctxt "#30024"
+msgid "search only"
+msgstr ""
+
+# Messages
+
+msgctxt "#30025"
+msgid "Front page"
+msgstr ""
+
+msgctxt "#30026"
+msgid "Show on the front page"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Added {name}"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Updated {name}"
+msgstr ""
+
+msgctxt "#30032"
+msgid "Removed {name}"
+msgstr ""
+
+msgctxt "#30033"
+msgid "Could not add addon"
+msgstr ""
+
+msgctxt "#30034"
+msgid "This addon is already installed."
+msgstr ""
+
+msgctxt "#30035"
+msgid "This addon says it must be configured first. Configure it on its website, then add the configured manifest URL instead."
+msgstr ""
+
+msgctxt "#30036"
+msgid "Could not refresh addon"
+msgstr ""
+
+# Browsing
+
+msgctxt "#30040"
+msgid "Movies"
+msgstr ""
+
+msgctxt "#30041"
+msgid "Series"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Channels"
+msgstr ""
+
+msgctxt "#30043"
+msgid "TV"
+msgstr ""
+
+msgctxt "#30044"
+msgid "All"
+msgstr ""
+
+msgctxt "#30050"
+msgid "Next Page"
+msgstr ""
+
+msgctxt "#30052"
+msgid "Could not load {name}"
+msgstr ""
+
+msgctxt "#30053"
+msgid "Not available yet"
+msgstr ""
+
+# Details
+
+msgctxt "#30060"
+msgid "Season {season}"
+msgstr ""
+
+msgctxt "#30061"
+msgid "Specials"
+msgstr ""
+
+msgctxt "#30058"
+msgid "Writer"
+msgstr ""
+
+msgctxt "#30059"
+msgid "Director"
+msgstr ""
+
+msgctxt "#30064"
+msgid "Browse show"
+msgstr ""
+
+msgctxt "#30066"
+msgid "Cast & crew"
+msgstr ""
+
+msgctxt "#30067"
+msgid "Play trailer"
+msgstr ""
+
+msgctxt "#30068"
+msgid "No trailer available"
+msgstr ""
+
+msgctxt "#30069"
+msgid "Install the YouTube add-on to play trailers"
+msgstr ""
+
+msgctxt "#30063"
+msgid "No information found for this item"
+msgstr ""
+
+msgctxt "#30065"
+msgid "Episode {episode}"
+msgstr ""
+
+# Search
+
+msgctxt "#30070"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30071"
+msgid "New search…"
+msgstr ""
+
+msgctxt "#30072"
+msgid "Search for"
+msgstr ""
+
+msgctxt "#30073"
+msgid "No results for \"{query}\""
+msgstr ""
+
+msgctxt "#30074"
+msgid "Searching catalogs…"
+msgstr ""
+
+msgctxt "#30075"
+msgid "{done} of {total} catalogs answered"
+msgstr ""
+
+msgctxt "#30076"
+msgid "Remove from history"
+msgstr ""
+
+msgctxt "#30077"
+msgid "Clear search history"
+msgstr ""
+
+msgctxt "#30078"
+msgid "No catalogs are set up for search. Turn on \"Use for search\" for a catalog under Manage addons."
+msgstr ""
+
+msgctxt "#30079"
+msgid "Search {type}…"
+msgstr ""
+
+# Search catalogs
+
+msgctxt "#30250"
+msgid "Manage search catalogs"
+msgstr ""
+
+msgctxt "#30251"
+msgid "Move to top"
+msgstr ""
+
+msgctxt "#30252"
+msgid "Move to bottom"
+msgstr ""
+
+msgctxt "#30254"
+msgid "Rename"
+msgstr ""
+
+msgctxt "#30255"
+msgid "Name in search (leave empty for the original)"
+msgstr ""
+
+msgctxt "#30253"
+msgid "Choose which catalogs are searched and in which order their results are shown."
+msgstr ""
+
+# Playback
+
+msgctxt "#30170"
+msgid "Searching for streams…"
+msgstr ""
+
+msgctxt "#30171"
+msgid "{done} of {total} addons answered"
+msgstr ""
+
+msgctxt "#30172"
+msgid "None of your enabled addons provide streams for this item"
+msgstr ""
+
+msgctxt "#30173"
+msgid "No streams found"
+msgstr ""
+
+msgctxt "#30174"
+msgid "Choose a stream"
+msgstr ""
+
+msgctxt "#30175"
+msgid "This stream can't be played in Kodi"
+msgstr ""
+
+msgctxt "#30176"
+msgid "All {count} streams were hidden by your filters"
+msgstr ""
+
+# Extended info
+
+msgctxt "#30220"
+msgid "Extended info"
+msgstr ""
+
+msgctxt "#30221"
+msgid "Play"
+msgstr ""
+
+msgctxt "#30222"
+msgid "Seasons"
+msgstr ""
+
+msgctxt "#30223"
+msgid "Trailer"
+msgstr ""
+
+msgctxt "#30224"
+msgid "Same director"
+msgstr ""
+
+msgctxt "#30226"
+msgid "Similar titles"
+msgstr ""
+
+msgctxt "#30227"
+msgid "Resume from {time}"
+msgstr ""
+
+msgctxt "#30228"
+msgid "Play from beginning"
+msgstr ""
+
+msgctxt "#30229"
+msgid "No similar titles found"
+msgstr ""
+
+msgctxt "#30231"
+msgid "Genre"
+msgstr ""
+
+msgctxt "#30232"
+msgid "Type"
+msgstr ""
+
+msgctxt "#30235"
+msgid "Released"
+msgstr ""
+
+msgctxt "#30239"
+msgid "Overall Rating"
+msgstr ""
+
+msgctxt "#30236"
+msgid "Watched"
+msgstr ""
+
+msgctxt "#30237"
+msgid "Resume at {time}"
+msgstr ""
+
+msgctxt "#30238"
+msgid "Country"
+msgstr ""
+
+msgctxt "#30293"
+msgid "No preview available"
+msgstr ""
+
+msgctxt "#30294"
+msgid "View"
+msgstr ""
+
+msgctxt "#30295"
+msgid "Filter by {name}"
+msgstr ""
+
+msgctxt "#30296"
+msgid "All"
+msgstr ""
+
+msgctxt "#30297"
+msgid "Offer a genre filter when browsing catalogs"
+msgstr ""
+
+msgctxt "#30298"
+msgid "Adds a \"Genre: All\" entry at the top of catalogs that support it, to filter the list. Not shown on home-screen widgets."
+msgstr ""
+
+msgctxt "#30310"
+msgid "Show or hide the \"..\" (go back) entry"
+msgstr ""
+
+msgctxt "#30311"
+msgid "Kodi's own setting (Settings > Media > General > Show parent folder items). It applies to every list in Kodi, not only this add-on."
+msgstr ""
+
+msgctxt "#30312"
+msgid "Hide the \"..\" go-back entry in all of Kodi's lists? (Back on the remote still goes up a level.)"
+msgstr ""
+
+msgctxt "#30313"
+msgid "Show the \"..\" go-back entry again in all of Kodi's lists?"
+msgstr ""
+
+msgctxt "#30314"
+msgid "The \"..\" entry is now hidden"
+msgstr ""
+
+msgctxt "#30315"
+msgid "The \"..\" entry is shown again"
+msgstr ""
+
+# Hubs
+
+msgctxt "#30340"
+msgid "Organise catalogs"
+msgstr ""
+
+msgctxt "#30341"
+msgid "TV Shows"
+msgstr ""
+
+msgctxt "#30342"
+msgid "Anime"
+msgstr ""
+
+msgctxt "#30343"
+msgid "More"
+msgstr ""
+
+msgctxt "#30344"
+msgid "Move to another hub"
+msgstr ""
+
+msgctxt "#30345"
+msgid "Pin to front page"
+msgstr ""
+
+msgctxt "#30346"
+msgid "Unpin from front page"
+msgstr ""
+
+msgctxt "#30347"
+msgid "Show"
+msgstr ""
+
+msgctxt "#30348"
+msgid "Hide"
+msgstr ""
+
+msgctxt "#30349"
+msgid "hidden"
+msgstr ""
+
+msgctxt "#30350"
+msgid "pinned"
+msgstr ""
+
+msgctxt "#30351"
+msgid "Genres"
+msgstr ""
+
+msgctxt "#30352"
+msgid "Name when browsing (leave empty for the original)"
+msgstr ""
+
+msgctxt "#30353"
+msgid "Tidy catalog names"
+msgstr ""
+
+msgctxt "#30354"
+msgid "Remove emoji and doubled spaces from catalog names (your own names are kept as typed)."
+msgstr ""
+
+msgctxt "#30355"
+msgid "Order, rename, hide or move catalogs between hubs, pin them to the front page, and create, rename or remove hubs (from a hub's context menu)."
+msgstr ""
+
+msgctxt "#30356"
+msgid "{shown} shown, {hidden} hidden"
+msgstr ""
+
+msgctxt "#30357"
+msgid "New hub…"
+msgstr ""
+
+msgctxt "#30358"
+msgid "Create hub"
+msgstr ""
+
+msgctxt "#30359"
+msgid "Rename hub"
+msgstr ""
+
+msgctxt "#30360"
+msgid "Remove hub"
+msgstr ""
+
+msgctxt "#30361"
+msgid "Hub name"
+msgstr ""
+
+msgctxt "#30362"
+msgid "Hub name (leave empty for the original)"
+msgstr ""
+
+msgctxt "#30363"
+msgid "Remove \"{name}\"? Its {count} catalogs go back to their usual hubs."
+msgstr ""
+
+# Usability
+
+msgctxt "#30320"
+msgid "{time} left"
+msgstr ""
+
+msgctxt "#30321"
+msgid "{watched} of {total} watched"
+msgstr ""
+
+msgctxt "#30322"
+msgid "Widgets"
+msgstr ""
+
+msgctxt "#30323"
+msgid "Selecting a movie opens Extended info"
+msgstr ""
+
+msgctxt "#30324"
+msgid "Show the details page (cast, ratings, trailer) first; play from its Play button. Off: selecting a movie plays it."
+msgstr ""
+
+msgctxt "#30325"
+msgid "Hide watched titles in catalogs"
+msgstr ""
+
+msgctxt "#30326"
+msgid "Leave out movies you've watched and shows where you've watched every aired episode."
+msgstr ""
+
+msgctxt "#30327"
+msgid "Show the Widgets folder on the front page"
+msgstr ""
+
+msgctxt "#30328"
+msgid "Ready-made widget sources for your skin's widget browser; they refresh after you watch something."
+msgstr ""
+
+msgctxt "#30329"
+msgid "Include next episodes in Continue Watching"
+msgstr ""
+
+msgctxt "#30330"
+msgid "One list with part-watched items and the next episode of shows you're watching, most recent first."
+msgstr ""
+
+msgctxt "#30331"
+msgid "Keep lists ready in the background"
+msgstr ""
+
+msgctxt "#30332"
+msgid "Every 30 minutes (not while playing), refresh catalogs, Next Up and the watchlist so they open instantly."
+msgstr ""
+
+# Watchlist
+
+msgctxt "#30300"
+msgid "Watchlist"
+msgstr ""
+
+msgctxt "#30301"
+msgid "Add to watchlist"
+msgstr ""
+
+msgctxt "#30302"
+msgid "Remove from watchlist"
+msgstr ""
+
+msgctxt "#30303"
+msgid "Added to watchlist: {name}"
+msgstr ""
+
+msgctxt "#30304"
+msgid "Removed from watchlist: {name}"
+msgstr ""
+
+msgctxt "#30305"
+msgid "Show Watchlist on the front page"
+msgstr ""
+
+# Views
+
+msgctxt "#30280"
+msgid "Views"
+msgstr ""
+
+msgctxt "#30281"
+msgid "Movie lists"
+msgstr ""
+
+msgctxt "#30282"
+msgid "Show lists"
+msgstr ""
+
+msgctxt "#30283"
+msgid "Season lists"
+msgstr ""
+
+msgctxt "#30284"
+msgid "Episode lists"
+msgstr ""
+
+msgctxt "#30286"
+msgid "The view this add-on's lists of this kind open in. Empty: whatever the skin chooses."
+msgstr ""
+
+msgctxt "#30287"
+msgid "Choose view for movie lists…"
+msgstr ""
+
+msgctxt "#30288"
+msgid "Choose view for show lists…"
+msgstr ""
+
+msgctxt "#30289"
+msgid "Choose view for season lists…"
+msgstr ""
+
+msgctxt "#30290"
+msgid "Choose view for episode lists…"
+msgstr ""
+
+msgctxt "#30291"
+msgid "Skin default"
+msgstr ""
+
+msgctxt "#30292"
+msgid "No views were found in this skin's files."
+msgstr ""
+
+# Library
+
+msgctxt "#30260"
+msgid "Library"
+msgstr ""
+
+msgctxt "#30261"
+msgid "Set up library"
+msgstr ""
+
+msgctxt "#30262"
+msgid "Adds this add-on's library folders to Kodi's video sources. After a restart, set their content once: Movies > The Movie Database, TV > a TV scraper."
+msgstr ""
+
+msgctxt "#30263"
+msgid "Update library now"
+msgstr ""
+
+msgctxt "#30264"
+msgid "Add my MDBList watchlist to the library"
+msgstr ""
+
+msgctxt "#30265"
+msgid "Titles on your MDBList watchlist are added to the library, and removed when you take them off the watchlist. Titles you add yourself are never removed."
+msgstr ""
+
+msgctxt "#30266"
+msgid "Add to library"
+msgstr ""
+
+msgctxt "#30267"
+msgid "Remove from library"
+msgstr ""
+
+msgctxt "#30268"
+msgid "Added to library: {name}"
+msgstr ""
+
+msgctxt "#30269"
+msgid "Removed from library: {name}"
+msgstr ""
+
+msgctxt "#30270"
+msgid "The folders \"Stremio Bridge Movies\" and \"Stremio Bridge TV\" were added as video sources. After Kodi restarts: Videos > Files > open the context menu on each > Set content. Movies: \"Movies\" with The Movie Database. TV: \"TV shows\" with a TV scraper. Answer Yes to scanning."
+msgstr ""
+
+msgctxt "#30271"
+msgid "Kodi needs a restart to see the new sources. Restart now?"
+msgstr ""
+
+msgctxt "#30272"
+msgid "Library: {added} added, {removed} removed, {episodes} new episodes"
+msgstr ""
+
+msgctxt "#30273"
+msgid "The library isn't set up yet. Set it up now?"
+msgstr ""
+
+msgctxt "#30274"
+msgid "The library folders are already Kodi sources. If titles don't appear, check each source's content is set (Videos > Files > context menu > Set content)."
+msgstr ""
+
+msgctxt "#30275"
+msgid "Adds newly aired episodes of shows in the library and syncs the MDBList watchlist. This also runs once a day."
+msgstr ""
+
+# Watch state
+
+msgctxt "#30180"
+msgid "Continue Watching"
+msgstr ""
+
+msgctxt "#30181"
+msgid "Next Up"
+msgstr ""
+
+msgctxt "#30182"
+msgid "Watch state"
+msgstr ""
+
+msgctxt "#30183"
+msgid "Count as watched at"
+msgstr ""
+
+msgctxt "#30184"
+msgid "{0:d} %"
+msgstr ""
+
+msgctxt "#30185"
+msgid "Save a resume point after"
+msgstr ""
+
+msgctxt "#30186"
+msgid "{0:d} s"
+msgstr ""
+
+msgctxt "#30187"
+msgid "Show Continue Watching on the front page"
+msgstr ""
+
+msgctxt "#30188"
+msgid "Show Next Up on the front page"
+msgstr ""
+
+msgctxt "#30189"
+msgid "Hand the next episode to Up Next"
+msgstr ""
+
+msgctxt "#30190"
+msgid "Mark as watched"
+msgstr ""
+
+msgctxt "#30191"
+msgid "Mark as unwatched"
+msgstr ""
+
+msgctxt "#30192"
+msgid "Remove from Continue Watching"
+msgstr ""
+
+msgctxt "#30193"
+msgid "Clear watch history"
+msgstr ""
+
+msgctxt "#30194"
+msgid "Forget everything watched and all resume points on this device?"
+msgstr ""
+
+msgctxt "#30195"
+msgid "Watch history cleared"
+msgstr ""
+
+msgctxt "#30196"
+msgid "Needs the Up Next add-on (service.upnext). Shows a \"next episode\" pop-up near the end of an episode."
+msgstr ""
+
+msgctxt "#30197"
+msgid "Use the same source for the next episode"
+msgstr ""
+
+msgctxt "#30198"
+msgid "Pick the stream from the same release/source group (Stremio's bingeGroup) automatically, if the show was played in the last day."
+msgstr ""
+
+msgctxt "#30200"
+msgid "MDBList"
+msgstr ""
+
+msgctxt "#30201"
+msgid "Sync with MDBList"
+msgstr ""
+
+msgctxt "#30202"
+msgid "MDBList API key"
+msgstr ""
+
+msgctxt "#30203"
+msgid "From mdblist.com > Preferences > API access."
+msgstr ""
+
+msgctxt "#30204"
+msgid "Scrobble playback"
+msgstr ""
+
+msgctxt "#30205"
+msgid "Report what you're watching as it plays (start, pause, stop)."
+msgstr ""
+
+msgctxt "#30206"
+msgid "Sync watched history every"
+msgstr ""
+
+msgctxt "#30207"
+msgid "{0:d} h"
+msgstr ""
+
+msgctxt "#30208"
+msgid "Watched items are also pushed straight after playback and when marked by hand."
+msgstr ""
+
+msgctxt "#30209"
+msgid "Test connection"
+msgstr ""
+
+msgctxt "#30210"
+msgid "Sync now"
+msgstr ""
+
+msgctxt "#30211"
+msgid "Couldn't update MDBList; it will be retried"
+msgstr ""
+
+msgctxt "#30212"
+msgid "Turn on MDBList and enter your API key first."
+msgstr ""
+
+msgctxt "#30213"
+msgid "MDBList rejected the API key."
+msgstr ""
+
+msgctxt "#30214"
+msgid "Couldn't reach MDBList."
+msgstr ""
+
+msgctxt "#30215"
+msgid "Connected to MDBList."
+msgstr ""
+
+msgctxt "#30216"
+msgid "MDBList: {pushed} sent, {added} new, {removed} removed"
+msgstr ""
+
+# Settings
+
+msgctxt "#30115"
+msgid "Addons"
+msgstr ""
+
+msgctxt "#30116"
+msgid "Add, remove, reorder, enable or disable your Stremio addons, and choose which of their catalogs are shown."
+msgstr ""
+
+msgctxt "#30100"
+msgid "Network"
+msgstr ""
+
+msgctxt "#30101"
+msgid "Request timeout"
+msgstr ""
+
+msgctxt "#30102"
+msgid "How long to wait for each Stremio addon to respond."
+msgstr ""
+
+msgctxt "#30103"
+msgid "{0:d} s"
+msgstr ""
+
+msgctxt "#30104"
+msgid "Refresh addon manifests daily"
+msgstr ""
+
+msgctxt "#30105"
+msgid "When the add-on opens, re-fetch manifests older than a day, so catalogs you add or remove in an addon's own settings show up."
+msgstr ""
+
+msgctxt "#30120"
+msgid "Cache"
+msgstr ""
+
+msgctxt "#30121"
+msgid "Catalog cache"
+msgstr ""
+
+msgctxt "#30122"
+msgid "Metadata cache"
+msgstr ""
+
+msgctxt "#30123"
+msgid "Clear cache"
+msgstr ""
+
+msgctxt "#30124"
+msgid "Cache cleared"
+msgstr ""
+
+msgctxt "#30125"
+msgid "How long addon responses are reused before asking again. 0 turns caching off. If an addon is down, the last response is used instead."
+msgstr ""
+
+msgctxt "#30126"
+msgid "{0:d} min"
+msgstr ""
+
+msgctxt "#30127"
+msgid "{0:d} h"
+msgstr ""
+
+msgctxt "#30177"
+msgid "Trying stream {number} of {total}"
+msgstr ""
+
+msgctxt "#30178"
+msgid "That stream didn't play – trying the next one…"
+msgstr ""
+
+msgctxt "#30179"
+msgid "None of the {count} streams could be played"
+msgstr ""
+
+msgctxt "#30140"
+msgid "Playback"
+msgstr ""
+
+msgctxt "#30141"
+msgid "Play the best stream automatically"
+msgstr ""
+
+msgctxt "#30142"
+msgid "Skip the stream list and play the first stream after sorting and filtering."
+msgstr ""
+
+msgctxt "#30143"
+msgid "Sort streams by"
+msgstr ""
+
+msgctxt "#30144"
+msgid "Quality"
+msgstr ""
+
+msgctxt "#30145"
+msgid "File size"
+msgstr ""
+
+msgctxt "#30146"
+msgid "Addon order"
+msgstr ""
+
+msgctxt "#30147"
+msgid "Maximum resolution"
+msgstr ""
+
+msgctxt "#30148"
+msgid "Any"
+msgstr ""
+
+msgctxt "#30149"
+msgid "4K"
+msgstr ""
+
+msgctxt "#30150"
+msgid "1080p"
+msgstr ""
+
+msgctxt "#30151"
+msgid "720p"
+msgstr ""
+
+msgctxt "#30152"
+msgid "Hide CAM / TS releases"
+msgstr ""
+
+msgctxt "#30153"
+msgid "Exclude keywords"
+msgstr ""
+
+msgctxt "#30154"
+msgid "Comma-separated words; streams whose name or description contains one are hidden (e.g. 3D, HC)."
+msgstr ""
+
+msgctxt "#30155"
+msgid "Torrent streams"
+msgstr ""
+
+msgctxt "#30156"
+msgid "Hide"
+msgstr ""
+
+msgctxt "#30157"
+msgid "Play with Elementum"
+msgstr ""
+
+msgctxt "#30158"
+msgid "Kodi can't play torrents itself. Debrid-configured addons return normal links and don't need this."
+msgstr ""
+
+msgctxt "#30160"
+msgid "Subtitles"
+msgstr ""
+
+msgctxt "#30161"
+msgid "Load subtitles from subtitle addons"
+msgstr ""
+
+msgctxt "#30162"
+msgid "Subtitle languages"
+msgstr ""
+
+msgctxt "#30163"
+msgid "Comma-separated three-letter codes in order of preference, e.g. eng,spa. Leave empty for all."
+msgstr ""
+
+msgctxt "#30130"
+msgid "Metadata"
+msgstr ""
+
+msgctxt "#30131"
+msgid "Show specials (season 0)"
+msgstr ""
+
+msgctxt "#30132"
+msgid "Hide unaired episodes"
+msgstr ""
+
+msgctxt "#30133"
+msgid "Fall back to Cinemeta"
+msgstr ""
+
+msgctxt "#30134"
+msgid "Use Cinemeta for IMDb movies and series when none of your addons has metadata for them."
+msgstr ""
+
+msgctxt "#30110"
+msgid "Advanced"
+msgstr ""
+
+msgctxt "#30111"
+msgid "Debug logging"
+msgstr ""
+
+msgctxt "#30112"
+msgid "Write detailed request information to the Kodi log."
+msgstr ""

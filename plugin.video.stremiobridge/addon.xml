@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.stremiobridge"
+       name="Stremio Bridge"
+       version="0.10.2"
+       provider-name="shiggsy365">
+    <requires>
+        <import addon="xbmc.python" version="3.0.1"/>
+        <import addon="script.module.requests" version="2.22.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.service" library="service.py"/>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Use Stremio addons in Kodi</summary>
+        <description lang="en_GB">Add any number of Stremio addon manifests and browse their catalogs, metadata, streams and subtitles from inside Kodi.</description>
+        <disclaimer lang="en_GB">This add-on provides no content. You are responsible for the Stremio addons you install and the content they provide.</disclaimer>
+        <platform>all</platform>
+        <license>GPL-3.0-or-later</license>
+        <source>https://github.com/shiggsy365/KodiStremioBridge</source>
+        <assets>
+            <icon>resources/icon.png</icon>
+            <fanart>resources/fanart.jpg</fanart>
+        </assets>
+        <news>v0.10.2 - Continue Watching shows descriptions, cast and details.
+v0.10.1 - Create, rename and remove hubs (Organise catalogs context menu); settings buttons open reliably.
+v0.10.0 - Hubs (Movies, TV Shows, Anime, More) with Genres; Organise catalogs; tidy names; poster tiles.
+v0.9.0 - Widgets folder, combined Continue Watching, time left, show progress, hide watched, pre-warming, open on next episode.
+v0.8.7 - Actor/director searches: AIOMetadata people search when enabled, otherwise Cinemeta added.
+v0.8.6 - Extended info: icon action tiles; one-line scrolling detail rows.
+v0.8.5 - Settings shortcut to show/hide Kodi's ".." entry.
+v0.8.4 - "Filter by Genre" and "Next Page" poster tiles.
+v0.8.3 - Optional genre filter when browsing catalogs (not on widgets).
+v0.8.2 - View chooser with previews; default view also on later pages.
+v0.8.1 - MDBList watchlist: add/remove from Kodi, Watchlist list, library follows it.
+v0.8.0 - My Library (Kodi library export, MDBList watchlist), stream fallback after errors, cross-device resume, search paging, widget reload, default views.
+v0.7.5 - Rename search catalogs.
+v0.7.4 - Manage addons moved to the add-on settings; Overall Rating without source count.
+v0.7.3 - Reverted the simplified context menu; search results rows scroll.</news>
+    </extension>
+</addon>
