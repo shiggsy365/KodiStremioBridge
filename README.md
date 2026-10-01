@@ -203,7 +203,7 @@ on its next repository check.
 - Front page: catalogs appear on the add-on's first screen unless they are search-only or
   say `showInHome: false` (Nuvio's rule); the user can override this per catalog. Type menus
   list every browsable catalog regardless.
-- Rotating catalogs: ids ending in a number (e.g. BingeCat's
+- Rotating catalogs: ids ending in a number (e.g. BingeCat'sKodiStremioBridge
   `aicat_because_watched_movie_seed_1435`) form a family. Links to them also carry
   `slot`/`of` (position and family size). If the exact id is gone, the catalog now in that
   slot is used, provided the family size is unchanged. A missing catalog, or an empty
@@ -249,3 +249,7 @@ on its next repository check.
 
 This add-on provides no content. You are responsible for the Stremio addons you install
 and the content they provide.
+
+**Support the ecosystem:**
+
+[<img src="https://github.com/shiggsy365/AIOStreamsKODI/blob/main/.github/support_me_on_kofi_red.png?raw=true">](https://ko-fi.com/shiggsy365)
