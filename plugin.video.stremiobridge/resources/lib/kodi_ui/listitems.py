@@ -37,9 +37,15 @@ def preview_items(plugin, previews, state, hide_watched=False):
 
 
 def playable_entry(plugin, item, type_, video_id, **params):
-    """``(url, item, is_folder)`` for something that plays when selected."""
-    item.setProperty("IsPlayable", "true")
+    """``(url, item, is_folder)`` for something that plays when selected or,
+    with "Selecting a movie or episode opens Extended info", opens that page."""
     add_context_menu(item, pick_streams_menu(plugin, type_, video_id, **params))
+    show_id = params.get("meta")
+    if ADDON.getSettingBool("select_opens_info") and (type_ == "movie" or (show_id and show_id != video_id)):
+        url = plugin.url_for("extended_info", type=type_, id=show_id or video_id,
+                             video=video_id if show_id else None)
+        return url, item, False
+    item.setProperty("IsPlayable", "true")
     return plugin.url_for("play", type=type_, id=video_id, **params), item, False
 
 
@@ -107,7 +113,8 @@ def item_menu(plugin, type_, id_, watched, watched_params=None, show_id=None, tr
         menu.append(watched_menu(plugin, True, type_, id_, **(watched_params or {})))
     if browse_show and show_id:
         menu.append((L(30064), f"ActivateWindow(Videos,{plugin.url_for('meta', type=type_, id=show_id)},return)"))
-    menu.append((L(30220), plugin.run_url("extended_info", type=type_, id=owner)))
+    episode = id_ if show_id and id_ != show_id else None  # an episode: its own page, within the show's
+    menu.append((L(30220), plugin.run_url("extended_info", type=type_, id=owner, video=episode)))
     from .library import library_menu  # library imports details, which imports this module
 
     menu += library_menu(plugin, type_, owner)
@@ -186,9 +193,6 @@ def preview_item(plugin, preview, row=None, started=False, progress=None):
     add_context_menu(item, item_menu(plugin, preview.type, preview.id, bool(row and row.watched),
                                        trailer=preview.trailer, partly_watched=started))
 
-    if preview.type == "movie" and ADDON.getSettingBool("select_opens_info"):
-        add_context_menu(item, pick_streams_menu(plugin, "movie", preview.id))
-        return plugin.url_for("extended_info", type="movie", id=preview.id), item, False
     if preview.type in PLAYABLE_TYPES:
         return playable_entry(plugin, item, preview.type, preview.id)
     return plugin.url_for("meta", type=preview.type, id=preview.id), item, True

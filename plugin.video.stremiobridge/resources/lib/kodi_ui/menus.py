@@ -94,17 +94,27 @@ OPENABLE = ("organise", "manage", "search_catalogs")  # folders opened from sett
 
 @route("open")
 def open_folder(plugin, target):
-    """Settings buttons open our folders through here: Kodi refuses
-    ActivateWindow while the settings dialog is still closing, so wait for
-    it (and any other modal dialog) to go first."""
+    """Settings buttons open our folders through here. Kodi refuses
+    ActivateWindow while a dialog is open: the settings dialog while it
+    closes, and, when the settings were opened from Add-ons, the add-on's
+    information dialog underneath it. Wait for the first, then close the rest."""
     if target not in OPENABLE:
         return
     monitor = xbmc.Monitor()
-    for _ in range(50):  # up to 5 s
-        if not xbmc.getCondVisibility("System.HasActiveModalDialog") or monitor.abortRequested():
-            break
-        monitor.waitForAbort(0.1)
+    if not _wait_for_dialogs(monitor, 2.0):
+        xbmc.executebuiltin("Dialog.Close(all,true)")
+        _wait_for_dialogs(monitor, 3.0)
     xbmc.executebuiltin(f"ActivateWindow(Videos,{plugin.url_for(target)},return)")
+
+
+def _wait_for_dialogs(monitor, seconds):
+    """True once no modal dialog is open (False if one still is after `seconds`)."""
+    for _ in range(int(seconds * 10)):
+        if not xbmc.getCondVisibility("System.HasActiveModalDialog"):
+            return True
+        if monitor.waitForAbort(0.1):
+            return False
+    return not xbmc.getCondVisibility("System.HasActiveModalDialog")
 
 
 KODI_PARENT_ITEMS = "filelists.showparentdiritems"

@@ -23,6 +23,7 @@ from .common import (
 )
 from .details import load_meta
 from .listitems import playback_item
+from .streamwindow import choose_stream
 from .router import route
 
 INPUTSTREAM = "inputstream.adaptive"
@@ -115,7 +116,7 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
             if cancelled:
                 return cancel()
         if stream is None:
-            stream = _choose(candidates, addons)
+            stream = choose_stream(candidates, load_meta(type, meta or id, quiet=True), id)
     if stream is None:
         return cancel()
 
@@ -228,20 +229,6 @@ def _fetch_with_progress(client, addons, type_, id_):
     return run_with_progress(
         L(30170), 30171, lambda progress: fetch_streams(client, addons, type_, id_, progress)
     )
-
-
-def _choose(candidates, addons):
-    items = []
-    for stream in candidates:
-        headline, details = describe(stream)
-        label = f"[B]{headline or stream.name or stream.kind}[/B]  [COLOR grey]{stream.addon}[/COLOR]"
-        item = xbmcgui.ListItem(label, label2=details)
-        logo = addons[stream.addon_index].manifest.logo
-        if logo:
-            item.setArt({"icon": logo, "thumb": logo})
-        items.append(item)
-    index = xbmcgui.Dialog().select(L(30174), items, useDetails=True)
-    return candidates[index] if index >= 0 else None
 
 
 def _use_inputstream(item, stream):

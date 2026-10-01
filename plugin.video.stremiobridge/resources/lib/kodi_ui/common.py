@@ -189,12 +189,23 @@ def run_with_progress(message, step_string_id, work):
 CONTEXT_MENU_COLOUR = "FFFF8080"  # light red: marks this add-on's entries among Kodi's own
 
 
+_MENU_PROPERTY = "stremiobridge.menu"
+
+
 def add_context_menu(item, entries):
-    """``item.addContextMenuItems`` with our labels coloured."""
+    """Add our entries (labels coloured) to an item's context menu. Kodi's
+    addContextMenuItems writes its entries from the first slot on, so a second
+    call would overwrite the first; the item keeps everything added so far
+    and each call writes the whole menu again."""
     if not entries:
         return
-    item.addContextMenuItems(
-        [(f"[COLOR {CONTEXT_MENU_COLOUR}]{label}[/COLOR]", command) for label, command in entries])
+    try:
+        menu = json.loads(item.getProperty(_MENU_PROPERTY) or "[]")
+    except ValueError:
+        menu = []
+    menu += [[f"[COLOR {CONTEXT_MENU_COLOUR}]{label}[/COLOR]", command] for label, command in entries]
+    item.setProperty(_MENU_PROPERTY, json.dumps(menu))
+    item.addContextMenuItems([tuple(entry) for entry in menu])
 
 
 WIDGETS_RELOAD = f"{ADDON_ID}.widgets.reload"

@@ -26,8 +26,9 @@ Needs **Kodi 21 Omega or later**.
 - **Extended info.** An info page of its own with clickable cast and director (to search for
   their other work), Play/Resume, Trailer, Similar titles, an Overall Rating, Mark watched, and
   Add to library or watchlist.
-- **Streams your way.** Everything your stream addons find, fetched in parallel, labelled with
-  quality, HDR, codec and size, and sorted. You can also turn on autoplay: it checks streams in
+- **Streams your way.** Everything your stream addons find, fetched in parallel and sorted, on a
+  stream page of cards with badges (resolution, release, Dolby Vision/HDR, audio, channels,
+  streaming service, cached) and filters by addon, resolution and cached. You can also turn on autoplay: it checks streams in
   order ("Trying stream 3 of 25") until one works, and if a stream fails after it starts it
   moves on to the next.
 - **Search.** One search across every search catalog, with a row of results per catalog. Choose
@@ -132,6 +133,17 @@ removes all cached artwork) in its settings, which also have a *Tidy up now* but
 Your addons and settings are stored in `special://profile/addon_data/plugin.video.stremiobridge/`.
 Configured addon URLs often contain account tokens, so the add-on never writes them, or stream
 links, to Kodi's log.
+
+### Stream badges
+
+The stream page's badge artwork comes from a Nuvio badge configuration shared by saif1233, with
+images from [BetterFormatter](https://github.com/9mousaa/BetterFormatter) and
+[Omni-Template-Bot-Bid-Raiser](https://github.com/nobnobz/Omni-Template-Bot-Bid-Raiser); see
+`tools/badges/nuvio/SOURCES.md`. Dolby, DTS and IMAX logos belong to their owners.
+
+AIOStreams users can make the badges exact with a custom formatter description that writes one
+`key: value` per line (`res`, `src`, `vis`, `aud`, `ch`, `size`, `br`, `svc`, `cached`, `type`,
+`prov`, `grp`, `lang`, `net`); see `stremio/streaminfo.py`.
 
 ## For developers
 

@@ -533,6 +533,42 @@ msgctxt "#30366"
 msgid "Streams"
 msgstr ""
 
+msgctxt "#30367"
+msgid "{count} streams"
+msgstr ""
+
+msgctxt "#30368"
+msgid "No streams match this filter"
+msgstr ""
+
+msgctxt "#30369"
+msgid "All"
+msgstr ""
+
+msgctxt "#30370"
+msgid "Cached"
+msgstr ""
+
+msgctxt "#30371"
+msgid "Quality"
+msgstr ""
+
+msgctxt "#30372"
+msgid "Audio"
+msgstr ""
+
+msgctxt "#30373"
+msgid "Size"
+msgstr ""
+
+msgctxt "#30374"
+msgid "Source"
+msgstr ""
+
+msgctxt "#30375"
+msgid "Lang"
+msgstr ""
+
 # Usability
 
 msgctxt "#30320"
@@ -548,11 +584,11 @@ msgid "Widgets"
 msgstr ""
 
 msgctxt "#30323"
-msgid "Selecting a movie opens Extended info"
+msgid "Selecting a movie or episode opens Extended info"
 msgstr ""
 
 msgctxt "#30324"
-msgid "Show the details page (cast, ratings, trailer) first; play from its Play button. Off: selecting a movie plays it."
+msgid "Show the details page (cast, ratings, trailer) first, and play from its Play or Streams button. Off: selecting a movie or episode plays it."
 msgstr ""
 
 msgctxt "#30325"

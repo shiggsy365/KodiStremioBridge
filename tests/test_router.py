@@ -299,7 +299,7 @@ def test_context_menus(server, listing, settings, monkeypatch):
     browse = [cmd for _, cmd in menus[0] if "action=meta" in cmd]
     assert browse == [f"ActivateWindow(Videos,{BASE}?action=meta&type=series&id=tt5,return)"]
     info = [cmd for _, cmd in menus[0] if "action=extended_info" in cmd]
-    assert info == [f"RunPlugin({BASE}?action=extended_info&type=series&id=tt5)"]  # the show's page
+    assert info == [f"RunPlugin({BASE}?action=extended_info&type=series&id=tt5&video=tt5%3A2%3A1)"]  # the episode's page
 
 
 def test_search_falls_back_to_cinemeta(server, listing, settings, monkeypatch):
@@ -383,6 +383,12 @@ def playback(server, monkeypatch, tmp_path):
         return state["choice"]
 
     monkeypatch.setattr(xbmcgui.Dialog, "select", select)
+
+    def choose(candidates, meta=None, video_id=None):  # the stream picker window
+        state["picker"].append(candidates)
+        return candidates[state["choice"]] if state["choice"] >= 0 else None
+
+    monkeypatch.setattr(player, "choose_stream", choose)
     monkeypatch.setattr(xbmcgui.Dialog, "notification", lambda self, h, msg, *a: state["notes"].append(msg))
     monkeypatch.setattr(player.xbmc, "getCondVisibility",
                         lambda cond: cond[len("System.HasAddon("):-1] in state["installed"])
@@ -2180,3 +2186,146 @@ def test_show_playable_streams_with_autoplay(server, playback, settings, monkeyp
     asked.clear()
     call("play", type="movie", id="tt1", pick=1, resume=0)
     assert asked == [] and len(playback["picker"]) == 2
+
+
+@pytest.fixture
+def kodi_menus(monkeypatch):
+    """ListItem properties and context menus as Kodi keeps them: each
+    addContextMenuItems call writes its entries from slot 0 on."""
+    def set_property(self, key, value):
+        self.__dict__.setdefault("props", {})[key] = value
+
+    def add_menu(self, entries):
+        slots = self.__dict__.setdefault("slots", [])
+        for index, entry in enumerate(entries):
+            slots[index:index + 1] = [entry]
+
+    items = []
+    original_init = xbmcgui.ListItem.__init__
+
+    def init(self, *args, **kwargs):
+        original_init(self, *args, **kwargs)
+        items.append(self)
+
+    monkeypatch.setattr(xbmcgui.ListItem, "__init__", init)
+    monkeypatch.setattr(xbmcgui.ListItem, "setProperty", set_property)
+    monkeypatch.setattr(xbmcgui.ListItem, "getProperty", lambda self, key: self.__dict__.get("props", {}).get(key, ""))
+    monkeypatch.setattr(xbmcgui.ListItem, "addContextMenuItems", add_menu)
+    return items
+
+
+def test_menus_built_in_steps_keep_every_entry(server, listing, settings, kodi_menus):
+    """Continue Watching's next episodes get their menu in three steps; none may overwrite another."""
+    install(server)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    settings.update(continue_with_next_up=True, autoplay=True)
+    state = common.get_watchstate()
+    state.set_watched([PlaybackEntry(video_id="tt5:1:1", type="series", meta_id="tt5", season=1, episode=1)], True)
+    state.set_watched([PlaybackEntry(video_id="tt5:1:2", type="series", meta_id="tt5", season=1, episode=2)], True)
+    state.record(PlaybackEntry(video_id="tt1", type="movie", title="Movie"), 600, 6000)
+    call("continue")
+    menus = [[cmd for _, cmd in item.__dict__.get("slots", [])] for item in kodi_menus]
+    next_episode = next(m for m in menus if any("dismiss_show" in c for c in m))
+    assert any("action=set_watched" in c for c in next_episode)
+    assert any("pick=1" in c for c in next_episode)
+    resumed = next(m for m in menus if any("clear_resume" in c for c in m))
+    assert any("pick=1" in c for c in resumed)
+
+
+def test_extended_info_for_an_episode(server, settings, info_dialog, monkeypatch):
+    install(server)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    settings["autoplay"] = True
+    builtins = info_dialog["builtins"]
+    info_dialog["script"] = ["play"]
+    call("extended_info", handle=-1, type="series", id="tt5", video="tt5:2:1")
+    dialog = info_dialog["dialog"]
+    assert dialog.playable and dialog._actions[:2] == ["play", "streams"]
+    assert "Three" in info_dialog["props"]["title"]
+    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=series&id=tt5%3A2%3A1&meta=tt5)"
+    info_dialog["script"] = ["streams"]
+    call("extended_info", handle=-1, type="series", id="tt5", video="tt5:2:1")
+    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=series&id=tt5%3A2%3A1&meta=tt5&pick=1)"
+
+
+def test_select_opens_extended_info_for_episodes(server, listing, settings):
+    install(server)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    settings["select_opens_info"] = True
+    items, _ = listing
+    call("season", type="series", id="tt5", season=2)
+    assert items[0] == ({"action": "extended_info", "type": "series", "id": "tt5", "video": "tt5:2:1"}, False)
+    settings["select_opens_info"] = False
+    items.clear()
+    call("season", type="series", id="tt5", season=2)
+    assert items[0][0]["action"] == "play"
+
+
+def test_stream_window_cards_chips_and_choice(monkeypatch, kodi_menus, tmp_path):
+    """The stream picker headless: cards carry text lines and a badge strip;
+    chips filter; selecting a card returns that stream."""
+    from kodi_ui import streamwindow
+    from stremio.streams import Stream
+    from test_streaminfo import AIO_4K, AIO_USENET, TORRENT
+
+    class Cards(FakeList):
+        def reset(self):
+            self.items = []
+
+    controls = {}
+    monkeypatch.setattr(streamwindow.StreamWindow, "getControl", lambda self, cid: controls.setdefault(cid, Cards()))
+    monkeypatch.setattr(streamwindow.StreamWindow, "setProperty", lambda self, k, v: None)
+    monkeypatch.setattr(streamwindow.StreamWindow, "setFocusId", lambda self, cid: None)
+    monkeypatch.setattr(streamwindow.StreamWindow, "close", lambda self: None)
+    monkeypatch.setattr(streamwindow.xbmcvfs, "translatePath", lambda path: str(tmp_path))
+    monkeypatch.setattr(streamwindow.ADDON, "getAddonInfo",
+                        lambda key: os.path.join(os.path.dirname(__file__), "..", "plugin.video.stremiobridge"))
+    script = []
+
+    def do_modal(self):
+        self.onInit()
+        for control_id, position in script:
+            controls[control_id].selected = position
+            self.onClick(control_id)
+
+    monkeypatch.setattr(streamwindow.StreamWindow, "doModal", do_modal)
+    monkeypatch.setattr(streamwindow, "L", lambda string_id, **kw: f"#{string_id}")
+    original_init = xbmcgui.ListItem.__init__
+
+    def init(self, label="", *args, **kwargs):
+        original_init(self, label, *args, **kwargs)
+        self.__dict__["label"] = label
+
+    monkeypatch.setattr(xbmcgui.ListItem, "__init__", init)
+    monkeypatch.setattr(xbmcgui.ListItem, "getLabel", lambda self: self.__dict__.get("label", ""))
+    monkeypatch.setattr(xbmcgui.ListItem, "setArt", lambda self, art: self.__dict__.setdefault("art", {}).update(art))
+    monkeypatch.setattr(xbmcgui.ListItem, "getArt", lambda self, key: self.__dict__.get("art", {}).get(key, ""))
+    streams = [Stream.from_dict(AIO_4K, "AIOStreams"), Stream.from_dict(AIO_USENET, "AIOStreams"),
+               Stream.from_dict(TORRENT, "Torrentio")]
+
+    script[:] = [(streamwindow.CARDS, 1)]
+    assert streamwindow.choose_stream(streams) is streams[1]
+    chips = [item.getLabel() for item in controls[streamwindow.CHIPS].items]
+    assert chips == ["#30369  3", "AIOStreams  2", "Torrentio  1", "4K  1", "1080p  1", "#30370  2"]
+    card = controls[streamwindow.CARDS].items[0]
+    assert "AIOStreams" in card.getLabel() and "[TB+]" in card.getLabel()
+    assert "WEB-DL" in card.getProperty("line1") and "Atmos" in card.getProperty("line2")
+    assert card.getArt("badges").endswith(".png")
+
+    controls.clear()
+    script[:] = [(streamwindow.CHIPS, 2), (streamwindow.CARDS, 0)]  # "Torrentio" chip, then its only card
+    assert streamwindow.choose_stream(streams) is streams[2]
+    controls.clear()
+    script[:] = []                                                  # backed out
+    assert streamwindow.choose_stream(streams) is None
+
+
+def test_settings_buttons_close_the_addon_info_dialog_left_underneath(monkeypatch):
+    """Settings opened from Add-ons: the add-on's info dialog stays open after
+    the settings close, so it's closed before the folder opens."""
+    ran = []
+    monkeypatch.setattr(xbmc, "getCondVisibility", lambda cond: not any("Dialog.Close" in c for c in ran))
+    monkeypatch.setattr(xbmc.Monitor, "waitForAbort", lambda self, timeout=0: False)
+    monkeypatch.setattr(xbmc, "executebuiltin", ran.append)
+    call("open", handle=-1, target="manage")
+    assert ran == ["Dialog.Close(all,true)", f"ActivateWindow(Videos,{BASE}?action=manage,return)"]

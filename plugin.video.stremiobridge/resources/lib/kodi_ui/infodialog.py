@@ -46,6 +46,7 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
     ("search", name); `toggle_watched` is called for the watched button."""
 
     meta = None
+    episode = None  # a Video of `meta`: the page is about that episode
     playable = True
     watched = False
     resume_at = 0.0
@@ -60,12 +61,17 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
     watched_changed = False
 
     def onInit(self):
-        meta = self.meta
+        meta, episode = self.meta, self.episode
         year = f" [COLOR FF999999]({meta.year})[/COLOR]" if meta.year else ""
-        self.setProperty("title", f"{meta.name}{year}")
+        if episode is not None:
+            number = f"{episode.season}x{episode.episode:02d}. " if episode.season is not None else ""
+            title = episode.title or L(30065, episode=episode.episode)
+            self.setProperty("title", f"{meta.name}  [COLOR FF999999]{number}{title}[/COLOR]")
+        else:
+            self.setProperty("title", f"{meta.name}{year}")
         self.setProperty("poster", meta.poster)
-        self.setProperty("fanart", meta.background)
-        self.setProperty("plot", meta.description)
+        self.setProperty("fanart", (episode.thumbnail if episode else "") or meta.background)
+        self.setProperty("plot", (episode.overview if episode else "") or meta.description)
         details = self._details()
         for index in range(DETAIL_ROWS):
             self.setProperty(f"detail{index + 1}", details[index] if index < len(details) else "")
@@ -135,7 +141,7 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
             line(L(30231), meta.genres),
             line(L(30232), [meta.type.replace(".", " ").replace("_", " ").title()]),
             line(L(30239), [f"{round(self.overall[0])}/100"] if self.overall else []),
-            line(L(30235), [meta.premiered or meta.release_info]),
+            line(L(30235), [(self.episode.air_date if self.episode else "") or meta.premiered or meta.release_info]),
             line(L(30238), [meta.country]),
         ]
         return [l for l in lines if l][:DETAIL_ROWS]
@@ -195,18 +201,21 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
 
 
 @route("extended_info")
-def extended_info(plugin, type, id):
-    """`id` is the movie or show (episodes open their show's page). Returns
+def extended_info(plugin, type, id, video=None):
+    """`id` is the movie or show; `video` an episode of the show, which the
+    page is then about (Play, Streams and Mark watched act on it). Returns
     True if the user went somewhere from the dialog (played, searched, ...)."""
     meta = load_meta(type, id)
     if meta is None:
         return False
     state = get_watchstate()
-    playable = type in PLAYABLE_TYPES or not meta.videos
-    video_id = meta.default_video_id or meta.id
+    episode = next((v for v in meta.videos if v.id == video), None) if video else None
+    playable = episode is not None or type in PLAYABLE_TYPES or not meta.videos
+    video_id = episode.id if episode else meta.default_video_id or meta.id
 
     dialog = InfoDialog(XML, ADDON.getAddonInfo("path"), "Default", "1080i")
     dialog.meta = meta
+    dialog.episode = episode
     dialog.playable = playable
     mdblist = get_mdblist()
     dialog.can_similar = mdblist is not None
