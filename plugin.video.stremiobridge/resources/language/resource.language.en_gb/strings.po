@@ -521,6 +521,18 @@ msgctxt "#30363"
 msgid "Remove \"{name}\"? Its {count} catalogs go back to their usual hubs."
 msgstr ""
 
+msgctxt "#30364"
+msgid "Remove from Next Up"
+msgstr ""
+
+msgctxt "#30365"
+msgid "Show Playable Streams"
+msgstr ""
+
+msgctxt "#30366"
+msgid "Streams"
+msgstr ""
+
 # Usability
 
 msgctxt "#30320"

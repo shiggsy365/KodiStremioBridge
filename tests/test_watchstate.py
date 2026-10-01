@@ -115,3 +115,39 @@ def test_next_episode():
     assert next_episode(meta, {(1, 2)}, today).id == "tt5:2:1"              # furthest watched counts
     assert next_episode(meta, {(1, 1), (0, 1), (2, 1)}, today) is None      # next one hasn't aired
     assert next_episode(meta, {(1, 1), (2, 1)}, today) is None              # skipped 1x02 isn't "next"
+
+
+def test_removing_an_episode_dismisses_its_show_until_new_activity(state, clock):
+    state.set_watched([ep(1, 1)], True)
+    clock.now += 10
+    state.record(ep(1, 2), 600, 3000)                       # 1x02 part-watched
+    assert [r.video_id for r in state.continue_watching()] == ["tt5:1:2"]
+    assert state.recent_shows() == [("tt5", "series")]
+
+    clock.now += 10
+    state.clear_resume("tt5:1:2")                           # "Remove from Continue Watching"
+    assert state.continue_watching() == [] and state.recent_shows() == []
+
+    # An older resume point from another device (MDBList) doesn't bring it back...
+    assert state.merge_resume([(ep(1, 2), 900, 3000, clock.now - 5)]) == 0
+    assert state.continue_watching() == [] and state.recent_shows() == []
+    # ...but watching or starting something newer in the show does.
+    clock.now += 10
+    state.record(ep(1, 2), 700, 3000)
+    assert state.recent_shows() == [("tt5", "series")]
+
+    # Next Up's own "Remove from Next Up", and new activity elsewhere, the same way.
+    clock.now += 10
+    state.dismiss_show("tt5")
+    assert state.recent_shows() == []
+    clock.now += 10
+    state.merge_remote([(ep(1, 2), clock.now)], full=False)  # watched on another device
+    assert state.recent_shows() == [("tt5", "series")]
+
+
+def test_removing_a_movie_dismisses_nothing(state, clock):
+    state.set_watched([ep(1, 1)], True)
+    clock.now += 10
+    state.record(MOVIE, 600, 6000)
+    state.clear_resume("tt1")
+    assert state.continue_watching() == [] and state.recent_shows() == [("tt5", "series")]

@@ -109,6 +109,8 @@ class WatchState:
         self._db.execute("PRAGMA journal_mode=WAL")
         self._db.execute(f"CREATE TABLE IF NOT EXISTS progress ({', '.join(f'{n} {t}' for n, t in _COLUMNS)})")
         self._db.execute("CREATE INDEX IF NOT EXISTS progress_meta ON progress (meta_id)")
+        # Shows the user removed from Next Up / Continue Watching, until there's newer activity.
+        self._db.execute("CREATE TABLE IF NOT EXISTS dismissed (meta_id TEXT PRIMARY KEY, dismissed_at REAL)")
 
     # ------------------------------------------------------------ reading
 
@@ -148,12 +150,16 @@ class WatchState:
 
     def recent_shows(self, limit=50, with_time=False):
         """``(show_id, type)`` for shows with watched episodes, most recently
-        active first; with `with_time`, ``(show_id, type, last_activity)``."""
+        active first; with `with_time`, ``(show_id, type, last_activity)``.
+        Shows dismissed since their last activity are left out."""
         with self._lock:
             cursor = self._db.execute(
-                "SELECT meta_id, MAX(type), MAX(MAX(updated_at), MAX(watched_at)) AS active FROM progress "
-                "WHERE season IS NOT NULL AND watched = 1 AND meta_id != '' "
-                "GROUP BY meta_id ORDER BY active DESC LIMIT ?", (limit,))
+                "SELECT p.meta_id, p.type, p.active FROM ("
+                "  SELECT meta_id, MAX(type) AS type, MAX(MAX(updated_at), MAX(watched_at)) AS active FROM progress"
+                "  WHERE season IS NOT NULL AND meta_id != '' GROUP BY meta_id"
+                "  HAVING SUM(watched) > 0"
+                ") p LEFT JOIN dismissed d ON d.meta_id = p.meta_id "
+                "WHERE p.active > COALESCE(d.dismissed_at, 0) ORDER BY p.active DESC LIMIT ?", (limit,))
             rows = cursor.fetchall()
         if with_time:
             return [(meta_id, type_ or "series", active or 0.0) for meta_id, type_, active in rows]
@@ -240,8 +246,22 @@ class WatchState:
                 self._upsert(row)
 
     def clear_resume(self, video_id):
+        """Remove from Continue Watching. The time is recorded, so an older
+        resume point from another device doesn't bring it back, and an
+        episode's show is dismissed from Next Up too."""
+        now = self._clock()
         with self._lock:
-            self._db.execute("UPDATE progress SET position = 0 WHERE video_id = ?", (video_id,))
+            self._db.execute("UPDATE progress SET position = 0, updated_at = ? WHERE video_id = ?", (now, video_id))
+            row = self._db.execute("SELECT meta_id, season FROM progress WHERE video_id = ?", (video_id,)).fetchone()
+        if row and row[0] and row[1] is not None:
+            self.dismiss_show(row[0], now)
+
+    def dismiss_show(self, meta_id, when=None):
+        """Hide a show from Next Up until something newer happens in it
+        (an episode watched or started, here or synced from elsewhere)."""
+        with self._lock:
+            self._db.execute("INSERT OR REPLACE INTO dismissed (meta_id, dismissed_at) VALUES (?, ?)",
+                             (meta_id, self._clock() if when is None else when))
 
     def mark_synced(self, video_ids):
         with self._lock:
@@ -301,6 +321,7 @@ class WatchState:
     def clear(self):
         with self._lock:
             self._db.execute("DELETE FROM progress")
+            self._db.execute("DELETE FROM dismissed")
 
     def close(self):
         self._db.close()

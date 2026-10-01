@@ -51,6 +51,13 @@ def seasons(d):
             d.rounded_rectangle(box, radius=px(9), fill=WHITE)
 
 
+def streams(d):
+    # A list of sources with a play button: choose a stream yourself.
+    for y in (26, 56, 86):
+        d.rounded_rectangle([px(14), px(y), px(70), px(y + 14)], radius=px(7), fill=WHITE)
+    d.polygon([(px(82), px(38)), (px(118), px(63)), (px(82), px(88))], fill=WHITE)
+
+
 def trailer(d):
     d.rounded_rectangle([px(16), px(28), px(112), px(100)], radius=px(10), outline=WHITE, width=LINE)
     for y in (38, 58, 78):
@@ -122,7 +129,7 @@ def watchlist_remove(d):
 
 
 ICONS = {
-    "play": play, "seasons": seasons, "trailer": trailer, "director": director,
+    "play": play, "streams": streams, "seasons": seasons, "trailer": trailer, "director": director,
     "watched": watched, "unwatched": unwatched, "similar": similar,
     "library_add": library_add, "library_remove": library_remove,
     "watchlist_add": watchlist_add, "watchlist_remove": watchlist_remove,

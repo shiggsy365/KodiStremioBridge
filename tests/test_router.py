@@ -1013,6 +1013,19 @@ def test_extended_info_actions(server, settings, info_dialog, monkeypatch):
     call("extended_info", handle=-1, type="series", id="tt5")
     assert builtins[-1] == f"ActivateWindow(Videos,{BASE}?action=meta&type=series&id=tt5,return)"
 
+    # With autoplay, a Streams tile next to Play shows the stream list; "Play from
+    # beginning" is passed on, so the play route doesn't ask again.
+    assert "streams" not in info_dialog["dialog"]._actions
+    settings["autoplay"] = True
+    monkeypatch.setattr(xbmcgui.Dialog, "contextmenu", lambda self, items: 1)   # "Play from beginning"
+    info_dialog["script"] = ["streams"]
+    call("extended_info", handle=-1, type="movie", id="tt1")
+    assert info_dialog["dialog"]._actions[:2] == ["play", "streams"]
+    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=movie&id=tt1&resume=0&pick=1)"
+    info_dialog["script"] = ["play"]                         # shows have no Streams tile
+    call("extended_info", handle=-1, type="series", id="tt5")
+    assert "streams" not in info_dialog["dialog"]._actions
+
 
 @pytest.fixture
 def kodi_ui_state(monkeypatch):
@@ -2098,3 +2111,72 @@ def test_continue_watching_has_descriptions(server, listing, settings, monkeypat
     # Newest first; an episode without its own overview gets the show's description.
     assert plots == ["The show.", "Episode one plot.", "A movie plot."]
     assert arts[-1]["clearlogo"] == "http://logo"
+
+
+def test_removed_episode_does_not_come_back_as_next_up(server, listing, settings, monkeypatch):
+    """Ted Lasso: with next episodes in Continue Watching, removing the part-watched
+    episode used to leave the show there as its Next Up entry."""
+    install(server)
+    server.routes["/meta/series/tt5.json"] = {"meta": {"id": "tt5", "type": "series", "name": "Show", "videos": [
+        {"id": "tt5:1:1", "season": 1, "episode": 1, "title": "One"},
+        {"id": "tt5:1:2", "season": 1, "episode": 2, "title": "Two"},
+        {"id": "tt5:1:3", "season": 1, "episode": 3, "title": "Three"}]}}
+    settings["continue_with_next_up"] = True
+    state = common.get_watchstate()
+    state.set_watched([PlaybackEntry(video_id="tt5:1:1", type="series", meta_id="tt5", season=1, episode=1)], True)
+    state.record(PlaybackEntry(video_id="tt5:1:2", type="series", meta_id="tt5", season=1, episode=2), 600, 3000)
+    items, _ = listing
+    call("continue")
+    assert [p["id"] for p, _ in items] == ["tt5:1:2"]
+
+    call("clear_resume", handle=-1, id="tt5:1:2")
+    items.clear()
+    call("continue")
+    assert items == []
+    call("next_up")
+    assert items == []
+
+    # Watching on brings it back; Next Up entries can be removed on their own too.
+    state.set_watched([PlaybackEntry(video_id="tt5:1:2", type="series", meta_id="tt5", season=1, episode=2)], True)
+    call("next_up")
+    assert [p["id"] for p, _ in items] == ["tt5:1:3"]
+    call("dismiss_show", handle=-1, id="tt5")
+    items.clear()
+    call("next_up")
+    call("continue")
+    assert items == []
+
+
+def test_show_playable_streams_with_autoplay(server, playback, settings, monkeypatch, listing):
+    menus = []
+    monkeypatch.setattr(xbmcgui.ListItem, "addContextMenuItems", lambda self, entries: menus.extend(entries))
+    server.routes["/catalog/movie/top.json"] = {"metas": [{"id": "tt1", "type": "movie", "name": "M"}]}
+    addon = common.get_registry().all()[0]
+    call("catalog", addon=addon.key, type="movie", id="top")
+    assert not any("pick=1" in cmd for _, cmd in menus)              # autoplay off: the picker shows anyway
+
+    settings["autoplay"] = True
+    menus.clear()
+    call("catalog", addon=addon.key, type="movie", id="top")
+    picks = [cmd for _, cmd in menus if "pick=1" in cmd]
+    assert picks == [f"PlayMedia({BASE}?action=play&type=movie&id=tt1&pick=1)"]
+
+    server.routes["/s/stream/movie/tt1.json"] = streams(
+        {"url": "https://cdn/720.mkv", "name": "720p"}, {"url": "https://cdn/1080.mkv", "name": "1080p"})
+    playback["choice"] = 1
+    call("play", type="movie", id="tt1", pick=1)                     # autoplay on, but we choose
+    assert len(playback["picker"]) == 1 and playback["probed"] == []
+    assert resolved_path(playback)[1] == "https://cdn/720.mkv"
+
+    # Part-watched: asks "Resume from…" first (Kodi doesn't for context-menu playback).
+    common.get_watchstate().record(PlaybackEntry(video_id="tt1", type="movie"), 600, 6000)
+    asked = []
+    monkeypatch.setattr(xbmcgui.Dialog, "contextmenu", lambda self, options: asked.append(options) or -1)
+    playback["resolved"].clear()
+    call("play", type="movie", id="tt1", pick=1)                     # backed out
+    assert len(asked) == 1 and len(asked[0]) == 2                  # Resume from 10:00 / from beginning
+    assert [ok for ok, _ in playback["resolved"]] == [False] and len(playback["picker"]) == 1
+    # Already asked by Extended info (resume=0: from the beginning): no second question.
+    asked.clear()
+    call("play", type="movie", id="tt1", pick=1, resume=0)
+    assert asked == [] and len(playback["picker"]) == 2

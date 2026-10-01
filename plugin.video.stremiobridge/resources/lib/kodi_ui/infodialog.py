@@ -25,8 +25,8 @@ from .watching import mark_watched
 
 XML = "stremiobridge-info.xml"
 CAST_LIST, ACTIONS = 50, 9000
-PLAY, TRAILER, SAME_DIRECTOR, WATCHED, SIMILAR, LIBRARY, WATCHLIST = (
-    "play", "trailer", "director", "watched", "similar", "library", "watchlist")
+PLAY, STREAMS, TRAILER, SAME_DIRECTOR, WATCHED, SIMILAR, LIBRARY, WATCHLIST = (
+    "play", "streams", "trailer", "director", "watched", "similar", "library", "watchlist")
 ACCENT = "FF12A0C7"
 DETAIL_ROWS = 8  # one-line rows in the details box (see the skin XML)
 
@@ -82,6 +82,8 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
 
         # Icon tiles for the actions that apply to this title.
         available = [PLAY]
+        # With autoplay, Play picks a stream itself; Streams lets you choose.
+        available += [STREAMS] if self.playable and ADDON.getSettingBool("autoplay") else []
         available += [TRAILER] if meta.trailer else []
         available += [SAME_DIRECTOR] if meta.director else []
         available += [WATCHED]
@@ -107,7 +109,7 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
             return (L(30267), "library_remove") if self.in_library else (L(30266), "library_add")
         if action == WATCHLIST:
             return (L(30302), "watchlist_remove") if self.on_watchlist else (L(30301), "watchlist_add")
-        return {TRAILER: (L(30223), "trailer"), SAME_DIRECTOR: (L(30224), "director"),
+        return {STREAMS: (L(30366), "streams"), TRAILER: (L(30223), "trailer"), SAME_DIRECTOR: (L(30224), "director"),
                 SIMILAR: (L(30226), "similar")}[action]
 
     def _style(self, item, action):
@@ -166,6 +168,8 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
     def _run(self, action):
         if action == PLAY:
             self._choose(("play",))
+        elif action == STREAMS:
+            self._choose(("streams",))
         elif action == TRAILER:
             self._choose(("trailer",))
         elif action == SAME_DIRECTOR:
@@ -247,8 +251,9 @@ def extended_info(plugin, type, id):
         play_trailer(plugin, type, meta.id, yt=meta.trailer)
     elif action == "play" and not playable:
         open_folder(plugin.url_for("meta", type=type, id=meta.id))
-    elif action == "play":
-        return play_with_resume_choice(plugin, type, video_id, meta.id if video_id != meta.id else None)
+    elif action in ("play", "streams"):
+        return play_with_resume_choice(plugin, type, video_id, meta.id if video_id != meta.id else None,
+                                       pick=action == "streams")
     return True
 
 
@@ -260,17 +265,18 @@ def _toggle_library(plugin, type_, id_, add):
     return in_library(type_, id_) == add
 
 
-def play_with_resume_choice(plugin, type_, video_id, meta_id=None):
+def play_with_resume_choice(plugin, type_, video_id, meta_id=None, pick=False):
     """Start playback, asking "Resume from…" first if there's a resume point.
-    False if the user cancelled that question."""
+    With `pick`, the stream list is shown even with autoplay on. False if the
+    user cancelled that question."""
     resume = None
     row = get_watchstate().get(video_id)
     if row and row.position > 0:
-        pick = xbmcgui.Dialog().contextmenu([L(30227, time=clock_text(row.position)), L(30228)])
-        if pick < 0:
+        choice = xbmcgui.Dialog().contextmenu([L(30227, time=clock_text(row.position)), L(30228)])
+        if choice < 0:
             return False
-        resume = "1" if pick == 0 else None
-    url = plugin.url_for("play", type=type_, id=video_id, meta=meta_id, resume=resume)
+        resume = "1" if choice == 0 else "0"
+    url = plugin.url_for("play", type=type_, id=video_id, meta=meta_id, resume=resume, pick=1 if pick else None)
     xbmc.executebuiltin(f"PlayMedia({url})")
     return True
 

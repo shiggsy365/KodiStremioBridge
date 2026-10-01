@@ -39,7 +39,16 @@ def preview_items(plugin, previews, state, hide_watched=False):
 def playable_entry(plugin, item, type_, video_id, **params):
     """``(url, item, is_folder)`` for something that plays when selected."""
     item.setProperty("IsPlayable", "true")
+    add_context_menu(item, pick_streams_menu(plugin, type_, video_id, **params))
     return plugin.url_for("play", type=type_, id=video_id, **params), item, False
+
+
+def pick_streams_menu(plugin, type_, video_id, **params):
+    """With autoplay on: "Show Playable Streams", to choose a stream yourself."""
+    if not ADDON.getSettingBool("autoplay"):
+        return []
+    url = plugin.url_for("play", type=type_, id=video_id, pick=1, **params)
+    return [(L(30365), f"PlayMedia({url})")]
 
 
 def content_for(type_):
@@ -178,6 +187,7 @@ def preview_item(plugin, preview, row=None, started=False, progress=None):
                                        trailer=preview.trailer, partly_watched=started))
 
     if preview.type == "movie" and ADDON.getSettingBool("select_opens_info"):
+        add_context_menu(item, pick_streams_menu(plugin, "movie", preview.id))
         return plugin.url_for("extended_info", type="movie", id=preview.id), item, False
     if preview.type in PLAYABLE_TYPES:
         return playable_entry(plugin, item, preview.type, preview.id)

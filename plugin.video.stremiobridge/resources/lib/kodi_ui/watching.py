@@ -45,7 +45,8 @@ def continue_watching(plugin):
         activity = {show_id: when for show_id, _, when in state.recent_shows(NEXT_UP_SHOWS, with_time=True)}
         for meta, video in next_up(state):
             if meta.id not in started:  # its in-progress episode is listed already
-                entries.append((activity.get(meta.id, 0.0), _next_episode_item(plugin, meta, video, state), True))
+                entries.append((activity.get(meta.id, 0.0),
+                                _next_episode_item(plugin, meta, video, state, remove_label=L(30192)), True))
     entries.sort(key=lambda entry: entry[0], reverse=True)
     xbmcplugin.setPluginCategory(handle, L(30180))
     items = [item for _, item, _ in entries]
@@ -106,10 +107,11 @@ def _resume_item(plugin, row, meta=None):
     return playable_entry(plugin, item, row.type, row.video_id, meta=row.meta_id or None)
 
 
-def _next_episode_item(plugin, meta, video, state):
+def _next_episode_item(plugin, meta, video, state, remove_label=None):
     row = state.get(video.id)
     url, item, folder = episode_item(plugin, meta, video, True, row)
     item.setLabel(f"{meta.name} – {item.getLabel()}")
+    add_context_menu(item, [(remove_label or L(30364), plugin.run_url("dismiss_show", id=meta.id))])
     return url, item, folder
 
 
@@ -288,7 +290,16 @@ def _push_to_mdblist(state, entries, watched):
 
 @route("clear_resume")
 def clear_resume(plugin, id):
-    get_watchstate().clear_resume(id)
+    get_watchstate().clear_resume(id)  # an episode also takes its show out of Next Up
+    notify_widgets()
+    refresh_container()
+
+
+@route("dismiss_show")
+def dismiss_show(plugin, id):
+    """Remove a show from Next Up (and the combined Continue Watching) until
+    you watch more of it."""
+    get_watchstate().dismiss_show(id)
     notify_widgets()
     refresh_container()
 

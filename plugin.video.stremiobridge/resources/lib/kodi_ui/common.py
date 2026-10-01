@@ -191,6 +191,8 @@ CONTEXT_MENU_COLOUR = "FFFF8080"  # light red: marks this add-on's entries among
 
 def add_context_menu(item, entries):
     """``item.addContextMenuItems`` with our labels coloured."""
+    if not entries:
+        return
     item.addContextMenuItems(
         [(f"[COLOR {CONTEXT_MENU_COLOUR}]{label}[/COLOR]", command) for label, command in entries])
 

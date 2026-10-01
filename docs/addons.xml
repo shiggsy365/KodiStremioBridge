@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.10.2"
+       version="0.10.3"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,7 +23,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.10.2 - Continue Watching shows descriptions, cast and details.
+        <news>v0.10.3 - With autoplay on: "Show Playable Streams" in context menus and a Streams tile in Extended info. Removing an episode from Continue Watching also removes its show from Next Up until you watch more.
+v0.10.2 - Continue Watching shows descriptions, cast and details.
 v0.10.1 - Create, rename and remove hubs (Organise catalogs context menu); settings buttons open reliably.
 v0.10.0 - Hubs (Movies, TV Shows, Anime, More) with Genres; Organise catalogs; tidy names; poster tiles.
 v0.9.0 - Widgets folder, combined Continue Watching, time left, show progress, hide watched, pre-warming, open on next episode.
@@ -33,11 +34,7 @@ v0.8.5 - Settings shortcut to show/hide Kodi's ".." entry.
 v0.8.4 - "Filter by Genre" and "Next Page" poster tiles.
 v0.8.3 - Optional genre filter when browsing catalogs (not on widgets).
 v0.8.2 - View chooser with previews; default view also on later pages.
-v0.8.1 - MDBList watchlist: add/remove from Kodi, Watchlist list, library follows it.
-v0.8.0 - My Library (Kodi library export, MDBList watchlist), stream fallback after errors, cross-device resume, search paging, widget reload, default views.
-v0.7.5 - Rename search catalogs.
-v0.7.4 - Manage addons moved to the add-on settings; Overall Rating without source count.
-v0.7.3 - Reverted the simplified context menu; search results rows scroll.</news>
+v0.8.1 - MDBList watchlist: add/remove from Kodi, Watchlist list, library follows it.</news>
     </extension>
 </addon>
 <addon id="service.shiggsy365.tidycache"

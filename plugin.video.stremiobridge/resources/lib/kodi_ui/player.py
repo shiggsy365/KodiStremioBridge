@@ -18,7 +18,8 @@ from stremio.subtitles import download_subtitles, fetch_subtitles, parse_languag
 from stremio.watchstate import PlaybackEntry
 
 from .common import (
-    ADDON, ADDON_NAME, L, announce_playback, get_client, get_registry, get_watchstate, log, notify, run_with_progress,
+    ADDON, ADDON_NAME, L, announce_playback, clock_text, get_client, get_registry, get_watchstate, log, notify,
+    run_with_progress,
 )
 from .details import load_meta
 from .listitems import playback_item
@@ -47,16 +48,19 @@ def stream_prefs():
 
 
 @route("play")
-def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries=None):
+def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries=None, pick=None):
     """`id` is what streams are requested for (e.g. ``tt123:1:2`` for an
     episode); `meta` is the show's id when that differs. `binge` asks for a
     stream from the same source group (sent by Up Next for the next episode).
-    `resume=1` resumes from the saved position (the Extended info dialog asks).
+    `resume=1` resumes from the saved position, `resume=0` starts from the
+    beginning (the Extended info dialog asks).
     `start`/`tries` come from the service when a stream failed after starting:
-    skip the streams already tried (autoplay order) and count the retries."""
-    if resume == "1":
-        plugin.resume = True
+    skip the streams already tried (autoplay order) and count the retries.
+    `pick=1` ("Show Playable Streams") shows the stream list even with autoplay on."""
+    if resume in ("1", "0"):  # asked already (e.g. by Extended info): resume or from the start
+        plugin.resume = resume == "1"
     handle = plugin.handle
+    pick = pick == "1"
 
     def cancel():
         if handle >= 0:
@@ -82,6 +86,8 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
         return cancel()
 
     state = get_watchstate()
+    if pick and plugin.resume is None and not _ask_resume(plugin, state.get(id)):
+        return cancel()
     group = binge or ""
     if not group and meta and ADDON.getSettingBool("same_source_next"):
         group = state.binge_group(meta, SAME_SOURCE_WINDOW)
@@ -89,7 +95,7 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
     if preferred is not None:
         log(f"Same source as last time ({preferred.addon})")
     retry = None
-    if ADDON.getSettingBool("autoplay"):
+    if ADDON.getSettingBool("autoplay") and not pick:
         # Try streams in order until one actually serves video.
         order = fallback_order(candidates, preferred)
         skip = int(start or 0)
@@ -104,7 +110,7 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
                  "total": len(order), "tries": int(tries or 0)}
     else:
         stream = None
-        if preferred is not None:
+        if preferred is not None and not pick:
             stream, cancelled = first_working(client, [preferred])
             if cancelled:
                 return cancel()
@@ -140,6 +146,19 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
         xbmcplugin.setResolvedUrl(handle, True, item)
     else:
         xbmc.Player().play(path, item)
+
+
+def _ask_resume(plugin, row):
+    """Kodi's "Resume from…" question, for playback started from our own
+    context menu (Kodi only asks when an item is selected). Sets
+    plugin.resume; False if the user backed out."""
+    if not row or row.position <= 0:
+        return True
+    choice = xbmcgui.Dialog().contextmenu([L(30227, time=clock_text(row.position)), L(30228)])
+    if choice < 0:
+        return False
+    plugin.resume = choice == 0
+    return True
 
 
 def first_working(client, ordered):
