@@ -151,3 +151,19 @@ def test_removing_a_movie_dismisses_nothing(state, clock):
     state.record(MOVIE, 600, 6000)
     state.clear_resume("tt1")
     assert state.continue_watching() == [] and state.recent_shows() == [("tt5", "series")]
+
+
+def test_signature_follows_what_next_up_depends_on(state, clock):
+    first = state.signature()
+    state.set_watched([ep(1, 1)], True)
+    watched = state.signature()
+    assert watched != first and state.signature() == watched                     # stable while nothing changes
+    clock.now += 10
+    state.set_watched([ep(1, 1)], False)
+    assert state.signature() != watched
+    unwatched = state.signature()
+    state.dismiss_show("tt5")
+    assert state.signature() != unwatched
+    before_movie = state.signature()
+    state.record(MOVIE, 600, 6000)                                                # movies don't affect Next Up
+    assert state.signature() == before_movie

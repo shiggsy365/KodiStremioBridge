@@ -3,7 +3,7 @@
 from urllib.parse import quote, urlsplit, urlunsplit
 
 from . import AddonRequestError, ManifestError
-from .models import Manifest
+from .models import Manifest, trim_meta
 
 DEFAULT_TIMEOUT = 15
 USER_AGENT = "KodiStremioBridge/0.1"
@@ -129,5 +129,7 @@ class StremioClient:
                 self._log(f"{exc}; using stale cache for {url}")
                 return cached[0]
             raise
+        if resource == "meta":
+            data = trim_meta(data)
         self.cache.set(url, data, ttl)
         return data

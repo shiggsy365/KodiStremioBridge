@@ -339,6 +339,28 @@ class Video:
         return not self.air_date or self.air_date <= today
 
 
+# The video fields Video.from_dict reads; trim_meta drops the rest before caching.
+VIDEO_KEYS = ("id", "title", "name", "season", "episode", "number", "released", "thumbnail", "overview")
+
+
+def trim_meta(response):
+    """A ``{"meta": ...}`` response with each video cut down to VIDEO_KEYS (plus
+    "description" where there's no overview): long-running shows send thousands
+    of episodes with fields nothing here uses."""
+    meta = response.get("meta") if isinstance(response, dict) else None
+    if not isinstance(meta, dict) or not isinstance(meta.get("videos"), list):
+        return response
+    videos = []
+    for video in meta["videos"]:
+        if isinstance(video, dict):
+            slim = {k: video[k] for k in VIDEO_KEYS if k in video}
+            if not slim.get("overview") and video.get("description"):
+                slim["description"] = video["description"]
+            video = slim
+        videos.append(video)
+    return {**response, "meta": {**meta, "videos": videos}}
+
+
 @dataclass(frozen=True)
 class Meta(MetaPreview):
     """A full meta object, as returned by the ``meta`` resource."""

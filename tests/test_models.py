@@ -194,3 +194,19 @@ def test_people_and_trailer_in_catalog_previews():
     assert MetaPreview.from_dict({"id": "tt1", "type": "movie", "name": "X",
                                   "trailerStreams": [{"ytId": "zz"}]}).trailer == "zz"
     assert MetaPreview.from_dict({"id": "tt1", "type": "movie", "name": "X"}).people == ()
+
+
+def test_trim_meta_keeps_what_videos_use():
+    from stremio.models import Meta, trim_meta
+
+    response = {"meta": {"id": "tt5", "type": "series", "name": "Show", "app_extras": {"cast": []}, "videos": [
+        {"id": "tt5:1:1", "title": "One", "season": 1, "episode": 1, "released": "2020-01-01T00:00:00Z",
+         "thumbnail": "t", "overview": "O", "description": "O", "available": True, "runtime": "40m"},
+        {"id": "tt5:1:2", "name": "Two", "season": 1, "number": 2, "description": "D"}]}}
+    trimmed = trim_meta(response)
+    assert trimmed["meta"]["app_extras"] == {"cast": []}                          # only videos are cut down
+    assert trimmed["meta"]["videos"][0] == {"id": "tt5:1:1", "title": "One", "season": 1, "episode": 1,
+                                             "released": "2020-01-01T00:00:00Z", "thumbnail": "t", "overview": "O"}
+    assert trimmed["meta"]["videos"][1]["description"] == "D"                     # no overview: kept
+    assert Meta.from_dict(trimmed["meta"]) == Meta.from_dict(response["meta"])
+    assert trim_meta({"meta": None}) == {"meta": None}

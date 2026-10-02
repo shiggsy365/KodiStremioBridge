@@ -2329,3 +2329,36 @@ def test_settings_buttons_close_the_addon_info_dialog_left_underneath(monkeypatc
     monkeypatch.setattr(xbmc, "executebuiltin", ran.append)
     call("open", handle=-1, target="manage")
     assert ran == ["Dialog.Close(all,true)", f"ActivateWindow(Videos,{BASE}?action=manage,return)"]
+
+
+def test_next_up_is_reused_until_the_watch_state_changes(server, listing, settings):
+    install(server)
+    server.routes["/meta/series/tt5.json"] = {"meta": {"id": "tt5", "type": "series", "name": "Show", "videos": [
+        {"id": f"tt5:1:{n}", "season": 1, "episode": n, "title": f"E{n}"} for n in range(1, 400)]}}
+    state = common.get_watchstate()
+    state.set_watched([PlaybackEntry(video_id="tt5:1:1", type="series", meta_id="tt5", season=1, episode=1)], True)
+    items, _ = listing
+    call("next_up")
+    assert [p["id"] for p, _ in items] == ["tt5:1:2"]
+    fetched = len(server.requests)
+    del server.routes["/meta/series/tt5.json"]                                    # would fail if asked again
+    items.clear()
+    call("next_up")
+    call("continue")
+    assert [p["id"] for p, _ in items] == ["tt5:1:2"] and len(server.requests) == fetched
+    saved = common.get_cache().get(next(k for k in _cache_keys() if k.startswith("nextup:")))[0]
+    assert [len(e["meta"]["videos"]) for e in saved] == [1]                       # slim: just the next episode
+
+    server.routes["/meta/series/tt5.json"] = {"meta": {"id": "tt5", "type": "series", "name": "Show", "videos": [
+        {"id": f"tt5:1:{n}", "season": 1, "episode": n, "title": f"E{n}"} for n in range(1, 400)]}}
+    state.set_watched([PlaybackEntry(video_id="tt5:1:2", type="series", meta_id="tt5", season=1, episode=2)], True)
+    items.clear()
+    call("next_up")                                                               # watched more: worked out again
+    assert [p["id"] for p, _ in items] == ["tt5:1:3"]
+
+
+def _cache_keys():
+    import sqlite3
+
+    db = sqlite3.connect(os.path.join(common.profile_dir(), "cache.db"))
+    return [key for (key,) in db.execute("SELECT key FROM cache")]

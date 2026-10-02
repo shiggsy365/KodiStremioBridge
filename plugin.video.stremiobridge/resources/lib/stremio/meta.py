@@ -43,6 +43,13 @@ def fetch_meta(client, addons, type_, id_, fallbacks=()):
     are ``(name, transport_url)`` pairs tried afterwards unless already asked.
     Addons that fail or answer ``{"meta": null}`` are skipped.
     """
+    name, data = fetch_meta_data(client, addons, type_, id_, fallbacks)
+    return name, Meta.from_dict(data, type_)
+
+
+def fetch_meta_data(client, addons, type_, id_, fallbacks=()):
+    """Like fetch_meta, but ``(source_name, the addon's meta dict)``, for
+    callers that keep a slimmed copy of it (see slim_meta)."""
     candidates = [(a.name, a.transport_url) for a in addons]
     asked = {url for _, url in candidates}
     candidates += [(name, url) for name, url in fallbacks if url not in asked]
@@ -54,8 +61,17 @@ def fetch_meta(client, addons, type_, id_, fallbacks=()):
         except AddonRequestError as exc:
             errors.append(f"{name}: {exc}")
             continue
-        meta = Meta.from_dict(data.get("meta") if isinstance(data, dict) else None, type_)
-        if meta is not None:
-            return name, meta
+        raw = data.get("meta") if isinstance(data, dict) else None
+        if Meta.from_dict(raw, type_) is not None:
+            return name, raw
         errors.append(f"{name}: no meta")
     raise MetaNotFound(f"No meta for {type_} {id_}" + (f" ({'; '.join(errors)})" if errors else ""))
+
+
+def slim_meta(data, video_id=None):
+    """A copy of an addon's meta dict keeping only the video `video_id` (or
+    none): what a Continue Watching or Next Up entry needs, a fraction of the
+    size of a long-running show's full episode list."""
+    slim = dict(data)
+    slim["videos"] = [v for v in data.get("videos") or [] if isinstance(v, dict) and video_id and v.get("id") == video_id]
+    return slim

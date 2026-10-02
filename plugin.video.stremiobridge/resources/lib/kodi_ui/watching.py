@@ -11,12 +11,12 @@ import xbmcplugin
 from mdblist import MDBListAuthError, MDBListError, sync as mdblist_sync
 from stremio import StremioError
 from stremio.aggregate import gather
-from stremio.meta import cinemeta_fallback, fetch_meta
-from stremio.models import MetaPreview, external_ids
+from stremio.meta import cinemeta_fallback, fetch_meta, fetch_meta_data, slim_meta
+from stremio.models import Meta, MetaPreview, external_ids
 from stremio.watchstate import PlaybackEntry, next_episode
 
 from .common import (
-    ADDON, L, add_context_menu, busy, get_client, get_mdblist, get_registry, get_watchstate, log, notify,
+    ADDON, L, add_context_menu, busy, get_cache, get_client, get_mdblist, get_registry, get_watchstate, log, notify,
     notify_widgets, profile_dir, refresh_container,
 )
 from .details import load_meta
@@ -39,7 +39,8 @@ def continue_watching(plugin):
     state = get_watchstate()
     rows = state.continue_watching()
     metas = resume_metas(rows)
-    entries = [(row.updated_at, _resume_item(plugin, row, metas.get(_owner(row))), row.is_episode) for row in rows]
+    entries = [(row.updated_at, _resume_item(plugin, row, metas.get((_owner(row), row.video_id))), row.is_episode)
+               for row in rows]
     if ADDON.getSettingBool("continue_with_next_up"):
         started = {row.meta_id for row in rows if row.is_episode}
         activity = {show_id: when for show_id, _, when in state.recent_shows(NEXT_UP_SHOWS, with_time=True)}
@@ -72,10 +73,32 @@ def _owner(row):
     return row.meta_id or row.video_id
 
 
+# Continue Watching and Next Up keep slim copies of the metas they show (the
+# show plus the one episode), so they don't parse long-running shows' whole
+# episode lists every time a list or widget opens.
+SLIM_SECONDS = 6 * 3600
+
+
 def resume_metas(rows):
-    """Metas (cached) for Continue Watching rows: watch state keeps only titles
-    and art, so descriptions, cast etc. come from here."""
-    return fetch_metas(list(dict.fromkeys((_owner(row), row.type) for row in rows)))
+    """``{(owner id, video id): Meta}`` for Continue Watching rows: watch state
+    keeps only titles and art, so descriptions, cast etc. come from here."""
+    cache = get_cache()
+    metas, missing = {}, []
+    for owner, type_, video_id in dict.fromkeys((_owner(row), row.type, row.video_id) for row in rows):
+        hit = cache.get(f"slim:{type_}:{owner}:{video_id}")
+        meta = Meta.from_dict(hit[0], type_) if hit else None
+        if meta is not None:
+            metas[(owner, video_id)] = meta
+        else:
+            missing.append((owner, type_, video_id))
+    if missing:
+        found = fetch_meta_dicts(list(dict.fromkeys((owner, type_) for owner, type_, _ in missing)))
+        for owner, type_, video_id in missing:
+            if owner in found:
+                slim = slim_meta(found[owner], video_id)
+                cache.set(f"slim:{type_}:{owner}:{video_id}", slim, SLIM_SECONDS)
+                metas[(owner, video_id)] = Meta.from_dict(slim, type_)
+    return metas
 
 
 def _resume_item(plugin, row, meta=None):
@@ -132,18 +155,54 @@ def fetch_metas(shows):
     return {meta.id: meta for _, meta in results}
 
 
+def fetch_meta_dicts(shows):
+    """``{id: the addon's meta dict}`` for ``[(id, type), ...]``, fetched in parallel (cached)."""
+    registry, client = get_registry(), get_client()
+    use_cinemeta = ADDON.getSettingBool("cinemeta_fallback")
+
+    def task(show_id, type_):
+        def run():
+            fallbacks = cinemeta_fallback(type_, show_id) if use_cinemeta else []
+            return show_id, fetch_meta_data(client, registry.addons_for("meta", type_, show_id), type_, show_id,
+                                            fallbacks)[1]
+        return run
+
+    results, errors, _ = gather([(show_id, task(show_id, type_)) for show_id, type_ in shows])
+    for label, exc in errors:
+        log(f"No meta for {label}: {exc}")
+    return dict(result for _, result in results)
+
+
 def next_up(state, limit=NEXT_UP_SHOWS):
-    """``[(meta, next_video)]`` for recently watched shows, in recency order."""
-    shows = state.recent_shows(limit)
-    metas = fetch_metas(shows)
+    """``[(meta, next_video)]`` for recently watched shows, in recency order.
+    Reused (as slim metas) until the watch state changes, the day changes or
+    SLIM_SECONDS pass, whichever is first."""
     today = datetime.date.today().isoformat()
-    found = []
-    for show_id, _ in shows:
-        meta = metas.get(show_id)
+    cache = get_cache()
+    key = f"nextup:{state.signature()}:{today}:{limit}"
+    hit = cache.get(key)
+    if hit:
+        return _from_slim(hit[0])
+    shows = state.recent_shows(limit)
+    found = fetch_meta_dicts(shows)
+    saved = []
+    for show_id, type_ in shows:
+        meta = Meta.from_dict(found[show_id], type_) if show_id in found else None
         video = next_episode(meta, state.watched_episodes(meta.id), today) if meta else None
         if video is not None:
-            found.append((meta, video))
-    return found
+            saved.append({"type": type_, "video": video.id, "meta": slim_meta(found[show_id], video.id)})
+    cache.set(key, saved, SLIM_SECONDS)
+    return _from_slim(saved)
+
+
+def _from_slim(saved):
+    entries = []
+    for entry in saved:
+        meta = Meta.from_dict(entry["meta"], entry["type"])
+        video = next((v for v in meta.videos if v.id == entry["video"]), None) if meta else None
+        if video is not None:
+            entries.append((meta, video))
+    return entries
 
 
 def show_progress(state, shows):

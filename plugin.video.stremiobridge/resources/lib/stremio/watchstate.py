@@ -5,6 +5,7 @@ One row per video, keyed by its Stremio id: ``tt0111161`` for a movie,
 Continue Watching and Next Up read it; MDBList sync merges into it.
 """
 
+import hashlib
 import json
 import os
 import sqlite3
@@ -317,6 +318,20 @@ class WatchState:
             self._upsert(row)
             applied += 1
         return applied
+
+    def signature(self):
+        """Changes whenever anything Next Up depends on changes (episodes watched
+        or unwatched, started, dismissed), so results built from the watch
+        state can be reused until then."""
+        digest = hashlib.sha1()
+        with self._lock:
+            for row in self._db.execute(
+                    "SELECT video_id, watched, watched_at, updated_at, position FROM progress "
+                    "WHERE season IS NOT NULL ORDER BY video_id"):
+                digest.update(repr(row).encode())
+            for row in self._db.execute("SELECT meta_id, dismissed_at FROM dismissed ORDER BY meta_id"):
+                digest.update(repr(row).encode())
+        return digest.hexdigest()[:16]
 
     def clear(self):
         with self._lock:

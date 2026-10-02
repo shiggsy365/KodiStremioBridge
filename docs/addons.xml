@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.11.0"
+       version="0.11.1"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,15 +23,14 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.11.0 - New stream page: cards with badges, filter chips, no logos. Extended info for episodes. Selecting can open Extended info for episodes too. Fixed context menu entries overwriting each other, and settings buttons on Fire TV.
+        <news>v0.11.1 - Faster Continue Watching and Next Up (results reused until you watch something); smaller, compressed cache capped at 25 MB.
+v0.11.0 - New stream page: cards with badges, filter chips, no logos. Extended info for episodes. Selecting can open Extended info for episodes too. Fixed context menu entries overwriting each other, and settings buttons on Fire TV.
 v0.10.3 - With autoplay on: "Show Playable Streams" in context menus and a Streams tile in Extended info. Removing an episode from Continue Watching also removes its show from Next Up until you watch more.
 v0.10.2 - Continue Watching shows descriptions, cast and details.
 v0.10.1 - Create, rename and remove hubs (Organise catalogs context menu); settings buttons open reliably.
 v0.10.0 - Hubs (Movies, TV Shows, Anime, More) with Genres; Organise catalogs; tidy names; poster tiles.
 v0.9.0 - Widgets folder, combined Continue Watching, time left, show progress, hide watched, pre-warming, open on next episode.
-v0.8.7 - Actor/director searches: AIOMetadata people search when enabled, otherwise Cinemeta added.
-v0.8.6 - Extended info: icon action tiles; one-line scrolling detail rows.
-v0.8.5 - Settings shortcut to show/hide Kodi's ".." entry.</news>
+v0.8.7 - Actor/director searches: AIOMetadata people search when enabled, otherwise Cinemeta added.</news>
     </extension>
 </addon>
 <addon id="script.shiggsy365.globalsearch"
