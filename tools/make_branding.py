@@ -113,6 +113,25 @@ def search_icon(path):
     print(os.path.normpath(path))
 
 
+def switch_icon(path):
+    """Dispatcharr Bridge: a TV with switching arrows."""
+    scale, size = 4, 512
+    s = size * scale
+    image = gradient(s, s)
+    glow(image, [s * 0.1, s * 0.05, s * 0.9, s * 0.8], 90, 70 * scale)
+    draw = ImageDraw.Draw(image)
+    draw.rounded_rectangle([s * 0.16, s * 0.22, s * 0.84, s * 0.68], radius=22 * scale, outline=ACCENT, width=22 * scale)
+    draw.rectangle([s * 0.38, s * 0.74, s * 0.62, s * 0.78], fill=ACCENT)
+    for y, direction in ((0.38, 1), (0.52, -1)):  # two arrows: source A <-> source B
+        x0, x1 = (s * 0.32, s * 0.64) if direction > 0 else (s * 0.68, s * 0.36)
+        draw.line([(x0, s * y), (x1, s * y)], fill=(255, 255, 255), width=14 * scale)
+        tip = x1 + direction * 26 * scale
+        draw.polygon([(tip, s * y), (x1 - direction * 6 * scale, s * y - 22 * scale),
+                      (x1 - direction * 6 * scale, s * y + 22 * scale)], fill=(255, 255, 255))
+    image.resize((size, size), Image.LANCZOS).save(path, optimize=True)
+    print(os.path.normpath(path))
+
+
 def fanart(path):
     w, h = 1920, 1080
     image = gradient(w, h, (22, 32, 44), (6, 9, 13))
@@ -133,3 +152,4 @@ if __name__ == "__main__":
     icon(os.path.join(repo_dir, "icon.png"), repo=True)
     tidy_icon(os.path.join(ROOT, "service.shiggsy365.tidycache", "resources", "icon.png"))
     search_icon(os.path.join(ROOT, "script.shiggsy365.globalsearch", "resources", "icon.png"))
+    switch_icon(os.path.join(ROOT, "script.shiggsy365.dispatcharrbridge", "resources", "icon.png"))

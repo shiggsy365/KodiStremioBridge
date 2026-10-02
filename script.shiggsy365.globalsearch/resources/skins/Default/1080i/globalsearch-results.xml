@@ -154,6 +154,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4001">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4001)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2002">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -260,6 +314,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4002">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4002)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -378,6 +486,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4003">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4003)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2004">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -484,6 +646,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4004">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4004)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -602,6 +818,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4005">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4005)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2006">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -708,6 +978,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4006">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4006)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -826,6 +1150,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4007">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4007)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2008">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -932,6 +1310,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4008">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4008)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -1050,6 +1482,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4009">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4009)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2010">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -1156,6 +1642,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4010">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4010)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -1274,6 +1814,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4011">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4011)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2012">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -1380,6 +1974,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4012">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4012)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -1498,6 +2146,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4013">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4013)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2014">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -1604,6 +2306,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4014">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4014)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -1722,6 +2478,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4015">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4015)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2016">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -1828,6 +2638,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4016">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4016)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -1946,6 +2810,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4017">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4017)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2018">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -2052,6 +2970,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4018">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4018)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -2170,6 +3142,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4019">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4019)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2020">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -2276,6 +3302,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4020">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4020)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -2394,6 +3474,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4021">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4021)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2022">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -2500,6 +3634,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4022">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4022)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -2618,6 +3806,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4023">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4023)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2024">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -2724,6 +3966,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4024">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4024)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -2842,6 +4138,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4025">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4025)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2026">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -2948,6 +4298,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4026">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4026)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -3066,6 +4470,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4027">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4027)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2028">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -3172,6 +4630,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4028">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4028)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -3290,6 +4802,60 @@
                     </control>
                 </focusedlayout>
             </control>
+            <control type="list" id="4029">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4029)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
             <control type="label" id="2030">
                 <width>1800</width><height>50</height>
                 <font>font13</font><textcolor>FF12A0C7</textcolor><aligny>center</aligny>
@@ -3396,6 +4962,60 @@
                     </control>
                     <control type="label">
                         <left>10</left><top>234</top><width>220</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="4030">
+                <width>1800</width><height>250</height>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <itemlayout width="360" height="250">
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
+                        <align>center</align><font>font10</font><textcolor>FFAAAAAA</textcolor>
+                        
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="360" height="250">
+                    <control type="image">
+                        <left>4</left><top>4</top><width>352</width><height>203</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Control.HasFocus(4030)</visible>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <texture colordiffuse="FF1A2230">globalsearch-white.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top><width>340</width><height>191</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="image">
+                        <left>316</left><top>16</top><width>28</width><height>28</height>
+                        <texture colordiffuse="FF12A0C7">globalsearch-white.png</texture>
+                        <visible>Integer.IsGreater(ListItem.PlayCount,0)</visible>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>205</top><width>340</width><height>30</height>
                         <align>center</align><font>font10</font><textcolor>FFFFFFFF</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>

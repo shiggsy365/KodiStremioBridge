@@ -35,7 +35,7 @@ v0.8.7 - Actor/director searches: AIOMetadata people search when enabled, otherw
 </addon>
 <addon id="script.shiggsy365.globalsearch"
        name="Global Search"
-       version="1.0.0"
+       version="1.1.0"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -44,8 +44,40 @@ v0.8.7 - Actor/director searches: AIOMetadata people search when enabled, otherw
         <provides>executable video audio</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
-        <summary lang="en_GB">Search your library, Stremio Bridge and Spotify at once</summary>
-        <description lang="en_GB">Type a search and see results from your Kodi library, Stremio Bridge's search catalogs and Spotify (music and podcasts) in one page of rows. Put RunScript(script.shiggsy365.globalsearch) on any menu item or button to open it.</description>
+        <summary lang="en_GB">Search your library, Stremio Bridge, YouTube and Spotify at once</summary>
+        <description lang="en_GB">Type a search and see results from your Kodi library, Stremio Bridge's search catalogs, YouTube and Spotify (music and podcasts) in one page of rows. Put RunScript(script.shiggsy365.globalsearch) on any menu item or button to open it.</description>
+        <platform>all</platform>
+        <license>GPL-3.0-or-later</license>
+        <source>https://github.com/shiggsy365/KodiStremioBridge</source>
+        <news>v1.1.0 - YouTube results (videos; channels and playlists optional), remembered for an hour; or YouTube shortcuts instead.
+v1.0.0 - First release.</news>
+        <assets>
+            <icon>resources/icon.png</icon>
+        </assets>
+    </extension>
+</addon>
+<addon id="script.shiggsy365.dispatcharrbridge"
+       name="Dispatcharr Bridge"
+       version="1.0.0"
+       provider-name="shiggsy365">
+    <requires>
+        <import addon="xbmc.python" version="3.0.1"/>
+    </requires>
+    <extension point="xbmc.python.script" library="default.py">
+        <provides>executable</provides>
+    </extension>
+    <extension point="xbmc.service" library="service.py"/>
+    <extension point="kodi.context.item">
+        <menu id="kodi.core.main">
+            <item library="context.py">
+                <label>32030</label>
+                <visible>String.StartsWith(ListItem.FileNameAndPath,pvr://) + !String.IsEmpty(ListItem.ChannelName)</visible>
+            </item>
+        </menu>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Choose which Dispatcharr source a live TV channel plays</summary>
+        <description lang="en_GB">For IPTV Simple channels served by Dispatcharr: long-press Play/Pause while watching (or use "Choose source" on a channel or guide entry) to see the channel's source streams and switch to another, or skip to the next one. Dispatcharr switches the source on the server, so the channel keeps playing with its guide and channel info.</description>
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/shiggsy365/KodiStremioBridge</source>

@@ -1,0 +1,92 @@
+# Kodi Media Center language file
+# Addon Name: Dispatcharr Bridge
+# Addon id: script.shiggsy365.dispatcharrbridge
+msgid ""
+msgstr ""
+"Project-Id-Version: script.shiggsy365.dispatcharrbridge\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#32000"
+msgid "Dispatcharr Bridge"
+msgstr ""
+
+msgctxt "#32001"
+msgid "Dispatcharr"
+msgstr ""
+
+msgctxt "#32002"
+msgid "Dispatcharr address"
+msgstr ""
+
+msgctxt "#32003"
+msgid "For example https://dispatcharr.example.com. Leave empty to use the address of IPTV Simple's playlist."
+msgstr ""
+
+msgctxt "#32004"
+msgid "API key"
+msgstr ""
+
+msgctxt "#32005"
+msgid "A Dispatcharr API key of an admin user (switching a channel's source needs admin rights). Create one in Dispatcharr under your user's settings."
+msgstr ""
+
+msgctxt "#32006"
+msgid "Long-press Play/Pause to choose a source"
+msgstr ""
+
+msgctxt "#32007"
+msgid "While watching, hold Play/Pause to open the source picker. A normal press still pauses."
+msgstr ""
+
+msgctxt "#32010"
+msgid "Enter your Dispatcharr API key (and address, if IPTV Simple's playlist doesn't come from Dispatcharr) in the settings."
+msgstr ""
+
+msgctxt "#32011"
+msgid "Dispatcharr has no sources for {channel}"
+msgstr ""
+
+msgctxt "#32012"
+msgid "Next source"
+msgstr ""
+
+msgctxt "#32013"
+msgid "Let Dispatcharr try the next source in the channel's order"
+msgstr ""
+
+msgctxt "#32014"
+msgid "now playing"
+msgstr ""
+
+msgctxt "#32015"
+msgid "Sources for {channel}"
+msgstr ""
+
+msgctxt "#32016"
+msgid "{channel}: trying the next source…"
+msgstr ""
+
+msgctxt "#32017"
+msgid "{channel}: source switched"
+msgstr ""
+
+msgctxt "#32018"
+msgid "Nothing live is playing"
+msgstr ""
+
+msgctxt "#32019"
+msgid "{channel} wasn't found in Dispatcharr"
+msgstr ""
+
+msgctxt "#32020"
+msgid "{channel} isn't streaming from Dispatcharr right now"
+msgstr ""
+
+msgctxt "#32030"
+msgid "Choose source (Dispatcharr)"
+msgstr ""

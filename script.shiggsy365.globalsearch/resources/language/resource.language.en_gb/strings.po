@@ -163,3 +163,39 @@ msgctxt "#32041"
 msgid "Show Spotify results as rows instead of shortcuts. Slower, and it uses your Spotify API allowance on every search, so only the categories below are loaded."
 msgstr ""
 
+msgctxt "#32042"
+msgid "YouTube"
+msgstr ""
+
+msgctxt "#32043"
+msgid "Needs the YouTube add-on (plugin.video.youtube) with your API keys set up."
+msgstr ""
+
+msgctxt "#32044"
+msgid "YouTube: videos"
+msgstr ""
+
+msgctxt "#32045"
+msgid "YouTube: channels"
+msgstr ""
+
+msgctxt "#32046"
+msgid "YouTube: playlists"
+msgstr ""
+
+msgctxt "#32047"
+msgid "Each one is a YouTube search, costing 100 of the 10,000 YouTube API units your key gets a day. Results are remembered for an hour, so searching for the same thing again is free."
+msgstr ""
+
+msgctxt "#32048"
+msgid "YouTube · search for \"{query}\""
+msgstr ""
+
+msgctxt "#32049"
+msgid "Load YouTube results in the page"
+msgstr ""
+
+msgctxt "#32050"
+msgid "Show YouTube results as rows (each search uses API quota; repeats within an hour don't). Off: a row of shortcuts that open YouTube's own search, using no quota until you open one."
+msgstr ""
+

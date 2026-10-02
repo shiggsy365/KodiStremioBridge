@@ -91,4 +91,48 @@ def test_spotify_shortcuts_cost_nothing_until_opened():
     assert tiles[0].builtin() == ("ActivateWindow(Music,plugin://plugin.audio.spotify2/?action=search_tracks"
                                   "&trackid=bat%20man,return)")
     assert tiles[4].builtin().endswith("action=search_podcast_shows&query=bat%20man,return)")
-    assert tiles[0].art["thumb"] == "special://x/icon_music_songs.png"
+    assert tiles[0].art["thumb"] == "special://x/icon_music_songs.png"                # Spotify's own
+    assert tiles[4].art["thumb"] == f"{sources.OWN_MEDIA}/podcasts.png"            # drawn to match
+
+
+def test_youtube_rows_without_folders_or_paging():
+    yt = "plugin://plugin.video.youtube/"
+    videos = sources.youtube_url("bat man", "video")
+    assert videos == f"{yt}kodion/search/query/?q=bat%20man&search_type=video&hide_folders=true"
+    rpc = FakeRPC(directories={
+        videos: [{"file": f"{yt}play/?video_id=abc", "filetype": "file", "label": "Batman trailer",
+                  "art": {"thumb": "https://i.ytimg.com/vi/abc/hqdefault.jpg"}},
+                 {"file": f"{yt}kodion/search/query/?q=bat+man&page_token=CAUQAA", "filetype": "directory",
+                  "label": "Next page"}],
+        sources.youtube_url("bat man", "channel"): [
+            {"file": f"{yt}channel/UC1/", "filetype": "directory", "label": "Bat Channel"}],
+    })
+    rows = dict(sources.youtube_rows(rpc, "bat man", 10, sources.YOUTUBE_SEARCHES[:2]))
+    (video,), (channel,) = rows["Videos"], rows["Channels"]
+    assert video.builtin() == f"PlayMedia({yt}play/?video_id=abc)" and video.art["thumb"].endswith("hqdefault.jpg")
+    assert channel.builtin() == f"ActivateWindow(Videos,{yt}channel/UC1/,return)"
+
+
+def test_youtube_results_are_remembered_for_an_hour(tmp_path):
+    clock = [1000.0]
+    cache = sources.TimedCache(str(tmp_path / "yt.json"), 3600, clock=lambda: clock[0])
+    url = sources.youtube_url("Bat Man", "video")
+    rpc = FakeRPC(directories={url: [{"file": "plugin://plugin.video.youtube/play/?video_id=a", "filetype": "file",
+                                      "label": "A", "art": {"thumb": "t"}}]})
+    videos = sources.YOUTUBE_SEARCHES[:1]
+    first = sources.youtube_rows(rpc, "Bat Man", 10, videos, cache)
+    assert sources.youtube_rows(rpc, " bat man ", 10, videos, cache) == first and len(rpc.calls) == 1
+    clock[0] += 3601
+    sources.youtube_rows(rpc, "bat man", 10, videos, cache)
+    assert len(rpc.calls) == 2                                                    # an hour later: asked again
+    empty = FakeRPC()                                                             # nothing found (or quota used up)
+    sources.youtube_rows(empty, "nothing", 10, videos, cache)
+    sources.youtube_rows(empty, "nothing", 10, videos, cache)
+    assert len(empty.calls) == 2                                                  # empty results aren't remembered
+
+
+def test_youtube_shortcuts():
+    tiles = sources.youtube_shortcuts("bat man", sources.YOUTUBE_SEARCHES, "special://y")
+    assert [t.label for t in tiles] == ["Videos", "Channels", "Playlists"]
+    assert tiles[1].builtin() == f"ActivateWindow(Videos,{sources.youtube_url('bat man', 'channel')},return)"
+    assert tiles[2].art["thumb"] == f"{sources.OWN_MEDIA}/youtube_playlists.png"

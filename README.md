@@ -107,6 +107,8 @@ once and shows the results as rows, in the same layout as Stremio Bridge's searc
 
 - your Kodi library: movies, TV shows, episodes, artists, albums and songs;
 - Stremio Bridge: a row for each of its search catalogs;
+- YouTube (with the YouTube add-on): a row of videos (channels and playlists optional), remembered
+  for an hour so repeat searches don't use API quota; or shortcuts instead;
 - Spotify (with the Spotify2 add-on): a row of shortcuts (Songs, Artists, Albums, Playlists,
   Podcasts, Podcast episodes) that open Spotify's results for your search.
 
@@ -117,6 +119,19 @@ straight away. Selecting a result plays it or opens it; Back returns to the resu
 Spotify shows shortcuts rather than results by default because Spotify2 allows only 8 Web API
 requests every 30 seconds, and each Spotify search page costs about 4. *Load Spotify results in the
 page* (settings) fills rows instead, for the categories you pick.
+
+### Also in the repository: Dispatcharr Bridge
+
+**Dispatcharr Bridge** (`script.shiggsy365.dispatcharrbridge`) is for live TV in IPTV Simple served by
+[Dispatcharr](https://github.com/Dispatcharr/Dispatcharr). While watching a channel, **hold
+Play/Pause** to see its source streams (with M3U account, resolution, codec and bitrate, the current
+one marked) and switch to another, or let Dispatcharr try the next one. *Choose source (Dispatcharr)*
+does the same from a channel's or guide entry's context menu.
+
+The switch happens on Dispatcharr's server (`/proxy/ts/change_stream`), so Kodi keeps playing the
+same channel with its guide and channel info. Settings: an admin user's Dispatcharr API key, and the
+address (found from IPTV Simple's playlist if left empty). Switching affects everyone watching that
+channel, and the channel's source order in Dispatcharr is unchanged.
 
 ### Also in the repository: Tidy Cache
 
@@ -205,6 +220,7 @@ plugin.video.stremiobridge/        the add-on itself
 repository.shiggsy365/             the Kodi repository add-on
 service.shiggsy365.tidycache/      Tidy Cache add-on
 script.shiggsy365.globalsearch/    Global Search add-on
+script.shiggsy365.dispatcharrbridge/ Dispatcharr Bridge add-on
 docs/                              the published repository (GitHub Pages), built by tools/build_repo.py
 tests/                             pytest suite with a fake addon HTTP server and Kodistubs
 tools/                             dev install, zip/repository builds, artwork generators

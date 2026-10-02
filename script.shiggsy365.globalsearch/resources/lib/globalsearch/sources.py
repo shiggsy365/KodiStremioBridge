@@ -8,13 +8,17 @@ own search folders, the way Kodi browses them, so nothing here depends on
 their code.
 """
 
+import json
+import os
 import re
-from dataclasses import dataclass, field
+import time
+from dataclasses import asdict, dataclass, field
 from urllib.parse import quote
 
 STREMIO_BRIDGE = "plugin.video.stremiobridge"
 SPOTIFY = "plugin.audio.spotify2"
-POSTER, SQUARE = "poster", "square"
+YOUTUBE = "plugin.video.youtube"
+POSTER, SQUARE, WIDE = "poster", "square", "wide"
 FILE_PROPERTIES = ["title", "art", "thumbnail", "plot", "year", "genre", "playcount", "file", "artist", "album",
                    "showtitle", "season", "episode"]
 
@@ -185,8 +189,17 @@ SPOTIFY_MUSIC = [("Songs", "search_tracks", "trackid", "icon_music_songs.png"),
                  ("Artists", "search_artists", "artistid", "icon_music_artists.png"),
                  ("Albums", "search_albums", "albumid", "icon_music_albums.png"),
                  ("Playlists", "search_playlists", "playlistid", "icon_music_playlists.png")]
-SPOTIFY_PODCASTS = [("Podcasts", "search_podcast_shows", "query", "icon.png"),
-                    ("Podcast episodes", "search_podcast_episodes", "query", "icon.png")]
+# "own:" icons come with Global Search (resources/media), drawn to match.
+SPOTIFY_PODCASTS = [("Podcasts", "search_podcast_shows", "query", "own:podcasts.png"),
+                    ("Podcast episodes", "search_podcast_episodes", "query", "own:podcast_episodes.png")]
+OWN_MEDIA = "special://home/addons/script.shiggsy365.globalsearch/resources/media"
+
+
+def icon_path(icon, icon_dir):
+    """A tile icon: one of Global Search's own ("own:name.png") or the source add-on's."""
+    if icon.startswith("own:"):
+        return f"{OWN_MEDIA}/{icon[4:]}"
+    return f"{icon_dir}/{icon}" if icon_dir else ""
 # Spotify2 allows itself 8 Web API requests per 30 s (shared by everything in
 # Kodi), and each search page costs several (it fills a 40-item page from
 # 10-item API responses). So by default Global Search only shows shortcuts,
@@ -205,7 +218,7 @@ def spotify_url(action, param, query):
 def spotify_shortcuts(query, searches, icon_dir=""):
     """Tiles that open Spotify2's own search results (no Spotify request until opened)."""
     return [Item(title, spotify_url(action, param, query), action="open", window="Music",
-                 art={"thumb": f"{icon_dir}/{icon}" if icon_dir else ""})
+                 art={"thumb": icon_path(icon, icon_dir)})
             for title, action, param, icon in searches]
 
 
@@ -219,3 +232,88 @@ def spotify_rows(rpc, query, limit, searches):
             item.art.setdefault("thumb", item.art.get("poster", ""))
         rows.append((title, items))
     return rows
+
+
+# YouTube: each search is a YouTube Data API call costing 100 of the 10,000
+# quota units a day an API key gets, so only Videos is searched by default.
+# (row title, YouTube search_type, icon in the YouTube add-on's resources/media)
+YOUTUBE_SEARCHES = [("Videos", "video", "own:youtube_videos.png"), ("Channels", "channel", "own:youtube_channels.png"),
+                    ("Playlists", "playlist", "own:youtube_playlists.png")]
+YOUTUBE_CACHE_SECONDS = 3600
+
+
+class TimedCache:
+    """Search results remembered in a JSON file for `ttl` seconds, so searching
+    for the same thing again doesn't spend API quota."""
+
+    def __init__(self, path, ttl, clock=time.time):
+        self.path, self.ttl, self.clock = path, ttl, clock
+
+    def _load(self):
+        try:
+            with open(self.path, encoding="utf-8") as f:
+                data = json.load(f)
+            return data if isinstance(data, dict) else {}
+        except (OSError, ValueError):
+            return {}
+
+    def get(self, key):
+        entry = self._load().get(key)
+        if not entry or self.clock() - entry.get("at", 0) > self.ttl:
+            return None
+        try:
+            return [Item(**item) for item in entry["items"]]
+        except (TypeError, KeyError):
+            return None
+
+    def set(self, key, items):
+        now = self.clock()
+        data = {k: v for k, v in self._load().items() if now - v.get("at", 0) <= self.ttl}
+        data[key] = {"at": now, "items": [asdict(item) for item in items]}
+        try:
+            os.makedirs(os.path.dirname(self.path) or ".", exist_ok=True)
+            tmp = self.path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(data, f)
+            os.replace(tmp, self.path)
+        except OSError:
+            pass  # remembering is only an optimisation
+
+
+def youtube_url(query, search_type):
+    """The YouTube add-on's search for one kind of result, without its
+    Channels/Playlists/Live folders and without adding to its search history."""
+    return (f"plugin://{YOUTUBE}/kodion/search/query/?q={quote(query)}&search_type={search_type}"
+            "&hide_folders=true")
+
+
+def _youtube_skip(entry):
+    """YouTube's "Next page" and page-jump entries."""
+    path = entry.get("file") or ""
+    return "page_token=" in path or "/kodion/goto_page" in path
+
+
+def youtube_rows(rpc, query, limit, searches, cache=None):
+    """YouTube results as rows. With `cache` (a TimedCache), results are reused
+    for the same search; nothing is remembered when YouTube found nothing (or
+    refused, e.g. with the daily quota used up)."""
+    rows = []
+    for title, search_type, _ in searches:
+        key = f"youtube:{search_type}:{query.strip().lower()}"
+        items = cache.get(key) if cache else None
+        if items is None:
+            entries = directory(rpc, youtube_url(query, search_type), "video")
+            items = [i for i in (item_from_file(e, "Videos", _youtube_skip) for e in entries) if i]
+            for item in items:
+                item.art.setdefault("thumb", item.art.get("poster", ""))
+            if cache and items:
+                cache.set(key, items)
+        rows.append((title, items[:limit]))
+    return rows
+
+
+def youtube_shortcuts(query, searches, icon_dir=""):
+    """Tiles that open the YouTube add-on's search (no API quota until opened)."""
+    return [Item(title, youtube_url(query, search_type), action="open", window="Videos",
+                 art={"thumb": icon_path(icon, icon_dir)})
+            for title, search_type, icon in searches]

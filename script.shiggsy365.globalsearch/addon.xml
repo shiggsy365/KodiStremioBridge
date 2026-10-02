@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.shiggsy365.globalsearch"
        name="Global Search"
-       version="1.0.0"
+       version="1.1.0"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -10,12 +10,13 @@
         <provides>executable video audio</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
-        <summary lang="en_GB">Search your library, Stremio Bridge and Spotify at once</summary>
-        <description lang="en_GB">Type a search and see results from your Kodi library, Stremio Bridge's search catalogs and Spotify (music and podcasts) in one page of rows. Put RunScript(script.shiggsy365.globalsearch) on any menu item or button to open it.</description>
+        <summary lang="en_GB">Search your library, Stremio Bridge, YouTube and Spotify at once</summary>
+        <description lang="en_GB">Type a search and see results from your Kodi library, Stremio Bridge's search catalogs, YouTube and Spotify (music and podcasts) in one page of rows. Put RunScript(script.shiggsy365.globalsearch) on any menu item or button to open it.</description>
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/shiggsy365/KodiStremioBridge</source>
-        <news>v1.0.0 - First release.</news>
+        <news>v1.1.0 - YouTube results (videos; channels and playlists optional), remembered for an hour; or YouTube shortcuts instead.
+v1.0.0 - First release.</news>
         <assets>
             <icon>resources/icon.png</icon>
         </assets>

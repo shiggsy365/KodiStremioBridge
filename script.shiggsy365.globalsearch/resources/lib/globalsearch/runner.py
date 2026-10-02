@@ -3,11 +3,13 @@ the rows. Start it with RunScript(script.shiggsy365.globalsearch) from any
 menu item or button, or RunScript(script.shiggsy365.globalsearch,query=...)."""
 
 import json
+import os
 import threading
 
 import xbmc
 import xbmcaddon
 import xbmcgui
+import xbmcvfs
 
 from . import sources
 from .window import ResultsWindow
@@ -66,6 +68,17 @@ def searches(query):
         found.append((L(32028), library_rows(sources.library_music_rows, sources.SQUARE)))
     if ADDON.getSettingBool("stremio_bridge") and has_addon(sources.STREMIO_BRIDGE):
         found.append(("Stremio Bridge", stremio))
+    if has_addon(sources.YOUTUBE) and ADDON.getSettingBool("youtube"):
+        chosen = [c for c, setting in zip(sources.YOUTUBE_SEARCHES, ("youtube_videos", "youtube_channels",
+                                                                     "youtube_playlists")) if ADDON.getSettingBool(setting)]
+        if chosen and ADDON.getSettingBool("youtube_load"):
+            cache = sources.TimedCache(os.path.join(xbmcvfs.translatePath(ADDON.getAddonInfo("profile")),
+                                                    "youtube_results.json"), sources.YOUTUBE_CACHE_SECONDS)
+            found.append(("YouTube", lambda: [sources.Row(f"YouTube · {title}", items, sources.WIDE)
+                                              for title, items in sources.youtube_rows(rpc, query, limit, chosen, cache)]))
+        elif chosen:
+            tiles = sources.youtube_shortcuts(query, chosen, f"special://home/addons/{sources.YOUTUBE}/resources/media")
+            found.append(("YouTube", lambda: [sources.Row(L(32048, query=query), tiles, sources.SQUARE, counted=False)]))
     if has_addon(sources.SPOTIFY) and ADDON.getSettingBool("spotify"):
         every = sources.SPOTIFY_MUSIC + sources.SPOTIFY_PODCASTS
         if ADDON.getSettingBool("spotify_load"):

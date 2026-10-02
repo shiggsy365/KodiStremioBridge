@@ -2,8 +2,9 @@
 
     python3 tools/make_globalsearch_xml.py
 
-Each slot has a title label (2001+i), a poster list (1001+i, films and TV)
-and a square list (3001+i, music and podcasts), all direct children of one
+Each slot has a title label (2001+i), a poster list (1001+i, films and TV),
+a square list (3001+i, music and podcasts) and a wide list (4001+i, YouTube's
+16:9 thumbnails), all direct children of one
 vertical grouplist so up/down moves between rows and hidden ones collapse.
 Styled like Stremio Bridge's search results.
 """
@@ -68,7 +69,8 @@ def slot(index):
                 <font>font13</font><textcolor>{ACCENT}</textcolor><aligny>center</aligny>
             </control>
 {row_list(1001 + index, 240, 370, 220, 320, "poster")}
-{row_list(3001 + index, 240, 290, 220, 220, "thumb")}"""
+{row_list(3001 + index, 240, 290, 220, 220, "thumb")}
+{row_list(4001 + index, 360, 250, 340, 191, "thumb")}"""
 
 
 def window():

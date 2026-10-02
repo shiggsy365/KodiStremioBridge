@@ -21,6 +21,53 @@
                     <control type="toggle"/>
                 </setting>
             </group>
+            <group id="5">
+                <setting id="youtube" type="boolean" label="32042" help="32043">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="youtube_load" type="boolean" label="32049" help="32050">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="youtube">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="youtube_videos" type="boolean" label="32044" help="32047">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="youtube">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="youtube_channels" type="boolean" label="32045" help="32047">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="youtube">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="youtube_playlists" type="boolean" label="32046" help="32047">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="youtube">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+            </group>
             <group id="3">
                 <setting id="spotify" type="boolean" label="32038" help="32039">
                     <level>0</level>
