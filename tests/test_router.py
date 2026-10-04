@@ -1638,6 +1638,8 @@ def test_choose_and_apply_view(settings, monkeypatch, kodi_ui_state, tmp_path):
 
     settings["view_seasons"] = ""
     monkeypatch.setattr(views.xbmc, "getSkinDir", lambda: "skin.arctic.zephyr.stremio")
+    monkeypatch.setattr(views.xbmcaddon.Addon, "getLocalizedString",
+                        lambda self, n: "Seasons Info v2" if n == 31530 else "")
     assert views.stored_view_id("seasons") == 526
 
     settings["view_movies"] = "Wall (52)"
@@ -1645,6 +1647,9 @@ def test_choose_and_apply_view(settings, monkeypatch, kodi_ui_state, tmp_path):
     monkeypatch.setattr(views.xbmc, "executebuiltin", lambda cmd, *a: applied.append(cmd))
     monkeypatch.setattr(views.xbmc.Monitor, "waitForAbort", lambda self, timeout=0: False)
     monkeypatch.setattr(views.xbmc, "getCondVisibility", lambda cond: kodi_ui_state["idle"])
+    assert views.apply_view("seasons") and applied == [
+        "Skin.SetString(Skin.ForcedView.seasons,Seasons Info v2)", "Container.SetViewMode(526)"]
+    applied.clear()
     assert views.apply_view("movies") and applied == ["Container.SetViewMode(52)"]
     assert not views.apply_view("episodes")                            # nothing chosen for episodes
 

@@ -30,6 +30,9 @@ VIEW_SETTINGS = {
 DEFAULT_VIEW_IDS = {
     "seasons": {"skin.arctic.zephyr.stremio": 526},
 }
+SKIN_FORCED_VIEW_LABELS = {
+    ("skin.arctic.zephyr.stremio", "seasons", 526): 31530,
+}
 _STORED_ID = re.compile(r"\((\d+)\)\s*$")
 _LOCALIZE = re.compile(r"^\$LOCALIZE\[(\d+)\]$")
 _ADDON_STRING = re.compile(r"^\$ADDON\[(\S+)\s+(\d+)\]$")
@@ -252,6 +255,16 @@ def _same_folder(a, b):
     return unquote(a or "").rstrip("/") == unquote(b or "").rstrip("/")
 
 
+def _apply_skin_forced_view(content, view_id):
+    skin_id = xbmc.getSkinDir()
+    label_id = SKIN_FORCED_VIEW_LABELS.get((skin_id, content, view_id))
+    if not label_id:
+        return
+    label = xbmcaddon.Addon(skin_id).getLocalizedString(label_id) or xbmc.getLocalizedString(label_id)
+    if label:
+        xbmc.executebuiltin(f"Skin.SetString(Skin.ForcedView.{content},{label})")
+
+
 def apply_view(content, wait=3.0, path=None):
     """Switch our just-listed folder to the chosen view for `content`. Only in
     the Videos window, once Kodi shows *this* listing (`path`: e.g. page 2 of a
@@ -259,6 +272,7 @@ def apply_view(content, wait=3.0, path=None):
     view_id = stored_view_id(content)
     if view_id is None or not _wait_for_listing(path, content, wait):
         return False
+    _apply_skin_forced_view(content, view_id)
     xbmc.executebuiltin(f"Container.SetViewMode({view_id})")
     log(f"View {view_id} for {content}")
     return True
