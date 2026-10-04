@@ -3,6 +3,16 @@
     <section id="plugin.video.stremiobridge">
         <category id="addons" label="30115">
             <group id="1">
+                <setting id="setup_wizard" type="action" label="30403" help="30404">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=setup_wizard)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
                 <setting id="organise_catalogs" type="action" label="30340" help="30355">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=open&amp;target=organise)</data>

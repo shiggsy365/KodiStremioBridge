@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- The "..." menu item's submenu -->
+<shortcuts>
+    <shortcut>
+        <label>Search (coming soon)</label>
+        <label2>Settings</label2>
+        <icon>special://skin/extras/icons/search.png</icon>
+        <action>Notification(Search,Coming soon,3000)</action>
+    </shortcut>
+    <shortcut>
+        <label>Setup wizard</label>
+        <label2>Settings</label2>
+        <icon>special://skin/extras/icons/addons.png</icon>
+        <action>RunPlugin(plugin://plugin.video.stremiobridge/?action=setup_wizard)</action>
+    </shortcut>
+    <shortcut>
+        <label>File Browser</label>
+        <label2>Settings</label2>
+        <icon>special://skin/extras/icons/folder.png</icon>
+        <action>ActivateWindow(FileManager)</action>
+    </shortcut>
+    <shortcut>
+        <label>Bridge settings</label>
+        <label2>Settings</label2>
+        <icon>special://skin/extras/icons/settings.png</icon>
+        <action>Addon.OpenSettings(plugin.video.stremiobridge)</action>
+    </shortcut>
+    <shortcut>
+        <label>Reload Skin</label>
+        <label2>Settings</label2>
+        <icon>special://skin/extras/icons/update.png</icon>
+        <action>ReloadSkin()</action>
+    </shortcut>
+    <shortcut>
+        <label>Exit Kodi</label>
+        <label2>Settings</label2>
+        <icon>special://skin/extras/icons/power.png</icon>
+        <action>Quit</action>
+    </shortcut>
+</shortcuts>

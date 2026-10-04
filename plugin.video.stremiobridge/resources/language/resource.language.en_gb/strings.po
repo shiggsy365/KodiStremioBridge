@@ -1124,3 +1124,107 @@ msgstr ""
 msgctxt "#30378"
 msgid "Library integration is off while Arctic Zephyr Stremio is your skin: its menus and widgets show your catalogs directly."
 msgstr ""
+
+msgctxt "#30380"
+msgid "Setup"
+msgstr ""
+
+msgctxt "#30381"
+msgid "Welcome! Let's add your streams addon (e.g. AIOStreams), metadata addon (e.g. AIOMetadata) and MDBList API key.[CR]Tip: type long links with the Kore app or Kodi's web remote."
+msgstr ""
+
+msgctxt "#30382"
+msgid "Later"
+msgstr ""
+
+msgctxt "#30383"
+msgid "Set up"
+msgstr ""
+
+msgctxt "#30384"
+msgid "You can run setup any time from the ... menu, or from Stremio Bridge's settings."
+msgstr ""
+
+msgctxt "#30385"
+msgid "Streams addon"
+msgstr ""
+
+msgctxt "#30386"
+msgid "Enter the manifest link of your streams addon (e.g. AIOStreams), ending in /manifest.json. Without one, nothing can play."
+msgstr ""
+
+msgctxt "#30387"
+msgid "Metadata addon"
+msgstr ""
+
+msgctxt "#30388"
+msgid "Enter the manifest link of your metadata addon (e.g. AIOMetadata), ending in /manifest.json, for posters, cast and episode lists. Leave it empty to use Cinemeta."
+msgstr ""
+
+msgctxt "#30389"
+msgid "Add another addon (catalogs, subtitles, ...)?"
+msgstr ""
+
+msgctxt "#30390"
+msgid "Addon manifest link"
+msgstr ""
+
+msgctxt "#30391"
+msgid "All set. Your addons' catalogs are in the Movies and TV Shows hubs; add more any time under Manage addons."
+msgstr ""
+
+msgctxt "#30392"
+msgid "You already have: {names}. Add another?"
+msgstr ""
+
+msgctxt "#30393"
+msgid "Keep"
+msgstr ""
+
+msgctxt "#30394"
+msgid "Add"
+msgstr ""
+
+msgctxt "#30395"
+msgid "Without a streams addon nothing will play. Skip this step anyway?"
+msgstr ""
+
+msgctxt "#30396"
+msgid "Skip"
+msgstr ""
+
+msgctxt "#30397"
+msgid "Skip anyway"
+msgstr ""
+
+msgctxt "#30398"
+msgid "That link didn't work:[CR]{error}[CR][CR]Try again?"
+msgstr ""
+
+msgctxt "#30399"
+msgid "Try again"
+msgstr ""
+
+msgctxt "#30400"
+msgid "{name} doesn't provide this. Add it anyway?"
+msgstr ""
+
+msgctxt "#30401"
+msgid "Your MDBList key works. Change it?"
+msgstr ""
+
+msgctxt "#30402"
+msgid "MDBList API key (mdblist.com > Preferences > API)"
+msgstr ""
+
+msgctxt "#30403"
+msgid "Run setup wizard"
+msgstr ""
+
+msgctxt "#30404"
+msgid "Add your streams and metadata addons and MDBList key, step by step."
+msgstr ""
+
+msgctxt "#30405"
+msgid "Change"
+msgstr ""

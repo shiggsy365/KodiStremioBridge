@@ -42,7 +42,7 @@ def run(argv):
     # Handler modules register themselves on import.
     from . import (  # noqa: F401
         contextmenu, details, hubs, infodialog, library, manage, menus, player, search, searchwindow, skinhelper, views, watching,
-        watchlist,
+        watchlist, wizard,
     )
     from .common import log
 

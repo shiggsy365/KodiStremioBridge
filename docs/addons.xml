@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.11.2"
+       version="0.11.3"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,12 +23,12 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.11.2 - Arctic Zephyr Stremio support: skin helpers, hubs, Cinemeta and streaming-service lists, its own context menu and info page buttons; Kodi's info page replaces Extended info and library integration is off. Kodi's Mark as watched updates your history. Continue Watching pages 20 at a time.
+        <news>v0.11.3 - Setup wizard: add your streams and metadata addons and MDBList key step by step (Settings, or the skin's ... menu).
+v0.11.2 - Arctic Zephyr Stremio support: skin helpers, hubs, Cinemeta and streaming-service lists, its own context menu and info page buttons; Kodi's info page replaces Extended info and library integration is off. Kodi's Mark as watched updates your history. Continue Watching pages 20 at a time.
 v0.11.1 - Faster Continue Watching and Next Up (results reused until you watch something); smaller, compressed cache capped at 25 MB.
 v0.11.0 - New stream page: cards with badges, filter chips, no logos. Extended info for episodes. Selecting can open Extended info for episodes too. Fixed context menu entries overwriting each other, and settings buttons on Fire TV.
 v0.10.3 - With autoplay on: "Show Playable Streams" in context menus and a Streams tile in Extended info. Removing an episode from Continue Watching also removes its show from Next Up until you watch more.
-v0.10.2 - Continue Watching shows descriptions, cast and details.
-v0.9.0 - Widgets folder, combined Continue Watching, time left, show progress, hide watched, pre-warming, open on next episode.</news>
+v0.10.2 - Continue Watching shows descriptions, cast and details.</news>
     </extension>
 </addon>
 <addon id="script.shiggsy365.globalsearch"
@@ -108,10 +108,10 @@ v1.0.0 - First release.</news>
         </assets>
     </extension>
 </addon>
-<addon id="skin.arctic.zephyr.stremio" version="1.0.0" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
+<addon id="skin.arctic.zephyr.stremio" version="1.0.1" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
     <requires>
         <import addon="xbmc.gui" version="5.17.0"/>
-        <import addon="plugin.video.stremiobridge" version="0.11.2"/>
+        <import addon="plugin.video.stremiobridge" version="0.11.3"/>
         <import addon="script.skinshortcuts" version="0.4.0"/>
         <import addon="script.image.resource.select" version="0.0.5"/>
         <import addon="resource.images.weathericons.white" version="0.0.6"/>
@@ -137,7 +137,8 @@ v1.0.0 - First release.</news>
             <screenshot>resources/screenshot-09.jpg</screenshot>
             <screenshot>resources/screenshot-10.jpg</screenshot>
         </assets>
-        <news>v1.0.0 - Forked from Arctic: Zephyr - Reloaded 3.0.3 (beatmasterRS, upstream commit 27b7bd7) and renamed. Removed the CJK font set (Inter CJK, 54 MB) to keep the skin small. No TMDb Helper or Embuary. Ready-made Home, Movies and TV Shows menus and hubs; Kodi's info page with Browse show, Mark watched, Watchlist and streaming-service buttons; actors open Stremio Bridge's person search; Stremio Bridge's context menu; a ... settings menu.</news>
+        <news>v1.0.1 - Runs Stremio Bridge's setup wizard on first start; Setup wizard in the ... menu; fixed the ... submenu.
+v1.0.0 - Forked from Arctic: Zephyr - Reloaded 3.0.3 (beatmasterRS, upstream commit 27b7bd7) and renamed. Removed the CJK font set (Inter CJK, 54 MB) to keep the skin small. No TMDb Helper or Embuary. Ready-made Home, Movies and TV Shows menus and hubs; Kodi's info page with Browse show, Mark watched, Watchlist and streaming-service buttons; actors open Stremio Bridge's person search; Stremio Bridge's context menu; a ... settings menu.</news>
         <summary lang="en_GB">Arctic: Zephyr - Reloaded, made for Stremio Bridge.</summary>
         <description lang="en_GB">A fork of Arctic: Zephyr - Reloaded by beatmasterRS, itself based on Arctic: Zephyr by jurialmunkey, made to work with Stremio Bridge, Global Search and Dispatcharr Bridge. Clean, minimal and light, with the layout of Reloaded. Licensed under CC BY-NC-SA 3.0, like the original.</description>
     </extension>

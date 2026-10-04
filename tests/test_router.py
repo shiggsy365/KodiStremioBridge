@@ -2536,3 +2536,23 @@ def test_streaming_services_for_a_title(server, monkeypatch):
                                                                     if service in ("dnp", "hbm") else []}
     assert streaming.services_for(common.get_client(), "movie", "tt9") == [("dnp", "Disney+"), ("hbm", "HBO Max")]
     assert streaming.services_for(common.get_client(), "movie", "kitsu:1") == []
+
+
+def test_setup_wizard_adds_streams_and_metadata(server, monkeypatch):
+    from conftest import STREAM_ADDON
+
+    server.routes["/s/manifest.json"] = STREAM_ADDON
+    server.routes["/manifest.json"] = CINEMETA_LIKE
+    answers = {"yesno": [True, False], "input": [server.url + "/s/manifest.json", server.url + "/manifest.json", ""]}
+    shown = []
+    monkeypatch.setattr(xbmcgui.Dialog, "yesno", lambda self, heading, text, **kw: answers["yesno"].pop(0))
+    monkeypatch.setattr(xbmcgui.Dialog, "input", lambda self, heading, defaultt="", **kw: answers["input"].pop(0))
+    monkeypatch.setattr(xbmcgui.Dialog, "ok", lambda self, heading, text: shown.append(heading))
+    monkeypatch.setattr(xbmcgui.Dialog, "notification", lambda self, *a, **kw: None)
+    from kodi_ui import wizard
+
+    assert not wizard.is_set_up()
+    call("setup_wizard", handle=-1)
+    assert [a.name for a in common.get_registry().all()] == ["Example Streams", "Example Meta"]
+    assert answers == {"yesno": [], "input": []}                 # no more addons; MDBList key left empty
+    assert wizard.providers("stream") == ["Example Streams"] and wizard.providers("meta") == ["Example Meta"]
