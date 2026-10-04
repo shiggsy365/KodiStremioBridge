@@ -24,7 +24,7 @@ from .common import (
 from .details import load_meta, play_trailer
 from .library import LIBRARY_TYPES, in_library
 from .watchlist import change_watchlist, on_watchlist
-from .listitems import PLAYABLE_TYPES, apply_watch, episode_listitem, meta_item
+from .listitems import PLAYABLE_TYPES, apply_info_actions, apply_watch, episode_listitem, meta_item
 from .router import route
 from .watching import mark_watched
 
@@ -208,14 +208,6 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
 INFO_WINDOW = "movieinformation"
 
 
-def release_date(iso):
-    """"2026-09-18" -> "18 September 2026" (the info page's Released row)."""
-    try:
-        return datetime.date.fromisoformat(iso).strftime("%d %B %Y")
-    except ValueError:
-        return ""
-
-
 def kodi_info(plugin, meta, episode, video_id, state):
     """With our skin: Kodi's own Information page for the title (or episode).
     `video_id` is what its Play button plays (None for a show). The skin's
@@ -237,17 +229,7 @@ def kodi_info(plugin, meta, episode, video_id, state):
         aired = {(v.season, v.episode) for v in meta.videos if v.season and v.is_released(today)}
         watched = bool(aired) and aired <= state.watched_episodes(meta.id)
         item.getVideoInfoTag().setPlaycount(1 if watched else 0)
-    item.setProperty("ReleaseDate", release_date(episode.air_date if episode else meta.premiered))
-    if meta.type not in PLAYABLE_TYPES:  # a show, or one of its episodes
-        item.setProperty("stremiobridge.browse",
-                         plugin.url_for("info_browse", url=plugin.url_for("meta", type=meta.type, id=meta.id)))
-    item.setProperty("stremiobridge.watched_action", plugin.url_for(
-        "info_toggle", what="watched", type=meta.type, id=meta.id, video=video, value=int(not watched)))
-    listed = on_watchlist(meta.type, meta.id) if meta.type in LIBRARY_TYPES else None
-    if listed is not None:
-        item.setProperty("stremiobridge.watchlist", "true" if listed else "")
-        item.setProperty("stremiobridge.watchlist_action", plugin.url_for(
-            "info_toggle", what="watchlist", type=meta.type, id=meta.id, video=video, value=int(not listed)))
+    apply_info_actions(item, plugin, meta, episode, watched)
     services = _services(meta)
     if services:
         item.setProperty("stremiobridge.service", services[0][0])

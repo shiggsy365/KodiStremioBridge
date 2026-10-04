@@ -27,6 +27,9 @@ VIEW_SETTINGS = {
     "seasons": ("view_seasons", 30283),
     "episodes": ("view_episodes", 30284),
 }
+DEFAULT_VIEW_IDS = {
+    "seasons": {"skin.arctic.zephyr.stremio": 526},
+}
 _STORED_ID = re.compile(r"\((\d+)\)\s*$")
 _LOCALIZE = re.compile(r"^\$LOCALIZE\[(\d+)\]$")
 _ADDON_STRING = re.compile(r"^\$ADDON\[(\S+)\s+(\d+)\]$")
@@ -148,8 +151,11 @@ def stored_view_id(content):
     setting = VIEW_SETTINGS.get(content)
     if setting is None:
         return None
-    match = _STORED_ID.search(ADDON.getSettingString(setting[0]))
-    return int(match.group(1)) if match else None
+    stored = ADDON.getSettingString(setting[0])
+    match = _STORED_ID.search(stored)
+    if match:
+        return int(match.group(1))
+    return DEFAULT_VIEW_IDS.get(content, {}).get(xbmc.getSkinDir())
 
 
 @route("choose_view")

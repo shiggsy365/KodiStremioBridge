@@ -22,7 +22,7 @@ from .common import (
 )
 from .details import load_meta
 from .listitems import (
-    PLAYABLE_TYPES, apply_meta_info, apply_watch, content_for, episode_item, item_menu, playable_entry, preview_items,
+    PLAYABLE_TYPES, apply_info_actions, apply_meta_info, apply_watch, content_for, episode_item, item_menu, playable_entry, preview_items,
 )
 from .router import route
 from .views import end_listing, set_content
@@ -165,11 +165,15 @@ def _resume_item(plugin, row, meta=None):
     tag.setTagLine(left)
     if meta is not None:
         apply_meta_info(tag, meta, next((v for v in meta.videos if v.id == row.video_id), None))
+    episode = None
     if row.is_episode:
         tag.setTvShowTitle(row.show_title)
         tag.setSeason(row.season)
         tag.setEpisode(row.episode)
+        episode = next((v for v in meta.videos if v.id == row.video_id), None) if meta is not None else None
     apply_watch(item, row)
+    if meta is not None:
+        apply_info_actions(item, plugin, meta, episode, row.watched)
     add_context_menu(item, [(L(30192), plugin.run_url("clear_resume", id=row.video_id))]
                      + item_menu(plugin, row.type, row.video_id, row.watched, {"meta": row.meta_id or None},
                                  show_id=row.meta_id or None, browse_show=row.is_episode))

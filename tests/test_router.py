@@ -25,7 +25,7 @@ SETTINGS = {"cinemeta_fallback": False, "show_specials": True, "hide_unaired": F
             "watched_percent": 90, "min_resume_seconds": 120, "show_continue": True, "show_next_up": True,
             "upnext_enabled": True, "same_source_next": True, "mdblist_enabled": False, "mdblist_api_key": "",
             "mdblist_scrobble": True, "mdblist_sync_hours": 6, "library_watchlist": False,
-            "view_movies": "", "view_tvshows": "", "view_seasons": "", "view_episodes": "", "show_watchlist": True,
+            "view_movies": "", "view_tvshows": "", "view_seasons": "Seasons Info v2 (526)", "view_episodes": "", "show_watchlist": True,
             "genre_filter": False, "select_opens_info": False, "hide_watched": False, "show_widgets_folder": False,
             "continue_with_next_up": False, "prewarm": False, "tidy_names": True}
 
@@ -219,6 +219,27 @@ def test_series_seasons_and_episodes(server, listing, settings):
     call("season", type="series", id="tt5", season=1)
     assert [p["id"] for p, _ in items] == ["tt5:1:1"]
     assert all(ends)
+
+
+def test_season_episode_items_expose_info_panel_actions(server, monkeypatch):
+    install(server)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    captured = []
+
+    def add_many(handle, entries, total=0):
+        captured.extend(entries)
+        return True
+
+    monkeypatch.setattr(xbmcplugin, "addDirectoryItems", add_many)
+    call("season", type="series", id="tt5", season=1)
+
+    url, item, folder = captured[0]
+    assert "action=play" in url and "id=tt5%3A1%3A1" in url
+    assert not folder
+    assert "action=info_browse" in item.getProperty("stremiobridge.browse")
+    assert "action=info_toggle" in item.getProperty("stremiobridge.watched_action")
+    assert "video=tt5%3A1%3A1" in item.getProperty("stremiobridge.watched_action")
+    assert item.getProperty("ReleaseDate")
 
 
 def test_single_season_skips_season_level(server, listing):
@@ -1606,6 +1627,10 @@ def test_choose_and_apply_view(settings, monkeypatch, kodi_ui_state, tmp_path):
     call("choose_view", handle=-1, content="movies")
     assert saved == {"view_movies": "Wall (52)"}
     assert [o[2] for o in shown["options"]] == ["", "", str(tmp_path / "extras" / "views" / "52.jpg")]
+
+    settings["view_seasons"] = ""
+    monkeypatch.setattr(views.xbmc, "getSkinDir", lambda: "skin.arctic.zephyr.stremio")
+    assert views.stored_view_id("seasons") == 526
 
     settings["view_movies"] = "Wall (52)"
     applied = []

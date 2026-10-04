@@ -382,7 +382,7 @@
                 </setting>
                 <setting id="view_seasons" type="string" label="30283" help="30286">
                     <level>0</level>
-                    <default></default>
+                    <default>Seasons Info v2 (526)</default>
                     <constraints>
                         <allowempty>true</allowempty>
                     </constraints>

@@ -240,9 +240,39 @@ def episode_item(plugin, meta, video, released=True, row=None, browse_show=True)
     """A playable episode (or channel video). Unreleased ones are shown greyed out."""
     item = episode_listitem(meta, video, released)
     apply_watch(item, row)
+    apply_info_actions(item, plugin, meta, video, bool(row and row.watched))
     add_context_menu(item, item_menu(plugin, meta.type, video.id, bool(row and row.watched), {"meta": meta.id},
                                        show_id=meta.id, trailer=meta.trailer, browse_show=browse_show))
     return playable_entry(plugin, item, meta.type, video.id, meta=meta.id)
+
+
+def _release_date(iso):
+    import datetime
+
+    try:
+        return datetime.date.fromisoformat(iso).strftime("%d %B %Y")
+    except (TypeError, ValueError):
+        return ""
+
+
+def apply_info_actions(item, plugin, meta, video=None, watched=False):
+    """Properties Arctic Zephyr Stremio uses for extra buttons on Kodi's info panel."""
+    item.setProperty("ReleaseDate", _release_date(video.air_date if video else meta.premiered))
+    if meta.type not in PLAYABLE_TYPES:
+        item.setProperty("stremiobridge.browse",
+                         plugin.url_for("info_browse", url=plugin.url_for("meta", type=meta.type, id=meta.id)))
+    item.setProperty("stremiobridge.watched_action", plugin.url_for(
+        "info_toggle", what="watched", type=meta.type, id=meta.id,
+        video=video.id if video else None, value=int(not watched)))
+    from .library import LIBRARY_TYPES
+    from .watchlist import on_watchlist
+
+    listed = on_watchlist(meta.type, meta.id) if meta.type in LIBRARY_TYPES else None
+    if listed is not None:
+        item.setProperty("stremiobridge.watchlist", "true" if listed else "")
+        item.setProperty("stremiobridge.watchlist_action", plugin.url_for(
+            "info_toggle", what="watchlist", type=meta.type, id=meta.id,
+            video=video.id if video else None, value=int(not listed)))
 
 
 def episode_listitem(meta, video, released=True):

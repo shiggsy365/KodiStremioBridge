@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.11.4"
+       version="0.11.5"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,7 +23,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.11.4 - Setup wizard syncs MDBList after saving an API key and reloads the skin when it completes.
+        <news>v0.11.5 - Seasons default to Seasons Info v2 in Arctic Zephyr Stremio; episode info panels from season browsing show Bridge actions.
+v0.11.4 - Setup wizard syncs MDBList after saving an API key and reloads the skin when it completes.
 v0.11.3 - Setup wizard: add your streams and metadata addons and MDBList key step by step (Settings, or the skin's ... menu).
 v0.11.2 - Arctic Zephyr Stremio support: skin helpers, hubs, Cinemeta and streaming-service lists, its own context menu and info page buttons; Kodi's info page replaces Extended info and library integration is off. Kodi's Mark as watched updates your history. Continue Watching pages 20 at a time.
 v0.11.1 - Faster Continue Watching and Next Up (results reused until you watch something); smaller, compressed cache capped at 25 MB.
