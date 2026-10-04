@@ -148,7 +148,7 @@ def main():
     with open(os.path.join(OUT, "addons.xml"), "w", encoding="utf-8") as f:
         f.write(xml)
     with open(os.path.join(OUT, "addons.xml.md5"), "w") as f:
-        f.write(hashlib.md5(xml.encode("utf-8")).hexdigest())
+        f.write(hashlib.md5(xml.encode("utf-8")).hexdigest() + "\n")
     write_index(links)
     # GitHub Pages runs Jekyll by default; this serves the files as they are.
     open(os.path.join(OUT, ".nojekyll"), "w").close()
