@@ -230,6 +230,12 @@ def kodi_info(plugin, meta, episode, video_id, state):
         watched = bool(aired) and aired <= state.watched_episodes(meta.id)
         item.getVideoInfoTag().setPlaycount(1 if watched else 0)
     apply_info_actions(item, plugin, meta, episode, watched)
+    if meta.videos:
+        from .details import visible_seasons
+
+        seasons = visible_seasons(meta)
+        if seasons:
+            item.setProperty("stremiobridge.default_season", str(seasons[0]))
     services = _services(meta)
     if services:
         item.setProperty("stremiobridge.service", services[0][0])

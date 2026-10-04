@@ -221,6 +221,25 @@ def test_series_seasons_and_episodes(server, listing, settings):
     assert all(ends)
 
 
+def test_info_page_show_browser_routes(server, listing, settings):
+    install(server)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    state = common.get_watchstate()
+    state.set_watched([PlaybackEntry(video_id="tt5:1:1", type="series", meta_id="tt5", season=1, episode=1)], True)
+    items, ends = listing
+
+    call("info_seasons", type="series", id="tt5")
+    assert [(p["action"], p["season"]) for p, _ in items] == [("info_episodes", "1"), ("info_episodes", "2"), ("info_episodes", "0")]
+    assert ends == [True]
+
+    items.clear()
+    call("info_episodes", type="series", id="tt5", season=1)
+    assert items == [
+        ({"action": "extended_info", "type": "series", "id": "tt5", "video": "tt5:1:1"}, False),
+        ({"action": "extended_info", "type": "series", "id": "tt5", "video": "tt5:1:2"}, False),
+    ]
+
+
 def test_season_episode_items_expose_info_panel_actions(server, monkeypatch):
     install(server)
     server.routes["/meta/series/tt5.json"] = SHOW
@@ -245,7 +264,10 @@ def test_season_episode_items_expose_info_panel_actions(server, monkeypatch):
     url, item, folder = captured[0]
     assert "action=play" in url and "id=tt5%3A1%3A1" in url
     assert not folder
-    assert "action=info_browse" in item.getProperty("stremiobridge.browse")
+    assert item.getProperty("stremiobridge.type") == "series"
+    assert item.getProperty("stremiobridge.id") == "tt5"
+    assert item.getProperty("stremiobridge.video") == "tt5:1:1"
+    assert item.getProperty("stremiobridge.browse") == ""
     assert "action=info_toggle" in item.getProperty("stremiobridge.watched_action")
     assert "video=tt5%3A1%3A1" in item.getProperty("stremiobridge.watched_action")
 
@@ -327,9 +349,10 @@ def test_context_menus(server, listing, settings, monkeypatch):
     state.set_watched([PlaybackEntry(video_id="tt5:1:2", type="series", meta_id="tt5", season=1, episode=2)], True)
     menus.clear()
     call("next_up")                                         # an episode outside its show: "Browse show"
-    browse = [cmd for _, cmd in menus[0] if "action=meta" in cmd]
-    assert browse == [f"ActivateWindow(Videos,{BASE}?action=meta&type=series&id=tt5,return)"]
-    info = [cmd for _, cmd in menus[0] if "action=extended_info" in cmd]
+    browse = [cmd for _, cmd in menus[0]
+              if cmd == f"RunPlugin({BASE}?action=extended_info&type=series&id=tt5)"]
+    assert browse == [f"RunPlugin({BASE}?action=extended_info&type=series&id=tt5)"]
+    info = [cmd for _, cmd in menus[0] if "action=extended_info" in cmd and "video=" in cmd]
     assert info == [f"RunPlugin({BASE}?action=extended_info&type=series&id=tt5&video=tt5%3A2%3A1)"]  # the episode's page
 
 
@@ -820,19 +843,25 @@ def test_listings_carry_watch_state(server, listing, settings, monkeypatch):
     state.set_watched([PlaybackEntry(video_id="tt5:1:1", type="series", meta_id="tt5", season=1, episode=1)], True)
     state.record(PlaybackEntry(video_id="tt5:2:1", type="series", meta_id="tt5", season=2, episode=1), 300, 1200)
     marks = []
+    info = []
     monkeypatch.setattr(xbmc.InfoTagVideo, "setPlaycount", lambda self, n: marks.append(("count", n)))
     monkeypatch.setattr(xbmc.InfoTagVideo, "setResumePoint", lambda self, t, total: marks.append(("resume", t)))
+    monkeypatch.setattr(xbmcgui.ListItem, "setInfo", lambda self, type_, labels: info.append((type_, labels)))
     props = {}
     monkeypatch.setattr(xbmcgui.ListItem, "setProperty", lambda self, k, v: props.__setitem__(k, v))
 
     call("meta", type="series", id="tt5")                      # seasons: 1, 2, 0
     assert ("count", 0) in marks and props["WatchedEpisodes"] == "0"   # last season rendered: specials
     marks.clear()
+    info.clear()
     call("season", type="series", id="tt5", season=1)
     assert marks == [("count", 1)]
+    assert info == [("video", {"playcount": 1, "overlay": 7})]
     marks.clear()
+    info.clear()
     call("season", type="series", id="tt5", season=2)
     assert marks == [("count", 0), ("resume", 300)]
+    assert info == [("video", {"playcount": 0, "overlay": 6})]
 
 
 # ------------------------------------------------------------------ service
@@ -1381,7 +1410,7 @@ def test_episodes_in_their_own_show_offer_browse_show(server, listing, settings,
     menus = []
     monkeypatch.setattr(xbmcgui.ListItem, "addContextMenuItems", lambda self, items: menus.append(items))
     call("season", type="series", id="tt5", season=1)
-    assert all(any("action=meta&type=series&id=tt5" in cmd for _, cmd in menu) for menu in menus)
+    assert all(any("action=extended_info&type=series&id=tt5" in cmd for _, cmd in menu) for menu in menus)
 
 
 
@@ -2021,6 +2050,7 @@ HUB_ADDON = {**CINEMETA_LIKE, "catalogs": [
     {"type": "movie", "id": "popular", "name": "Popular",
      "extra": [{"name": "genre", "options": ["None", "Action", "Comedy", "Drama", "Horror", "Sci-Fi"]}]},
     {"type": "series", "id": "shows", "name": "Shows"},
+    {"type": "music", "id": "albums", "name": "Albums"},
     {"type": "movie", "id": "search", "name": "Search", "extra": [{"name": "search", "isRequired": True}]},
 ]}
 
@@ -2051,7 +2081,7 @@ def test_organise_catalogs(server, listing, settings, monkeypatch):
     key = common.get_registry().all()[0].key
     items, _ = listing
     call("organise")
-    assert [p.get("hub") for p, _ in items] == ["movies", "tvshows", None]  # then "New hub…"
+    assert [p.get("hub") for p, _ in items] == ["movies", "tvshows", "more", None]  # then "New hub…"
     items.clear()
     call("organise_hub", hub="movies")
     assert [p["catalog"] for p, _ in items] == ["movie/trending", "movie/popular"]
@@ -2068,6 +2098,7 @@ def test_organise_catalogs(server, listing, settings, monkeypatch):
     registry = common.get_registry()
     assert [c.id for _, c in registry.hub_catalogs("movies")] == ["popular"]
     assert [c.id for _, c in registry.hub_catalogs("more")] == ["shows"]
+    assert [c.id for _, c, shown in registry.hub_entries("more") if not shown] == ["albums"]
     assert registry.get(key).display_name(next(c for c in registry.get(key).manifest.catalogs
                                                 if c.id == "trending")) == "Hot right now"
     items.clear()
@@ -2112,7 +2143,8 @@ def test_organise_hubs(server, listing, settings, monkeypatch):
     call("hub_create", handle=-1)
     call("organise")                                       # the new, empty hub is listed, then "New hub…"
     assert [(p["action"], p.get("hub")) for p, _ in items] == [
-        ("organise_hub", "movies"), ("organise_hub", "tvshows"), ("organise_hub", "c1"), ("hub_create", None)]
+        ("organise_hub", "movies"), ("organise_hub", "tvshows"), ("organise_hub", "more"),
+        ("organise_hub", "c1"), ("hub_create", None)]
 
     # Moving a catalog can create the hub on the way: the last option is "New hub…".
     monkeypatch.setattr(xbmcgui.Dialog, "select", lambda self, heading, options, **kw: len(options) - 1)
@@ -2534,8 +2566,8 @@ def test_context_menu_order(monkeypatch):
     path = "plugin://plugin.video.stremiobridge/?action=play&type=series&id=tt2%3A1%3A3&meta=tt2"
     own = [["[COLOR FFFF8080]Play trailer[/COLOR]", "RunPlugin(plugin://x/?action=play_trailer&type=series&id=tt2)"],
            ["Add to watchlist", "RunPlugin(plugin://x/?action=watchlist_add&type=series&id=tt2)"],
-           ["Browse show", "ActivateWindow(Videos,plugin://x/?action=meta&type=series&id=tt2,return)"],
-           ["Extended info", "RunPlugin(plugin://x/?action=extended_info&type=series&id=tt2)"],
+           ["Browse show", "RunPlugin(plugin://x/?action=extended_info&type=series&id=tt2)"],
+           ["Extended info", "RunPlugin(plugin://x/?action=extended_info&type=series&id=tt2&video=tt2:1:3)"],
            ["Show Playable Streams", "PlayMedia(plugin://x/?action=play&type=series&id=tt2:1:3&pick=1)"],
            ["Remove from Continue Watching", "RunPlugin(plugin://x/?action=dismiss&id=tt2)"],
            ["Mark as watched", "RunPlugin(plugin://x/?action=set_watched&type=series&id=tt2:1:3&value=1&meta=tt2)"]]

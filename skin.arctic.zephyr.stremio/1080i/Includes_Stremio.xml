@@ -236,4 +236,143 @@
         <value condition="!String.IsEmpty(ListItem.Property(ReleaseDate))">$INFO[ListItem.Property(ReleaseDate)]</value>
         <value>$INFO[ListItem.Year]</value>
     </variable>
+
+    <include name="StremioInfoShowBrowser">
+        <control type="group">
+            <visible>String.IsEqual(ListItem.DBType,tvshow) + !String.IsEmpty(ListItem.Property(stremiobridge.id))</visible>
+            <include>Animation.DelayFadeIn</include>
+            <top>410</top>
+            <left>-840</left>
+            <width>1450</width>
+            <height>380</height>
+            <control type="fixedlist" id="5060">
+                <left>0</left>
+                <top>0</top>
+                <width>1220</width>
+                <height>56</height>
+                <orientation>horizontal</orientation>
+                <onleft>5060</onleft>
+                <onright>5060</onright>
+                <onup>9000</onup>
+                <ondown>5061</ondown>
+                <onback>9000</onback>
+                <onclick>SetProperty(stremiobridge.info.season,$INFO[Container(5060).ListItem.Property(season)],home)</onclick>
+                <onclick>SetFocus(5061)</onclick>
+                <onclick>Container.Refresh</onclick>
+                <content target="videos">plugin://plugin.video.stremiobridge/?action=info_seasons&amp;type=series&amp;id=$ESCINFO[ListItem.Property(stremiobridge.id)]</content>
+                <itemlayout width="170" height="54">
+                    <control type="label">
+                        <left>6</left>
+                        <top>5</top>
+                        <width>158</width>
+                        <height>40</height>
+                        <align>center</align>
+                        <aligny>center</aligny>
+                        <font>Tiny</font>
+                        <textcolor>Dark2</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="170" height="54">
+                    <control type="image">
+                        <left>4</left>
+                        <top>3</top>
+                        <width>162</width>
+                        <height>44</height>
+                        <texture colordiffuse="$VAR[ColorHighlight]" border="4">common/box.png</texture>
+                    </control>
+                    <control type="label">
+                        <left>6</left>
+                        <top>5</top>
+                        <width>158</width>
+                        <height>40</height>
+                        <align>center</align>
+                        <aligny>center</aligny>
+                        <font>Tiny</font>
+                        <textcolor>White</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="fixedlist" id="5061">
+                <left>-18</left>
+                <top>62</top>
+                <width>1600</width>
+                <height>330</height>
+                <focusposition>1</focusposition>
+                <orientation>horizontal</orientation>
+                <preloaditems>2</preloaditems>
+                <onleft>5061</onleft>
+                <onright>5061</onright>
+                <onup>5060</onup>
+                <ondown>9000</ondown>
+                <onback>9000</onback>
+                <content target="videos">plugin://plugin.video.stremiobridge/?action=info_episodes&amp;type=series&amp;id=$ESCINFO[ListItem.Property(stremiobridge.id)]&amp;season=$ESCINFO[Window(home).Property(stremiobridge.info.season)]</content>
+                <itemlayout width="300" height="300">
+                    <control type="image">
+                        <left>20</left>
+                        <top>10</top>
+                        <width>260</width>
+                        <height>146</height>
+                        <aspectratio>scale</aspectratio>
+                        <texture background="true" fallback="DefaultTVShows.png">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="label">
+                        <left>20</left>
+                        <top>164</top>
+                        <width>260</width>
+                        <height>42</height>
+                        <font>Tiny</font>
+                        <textcolor>Dark2</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="textbox">
+                        <left>20</left>
+                        <top>206</top>
+                        <width>260</width>
+                        <height>78</height>
+                        <font>Mini</font>
+                        <textcolor>Dark3</textcolor>
+                        <label>$INFO[ListItem.Plot]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="300" height="300">
+                    <control type="image">
+                        <left>12</left>
+                        <top>2</top>
+                        <width>276</width>
+                        <height>162</height>
+                        <texture colordiffuse="$VAR[ColorHighlightSelectbox2]" border="5">common/gradient-box-wide.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>20</left>
+                        <top>10</top>
+                        <width>260</width>
+                        <height>146</height>
+                        <aspectratio>scale</aspectratio>
+                        <texture background="true" fallback="DefaultTVShows.png">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="label">
+                        <left>20</left>
+                        <top>164</top>
+                        <width>260</width>
+                        <height>42</height>
+                        <font>Tiny</font>
+                        <textcolor>White</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="textbox">
+                        <left>20</left>
+                        <top>206</top>
+                        <width>260</width>
+                        <height>78</height>
+                        <font>Mini</font>
+                        <textcolor>Dark2</textcolor>
+                        <label>$INFO[ListItem.Plot]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+        </control>
+    </include>
+
 </includes>

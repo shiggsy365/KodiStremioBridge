@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.11.6"
+       version="0.11.8"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -22,7 +22,9 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.11.6 - Forces Arctic Zephyr Stremio's seasons view label before applying Seasons Info v2.
+        <news>v0.11.8 - Show browsing now lives inside the info page with season chips and episode thumbnails.
+v0.11.7 - Hides music catalogs by default on new setups and restores watched banners for movies and episodes.
+v0.11.6 - Forces Arctic Zephyr Stremio's seasons view label before applying Seasons Info v2.
 v0.11.5 - Seasons default to Seasons Info v2 in Arctic Zephyr Stremio; episode info panels from season browsing show Bridge actions.
 v0.11.4 - Setup wizard syncs MDBList after saving an API key and reloads the skin when it completes.
 v0.11.3 - Setup wizard: add your streams and metadata addons and MDBList key step by step (Settings, or the skin's ... menu).

@@ -116,7 +116,7 @@ def item_menu(plugin, type_, id_, watched, watched_params=None, show_id=None, tr
     if partly_watched and not watched:
         menu.append(watched_menu(plugin, True, type_, id_, **(watched_params or {})))
     if browse_show and show_id:
-        menu.append((L(30064), f"ActivateWindow(Videos,{plugin.url_for('meta', type=type_, id=show_id)},return)"))
+        menu.append((L(30064), plugin.run_url("extended_info", type=type_, id=show_id)))
     episode = id_ if show_id and id_ != show_id else None  # an episode: its own page, within the show's
     if not skin_active():  # with our skin, Kodi's own Information entry shows the same page
         menu.append((L(30220), plugin.run_url("extended_info", type=type_, id=owner, video=episode)))
@@ -169,7 +169,9 @@ def apply_watch(item, row):
     if row is None:
         return
     tag = item.getVideoInfoTag()
-    tag.setPlaycount(1 if row.watched else 0)
+    playcount = 1 if row.watched else 0
+    tag.setPlaycount(playcount)
+    item.setInfo("video", {"playcount": playcount, "overlay": 7 if row.watched else 6})
     if row.position > 0 and row.duration > 0:
         tag.setResumePoint(row.position, row.duration)
 
@@ -258,9 +260,10 @@ def _release_date(iso):
 def apply_info_actions(item, plugin, meta, video=None, watched=False):
     """Properties Arctic Zephyr Stremio uses for extra buttons on Kodi's info panel."""
     item.setProperty("ReleaseDate", _release_date(video.air_date if video else meta.premiered))
-    if meta.type not in PLAYABLE_TYPES:
-        item.setProperty("stremiobridge.browse",
-                         plugin.url_for("info_browse", url=plugin.url_for("meta", type=meta.type, id=meta.id)))
+    item.setProperty("stremiobridge.type", meta.type)
+    item.setProperty("stremiobridge.id", meta.id)
+    if video is not None:
+        item.setProperty("stremiobridge.video", video.id)
     item.setProperty("stremiobridge.watched_action", plugin.url_for(
         "info_toggle", what="watched", type=meta.type, id=meta.id,
         video=video.id if video else None, value=int(not watched)))

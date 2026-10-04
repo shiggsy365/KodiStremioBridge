@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="skin.arctic.zephyr.stremio" version="1.0.1" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
+<addon id="skin.arctic.zephyr.stremio" version="1.0.2" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
     <requires>
         <import addon="xbmc.gui" version="5.17.0"/>
-        <import addon="plugin.video.stremiobridge" version="0.11.3"/>
+        <import addon="plugin.video.stremiobridge" version="0.11.8"/>
         <import addon="script.skinshortcuts" version="0.4.0"/>
         <import addon="script.image.resource.select" version="0.0.5"/>
         <import addon="resource.images.weathericons.white" version="0.0.6"/>
@@ -28,7 +28,8 @@
             <screenshot>resources/screenshot-09.jpg</screenshot>
             <screenshot>resources/screenshot-10.jpg</screenshot>
         </assets>
-        <news>v1.0.1 - Runs Stremio Bridge's setup wizard on first start; Setup wizard in the ... menu; fixed the ... submenu.
+        <news>v1.0.2 - Embeds Stremio Bridge show browsing in the info page with season chips and episode thumbnails.
+v1.0.1 - Runs Stremio Bridge's setup wizard on first start; Setup wizard in the ... menu; fixed the ... submenu.
 v1.0.0 - Forked from Arctic: Zephyr - Reloaded 3.0.3 (beatmasterRS, upstream commit 27b7bd7) and renamed. Removed the CJK font set (Inter CJK, 54 MB) to keep the skin small. No TMDb Helper or Embuary. Ready-made Home, Movies and TV Shows menus and hubs; Kodi's info page with Browse show, Mark watched, Watchlist and streaming-service buttons; actors open Stremio Bridge's person search; Stremio Bridge's context menu; a ... settings menu.</news>
         <summary lang="en_GB">Arctic: Zephyr - Reloaded, made for Stremio Bridge.</summary>
         <description lang="en_GB">A fork of Arctic: Zephyr - Reloaded by beatmasterRS, itself based on Arctic: Zephyr by jurialmunkey, made to work with Stremio Bridge, Global Search and Dispatcharr Bridge. Clean, minimal and light, with the layout of Reloaded. Licensed under CC BY-NC-SA 3.0, like the original.</description>

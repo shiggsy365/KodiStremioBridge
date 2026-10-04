@@ -19,6 +19,7 @@ SCHEMA_VERSION = 1
 
 
 HUBS = ("movies", "tvshows", "anime", "more")
+HIDDEN_BY_DEFAULT_TYPES = {"music"}
 _EMOJI = re.compile("[\U0001F000-\U0001FAFF\u2600-\u27BF\uFE0F\u200D\u2B00-\u2BFF\u2300-\u23FF]+")
 
 
@@ -59,6 +60,10 @@ class CatalogPrefs:
         return catalog.default_front_page if self.front is None else self.front
 
 
+def default_prefs_for(catalog):
+    return CatalogPrefs(home=catalog.type not in HIDDEN_BY_DEFAULT_TYPES)
+
+
 @dataclass
 class InstalledAddon:
     transport_url: str
@@ -82,7 +87,7 @@ class InstalledAddon:
         return base_url(self.transport_url)
 
     def prefs_for(self, catalog):
-        return self.catalog_prefs.get(catalog.key) or CatalogPrefs()
+        return self.catalog_prefs.get(catalog.key) or default_prefs_for(catalog)
 
     def hub_of(self, catalog):
         return self.prefs_for(catalog).hub or default_hub(catalog.type)

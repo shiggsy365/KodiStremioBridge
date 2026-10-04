@@ -936,6 +936,9 @@
                         <param name="labeltwovisible" value="true"/>
                     </include>
 
+                    <!-- Stremio Bridge: show browsing directly inside the info page -->
+                    <include>StremioInfoShowBrowser</include>
+
                     <!-- By Director -->
                     <include content="VideoListCast" condition="String.IsEqual(ListItem.DBType,movie) + !String.IsEqual(ListItem.DBType,set)">
                         <param name="arrowleft" value="-598"/>

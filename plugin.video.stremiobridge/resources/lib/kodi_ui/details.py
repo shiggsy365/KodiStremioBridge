@@ -12,7 +12,10 @@ from stremio.models import CAST, DIRECTOR, WRITER
 from stremio.watchstate import next_episode
 
 from .common import ADDON, L, get_client, get_registry, get_watchstate, log, notify
-from .listitems import YOUTUBE_PLUGIN, episode_item, season_item, season_label, single_video_item
+from .listitems import (
+    YOUTUBE_PLUGIN, apply_info_actions, apply_watch, episode_item, episode_listitem, season_item, season_label,
+    single_video_item,
+)
 from .router import route
 from .views import end_listing, set_content, set_focus
 
@@ -86,6 +89,62 @@ def season_view(plugin, type, id, season):
     _add_episodes(plugin, meta, season, get_watchstate())
     xbmcplugin.addSortMethod(handle, xbmcplugin.SORT_METHOD_UNSORTED)
     end_listing(handle)
+
+
+@route("info_seasons")
+def info_seasons(plugin, type, id):
+    """Season chips shown inside Arctic Zephyr Stremio's information page."""
+    handle = plugin.handle
+    meta = load_meta(type, id, quiet=True)
+    if meta is None:
+        xbmcplugin.endOfDirectory(handle, succeeded=False)
+        return
+    seasons = visible_seasons(meta)
+    items = []
+    for season in seasons:
+        item = xbmcgui.ListItem(season_label(season))
+        item.setProperty("season", str(season))
+        item.setProperty("path", plugin.url_for("info_episodes", type=type, id=id, season=season))
+        items.append((plugin.url_for("info_episodes", type=type, id=id, season=season), item, True))
+    xbmcplugin.addDirectoryItems(handle, items, len(items))
+    xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
+
+
+@route("info_episodes")
+def info_episodes(plugin, type, id, season=""):
+    """Episode thumbnails embedded in the information page. Selecting one opens
+    the same information page for that episode instead of a separate folder."""
+    handle = plugin.handle
+    meta = load_meta(type, id, quiet=True)
+    if meta is None:
+        xbmcplugin.endOfDirectory(handle, succeeded=False)
+        return
+    seasons = visible_seasons(meta)
+    try:
+        selected = int(season)
+    except (TypeError, ValueError):
+        selected = seasons[0] if seasons else None
+    if selected not in seasons:
+        selected = seasons[0] if seasons else None
+    state = get_watchstate()
+    today = datetime.date.today().isoformat()
+    hide_unreleased = ADDON.getSettingBool("hide_unaired")
+    videos = meta.episodes(selected) if selected is not None else meta.videos
+    rows = state.lookup([v.id for v in videos])
+    items = []
+    for video in videos:
+        released = video.is_released(today)
+        if not released and hide_unreleased:
+            continue
+        item = episode_listitem(meta, video, released)
+        row = rows.get(video.id)
+        apply_watch(item, row)
+        apply_info_actions(item, plugin, meta, video, bool(row and row.watched))
+        item.setProperty("IsPlayable", "false")
+        items.append((plugin.url_for("extended_info", type=type, id=id, video=video.id), item, False))
+    xbmcplugin.addDirectoryItems(handle, items, len(items))
+    xbmcplugin.setContent(handle, "episodes")
+    xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
 
 
 @route("people")

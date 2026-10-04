@@ -82,9 +82,12 @@ def menu_entries(plugin, path, own_entries, favourite, watched=False):
         entries.append((1, xbmc.getLocalizedString(208), f"PlayMedia({play})"))
     entries.append((2, xbmc.getLocalizedString(19033), f"RunPlugin({info})"))
     for label, command in own_entries:
-        place = rank(command)
+        clean = _COLOUR.sub("", label)
+        # Browse show now opens the show's information page, while the current
+        # item's own Extended info entry is still covered by Kodi's Information.
+        place = 5 if clean in (L(30064), "Browse show") and "action=extended_info" in command else rank(command)
         if place is not None:
-            entries.append((place, _COLOUR.sub("", label), command))
+            entries.append((place, clean, command))
     if not any(place == 3 for place, _, _ in entries):
         if action == "meta":
             mark = {"type": type_, "id": id_}

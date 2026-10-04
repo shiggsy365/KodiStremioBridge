@@ -8,6 +8,11 @@
     <onload>Control.Move(50,1)</onload>
     <onload>Control.Move(5050,$INFO[Container(5050).CurrentItem,-])</onload>
     <onload>Control.Move(5050,1)</onload>
+    <onload>SetProperty(stremiobridge.info.season,$INFO[ListItem.Property(stremiobridge.default_season)],home)</onload>
+    <onload>Control.Move(5060,$INFO[Container(5060).CurrentItem,-])</onload>
+    <onload>Control.Move(5060,1)</onload>
+    <onload>Control.Move(5061,$INFO[Container(5061).CurrentItem,-])</onload>
+    <onload>Control.Move(5061,1)</onload>
     <onload>Control.Move(9502,$INFO[Container(9502).CurrentItem,-])</onload>
     <onload>Control.Move(9502,1)</onload>
     <onload>Control.Move(9503,$INFO[Container(9503).CurrentItem,-])</onload>
@@ -26,6 +31,7 @@
     <onunload>ClearProperty(SetUserRating,home)</onunload>
     <onunload>ClearProperty(dontslide,home)</onunload>
     <onunload>ClearProperty(ShowDisc)</onunload>
+    <onunload>ClearProperty(stremiobridge.info.season,home)</onunload>
     <onunload condition="!String.IsEmpty(Window(home).Property(shownowplayinginfo))">SetFocus(4000)</onunload>
     <onunload condition="!String.IsEmpty(Window(home).Property(shownowplayinginfo))">ClearProperty(shownowplayinginfo,home)</onunload>
     <onload>ClearProperty(content)</onload>
