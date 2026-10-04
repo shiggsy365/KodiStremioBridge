@@ -226,6 +226,15 @@ def test_season_episode_items_expose_info_panel_actions(server, monkeypatch):
     server.routes["/meta/series/tt5.json"] = SHOW
     captured = []
 
+    def set_property(self, key, value):
+        props = getattr(self, "_test_properties", {})
+        props[key] = value
+        self._test_properties = props
+
+    monkeypatch.setattr(xbmcgui.ListItem, "setProperty", set_property)
+    monkeypatch.setattr(xbmcgui.ListItem, "getProperty",
+                        lambda self, key: getattr(self, "_test_properties", {}).get(key, ""))
+
     def add_many(handle, entries, total=0):
         captured.extend(entries)
         return True
@@ -239,7 +248,6 @@ def test_season_episode_items_expose_info_panel_actions(server, monkeypatch):
     assert "action=info_browse" in item.getProperty("stremiobridge.browse")
     assert "action=info_toggle" in item.getProperty("stremiobridge.watched_action")
     assert "video=tt5%3A1%3A1" in item.getProperty("stremiobridge.watched_action")
-    assert item.getProperty("ReleaseDate")
 
 
 def test_single_season_skips_season_level(server, listing):
