@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.12.0"
+       version="0.12.1"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,7 +23,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.12.0 - One info page for movies, shows, seasons and episodes (Play, Available streams, Mark watched, Watchlist, Find similar, Cast, a season and episode browser); search as you type for Arctic Zephyr Stremio; one Mark as watched entry per level; watched banners for shows and seasons; posters for catalogs that send posterShape "regular"; catalogs default to Poster Flix v2.
+        <news>v0.12.1 - New Kodi Stremio Bridge logo for the icon and fanart.
+v0.12.0 - One info page for movies, shows, seasons and episodes (Play, Available streams, Mark watched, Watchlist, Find similar, Cast, a season and episode browser); search as you type for Arctic Zephyr Stremio; one Mark as watched entry per level; watched banners for shows and seasons; posters for catalogs that send posterShape "regular"; catalogs default to Poster Flix v2.
 v0.11.8 - Show browsing now lives inside the info page with season chips and episode thumbnails.
 v0.11.7 - Hides music catalogs by default on new setups and restores watched banners for movies and episodes.
 v0.11.6 - Forces Arctic Zephyr Stremio's seasons view label before applying Seasons Info v2.
@@ -91,7 +92,7 @@ v0.10.2 - Continue Watching shows descriptions, cast and details.</news>
         </assets>
     </extension>
 </addon>
-<addon id="skin.arctic.zephyr.stremio" version="1.1.0" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
+<addon id="skin.arctic.zephyr.stremio" version="1.1.1" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
     <requires>
         <import addon="xbmc.gui" version="5.17.0"/>
         <import addon="plugin.video.stremiobridge" version="0.11.8"/>
@@ -120,7 +121,8 @@ v0.10.2 - Continue Watching shows descriptions, cast and details.</news>
             <screenshot>resources/screenshot-09.jpg</screenshot>
             <screenshot>resources/screenshot-10.jpg</screenshot>
         </assets>
-        <news>v1.1.0 - Info page rebuilt around Stremio Bridge: Play, Available streams, Mark watched, Watchlist, Trailer, Find similar, Cast, and a season and episode browser for shows, seasons and episodes; Watched banners; a search page with an on-screen keyboard, live results, suggestions and recent searches (search icon by the clock, or Right on the last menu item); a full-screen TV guide; one clearlogo setting for the whole skin; no header over catalogs; no "New" markers.
+        <news>v1.1.1 - Kodi Stremio Bridge logo on the startup screen, icon and fanart; "Stremio" in place of "Reloaded" beside the skin name.
+v1.1.0 - Info page rebuilt around Stremio Bridge: Play, Available streams, Mark watched, Watchlist, Trailer, Find similar, Cast, and a season and episode browser for shows, seasons and episodes; Watched banners; a search page with an on-screen keyboard, live results, suggestions and recent searches (search icon by the clock, or Right on the last menu item); a full-screen TV guide; one clearlogo setting for the whole skin; no header over catalogs; no "New" markers.
 v1.0.2 - Embeds Stremio Bridge show browsing in the info page with season chips and episode thumbnails.
 v1.0.1 - Runs Stremio Bridge's setup wizard on first start; Setup wizard in the ... menu; fixed the ... submenu.
 v1.0.0 - Forked from Arctic: Zephyr - Reloaded 3.0.3 (beatmasterRS, upstream commit 27b7bd7) and renamed. Removed the CJK font set (Inter CJK, 54 MB) to keep the skin small. No TMDb Helper or Embuary. Ready-made Home, Movies and TV Shows menus and hubs; Kodi's info page with Browse show, Mark watched, Watchlist and streaming-service buttons; actors open Stremio Bridge's person search; Stremio Bridge's context menu; a ... settings menu.</news>
@@ -130,7 +132,7 @@ v1.0.0 - Forked from Arctic: Zephyr - Reloaded 3.0.3 (beatmasterRS, upstream com
 </addon>
 <addon id="repository.shiggsy365"
        name="shiggsy365 Repository"
-       version="1.0.1"
+       version="1.0.2"
        provider-name="shiggsy365">
     <extension point="xbmc.addon.repository" name="shiggsy365 Repository">
         <dir>

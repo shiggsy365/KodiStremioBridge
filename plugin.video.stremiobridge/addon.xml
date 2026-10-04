@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.12.0"
+       version="0.12.1"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -22,7 +22,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.12.0 - One info page for movies, shows, seasons and episodes (Play, Available streams, Mark watched, Watchlist, Find similar, Cast, a season and episode browser); search as you type for Arctic Zephyr Stremio; one Mark as watched entry per level; watched banners for shows and seasons; posters for catalogs that send posterShape "regular"; catalogs default to Poster Flix v2.
+        <news>v0.12.1 - New Kodi Stremio Bridge logo for the icon and fanart.
+v0.12.0 - One info page for movies, shows, seasons and episodes (Play, Available streams, Mark watched, Watchlist, Find similar, Cast, a season and episode browser); search as you type for Arctic Zephyr Stremio; one Mark as watched entry per level; watched banners for shows and seasons; posters for catalogs that send posterShape "regular"; catalogs default to Poster Flix v2.
 v0.11.8 - Show browsing now lives inside the info page with season chips and episode thumbnails.
 v0.11.7 - Hides music catalogs by default on new setups and restores watched banners for movies and episodes.
 v0.11.6 - Forces Arctic Zephyr Stremio's seasons view label before applying Seasons Info v2.

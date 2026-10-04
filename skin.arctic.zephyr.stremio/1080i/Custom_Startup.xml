@@ -51,13 +51,15 @@
 	            <animation effect="fade" start="100" end="0" time="500">WindowClose</animation>
                 <visible>String.IsEmpty(Skin.String(StartupPlaylist)) + String.IsEmpty(Skin.String(startupfanart.fallback))</visible>
             </control>
+            <!-- Arctic Zephyr Stremio: the Kodi Stremio Bridge logo under "Arctic Zephyr"
+                 (made by tools/make_branding.py from branding/logo.png) -->
             <control type="image">
-                <left>1020</left>
-                <top>605</top>
-                <width>331</width>
-                <height>60</height>
-                <centertop>50%</centertop>
-                <texture>misc/matrix.png</texture>
+                <centerleft>50%</centerleft>
+                <top>612</top>
+                <width>556</width>
+                <height>298</height>
+                <aspectratio>keep</aspectratio>
+                <texture>misc/stremio-bridge-logo.png</texture>
                 <animation effect="fade" start="0" end="100" time="500">Visible</animation>
 	            <animation effect="fade" start="100" end="0" time="500">WindowClose</animation>
                 <visible>String.IsEmpty(Skin.String(StartupPlaylist)) + String.IsEmpty(Skin.String(startupfanart.fallback)) + Control.HasFocus(3616)</visible>

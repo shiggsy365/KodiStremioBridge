@@ -233,6 +233,7 @@ service.shiggsy365.tidycache/      Tidy Cache add-on
 script.shiggsy365.dispatcharrbridge/ Dispatcharr Bridge add-on
 docs/                              the published repository (GitHub Pages), built by tools/build_repo.py
 tests/                             pytest suite with a fake addon HTTP server and Kodistubs
+branding/logo.png                  the logo the icons, fanart and skin startup screen are made from
 tools/                             dev install, zip/repository builds, artwork generators
 ```
 

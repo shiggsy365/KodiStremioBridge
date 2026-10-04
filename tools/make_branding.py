@@ -1,20 +1,28 @@
-"""Generate the add-on icon and fanart, and the repository add-on's icon.
+"""Generate the add-ons' icons and fanart.
 
     .venv/bin/python tools/make_branding.py
 
-Writes plugin.video.stremiobridge/resources/{icon.png,fanart.jpg},
-repository.shiggsy365/icon.png, service.shiggsy365.tidycache/resources/icon.png and
-script.shiggsy365.dispatcharrbridge/resources/icon.png.
+From branding/logo.png (the Kodi Stremio Bridge logo; replace it with a larger
+original for sharper results and run this again): Stremio Bridge's
+resources/{icon.png,fanart.jpg}, repository.shiggsy365/icon.png, Arctic Zephyr
+Stremio's icon.png, fanart.jpg, media/misc/stremio-bridge-logo.png (its startup
+screen) and media/misc/matrix.png (the "Stremio" wordmark beside "Arctic Zephyr"
+in its settings). Drawn here: service.shiggsy365.tidycache/resources/icon.png
+and script.shiggsy365.dispatcharrbridge/resources/icon.png.
 Needs Pillow.
 """
 
 import os
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ACCENT = (18, 160, 199)        # the add-on's accent blue (FF12A0C7)
 TOP, BOTTOM = (28, 40, 54), (10, 14, 20)
 ROOT = os.path.join(os.path.dirname(__file__), "..")
+LOGO = os.path.join(ROOT, "branding", "logo.png")
+# Bold fonts for the wordmark, first one found
+WORDMARK_FONTS = ("/usr/share/fonts/truetype/ubuntu/Ubuntu-B.ttf",
+                  "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
 
 
 def gradient(w, h, top=TOP, bottom=BOTTOM):
@@ -30,42 +38,6 @@ def glow(image, box, strength, blur):
     mask = Image.new("L", image.size, 0)
     ImageDraw.Draw(mask).ellipse(box, fill=strength)
     image.paste(Image.new("RGB", image.size, ACCENT), mask=mask.filter(ImageFilter.GaussianBlur(blur)))
-
-
-def bridge(draw, cx, deck_y, span, height, line, colour=ACCENT):
-    """An arch bridge: deck, arch and hangers, centred on `cx`."""
-    left, right = cx - span / 2, cx + span / 2
-    draw.arc([left, deck_y - height, right, deck_y + height], start=180, end=360, fill=colour, width=line)
-    draw.rounded_rectangle([left - line, deck_y - line / 2, right + line, deck_y + line / 2], radius=line / 2,
-                           fill=colour)
-    for i in range(1, 8):
-        x = left + span * i / 8
-        # Height of the arch above the deck at x (half ellipse).
-        dx = (x - cx) / (span / 2)
-        top = deck_y - height * (1 - dx * dx) ** 0.5
-        draw.line([(x, top), (x, deck_y)], fill=colour, width=max(2, line // 3))
-
-
-def play(draw, cx, cy, size, colour=(255, 255, 255)):
-    draw.polygon([(cx - size * 0.45, cy - size * 0.55), (cx + size * 0.6, cy), (cx - size * 0.45, cy + size * 0.55)],
-                 fill=colour)
-
-
-def icon(path, repo=False):
-    scale, size = 4, 512
-    s = size * scale
-    image = gradient(s, s)
-    glow(image, [s * 0.1, s * 0.05, s * 0.9, s * 0.75], 90, 70 * scale)
-    draw = ImageDraw.Draw(image)
-    bridge(draw, s / 2, s * 0.68, s * 0.74, s * 0.40, 26 * scale)
-    if repo:  # a box under the bridge: the repository
-        box = [s * 0.36, s * 0.34, s * 0.64, s * 0.58]
-        draw.rounded_rectangle(box, radius=18 * scale, fill=(255, 255, 255))
-        draw.rectangle([s * 0.36, s * 0.42, s * 0.64, s * 0.44], fill=BOTTOM)
-    else:
-        play(draw, s / 2, s * 0.47, s * 0.17)
-    image.resize((size, size), Image.LANCZOS).save(path, optimize=True)
-    print(os.path.normpath(path))
 
 
 def tidy_icon(path):
@@ -113,23 +85,76 @@ def switch_icon(path):
     print(os.path.normpath(path))
 
 
-def fanart(path):
-    w, h = 1920, 1080
-    image = gradient(w, h, (22, 32, 44), (6, 9, 13))
-    glow(image, [w * 0.2, h * 0.1, w * 0.8, h * 0.8], 60, 160)
-    layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    bridge(ImageDraw.Draw(layer), w / 2, h * 0.70, w * 0.70, h * 0.42, 14, colour=(*ACCENT, 120))
-    image.paste(layer, mask=layer)
-    image.save(path, quality=88, optimize=True)
+def on_logo(size, logo_scale, dim=1.0):
+    """The logo, `logo_scale` times its size, centred on a canvas of `size`
+    in the colour of the logo's own edges (it fades into it)."""
+    logo = Image.open(LOGO).convert("RGB")
+    w, h = size
+    border = [logo.getpixel((x, y)) for x in range(logo.width) for y in (0, logo.height - 1)]
+    border += [logo.getpixel((x, y)) for y in range(logo.height) for x in (0, logo.width - 1)]
+    edge_colour = tuple(sum(c[i] for c in border) // len(border) for i in range(3))
+    back = Image.new("RGB", (w, h), edge_colour)
+    front = logo.resize((round(logo.width * logo_scale), round(logo.height * logo_scale)), Image.LANCZOS)
+    mask = Image.new("L", front.size, 0)
+    feather = max(4, round(min(front.size) * 0.18))
+    ImageDraw.Draw(mask).rectangle([feather, feather, front.width - feather, front.height - feather], fill=255)
+    mask = mask.filter(ImageFilter.GaussianBlur(feather / 2))
+    back.paste(front, ((w - front.width) // 2, (h - front.height) // 2), mask)
+    if dim < 1:
+        back = Image.blend(Image.new("RGB", back.size, (0, 0, 0)), back, dim)
+    return back
+
+
+def logo_icon(path):
+    """512 x 512: the logo's mark and name fill the square."""
+    on_logo((512, 512), 1.45).save(path, optimize=True)
+    print(os.path.normpath(path))
+
+
+def logo_fanart(path):
+    on_logo((1920, 1080), 2.0, dim=0.85).save(path, quality=88, optimize=True)
+    print(os.path.normpath(path))
+
+
+def startup_logo(path):
+    """The skin's startup screen: the logo as it is."""
+    Image.open(LOGO).convert("RGB").save(path, optimize=True)
+    print(os.path.normpath(path))
+
+
+def wordmark(path, text="Stremio", size=(331, 60)):
+    """White bold text on transparent, in place of Arctic: Zephyr - Reloaded's
+    "Reloaded" badge (the skin shows it scaled to fit, beside "Arctic Zephyr")."""
+    font_path = next(p for p in WORDMARK_FONTS if os.path.exists(p))
+    image = Image.new("RGBA", size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    points = size[1]
+    while True:
+        font = ImageFont.truetype(font_path, points)
+        try:  # a variable font (Ubuntu-B.ttf links to one): its Bold instance
+            names = [n.decode() if isinstance(n, bytes) else n for n in font.get_variation_names()]
+            font.set_variation_by_name(next(n for n in names if n.lower() == "bold"))
+        except (OSError, StopIteration, AttributeError):
+            pass
+        left, top, right, bottom = draw.textbbox((0, 0), text, font=font)
+        if right - left <= size[0] - 4 and bottom - top <= size[1] - 4:
+            break
+        points -= 1
+    draw.text(((size[0] - (right - left)) / 2 - left, (size[1] - (bottom - top)) / 2 - top), text,
+              font=font, fill=(255, 255, 255, 255))
+    image.save(path, optimize=True)
     print(os.path.normpath(path))
 
 
 if __name__ == "__main__":
     resources = os.path.join(ROOT, "plugin.video.stremiobridge", "resources")
-    icon(os.path.join(resources, "icon.png"))
-    fanart(os.path.join(resources, "fanart.jpg"))
-    repo_dir = os.path.join(ROOT, "repository.shiggsy365")
-    os.makedirs(repo_dir, exist_ok=True)
-    icon(os.path.join(repo_dir, "icon.png"), repo=True)
+    logo_icon(os.path.join(resources, "icon.png"))
+    logo_fanart(os.path.join(resources, "fanart.jpg"))
+    logo_icon(os.path.join(ROOT, "repository.shiggsy365", "icon.png"))
+    skin = os.path.join(ROOT, "skin.arctic.zephyr.stremio")
+    logo_icon(os.path.join(skin, "icon.png"))
+    logo_fanart(os.path.join(skin, "fanart.jpg"))
+    startup_logo(os.path.join(skin, "media", "misc", "stremio-bridge-logo.png"))
+    wordmark(os.path.join(skin, "media", "misc", "matrix.png"))
     tidy_icon(os.path.join(ROOT, "service.shiggsy365.tidycache", "resources", "icon.png"))
     switch_icon(os.path.join(ROOT, "script.shiggsy365.dispatcharrbridge", "resources", "icon.png"))

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="repository.shiggsy365"
        name="shiggsy365 Repository"
-       version="1.0.1"
+       version="1.0.2"
        provider-name="shiggsy365">
     <extension point="xbmc.addon.repository" name="shiggsy365 Repository">
         <dir>
