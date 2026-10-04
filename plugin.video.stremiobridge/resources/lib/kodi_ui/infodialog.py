@@ -14,17 +14,20 @@ import xbmcplugin
 
 from stremio import StremioError
 from stremio.models import CAST
+from stremio.watchstate import next_episode
 
 from mdblist import MDBListError, overall_rating
 
 from .common import (
-    ADDON, L, busy, clock_text, get_client, get_mdblist, get_watchstate, library_enabled, log, refresh_when_idle,
-    skin_active,
+    ADDON, L, busy, clock_text, get_client, get_mdblist, get_watchstate, library_enabled, log, notify,
+    refresh_when_idle, skin_active,
 )
-from .details import load_meta, play_trailer
+from .details import INFO_WINDOW, load_meta, play_trailer
 from .library import LIBRARY_TYPES, in_library
 from .watchlist import change_watchlist, on_watchlist
-from .listitems import PLAYABLE_TYPES, apply_info_actions, apply_watch, episode_listitem, meta_item
+from .listitems import (
+    PLAYABLE_TYPES, apply_info_actions, apply_watch, episode_listitem, mark_item_watched, meta_item, season_label,
+)
 from .router import route
 from .watching import mark_watched
 
@@ -205,16 +208,22 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
         self.close()
 
 
-INFO_WINDOW = "movieinformation"
-
-
-def kodi_info(plugin, meta, episode, video_id, state):
-    """With our skin: Kodi's own Information page for the title (or episode).
-    `video_id` is what its Play button plays (None for a show). The skin's
-    extra buttons (Browse show, Mark watched, Watchlist) run the links in the
-    item's ``stremiobridge.*`` properties."""
-    item = episode_listitem(meta, episode) if episode else meta_item(meta)
-    video = episode.id if episode else None
+def kodi_info(plugin, meta, episode, video_id, state, season=None):
+    """With our skin: Kodi's own Information page for the title, one `season`
+    of it, or an `episode`. `video_id` is what Kodi's own Play button would play
+    (None for a show); the skin uses its own buttons instead, which run the
+    links in the item's ``stremiobridge.*`` properties (see apply_info_actions)."""
+    if episode:
+        item = episode_listitem(meta, episode)
+    else:
+        item = meta_item(meta)
+        if season is not None:
+            tag = item.getVideoInfoTag()
+            tag.setMediaType("season")
+            tag.setTvShowTitle(meta.name)
+            tag.setSeason(season)
+            tag.setTitle(season_label(season))
+            item.setLabel(season_label(season))
     if video_id is not None:
         row = state.get(video_id)
         apply_watch(item, row)
@@ -226,16 +235,11 @@ def kodi_info(plugin, meta, episode, video_id, state):
         item.setPath(plugin.url_for("meta", type=meta.type, id=meta.id))
         item.setIsFolder(True)
         today = datetime.date.today().isoformat()
-        aired = {(v.season, v.episode) for v in meta.videos if v.season and v.is_released(today)}
+        aired = {(v.season, v.episode) for v in meta.videos
+                 if v.season and v.is_released(today) and (season is None or v.season == season)}
         watched = bool(aired) and aired <= state.watched_episodes(meta.id)
-        item.getVideoInfoTag().setPlaycount(1 if watched else 0)
-    apply_info_actions(item, plugin, meta, episode, watched)
-    if meta.videos:
-        from .details import visible_seasons
-
-        seasons = visible_seasons(meta)
-        if seasons:
-            item.setProperty("stremiobridge.default_season", str(seasons[0]))
+        mark_item_watched(item, watched)
+    apply_info_actions(item, plugin, meta, episode, watched, season)
     services = _services(meta)
     if services:
         item.setProperty("stremiobridge.service", services[0][0])
@@ -264,37 +268,84 @@ def _close_info():
                 break
 
 
-@route("info_browse")
-def info_browse(plugin, url):
-    """The info page's Browse show button."""
-    xbmc.executebuiltin("Dialog.Close(all,true)")
-    xbmc.executebuiltin(f'ActivateWindow(Videos,"{url}",return)')
+@route("info_play")
+def info_play(plugin, type, id, video=None, season=None, pick=None):
+    """The info page's Play and Available streams buttons. `video` is an
+    episode; for a show (or one `season` of it) the next episode to watch is
+    played, else its first unwatched aired one."""
+    _close_info()
+    if video is None and type not in PLAYABLE_TYPES:
+        meta = load_meta(type, id)
+        if meta is None:
+            return
+        if meta.videos:
+            episode = episode_to_play(meta, get_watchstate(), None if season is None else int(season))
+            if episode is None:
+                notify(L(30406))
+                return
+            video = episode.id
+        else:
+            video = meta.default_video_id or meta.id
+    video = video or id
+    play_with_resume_choice(plugin, type, video, id if video != id else None, pick=pick == "1")
+
+
+def episode_to_play(meta, state, season=None):
+    """The episode a show's (or season's) Play button starts, or None."""
+    from .details import visible_seasons
+
+    today = datetime.date.today().isoformat()
+    watched = state.watched_episodes(meta.id)
+    if season is None:
+        upcoming = next_episode(meta, watched, today)
+        if upcoming is not None:
+            return upcoming
+        videos = [v for s in visible_seasons(meta) if s != 0 for v in meta.episodes(s)] or meta.videos
+    else:
+        videos = meta.episodes(season)
+    aired = [v for v in videos if v.is_released(today)]
+    return next((v for v in aired if (v.season, v.episode) not in watched), aired[0] if aired else None)
+
+
+def refresh_info_page(plugin):
+    """If the skin's info page is open, show it again with the current watch
+    state (the page's title is in the sbinfo.* properties DialogVideoInfo.xml sets)."""
+    if not skin_active() or not xbmc.getCondVisibility(f"Window.IsVisible({INFO_WINDOW})"):
+        return
+    home = xbmcgui.Window(10000)
+    type_, id_ = home.getProperty("sbinfo.type"), home.getProperty("sbinfo.id")
+    if type_ and id_:
+        refresh_when_idle()
+        extended_info(plugin, type_, id_, home.getProperty("sbinfo.video") or None,
+                      home.getProperty("sbinfo.season") or None)
 
 
 @route("info_toggle")
-def info_toggle(plugin, what, type, id, value, video=None):
+def info_toggle(plugin, what, type, id, value, video=None, season=None):
     """The info page's Mark watched and Watchlist buttons: change it, then show
     the page again with the new state."""
     on = bool(int(value))
     if what == "watched":
-        done = mark_watched(type, video or id, on, id if video else None)
+        done = mark_watched(type, video or id, on, id if video else None, season)
     else:
         done = change_watchlist(type, id, on)
     if done:
         refresh_when_idle()
-        extended_info(plugin, type, id, video)
+        extended_info(plugin, type, id, video, season)
 
 
 @route("extended_info")
-def extended_info(plugin, type, id, video=None):
+def extended_info(plugin, type, id, video=None, season=None):
     """`id` is the movie or show; `video` an episode of the show, which the
-    page is then about (Play, Streams and Mark watched act on it). Returns
-    True if the user went somewhere from the dialog (played, searched, ...)."""
+    page is then about (Play, Streams and Mark watched act on it), or `season`
+    one season of it (with our skin). Returns True if the user went somewhere
+    from the dialog (played, searched, ...)."""
     if skin_active() and plugin.handle >= 0:
         # Selected in a list or widget: Kodi waits on us (busy, which hides its
         # info page) until we answer, so answer first and open the page apart.
         xbmcplugin.setResolvedUrl(plugin.handle, False, xbmcgui.ListItem())
-        xbmc.executebuiltin(f"RunPlugin({plugin.url_for('extended_info', type=type, id=id, video=video)})")
+        url = plugin.url_for("extended_info", type=type, id=id, video=video, season=season)
+        xbmc.executebuiltin(f"RunPlugin({url})")
         return False
     meta = load_meta(type, id)
     if meta is None:
@@ -304,7 +355,8 @@ def extended_info(plugin, type, id, video=None):
     playable = episode is not None or type in PLAYABLE_TYPES or not meta.videos
     video_id = episode.id if episode else meta.default_video_id or meta.id
     if skin_active():
-        kodi_info(plugin, meta, episode, video_id if playable else None, state)
+        whole_season = int(season) if season is not None and episode is None else None
+        kodi_info(plugin, meta, episode, video_id if playable else None, state, whole_season)
         return False
 
     dialog = InfoDialog(XML, ADDON.getAddonInfo("path"), "Default", "1080i")

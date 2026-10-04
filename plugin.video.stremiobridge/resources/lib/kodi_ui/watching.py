@@ -22,7 +22,8 @@ from .common import (
 )
 from .details import load_meta
 from .listitems import (
-    PLAYABLE_TYPES, apply_info_actions, apply_meta_info, apply_watch, content_for, episode_item, item_menu, playable_entry, preview_items,
+    PLAYABLE_TYPES, apply_info_actions, apply_meta_info, apply_title_actions, apply_watch, content_for, episode_item,
+    item_menu, playable_entry, preview_items,
 )
 from .router import route
 from .views import end_listing, set_content
@@ -172,11 +173,15 @@ def _resume_item(plugin, row, meta=None):
         tag.setEpisode(row.episode)
         episode = next((v for v in meta.videos if v.id == row.video_id), None) if meta is not None else None
     apply_watch(item, row)
-    if meta is not None:
+    if meta is not None and (episode is not None or not row.is_episode):
         apply_info_actions(item, plugin, meta, episode, row.watched)
+    else:  # no meta for it: the info page's buttons still act on this movie or episode
+        owner = row.meta_id or row.video_id
+        apply_title_actions(item, plugin, row.type, owner, row.watched,
+                            row.video_id if owner != row.video_id else None, browse=row.is_episode)
     add_context_menu(item, [(L(30192), plugin.run_url("clear_resume", id=row.video_id))]
                      + item_menu(plugin, row.type, row.video_id, row.watched, {"meta": row.meta_id or None},
-                                 show_id=row.meta_id or None, browse_show=row.is_episode))
+                                 show_id=row.meta_id or None))
     return playable_entry(plugin, item, row.type, row.video_id, meta=row.meta_id or None)
 
 
@@ -348,29 +353,41 @@ def apply_watched(entries, watched):
 def set_watched(plugin, type, id, value, meta=None, season=None):
     if mark_watched(type, id, bool(int(value)), meta, season):
         refresh_container()
+        from .infodialog import refresh_info_page  # infodialog imports this module
+
+        refresh_info_page(plugin)  # marked from the info page (e.g. its show browser): show the new state
 
 
 @route("similar")
-def similar(plugin, type, id):
-    """Similar titles from MDBList's recommendations."""
+def similar(plugin, type, id, panel=None):
+    """Similar titles from MDBList's recommendations. `panel=1`: for the info
+    page's Find similar panel, which stays quiet (Kodi's busy dialog hides the
+    page; an empty panel says enough)."""
     handle = plugin.handle
+    quiet = panel == "1"
     client = get_mdblist()
     if client is None:
-        notify(L(30212), icon=xbmcgui.NOTIFICATION_WARNING)
-        xbmcplugin.endOfDirectory(handle, succeeded=False)
+        if not quiet:
+            notify(L(30212), icon=xbmcgui.NOTIFICATION_WARNING)
+        xbmcplugin.endOfDirectory(handle, succeeded=quiet)
         return
     try:
-        with busy():
+        if quiet:
             found = client.recommendations(type, id)
+        else:
+            with busy():
+                found = client.recommendations(type, id)
     except MDBListError as exc:
         log(f"MDBList recommendations failed: {exc}")
-        notify(L(30214), icon=xbmcgui.NOTIFICATION_ERROR)
-        xbmcplugin.endOfDirectory(handle, succeeded=False)
+        if not quiet:
+            notify(L(30214), icon=xbmcgui.NOTIFICATION_ERROR)
+        xbmcplugin.endOfDirectory(handle, succeeded=quiet)
         return
     previews = [p for p in (MetaPreview.from_dict(entry) for entry in found) if p]
     if not previews:
-        notify(L(30229))
-        xbmcplugin.endOfDirectory(handle, succeeded=False)
+        if not quiet:
+            notify(L(30229))
+        xbmcplugin.endOfDirectory(handle, succeeded=quiet)
         return
     xbmcplugin.setPluginCategory(handle, L(30226))
     items = preview_items(plugin, previews, get_watchstate())

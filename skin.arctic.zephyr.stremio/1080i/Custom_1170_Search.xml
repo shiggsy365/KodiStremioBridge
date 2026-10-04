@@ -1,0 +1,909 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Arctic Zephyr Stremio: Stremio Bridge's search, as you type.
+
+     The on-screen keyboard types into the home property sbsearch.query (letters by
+     the skin itself; Space, Delete and Clear by the plugin's search_key, as the skin
+     can't trim a property or keep a trailing space). The lists ask the plugin
+     (search.py: search_live, search_suggest, search_recent), which reads the query
+     from that property and waits for typing to settle before searching. Their `q`,
+     `n` and `rev` parameters only make Kodi reload them when something changes.
+     Open with ActivateWindow(1170). -->
+<window type="window" id="1170">
+    <defaultcontrol always="true">301</defaultcontrol>
+    <onload>ClearProperty(sbsearch.query,home)</onload>
+    <onload>ClearProperty(sbsearch.keys)</onload>
+    <onunload>ClearProperty(sbsearch.query,home)</onunload>
+    <controls>
+        <include>GlobalBackground</include>
+
+        <!-- Query -->
+        <control type="group">
+            <left>80</left>
+            <top>70</top>
+            <control type="label">
+                <width>480</width>
+                <height>60</height>
+                <font>Large</font>
+                <textcolor>Dark1</textcolor>
+                <label>$LOCALIZE[137]</label>
+            </control>
+            <control type="image">
+                <top>70</top>
+                <width>480</width>
+                <height>70</height>
+                <texture colordiffuse="Dark4" border="5">common/box.png</texture>
+            </control>
+            <control type="label">
+                <left>20</left>
+                <top>70</top>
+                <width>440</width>
+                <height>70</height>
+                <aligny>center</aligny>
+                <font>Small</font>
+                <textcolor>Dark1</textcolor>
+                <label>$INFO[Window(home).Property(sbsearch.query)][COLOR $VAR[ColorHighlight]]|[/COLOR]</label>
+                <visible>!String.IsEmpty(Window(home).Property(sbsearch.query))</visible>
+            </control>
+            <control type="label">
+                <left>20</left>
+                <top>70</top>
+                <width>440</width>
+                <height>70</height>
+                <aligny>center</aligny>
+                <font>Small</font>
+                <textcolor>Dark3</textcolor>
+                <label>Movies and TV shows</label>
+                <visible>String.IsEmpty(Window(home).Property(sbsearch.query))</visible>
+            </control>
+        </control>
+
+        <!-- Delete, Clear, 123 / # -->
+        <control type="grouplist" id="300">
+            <left>80</left>
+            <top>230</top>
+            <width>480</width>
+            <height>60</height>
+            <orientation>horizontal</orientation>
+            <itemgap>10</itemgap>
+            <ondown>301</ondown>
+            <onright condition="Integer.IsGreater(Container(401).NumItems,0)">401</onright>
+            <onright condition="!Integer.IsGreater(Container(401).NumItems,0)">402</onright>
+                <control type="button" id="311">
+                    <width>153</width>
+                    <height>60</height>
+                    <font>Small</font>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <textcolor>Dark2</textcolor>
+                    <focusedcolor>Dark1</focusedcolor>
+                    <texturenofocus colordiffuse="Dark4" border="5">common/box.png</texturenofocus>
+                    <texturefocus colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texturefocus>
+                    <label>Delete</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=delete)</onclick>
+                </control>
+                <control type="button" id="312">
+                    <width>153</width>
+                    <height>60</height>
+                    <font>Small</font>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <textcolor>Dark2</textcolor>
+                    <focusedcolor>Dark1</focusedcolor>
+                    <texturenofocus colordiffuse="Dark4" border="5">common/box.png</texturenofocus>
+                    <texturefocus colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texturefocus>
+                    <label>Clear</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=clear)</onclick>
+                </control>
+                <control type="button" id="313">
+                    <width>153</width>
+                    <height>60</height>
+                    <font>Small</font>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <textcolor>Dark2</textcolor>
+                    <focusedcolor>Dark1</focusedcolor>
+                    <texturenofocus colordiffuse="Dark4" border="5">common/box.png</texturenofocus>
+                    <texturefocus colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texturefocus>
+                    <label>$VAR[StremioSearchKeysToggleLabel]</label>
+                    <onclick condition="String.IsEmpty(Window.Property(sbsearch.keys))">SetProperty(sbsearch.keys,symbols)</onclick>
+                    <onclick condition="!String.IsEmpty(Window.Property(sbsearch.keys))">ClearProperty(sbsearch.keys)</onclick>
+                </control>
+        </control>
+
+        <!-- Keyboard, 6 x 5: A-Z and a space bar (four space keys after Z, a-d, drawn as one bar;
+             their markers are letters: a bare number is taken as a string id), or (123 / # key) 0-9 and symbols. Digit labels
+             use $NUMBER: a bare number is taken as a string id. Letters and digits are
+             typed by the skin; symbols by the plugin (commas and brackets would break the command). -->
+        <control type="panel" id="301">
+            <left>80</left>
+            <top>300</top>
+            <width>480</width>
+            <height>320</height>
+            <orientation>vertical</orientation>
+            <onup>300</onup>
+            <ondown>302</ondown>
+            <onright condition="Integer.IsGreater(Container(401).NumItems,0)">401</onright>
+            <onright condition="!Integer.IsGreater(Container(401).NumItems,0)">402</onright>
+            <itemlayout width="80" height="64">
+                <control type="image">
+                    <visible>String.IsEmpty(ListItem.Property(spacebar))</visible>
+                    <left>3</left>
+                    <top>3</top>
+                    <width>74</width>
+                    <height>58</height>
+                    <texture colordiffuse="Dark4" border="5">common/box.png</texture>
+                </control>
+                <control type="label">
+                    <visible>String.IsEmpty(ListItem.Property(spacebar))</visible>
+                    <width>80</width>
+                    <height>64</height>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <font>Small</font>
+                    <textcolor>Dark2</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                </control>
+                <control type="group">
+                    <left>0</left>
+                    <visible>String.IsEqual(ListItem.Property(spacebar),a)</visible>
+                    <control type="image">
+                        <left>3</left>
+                        <top>3</top>
+                        <width>314</width>
+                        <height>58</height>
+                        <texture colordiffuse="Dark4" border="5">common/box.png</texture>
+                    </control>
+                    <control type="label">
+                        <width>320</width>
+                        <height>64</height>
+                        <align>center</align>
+                        <aligny>center</aligny>
+                        <font>Small</font>
+                        <textcolor>Dark2</textcolor>
+                        <label>Space</label>
+                    </control>
+                </control>
+            </itemlayout>
+            <focusedlayout width="80" height="64">
+                <control type="image">
+                    <left>3</left>
+                    <top>3</top>
+                    <width>74</width>
+                    <height>58</height>
+                    <texture colordiffuse="Dark4" border="5">common/box.png</texture>
+                    <visible>!Control.HasFocus(301) + String.IsEmpty(ListItem.Property(spacebar))</visible>
+                </control>
+                <control type="image">
+                    <left>3</left>
+                    <top>3</top>
+                    <width>74</width>
+                    <height>58</height>
+                    <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                    <visible>Control.HasFocus(301) + String.IsEmpty(ListItem.Property(spacebar))</visible>
+                </control>
+                <control type="label">
+                    <visible>String.IsEmpty(ListItem.Property(spacebar))</visible>
+                    <width>80</width>
+                    <height>64</height>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <font>Small</font>
+                    <textcolor>Dark1</textcolor>
+                    <label>[B]$INFO[ListItem.Label][/B]</label>
+                </control>
+                <control type="group">
+                    <left>0</left>
+                    <visible>String.IsEqual(ListItem.Property(spacebar),a) + Control.HasFocus(301)</visible>
+                    <control type="image">
+                        <left>3</left>
+                        <top>3</top>
+                        <width>314</width>
+                        <height>58</height>
+                        <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                    </control>
+                    <control type="label">
+                        <width>320</width>
+                        <height>64</height>
+                        <align>center</align>
+                        <aligny>center</aligny>
+                        <font>Small</font>
+                        <textcolor>Dark1</textcolor>
+                        <label>[B]Space[/B]</label>
+                    </control>
+                </control>
+                <control type="group">
+                    <left>-80</left>
+                    <visible>String.IsEqual(ListItem.Property(spacebar),b) + Control.HasFocus(301)</visible>
+                    <control type="image">
+                        <left>3</left>
+                        <top>3</top>
+                        <width>314</width>
+                        <height>58</height>
+                        <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                    </control>
+                    <control type="label">
+                        <width>320</width>
+                        <height>64</height>
+                        <align>center</align>
+                        <aligny>center</aligny>
+                        <font>Small</font>
+                        <textcolor>Dark1</textcolor>
+                        <label>[B]Space[/B]</label>
+                    </control>
+                </control>
+                <control type="group">
+                    <left>-160</left>
+                    <visible>String.IsEqual(ListItem.Property(spacebar),c) + Control.HasFocus(301)</visible>
+                    <control type="image">
+                        <left>3</left>
+                        <top>3</top>
+                        <width>314</width>
+                        <height>58</height>
+                        <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                    </control>
+                    <control type="label">
+                        <width>320</width>
+                        <height>64</height>
+                        <align>center</align>
+                        <aligny>center</aligny>
+                        <font>Small</font>
+                        <textcolor>Dark1</textcolor>
+                        <label>[B]Space[/B]</label>
+                    </control>
+                </control>
+                <control type="group">
+                    <left>-240</left>
+                    <visible>String.IsEqual(ListItem.Property(spacebar),d) + Control.HasFocus(301)</visible>
+                    <control type="image">
+                        <left>3</left>
+                        <top>3</top>
+                        <width>314</width>
+                        <height>58</height>
+                        <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                    </control>
+                    <control type="label">
+                        <width>320</width>
+                        <height>64</height>
+                        <align>center</align>
+                        <aligny>center</aligny>
+                        <font>Small</font>
+                        <textcolor>Dark1</textcolor>
+                        <label>[B]Space[/B]</label>
+                    </control>
+                </control>
+                <control type="group">
+                    <left>0</left>
+                    <visible>String.IsEqual(ListItem.Property(spacebar),a) + !Control.HasFocus(301)</visible>
+                    <control type="image">
+                        <left>3</left>
+                        <top>3</top>
+                        <width>314</width>
+                        <height>58</height>
+                        <texture colordiffuse="Dark4" border="5">common/box.png</texture>
+                    </control>
+                    <control type="label">
+                        <width>320</width>
+                        <height>64</height>
+                        <align>center</align>
+                        <aligny>center</aligny>
+                        <font>Small</font>
+                        <textcolor>Dark2</textcolor>
+                        <label>Space</label>
+                    </control>
+                </control>
+            </focusedlayout>
+            <content>
+                <item>
+                    <label>A</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]a",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>B</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]b",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>C</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]c",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>D</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]d",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>E</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]e",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>F</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]f",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>G</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]g",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>H</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]h",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>I</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]i",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>J</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]j",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>K</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]k",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>L</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]l",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>M</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]m",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>N</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]n",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>O</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]o",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>P</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]p",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>Q</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]q",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>R</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]r",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>S</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]s",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>T</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]t",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>U</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]u",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>V</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]v",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>W</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]w",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>X</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]x",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>Y</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]y",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>Z</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]z",home)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>Space</label>
+                    <property name="spacebar">a</property>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=space)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>Space</label>
+                    <property name="spacebar">b</property>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=space)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>Space</label>
+                    <property name="spacebar">c</property>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=space)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>Space</label>
+                    <property name="spacebar">d</property>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=space)</onclick>
+                    <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>$NUMBER[0]</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]0",home)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>$NUMBER[1]</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]1",home)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>$NUMBER[2]</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]2",home)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>$NUMBER[3]</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]3",home)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>$NUMBER[4]</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]4",home)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>$NUMBER[5]</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]5",home)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>$NUMBER[6]</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]6",home)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>$NUMBER[7]</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]7",home)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>$NUMBER[8]</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]8",home)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>$NUMBER[9]</label>
+                    <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]9",home)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>&amp;</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%26)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>'</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%27)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>-</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=-)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>:</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%3A)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>!</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%21)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>?</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%3F)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>.</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=.)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>,</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%2C)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>(</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%28)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>)</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%29)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>/</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%2F)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>+</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%2B)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>#</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%23)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>@</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%40)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>*</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%2A)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>;</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%3B)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>=</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%3D)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>_</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=_)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>%</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%25)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+                <item>
+                    <label>$</label>
+                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%24)</onclick>
+                    <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
+                </item>
+            </content>
+        </control>
+
+
+        <!-- Recent searches (nothing typed) / suggestions (as you type) -->
+        <control type="label">
+            <left>80</left>
+            <top>636</top>
+            <width>480</width>
+            <height>44</height>
+            <font>Small</font>
+            <textcolor>Dark1</textcolor>
+            <label>[B]$VAR[StremioSearchListTitle][/B]</label>
+            <visible>Integer.IsGreater(Container(302).NumItems,0)</visible>
+        </control>
+        <control type="list" id="302">
+            <left>80</left>
+            <top>684</top>
+            <width>480</width>
+            <height>324</height>
+            <onup>301</onup>
+            <onright condition="Integer.IsGreater(Container(401).NumItems,0)">401</onright>
+            <onright condition="!Integer.IsGreater(Container(401).NumItems,0)">402</onright>
+            <onback>301</onback>
+            <onclick>RunPlugin($INFO[Container(302).ListItem.FileNameAndPath])</onclick>
+            <content target="videos">$VAR[StremioSearchListPath]</content>
+            <itemlayout width="480" height="54">
+                <control type="label">
+                    <left>16</left>
+                    <width>448</width>
+                    <height>54</height>
+                    <aligny>center</aligny>
+                    <font>Small</font>
+                    <textcolor>Dark2</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                </control>
+            </itemlayout>
+            <focusedlayout width="480" height="54">
+                <control type="image">
+                    <width>480</width>
+                    <height>54</height>
+                    <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                    <visible>Control.HasFocus(302)</visible>
+                </control>
+                <control type="label">
+                    <left>16</left>
+                    <width>448</width>
+                    <height>54</height>
+                    <aligny>center</aligny>
+                    <font>Small</font>
+                    <textcolor>Dark1</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                </control>
+            </focusedlayout>
+        </control>
+
+        <!-- $LOCALIZE[342] -->
+        <control type="group">
+            <left>640</left>
+            <top>70</top>
+            <!-- The list itself must stay visible: Kodi doesn't load content into a hidden list -->
+            <control type="label">
+                <visible>Integer.IsGreater(Container(401).NumItems,0) | Container(401).IsUpdating</visible>
+                <width>1200</width>
+                <height>44</height>
+                <font>Small</font>
+                <textcolor>Dark1</textcolor>
+                <label>[B]$LOCALIZE[342][/B]$INFO[Container(401).NumItems,  [COLOR grey](,)[/COLOR]]</label>
+            </control>
+            <control type="group">
+                <left>1140</left>
+                <top>-6</top>
+                <visible>Container(401).IsUpdating</visible>
+                <include>BusySpinner</include>
+            </control>
+            <control type="list" id="401">
+                <left>-10</left>
+                <top>48</top>
+                <width>1220</width>
+                <height>400</height>
+                <orientation>horizontal</orientation>
+                <preloaditems>2</preloaditems>
+                <onleft>301</onleft>
+                <onup>401</onup>
+                <ondown>402</ondown>
+                <onback>301</onback>
+                <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_open&amp;type=$INFO[Container(401).ListItem.Property(stremiobridge.type)]&amp;id=$INFO[Container(401).ListItem.Property(stremiobridge.id)])</onclick>
+                <content target="videos">plugin://plugin.video.stremiobridge/?action=search_live&amp;type=movie&amp;q=$INFO[Window(home).Property(sbsearch.query)]</content>
+                <itemlayout width="200" height="400">
+                    <control type="image">
+                        <left>10</left>
+                        <top>10</top>
+                        <width>180</width>
+                        <height>270</height>
+                        <aspectratio>scale</aspectratio>
+                        <texture background="true" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
+                    </control>
+                    <control type="group">
+                        <left>10</left>
+                        <top>10</top>
+                        <width>180</width>
+                        <height>270</height>
+                        <include content="IndicatorPoster" condition="!Skin.HasSetting(hide.markers)">
+                            <param name="right" value="-8" />
+                            <param name="top" value="-8" />
+                        </include>
+                    </control>
+                    <control type="label">
+                        <left>10</left>
+                        <top>288</top>
+                        <width>180</width>
+                        <height>36</height>
+                        <font>Mini</font>
+                        <textcolor>Dark2</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left>
+                        <top>322</top>
+                        <width>180</width>
+                        <height>30</height>
+                        <font>Mini</font>
+                        <textcolor>Dark3</textcolor>
+                        <label>$INFO[ListItem.Year]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="200" height="400">
+                    <control type="image">
+                        <left>2</left>
+                        <top>2</top>
+                        <width>196</width>
+                        <height>286</height>
+                        <visible>Control.HasFocus(401)</visible>
+                        <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left>
+                        <top>10</top>
+                        <width>180</width>
+                        <height>270</height>
+                        <aspectratio>scale</aspectratio>
+                        <texture background="true" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
+                    </control>
+                    <control type="group">
+                        <left>10</left>
+                        <top>10</top>
+                        <width>180</width>
+                        <height>270</height>
+                        <include content="IndicatorPoster" condition="!Skin.HasSetting(hide.markers)">
+                            <param name="right" value="-8" />
+                            <param name="top" value="-8" />
+                        </include>
+                    </control>
+                    <control type="label">
+                        <left>10</left>
+                        <top>288</top>
+                        <width>180</width>
+                        <height>36</height>
+                        <font>Mini</font>
+                        <textcolor>Dark1</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left>
+                        <top>322</top>
+                        <width>180</width>
+                        <height>30</height>
+                        <font>Mini</font>
+                        <textcolor>Dark2</textcolor>
+                        <label>$INFO[ListItem.Year]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+        </control>
+
+        <!-- $LOCALIZE[20343] -->
+        <control type="group">
+            <left>640</left>
+            <top>560</top>
+            <!-- The list itself must stay visible: Kodi doesn't load content into a hidden list -->
+            <control type="label">
+                <visible>Integer.IsGreater(Container(402).NumItems,0) | Container(402).IsUpdating</visible>
+                <width>1200</width>
+                <height>44</height>
+                <font>Small</font>
+                <textcolor>Dark1</textcolor>
+                <label>[B]$LOCALIZE[20343][/B]$INFO[Container(402).NumItems,  [COLOR grey](,)[/COLOR]]</label>
+            </control>
+            <control type="group">
+                <left>1140</left>
+                <top>-6</top>
+                <visible>Container(402).IsUpdating</visible>
+                <include>BusySpinner</include>
+            </control>
+            <control type="list" id="402">
+                <left>-10</left>
+                <top>48</top>
+                <width>1220</width>
+                <height>400</height>
+                <orientation>horizontal</orientation>
+                <preloaditems>2</preloaditems>
+                <onleft>301</onleft>
+                <onup>401</onup>
+                <ondown>402</ondown>
+                <onback>301</onback>
+                <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_open&amp;type=$INFO[Container(402).ListItem.Property(stremiobridge.type)]&amp;id=$INFO[Container(402).ListItem.Property(stremiobridge.id)])</onclick>
+                <content target="videos">plugin://plugin.video.stremiobridge/?action=search_live&amp;type=series&amp;q=$INFO[Window(home).Property(sbsearch.query)]</content>
+                <itemlayout width="200" height="400">
+                    <control type="image">
+                        <left>10</left>
+                        <top>10</top>
+                        <width>180</width>
+                        <height>270</height>
+                        <aspectratio>scale</aspectratio>
+                        <texture background="true" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
+                    </control>
+                    <control type="group">
+                        <left>10</left>
+                        <top>10</top>
+                        <width>180</width>
+                        <height>270</height>
+                        <include content="IndicatorPoster" condition="!Skin.HasSetting(hide.markers)">
+                            <param name="right" value="-8" />
+                            <param name="top" value="-8" />
+                        </include>
+                    </control>
+                    <control type="label">
+                        <left>10</left>
+                        <top>288</top>
+                        <width>180</width>
+                        <height>36</height>
+                        <font>Mini</font>
+                        <textcolor>Dark2</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left>
+                        <top>322</top>
+                        <width>180</width>
+                        <height>30</height>
+                        <font>Mini</font>
+                        <textcolor>Dark3</textcolor>
+                        <label>$INFO[ListItem.Year]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="200" height="400">
+                    <control type="image">
+                        <left>2</left>
+                        <top>2</top>
+                        <width>196</width>
+                        <height>286</height>
+                        <visible>Control.HasFocus(402)</visible>
+                        <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left>
+                        <top>10</top>
+                        <width>180</width>
+                        <height>270</height>
+                        <aspectratio>scale</aspectratio>
+                        <texture background="true" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
+                    </control>
+                    <control type="group">
+                        <left>10</left>
+                        <top>10</top>
+                        <width>180</width>
+                        <height>270</height>
+                        <include content="IndicatorPoster" condition="!Skin.HasSetting(hide.markers)">
+                            <param name="right" value="-8" />
+                            <param name="top" value="-8" />
+                        </include>
+                    </control>
+                    <control type="label">
+                        <left>10</left>
+                        <top>288</top>
+                        <width>180</width>
+                        <height>36</height>
+                        <font>Mini</font>
+                        <textcolor>Dark1</textcolor>
+                        <scroll>true</scroll>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left>
+                        <top>322</top>
+                        <width>180</width>
+                        <height>30</height>
+                        <font>Mini</font>
+                        <textcolor>Dark2</textcolor>
+                        <label>$INFO[ListItem.Year]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+        </control>
+
+        <!-- Nothing typed / nothing found -->
+        <control type="label">
+            <left>640</left>
+            <top>420</top>
+            <width>1200</width>
+            <height>60</height>
+            <align>center</align>
+            <font>Small</font>
+            <textcolor>Dark3</textcolor>
+            <label>$VAR[StremioSearchHint]</label>
+            <visible>!Integer.IsGreater(Container(401).NumItems,0) + !Integer.IsGreater(Container(402).NumItems,0) + !Container(401).IsUpdating + !Container(402).IsUpdating</visible>
+        </control>
+    </controls>
+</window>

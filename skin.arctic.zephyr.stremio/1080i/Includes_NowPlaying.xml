@@ -312,7 +312,7 @@
                     <param name="label" value="$INFO[Player.Title]$INFO[VideoPlayer.StartTime,  •  ,]$INFO[VideoPlayer.EndTime, - ]$INFO[VideoPlayer.Duration(mins),  •  , $LOCALIZE[31102]]" />
                     <param name="visible" value="VideoPlayer.Content(livetv)" />
                 </include>
-                <include condition="Skin.HasSetting(homemenu.netflix) + !Skin.HasSetting(home.netflix.clearlogo) | Skin.HasSetting(homemenu.clean.flix)">IntentButton</include>
+                <include condition="Skin.HasSetting(homemenu.netflix) + !Skin.HasSetting(view.netflix.clearlogo) | Skin.HasSetting(homemenu.clean.flix)">IntentButton</include>
                 <control type="grouplist">
                     <width>100%</width>
                     <orientation>vertical</orientation>

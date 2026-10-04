@@ -1228,3 +1228,7 @@ msgstr ""
 msgctxt "#30405"
 msgid "Change"
 msgstr ""
+
+msgctxt "#30406"
+msgid "No aired episodes to play"
+msgstr ""

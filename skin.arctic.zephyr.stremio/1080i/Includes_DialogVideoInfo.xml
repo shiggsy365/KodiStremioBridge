@@ -45,6 +45,8 @@
                 </control>
                 <control type="group">
                     <include>View_50_SidePoster</include>
+                    <!-- Arctic Zephyr Stremio: the widgets' Watched / In progress ribbon (Includes_Stremio.xml) -->
+                    <include>StremioInfoPosterIndicator</include>
                 </control>
             </control>
 
@@ -125,7 +127,7 @@
                 <!-- ClearLogo -->
                 <control type="image" description="clearlogo">
                     <include>Animation.VideoFadeOut</include>
-                    <visible>Skin.HasSetting(furniture.logo)</visible>
+                    <visible>Skin.HasSetting(furniture.logo) + !$EXP[SBInfoHeaderLogo]</visible>
                     <include>Animation.WikiFadeOut</include>
                     <centertop>140</centertop>
                     <right>SidePad</right>
@@ -936,7 +938,7 @@
                         <param name="labeltwovisible" value="true"/>
                     </include>
 
-                    <!-- Stremio Bridge: show browsing directly inside the info page -->
+                    <!-- Stremio Bridge: the show browser (Browse show button) -->
                     <include>StremioInfoShowBrowser</include>
 
                     <!-- By Director -->
@@ -1010,8 +1012,8 @@
                         <param name="thumb" value="false" />
                     </include>
 
-                    <!-- Similar TV Shows -->
-                    <include content="VideoListCast" condition="String.IsEqual(ListItem.DBType,tvshow) + !String.IsEqual(ListItem.DBType,set)">
+                    <!-- Similar TV Shows (from the show, a season or an episode page) -->
+                    <include content="VideoListCast" condition="String.IsEqual(ListItem.DBType,tvshow) | String.IsEqual(ListItem.DBType,season) | String.IsEqual(ListItem.DBType,episode)">
                         <param name="arrowleft" value="-598"/>
                         <param name="arrowtop" value="342"/>
                         <param name="arrowright" value="155"/>

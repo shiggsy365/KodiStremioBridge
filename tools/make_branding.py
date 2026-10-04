@@ -4,7 +4,7 @@
 
 Writes plugin.video.stremiobridge/resources/{icon.png,fanart.jpg},
 repository.shiggsy365/icon.png, service.shiggsy365.tidycache/resources/icon.png and
-script.shiggsy365.globalsearch/resources/icon.png.
+script.shiggsy365.dispatcharrbridge/resources/icon.png.
 Needs Pillow.
 """
 
@@ -94,25 +94,6 @@ def tidy_icon(path):
     print(os.path.normpath(path))
 
 
-def search_icon(path):
-    """Global Search: rows of results behind a magnifier."""
-    scale, size = 4, 512
-    s = size * scale
-    image = gradient(s, s)
-    glow(image, [s * 0.1, s * 0.05, s * 0.9, s * 0.8], 90, 70 * scale)
-    draw = ImageDraw.Draw(image)
-    for row, y in enumerate((0.20, 0.42, 0.64)):
-        for col in range(3):
-            x = 0.14 + col * 0.20
-            draw.rounded_rectangle([s * x, s * y, s * (x + 0.16), s * (y + 0.16)], radius=10 * scale,
-                                   fill=(*ACCENT, 255) if (row + col) % 2 == 0 else (60, 90, 110))
-    cx, cy, r = s * 0.66, s * 0.60, s * 0.17
-    draw.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(255, 255, 255), width=24 * scale)
-    draw.line([(cx + r * 0.72, cy + r * 0.72), (cx + r * 1.75, cy + r * 1.75)], fill=(255, 255, 255), width=34 * scale)
-    image.resize((size, size), Image.LANCZOS).save(path, optimize=True)
-    print(os.path.normpath(path))
-
-
 def switch_icon(path):
     """Dispatcharr Bridge: a TV with switching arrows."""
     scale, size = 4, 512
@@ -151,5 +132,4 @@ if __name__ == "__main__":
     os.makedirs(repo_dir, exist_ok=True)
     icon(os.path.join(repo_dir, "icon.png"), repo=True)
     tidy_icon(os.path.join(ROOT, "service.shiggsy365.tidycache", "resources", "icon.png"))
-    search_icon(os.path.join(ROOT, "script.shiggsy365.globalsearch", "resources", "icon.png"))
     switch_icon(os.path.join(ROOT, "script.shiggsy365.dispatcharrbridge", "resources", "icon.png"))

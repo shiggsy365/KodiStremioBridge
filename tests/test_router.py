@@ -1,5 +1,6 @@
 """Smoke tests for the Kodi layer, run against Kodistubs (no real Kodi needed)."""
 
+import contextlib
 import os
 from urllib.parse import parse_qsl, urlencode, urlsplit
 
@@ -228,8 +229,8 @@ def test_info_page_show_browser_routes(server, listing, settings):
     state.set_watched([PlaybackEntry(video_id="tt5:1:1", type="series", meta_id="tt5", season=1, episode=1)], True)
     items, ends = listing
 
-    call("info_seasons", type="series", id="tt5")
-    assert [(p["action"], p["season"]) for p, _ in items] == [("info_episodes", "1"), ("info_episodes", "2"), ("info_episodes", "0")]
+    call("info_seasons", type="series", id="tt5")              # the seasons' own paths: their context menus
+    assert [(p["action"], p["season"]) for p, _ in items] == [("season", "1"), ("season", "2"), ("season", "0")]
     assert ends == [True]
 
     items.clear()
@@ -267,9 +268,52 @@ def test_season_episode_items_expose_info_panel_actions(server, monkeypatch):
     assert item.getProperty("stremiobridge.type") == "series"
     assert item.getProperty("stremiobridge.id") == "tt5"
     assert item.getProperty("stremiobridge.video") == "tt5:1:1"
-    assert item.getProperty("stremiobridge.browse") == ""
+    assert item.getProperty("stremiobridge.browse") == "true"
+    assert item.getProperty("stremiobridge.default_season") == "1"
+    assert item.getProperty("stremiobridge.focus_video") == "tt5:1:1"
     assert "action=info_toggle" in item.getProperty("stremiobridge.watched_action")
     assert "video=tt5%3A1%3A1" in item.getProperty("stremiobridge.watched_action")
+    assert "action=info_play" in item.getProperty("stremiobridge.play_action")
+    assert "video=tt5%3A1%3A1" in item.getProperty("stremiobridge.play_action")
+    assert "pick=1" in item.getProperty("stremiobridge.streams_action")
+    assert item.getProperty("stremiobridge.season") == ""  # an episode's page, not its season's
+
+    captured.clear()
+    call("meta", type="series", id="tt5")
+    seasons = {item.getProperty("stremiobridge.season"): item for _, item, _ in captured}
+    assert sorted(seasons) == ["0", "1", "2"]
+    second = seasons["2"]
+    assert second.getProperty("stremiobridge.default_season") == "2"
+    assert second.getProperty("stremiobridge.browse") == "true"
+    assert "season=2" in second.getProperty("stremiobridge.watched_action")
+    assert "season=2" in second.getProperty("stremiobridge.play_action")
+    assert "video=" not in second.getProperty("stremiobridge.play_action")
+
+
+def test_info_play_picks_the_episode_for_shows_and_seasons(server, monkeypatch):
+    from kodi_ui import infodialog
+
+    install(server)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    played = []
+    monkeypatch.setattr(infodialog, "_close_info", lambda: None)
+    monkeypatch.setattr(infodialog, "play_with_resume_choice",
+                        lambda plugin, type_, video, meta=None, pick=False: played.append((type_, video, meta, pick)))
+
+    call("info_play", type="series", id="tt5")                       # nothing watched: the first episode
+    call("info_play", type="series", id="tt5", season=2, pick=1)     # a season: its first unwatched one
+    call("info_play", type="series", id="tt5", video="tt5:1:1")      # an episode: that one
+    call("info_play", type="movie", id="tt1", pick=1)
+    state = common.get_watchstate()
+    state.set_watched([PlaybackEntry(video_id="tt5:1:1", type="series", meta_id="tt5", season=1, episode=1)], True)
+    call("info_play", type="series", id="tt5")                       # 1x02 hasn't aired: on to season 2
+    assert played == [
+        ("series", "tt5:1:1", "tt5", False),
+        ("series", "tt5:2:1", "tt5", True),
+        ("series", "tt5:1:1", "tt5", False),
+        ("movie", "tt1", None, True),
+        ("series", "tt5:2:1", "tt5", False),
+    ]
 
 
 def test_single_season_skips_season_level(server, listing):
@@ -348,10 +392,10 @@ def test_context_menus(server, listing, settings, monkeypatch):
     state = common.get_watchstate()
     state.set_watched([PlaybackEntry(video_id="tt5:1:2", type="series", meta_id="tt5", season=1, episode=2)], True)
     menus.clear()
-    call("next_up")                                         # an episode outside its show: "Browse show"
+    call("next_up")                                         # no "Browse show": Information has the browser
     browse = [cmd for _, cmd in menus[0]
               if cmd == f"RunPlugin({BASE}?action=extended_info&type=series&id=tt5)"]
-    assert browse == [f"RunPlugin({BASE}?action=extended_info&type=series&id=tt5)"]
+    assert browse == []
     info = [cmd for _, cmd in menus[0] if "action=extended_info" in cmd and "video=" in cmd]
     assert info == [f"RunPlugin({BASE}?action=extended_info&type=series&id=tt5&video=tt5%3A2%3A1)"]  # the episode's page
 
@@ -621,6 +665,83 @@ def test_search_no_results(server, listing, searchable):
     assert ends == [False] and len(notes) == 1
 
 
+def test_search_page_types_and_searches_as_you_type(server, listing, searchable, window, monkeypatch):
+    from kodi_ui import search as search_module
+
+    _, notes = searchable
+    monkeypatch.setattr(search_module, "SETTLE_SECONDS", 0)
+    monkeypatch.setattr(xbmc.Monitor, "waitForAbort", lambda self, timeout=None: False)
+    server.routes["/catalog/movie/top/search=star.json"] = {"metas": [
+        {"id": "tt1", "type": "movie", "name": "Star Wars"}, {"id": "tt2", "type": "movie", "name": "Stardust"}]}
+    server.routes["/catalog/series/top/search=star.json"] = {"metas": [
+        {"id": "tt3", "type": "series", "name": "Star Trek"}]}
+    home = xbmcgui.Window(10000)
+    typed = lambda: home.getProperty("sbsearch.query")
+    items, ends = listing
+
+    home.setProperty("sbsearch.query", "sta")                  # the skin appends letters itself
+    call("search_key", handle=-1, key="space")
+    call("search_key", handle=-1, key="space")                 # one space at a time
+    assert typed() == "sta "
+    call("search_key", handle=-1, key="delete")
+    call("search_key", handle=-1, key="delete")
+    assert typed() == "st"
+    call("search_key", handle=-1, key="clear")
+    assert typed() == ""
+    for char in "(,)":                                          # symbol keys: the skin can't add these
+        call("search_key", handle=-1, key="type", char=char)
+    assert typed() == "(,)"
+
+    home.setProperty("sbsearch.query", "star")
+    call("search_live", type="movie", q="star")
+    assert [(p["id"]) for p, _ in items] == ["tt1", "tt2"]
+    items.clear()
+    call("search_live", type="series", q="star")
+    assert [p["id"] for p, _ in items] == ["tt3"] and notes == []   # no pop-ups while typing
+
+    # Typed on during the wait: that listing comes back empty (a newer one follows).
+    items.clear()
+    monkeypatch.setattr(search_module, "_settled", lambda query: False)
+    call("search_live", type="movie", q="sta")
+    assert items == [] and ends[-1] is True
+
+
+def test_search_page_suggestions_recent_and_history(server, listing, searchable, window, monkeypatch):
+    from kodi_ui import infodialog, search as search_module
+
+    monkeypatch.setattr(search_module, "SETTLE_SECONDS", 0)
+    monkeypatch.setattr(xbmc.Monitor, "waitForAbort", lambda self, timeout=None: False)
+    server.routes["/catalog/movie/top/search=star.json"] = {"metas": [
+        {"id": "tt1", "type": "movie", "name": "Star Wars"}]}
+    server.routes["/catalog/series/top/search=star.json"] = {"metas": [
+        {"id": "tt3", "type": "series", "name": "Star Trek"}]}
+    history = common.get_history()
+    for query in ["dune", "a star is born", "stardust", "batman", "alien", "jaws"]:
+        history.add(query)
+    home = xbmcgui.Window(10000)
+    items, _ = listing
+
+    call("search_recent")                                     # newest first, the last 5
+    assert [p["query"] for p, _ in items] == ["jaws", "alien", "batman", "stardust", "a star is born"]
+
+    items.clear()
+    home.setProperty("sbsearch.query", "star")
+    call("search_suggest", q="star", n="0-0-")                  # results not loaded yet: past searches only
+    assert [p["query"] for p, _ in items] == ["stardust", "a star is born"]   # starting with it first
+    items.clear()
+    call("search_suggest", q="star", n="1-0-5")                  # then titles from the results too
+    assert [p["query"] for p, _ in items] == ["stardust", "a star is born", "Star Wars", "Star Trek"]
+
+    call("search_pick", handle=-1, query="Star Wars")
+    assert home.getProperty("sbsearch.query") == "Star Wars" and common.get_history().all()[0] == "Star Wars"
+
+    opened = []
+    monkeypatch.setattr(infodialog, "extended_info", lambda plugin, type_, id_: opened.append((type_, id_)))
+    home.setProperty("sbsearch.query", "alien  ")
+    call("search_open", handle=-1, type="movie", id="tt9")
+    assert opened == [("movie", "tt9")] and common.get_history().all()[0] == "alien"
+
+
 def test_search_without_targets(server, listing, monkeypatch):
     _, ends = listing
     call("search", query="x")
@@ -855,13 +976,13 @@ def test_listings_carry_watch_state(server, listing, settings, monkeypatch):
     marks.clear()
     info.clear()
     call("season", type="series", id="tt5", season=1)
-    assert marks == [("count", 1)]
-    assert info == [("video", {"playcount": 1, "overlay": 7})]
+    assert marks == [("count", 1), ("count", 0)]               # 1x02 never played: marked unwatched
+    assert info == [("video", {"playcount": 1, "overlay": 5}), ("video", {"playcount": 0, "overlay": 4})]
     marks.clear()
     info.clear()
     call("season", type="series", id="tt5", season=2)
     assert marks == [("count", 0), ("resume", 300)]
-    assert info == [("video", {"playcount": 0, "overlay": 6})]
+    assert info == [("video", {"playcount": 0, "overlay": 4})]
 
 
 # ------------------------------------------------------------------ service
@@ -1349,7 +1470,7 @@ def test_show_in_catalog_offers_unwatch_once_started(server, listing, settings, 
     common.get_watchstate().set_watched(
         [PlaybackEntry(video_id="tt5:1:1", type="series", meta_id="tt5", season=1, episode=1)], True)
     call("catalog", addon=key, type="series", id="top")
-    assert [cmd.split("value=")[1][0] for _, cmd in menus[-1] if "set_watched" in cmd] == ["1", "0"]
+    assert [cmd.split("value=")[1][0] for _, cmd in menus[-1] if "set_watched" in cmd] == ["1"]  # one entry
 
 
 
@@ -1404,14 +1525,56 @@ def test_rename_search_catalog(server, listing, settings, search_ui, monkeypatch
 
 
 
-def test_episodes_in_their_own_show_offer_browse_show(server, listing, settings, monkeypatch):
+def test_menus_have_one_watched_entry_for_their_level(server, listing, settings, monkeypatch):
+    from kodi_ui import listitems
+
     install(server)
     server.routes["/meta/series/tt5.json"] = SHOW
+    monkeypatch.setattr(listitems, "skin_active", lambda: False)
+    common.get_watchstate().set_watched(
+        [PlaybackEntry(video_id="tt5:1:1", type="series", meta_id="tt5", season=1, episode=1)], True)
     menus = []
     monkeypatch.setattr(xbmcgui.ListItem, "addContextMenuItems", lambda self, items: menus.append(items))
-    call("season", type="series", id="tt5", season=1)
-    assert all(any("action=extended_info&type=series&id=tt5" in cmd for _, cmd in menu) for menu in menus)
 
+    def marks(menu):
+        return [(label, cmd) for label, cmd in menu if "action=set_watched" in cmd]
+
+    call("meta", type="series", id="tt5")                   # seasons: 1 is all watched (1x02 hasn't aired)
+    season_marks = [marks(menu) for menu in menus]
+    assert all(len(m) == 1 for m in season_marks)
+    assert "season=1" in season_marks[0][0][1] and "value=0" in season_marks[0][0][1]   # Mark as unwatched
+    assert "season=2" in season_marks[1][0][1] and "value=1" in season_marks[1][0][1]   # Mark as watched
+
+    menus.clear()
+    call("season", type="series", id="tt5", season=1)       # episodes: just that episode
+    assert [len(marks(menu)) for menu in menus] == [1, 1]
+    assert "id=tt5%3A1%3A1" in marks(menus[0])[0][1] and "meta=tt5" in marks(menus[0])[0][1]
+    assert not any(cmd.endswith("action=extended_info&type=series&id=tt5)") for menu in menus for _, cmd in menu)
+
+
+def test_skin_context_menu_for_a_season(monkeypatch):
+    from kodi_ui import contextmenu, router
+
+    monkeypatch.setattr(contextmenu, "ADDON_ID", "plugin.video.stremiobridge")
+    labels = {208: "Play", 19033: "Information", 14076: "Add to favourites", 14077: "Remove from favourites"}
+    monkeypatch.setattr(contextmenu.xbmc, "getLocalizedString", lambda n: labels[n])
+    plugin = router.Plugin(["plugin://plugin.video.stremiobridge/", "-1", ""])
+    path = "plugin://plugin.video.stremiobridge/?action=season&type=series&id=tt5&season=2"
+    entries = contextmenu.menu_entries(plugin, path, [], favourite=False, watched=True)
+    assert [label for label, _ in entries][::3] == ["Play", "Add to favourites"] and len(entries) == 4
+    assert "action=info_play" in entries[0][1] and "season=2" in entries[0][1]
+    assert "action=extended_info" in entries[1][1] and "season=2" in entries[1][1]
+    assert "action=set_watched" in entries[2][1] and "season=2" in entries[2][1] and "value=0" in entries[2][1]
+
+
+def test_watched_overlay_for_kodi(monkeypatch):
+    from kodi_ui import listitems
+
+    info = []
+    monkeypatch.setattr(xbmcgui.ListItem, "setInfo", lambda self, kind, values: info.append(values["overlay"]))
+    listitems.mark_item_watched(xbmcgui.ListItem(), True)
+    listitems.mark_item_watched(xbmcgui.ListItem(), False)
+    assert info == [5, 4]  # ICON_OVERLAY_WATCHED / ICON_OVERLAY_UNWATCHED: the skin's ticks and markers
 
 
 def test_watch_changes_bump_widget_reload_token(server, listing, settings, window, kodi_ui_state, monkeypatch):
@@ -1670,6 +1833,7 @@ def test_choose_and_apply_view(settings, monkeypatch, kodi_ui_state, tmp_path):
     monkeypatch.setattr(views.xbmcaddon.Addon, "getLocalizedString",
                         lambda self, n: "Seasons Info v2" if n == 31530 else "")
     assert views.stored_view_id("seasons") == 526
+    assert views.stored_view_id("movies") == 521 and views.stored_view_id("tvshows") == 521   # Poster Flix v2
 
     settings["view_movies"] = "Wall (52)"
     applied = []
@@ -2566,14 +2730,13 @@ def test_context_menu_order(monkeypatch):
     path = "plugin://plugin.video.stremiobridge/?action=play&type=series&id=tt2%3A1%3A3&meta=tt2"
     own = [["[COLOR FFFF8080]Play trailer[/COLOR]", "RunPlugin(plugin://x/?action=play_trailer&type=series&id=tt2)"],
            ["Add to watchlist", "RunPlugin(plugin://x/?action=watchlist_add&type=series&id=tt2)"],
-           ["Browse show", "RunPlugin(plugin://x/?action=extended_info&type=series&id=tt2)"],
            ["Extended info", "RunPlugin(plugin://x/?action=extended_info&type=series&id=tt2&video=tt2:1:3)"],
            ["Show Playable Streams", "PlayMedia(plugin://x/?action=play&type=series&id=tt2:1:3&pick=1)"],
            ["Remove from Continue Watching", "RunPlugin(plugin://x/?action=dismiss&id=tt2)"],
            ["Mark as watched", "RunPlugin(plugin://x/?action=set_watched&type=series&id=tt2:1:3&value=1&meta=tt2)"]]
     entries = contextmenu.menu_entries(plugin, path, own, favourite=False)
     assert [label for label, _ in entries] == [
-        "Play", "Information", "Mark as watched", "Show Playable Streams", "Browse show", "Add to watchlist",
+        "Play", "Information", "Mark as watched", "Show Playable Streams", "Add to watchlist",
         "Remove from Continue Watching", "Play trailer", "Add to favourites"]
     assert entries[0][1] == f"PlayMedia({path})"
     assert "action=extended_info" in entries[1][1] and "video=tt2%3A1%3A3" in entries[1][1]
@@ -2657,3 +2820,115 @@ def test_setup_wizard_syncs_mdblist_key_then_reloads_skin(settings, monkeypatch)
     assert ("sync", True) in events
     assert "ReloadSkin()" in events
     assert events.index(("sync", True)) < events.index("ReloadSkin()")
+
+
+def test_skin_info_page_for_a_season(server, monkeypatch):
+    from kodi_ui import infodialog
+
+    install(server)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    props, shown = {}, []
+    monkeypatch.setattr(xbmcgui.ListItem, "setProperty", lambda self, key, value: props.__setitem__(key, value))
+    monkeypatch.setattr(infodialog, "skin_active", lambda: True)
+    monkeypatch.setattr(infodialog, "_close_info", lambda: None)
+    monkeypatch.setattr(infodialog, "_services", lambda meta: [])
+    monkeypatch.setattr(xbmcgui.Dialog, "info", lambda self, item: shown.append(item))
+
+    call("extended_info", handle=-1, type="series", id="tt5", season=2)
+    assert len(shown) == 1
+    assert props["stremiobridge.season"] == "2" and props["stremiobridge.default_season"] == "2"
+    assert "season=2" in props["stremiobridge.watched_action"]
+    assert "season=2" in props["stremiobridge.play_action"] and "video=" not in props["stremiobridge.play_action"]
+    assert props["stremiobridge.browse"] == "true"
+
+
+def test_similar_panel_is_quiet(server, listing, monkeypatch):
+    from kodi_ui import watching
+
+    notices, busy_used = [], []
+    monkeypatch.setattr(watching, "notify", lambda *a, **kw: notices.append(a))
+    monkeypatch.setattr(watching, "busy", lambda: busy_used.append(1) or contextlib.nullcontext())
+
+    class FakeMDBList:
+        def recommendations(self, type_, id_):
+            return []
+
+    monkeypatch.setattr(watching, "get_mdblist", lambda: FakeMDBList())
+    _, ends = listing
+    call("similar", type="series", id="tt5", panel=1)    # the info page's panel: an empty list, no pop-ups
+    assert ends == [True] and notices == [] and busy_used == []
+    call("similar", type="series", id="tt5")             # the Similar folder: tells you there's nothing
+    assert ends == [True, False] and len(notices) == 1 and busy_used == [1]
+
+
+def test_show_browser_selects_the_focused_episode(server, listing, monkeypatch):
+    from kodi_ui import details
+
+    install(server)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    shown, moves = {}, []
+    monkeypatch.setattr(details.xbmc, "getCondVisibility", lambda cond: "movieinformation" in cond)
+    monkeypatch.setattr(details.xbmc, "getInfoLabel", lambda label: shown.get(label, ""))
+    monkeypatch.setattr(details.xbmc, "executebuiltin", lambda cmd, *a: moves.append(cmd))
+    items, _ = listing
+
+    def kodi_shows(control, position, path):  # Kodi shows the listing just returned, first item selected
+        shown.clear()
+        shown[f"Container({control}).ListItemAbsolute({position}).FileNameAndPath"] = path
+        shown[f"Container({control}).CurrentItem"] = "1"
+
+    real_select = details.select_when_shown
+    monkeypatch.setattr(details, "select_when_shown",
+                        lambda *args: (kodi_shows(*args), real_select(*args)))
+    call("info_episodes", type="series", id="tt5", season=1, focus="tt5:1:2")
+    assert moves == ["Control.Move(5061,1)"]
+
+    items.clear(), moves.clear()
+    call("info_seasons", type="series", id="tt5", focus="2")
+    assert moves == ["Control.Move(5060,1)"]
+
+    items.clear(), moves.clear()
+    call("info_episodes", type="series", id="tt5", season=2, focus="tt5:1:2")   # not in this season
+    assert moves == []
+
+
+def test_marking_from_the_info_page_shows_it_again(server, kodi_ui_state, monkeypatch):
+    from kodi_ui import infodialog
+
+    install(server)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    home = xbmcgui.Window(10000)
+    props = {"sbinfo.type": "series", "sbinfo.id": "tt5", "sbinfo.video": "tt5:2:1"}
+    monkeypatch.setattr(xbmcgui.Window, "getProperty", lambda self, key: props.get(key, ""))
+    monkeypatch.setattr(infodialog, "skin_active", lambda: True)
+    monkeypatch.setattr(infodialog.xbmc, "getCondVisibility", lambda cond: "movieinformation" in cond)
+    reopened = []
+    monkeypatch.setattr(infodialog, "extended_info", lambda plugin, *args: reopened.append(args))
+
+    call("set_watched", handle=-1, type="series", id="tt5:1:1", meta="tt5", value=1)   # from the show browser
+    assert common.get_watchstate().watched_episodes("tt5") == {(1, 1)}
+    assert reopened == [("series", "tt5", "tt5:2:1", None)]   # the page that was open, with the new state
+    del home
+
+
+def test_context_menu_in_the_info_page_show_browser_is_the_episodes(monkeypatch):
+    from kodi_ui import contextmenu, router
+
+    monkeypatch.setattr(contextmenu, "ADDON_ID", "plugin.video.stremiobridge")
+    base = "plugin://plugin.video.stremiobridge/"
+    page = f"{base}?action=meta&type=series&id=tt5"                       # the info page's own item: the show
+    tile = f"{base}?action=extended_info&type=series&id=tt5&video=tt5%3A1%3A2"
+    labels = {"ListItem.FileNameAndPath": page, "Container(5061).ListItem.FileNameAndPath": tile}
+    monkeypatch.setattr(contextmenu.xbmc, "getInfoLabel", lambda label: labels.get(label, ""))
+    monkeypatch.setattr(contextmenu.xbmc, "getCondVisibility",
+                        lambda cond: cond in ("Window.IsVisible(movieinformation)", "Control.HasFocus(5061)"))
+    source, path = contextmenu.focused_item()
+    assert (source, path) == ("Container(5061).ListItem", tile)
+
+    monkeypatch.setattr(contextmenu.xbmc, "getLocalizedString", lambda n: str(n))
+    plugin = router.Plugin([base, "-1", ""])
+    marks = [cmd for _, cmd in contextmenu.menu_entries(plugin, path, [], favourite=False) if "set_watched" in cmd]
+    assert len(marks) == 1 and "id=tt5%3A1%3A2" in marks[0] and "meta=tt5" in marks[0]   # the episode, not the show
+
+    monkeypatch.setattr(contextmenu.xbmc, "getCondVisibility", lambda cond: False)          # no info page open
+    assert contextmenu.focused_item() == ("ListItem", page)

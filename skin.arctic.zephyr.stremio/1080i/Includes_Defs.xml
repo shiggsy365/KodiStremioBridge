@@ -785,6 +785,8 @@
     </variable>
 
     <variable name="Def_Similar_List">
+        <!-- Arctic Zephyr Stremio: the page's own title (any level of a show), not the focused list's item -->
+        <value condition="String.IsEqual(Window.Property(videosimilar),1) + !String.IsEmpty(Window(home).Property(sbinfo.id))">plugin://plugin.video.stremiobridge/?action=similar&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;panel=1</value>
         <value condition="String.IsEqual(Window.Property(videosimilar),1) + String.IsEqual(ListItem.DBType,tvshow)">plugin://plugin.video.stremiobridge/?action=similar&amp;type=series&amp;id=$INFO[ListItem.IMDBNumber]</value>
         <value condition="String.IsEqual(Window.Property(videosimilar),1) + String.IsEqual(ListItem.DBType,movie)">plugin://plugin.video.stremiobridge/?action=similar&amp;type=movie&amp;id=$INFO[ListItem.IMDBNumber]</value>
     </variable>

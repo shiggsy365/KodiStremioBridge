@@ -139,97 +139,15 @@
         [Container.Content(tvshows) | String.IsEqual(Container(301).ListItem.DBTYPE,tvshow) | Container.Content(season) | String.IsEqual(Container(301).ListItem.DBTYPE,season)] + !String.IsEqual(Container(301).ListItem.Overlay,OverlayWatched.png) + Integer.IsGreater(Container(301).ListItem.Property(WatchedEpisodes),0) + !$EXP[IsNewTVShow301]
     </expression>
     
-    <expression name="IsNewMovie">
-        [Container.Content(movies) | Window.isVisible(Home.xml)]
-        + [
-            String.IsEqual(Window(Home).Property(LatestMovie.1.Title),ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.2.Title),ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.3.Title),ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.4.Title),ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.5.Title),ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.6.Title),ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.7.Title),ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.8.Title),ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.9.Title),ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.10.Title),ListItem.Label)
-          ]
-    </expression>
-    <expression name="IsNewTVShow">
-        [Container.Content(tvshows) | Window.isVisible(Home.xml)]
-        + [
-            String.IsEqual(Window(Home).Property(LatestEpisode.1.ShowTitle),ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.2.ShowTitle),ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.3.ShowTitle),ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.4.ShowTitle),ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.5.ShowTitle),ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.6.ShowTitle),ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.7.ShowTitle),ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.8.ShowTitle),ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.9.ShowTitle),ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.10.ShowTitle),ListItem.TvShowTitle)
-          ]
-    </expression>
-    <expression name="IsNewEpisode">
-        [Container.Content(episodes) | Window.isVisible(Home.xml)]
-        + [
-            String.IsEqual(Window(Home).Property(LatestEpisode.1.EpisodeTitle),ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.2.EpisodeTitle),ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.3.EpisodeTitle),ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.4.EpisodeTitle),ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.5.EpisodeTitle),ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.6.EpisodeTitle),ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.7.EpisodeTitle),ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.8.EpisodeTitle),ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.9.EpisodeTitle),ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.10.EpisodeTitle),ListItem.Title)
-          ]
-    </expression>
+    <!-- Arctic Zephyr Stremio: no "New" markers. These compared items with Kodi library
+         "latest" properties, which are empty here, so on Home nearly everything matched. -->
+    <expression name="IsNewMovie">false</expression>
+    <expression name="IsNewTVShow">false</expression>
+    <expression name="IsNewEpisode">false</expression>
     
-    <expression name="IsNewMovie301">
-        [Container.Content(movies) | Window.isVisible(Home.xml)]
-        + [
-            String.IsEqual(Window(Home).Property(LatestMovie.1.Title),Container(301).ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.2.Title),Container(301).ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.3.Title),Container(301).ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.4.Title),Container(301).ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.5.Title),Container(301).ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.6.Title),Container(301).ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.7.Title),Container(301).ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.8.Title),Container(301).ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.9.Title),Container(301).ListItem.Label)
-            | String.IsEqual(Window(Home).Property(LatestMovie.10.Title),Container(301).ListItem.Label)
-          ]
-    </expression>
-    <expression name="IsNewTVShow301">
-        [Container.Content(tvshows) | Window.isVisible(Home.xml)]
-        + [
-            String.IsEqual(Window(Home).Property(LatestEpisode.1.ShowTitle),Container(301).ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.2.ShowTitle),Container(301).ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.3.ShowTitle),Container(301).ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.4.ShowTitle),Container(301).ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.5.ShowTitle),Container(301).ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.6.ShowTitle),Container(301).ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.7.ShowTitle),Container(301).ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.8.ShowTitle),Container(301).ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.9.ShowTitle),Container(301).ListItem.TvShowTitle)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.10.ShowTitle),Container(301).ListItem.TvShowTitle)
-          ]
-    </expression>
-    <expression name="IsNewEpisode301">
-        [Container.Content(episodes) | Window.isVisible(Home.xml)]
-        + [
-            String.IsEqual(Window(Home).Property(LatestEpisode.1.EpisodeTitle),Container(301).ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.2.EpisodeTitle),Container(301).ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.3.EpisodeTitle),Container(301).ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.4.EpisodeTitle),Container(301).ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.5.EpisodeTitle),Container(301).ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.6.EpisodeTitle),Container(301).ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.7.EpisodeTitle),Container(301).ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.8.EpisodeTitle),Container(301).ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.9.EpisodeTitle),Container(301).ListItem.Title)
-            | String.IsEqual(Window(Home).Property(LatestEpisode.10.EpisodeTitle),Container(301).ListItem.Title)
-          ]
-    </expression>
+    <expression name="IsNewMovie301">false</expression>
+    <expression name="IsNewTVShow301">false</expression>
+    <expression name="IsNewEpisode301">false</expression>
 
     <expression name="InGameMode">
         [ String.Contains(Container.FolderPath,plugin://plugin.program.ael) 
@@ -1779,6 +1697,7 @@
             <onup condition="String.IsEqual(Window.Property(moviecontent),7)">9506</onup>
             <onup condition="String.IsEqual(Window.Property(moviecontent),8)">9515</onup>
             <onup condition="String.IsEqual(Window.Property(moviecontent),10)">9560</onup>
+            <onup condition="String.IsEqual(Window.Property(moviecontent),11)">5061</onup>
             <onup condition="String.IsEqual(Window.Property(moviecontent),5) + Integer.IsGreater(Container(9505).NumItems,0)">95051</onup>
             <onup condition="String.IsEqual(Window.Property(moviecontent),6)">7011</onup>
             <onup condition="String.IsEqual(Window.Property(moviecontent),1) + !String.IsEqual(Window.Property(ShowDisc),1) + String.IsEqual(ListItem.DBType,movie) + !String.IsEmpty(ListItem.Art(discart))">SetProperty(ShowDisc,1)</onup>
@@ -1798,6 +1717,7 @@
                 <selected>ListItem.IsResumable</selected>
                 <visible>!ListItem.IsPlaying</visible>
                 <visible>!String.IsEqual(ListItem.DBType,tvshow)</visible>
+                <visible>!$EXP[SBInfoPage]</visible>
             </control>
 
             <control type="radiobutton" id="9078">
@@ -1813,6 +1733,7 @@
                     <param name="icon" value="buttonsdialogs/folder.png"/>
                 </include>
                 <visible>String.IsEqual(ListItem.DBType,tvshow)</visible>
+                <visible>!$EXP[SBInfoPage]</visible>
             </control>
 
             <control type="radiobutton" id="9201">
@@ -1843,55 +1764,83 @@
                 </include>
             </control>
 
-            <!-- Arctic Zephyr Stremio: Browse show, Mark watched, Watchlist (Stremio Bridge sets these properties) -->
-            <control type="radiobutton" id="9101">
-                <visible>!String.IsEmpty(ListItem.Property(stremiobridge.browse))</visible>
-                <onfocus>ClearProperty(moviecontent)</onfocus>
+            <!-- Arctic Zephyr Stremio: Stremio Bridge's titles use their own buttons, whose
+                 links the plugin sets on the item (frozen as sbinfo.* by DialogVideoInfo.xml).
+                 Play: the movie or episode, or a show's / season's next episode to watch -->
+            <control type="radiobutton" id="9120">
+                <visible>$EXP[SBInfoPage]</visible>
                 <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onclick>RunPlugin($INFO[ListItem.Property(stremiobridge.browse)])</onclick>
+                <onfocus condition="$EXP[SBInfoBrowse] + !String.IsEqual(Window.Property(moviecontent),11)">ClearProperty(moviecontent)</onfocus>
+                <onfocus condition="$EXP[SBInfoBrowse]">SetProperty(moviecontent,11)</onfocus>
+                <onfocus condition="!$EXP[SBInfoBrowse]">ClearProperty(moviecontent)</onfocus>
+                <onclick condition="Skin.HasSetting(home.netflix.autoplay.trailer) + $EXP[TrailerIsPlaying]">Stop</onclick>
+                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.play_action)])</onclick>
+                <include>buttondimensions</include>
+                <texturenofocus colordiffuse="Dark4" border="0">common/boxsquare.png</texturenofocus>
+                <texturefocus colordiffuse="$VAR[ColorHighlight]" border="0">common/boxsquare.png</texturefocus>
+                <textureradioonfocus colordiffuse="FFFFFFFF">buttonsdialogs/continue.png</textureradioonfocus>
+                <textureradioonnofocus colordiffuse="FFFFFFFF">buttonsdialogs/continue.png</textureradioonnofocus>
+                <textureradioofffocus colordiffuse="FFFFFFFF">buttonsdialogs/play.png</textureradioofffocus>
+                <textureradiooffnofocus colordiffuse="FFFFFFFF">buttonsdialogs/play.png</textureradiooffnofocus>
+                <selected>$EXP[SBInfoResumable]</selected>
+            </control>
+
+            <!-- Available streams: choose the stream yourself -->
+            <control type="radiobutton" id="9121">
+                <visible>$EXP[SBInfoPage]</visible>
+                <onfocus>ClearProperty(ShowDisc)</onfocus>
+                <onfocus condition="$EXP[SBInfoBrowse] + !String.IsEqual(Window.Property(moviecontent),11)">ClearProperty(moviecontent)</onfocus>
+                <onfocus condition="$EXP[SBInfoBrowse]">SetProperty(moviecontent,11)</onfocus>
+                <onfocus condition="!$EXP[SBInfoBrowse]">ClearProperty(moviecontent)</onfocus>
+                <onclick condition="Skin.HasSetting(home.netflix.autoplay.trailer) + $EXP[TrailerIsPlaying]">Stop</onclick>
+                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.streams_action)])</onclick>
                 <include>buttondimensions</include>
                 <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/tvshows.png"/>
+                    <param name="icon" value="buttonsdialogs/streams.png"/>
                 </include>
             </control>
+
+            <!-- Mark watched -->
             <control type="radiobutton" id="9102">
-                <visible>!String.IsEmpty(ListItem.Property(stremiobridge.watched_action)) + !Integer.IsGreater(ListItem.PlayCount,0)</visible>
-                <onfocus>ClearProperty(moviecontent)</onfocus>
+                <visible>$EXP[SBInfoPage] + !$EXP[SBInfoWatched]</visible>
                 <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onclick>RunPlugin($INFO[ListItem.Property(stremiobridge.watched_action)])</onclick>
+                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.watched_action)])</onclick>
                 <include>buttondimensions</include>
                 <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/enabled.png"/>
+                    <param name="icon" value="buttonsdialogs/watched.png"/>
                 </include>
             </control>
+
+            <!-- Mark unwatched -->
             <control type="radiobutton" id="9104">
-                <visible>!String.IsEmpty(ListItem.Property(stremiobridge.watched_action)) + Integer.IsGreater(ListItem.PlayCount,0)</visible>
-                <onfocus>ClearProperty(moviecontent)</onfocus>
+                <visible>$EXP[SBInfoPage] + $EXP[SBInfoWatched]</visible>
                 <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onclick>RunPlugin($INFO[ListItem.Property(stremiobridge.watched_action)])</onclick>
+                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.watched_action)])</onclick>
                 <include>buttondimensions</include>
                 <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/disable.png"/>
+                    <param name="icon" value="buttonsdialogs/unwatched.png"/>
                 </include>
             </control>
+
+            <!-- Add to watchlist (MDBList) -->
             <control type="radiobutton" id="9103">
-                <visible>!String.IsEmpty(ListItem.Property(stremiobridge.watchlist_action)) + !String.IsEqual(ListItem.Property(stremiobridge.watchlist),true)</visible>
-                <onfocus>ClearProperty(moviecontent)</onfocus>
+                <visible>$EXP[SBInfoWatchlist] + !$EXP[SBInfoListed]</visible>
                 <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onclick>RunPlugin($INFO[ListItem.Property(stremiobridge.watchlist_action)])</onclick>
+                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.watchlist_action)])</onclick>
                 <include>buttondimensions</include>
                 <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/rating.png"/>
+                    <param name="icon" value="buttonsdialogs/watchlist_add.png"/>
                 </include>
             </control>
+
+            <!-- Remove from watchlist -->
             <control type="radiobutton" id="9105">
-                <visible>!String.IsEmpty(ListItem.Property(stremiobridge.watchlist_action)) + String.IsEqual(ListItem.Property(stremiobridge.watchlist),true)</visible>
-                <onfocus>ClearProperty(moviecontent)</onfocus>
+                <visible>$EXP[SBInfoWatchlist] + $EXP[SBInfoListed]</visible>
                 <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onclick>RunPlugin($INFO[ListItem.Property(stremiobridge.watchlist_action)])</onclick>
+                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.watchlist_action)])</onclick>
                 <include>buttondimensions</include>
                 <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/rating_new.png"/>
+                    <param name="icon" value="buttonsdialogs/watchlist_remove.png"/>
                 </include>
             </control>
 
@@ -1908,16 +1857,15 @@
                     <param name="icon" value="buttonsdialogs/info.png"/>
                 </include>
             </control>
-            
-            <!-- Trailer - ListItem.Trailer | IMDB.Trailer | Bingie.Helper -->
+
             <control type="radiobutton" id="1224">
-                <onfocus>ClearProperty(moviecontent)</onfocus>
+                <onfocus condition="!$EXP[SBInfoPage]">ClearProperty(moviecontent)</onfocus>
                 <onfocus>ClearProperty(ShowDisc)</onfocus>
                 <include>buttondimensions</include>
                 <include content="buttontextures">
                     <param name="icon" value="buttonsdialogs/trailer.png"/>
                 </include>
-                <visible>!Skin.HasSetting(PlayTrailerWindowed) + [[Skin.HasSetting(Use.IMDB.Trailer) + System.AddonIsEnabled(plugin.video.imdb.trailers) + !String.IsEmpty(ListItem.IMDBNumber)] | [!Skin.HasSetting(Use.IMDB.Trailer) + String.IsEmpty(ListItem.Trailer) + System.AddonIsEnabled(script.bingie.helper)] | [!Skin.HasSetting(Use.IMDB.Trailer) + !String.IsEmpty(ListItem.Trailer)]]</visible>                
+                <visible>!Skin.HasSetting(PlayTrailerWindowed) + [[Skin.HasSetting(Use.IMDB.Trailer) + System.AddonIsEnabled(plugin.video.imdb.trailers) + !String.IsEmpty(ListItem.IMDBNumber)] | [!Skin.HasSetting(Use.IMDB.Trailer) + String.IsEmpty(ListItem.Trailer) + System.AddonIsEnabled(script.bingie.helper)] | [!Skin.HasSetting(Use.IMDB.Trailer) + [!String.IsEmpty(ListItem.Trailer) | !String.IsEmpty(Window(home).Property(sbinfo.trailer))]]]</visible>                
                 <onclick condition="Skin.HasSetting(Use.IMDB.Trailer) | String.IsEmpty(ListItem.Trailer)">Dialog.Close(2003)</onclick>                
                 <onclick condition="!Skin.HasSetting(Use.IMDB.Trailer) + !String.IsEmpty(ListItem.Trailer)">SendClick(11)</onclick>
                 <onclick condition="!Skin.HasSetting(Use.IMDB.Trailer) + String.IsEmpty(ListItem.Trailer) + System.AddonIsEnabled(script.bingie.helper)">RunScript(script.bingie.helper,action=playtrailer,MODE=fullscreen,title=$INFO[ListItem.Title],local=true)</onclick>
@@ -1925,7 +1873,6 @@
                 <visible>!Skin.HasSetting(hidebutton.video.trailer)</visible>
             </control>
 
-            <!-- Trailer Windowed - ListItem.Trailer | IMDB.Trailer | Bingie.Helper -->
             <control type="radiobutton" id="1223">
                 <onfocus condition="!String.IsEqual(Window.Property(moviecontent),6)">ClearProperty(moviecontent)</onfocus>
                 <onfocus>ClearProperty(ShowDisc)</onfocus>
@@ -1934,14 +1881,38 @@
                 <include content="buttontextures">
                     <param name="icon" value="buttonsdialogs/trailer.png"/>
                 </include>
-                <visible>Skin.HasSetting(PlayTrailerWindowed) + [[Skin.HasSetting(Use.IMDB.Trailer) + System.AddonIsEnabled(plugin.video.imdb.trailers) + !String.IsEmpty(ListItem.IMDBNumber)] | [!Skin.HasSetting(Use.IMDB.Trailer) + String.IsEmpty(ListItem.Trailer) + System.AddonIsEnabled(script.bingie.helper)] | [!Skin.HasSetting(Use.IMDB.Trailer) + !String.IsEmpty(ListItem.Trailer)]]</visible>
+                <visible>Skin.HasSetting(PlayTrailerWindowed) + [[Skin.HasSetting(Use.IMDB.Trailer) + System.AddonIsEnabled(plugin.video.imdb.trailers) + !String.IsEmpty(ListItem.IMDBNumber)] | [!Skin.HasSetting(Use.IMDB.Trailer) + String.IsEmpty(ListItem.Trailer) + System.AddonIsEnabled(script.bingie.helper)] | [!Skin.HasSetting(Use.IMDB.Trailer) + [!String.IsEmpty(ListItem.Trailer) | !String.IsEmpty(Window(home).Property(sbinfo.trailer))]]]</visible>
                 <onclick condition="!Skin.HasSetting(Use.IMDB.Trailer) + !String.IsEmpty(ListItem.Trailer)">PlayMedia($INFO[ListItem.Trailer],1)</onclick>
                 <onclick condition="!Skin.HasSetting(Use.IMDB.Trailer) + String.IsEmpty(ListItem.Trailer) + System.AddonIsEnabled(script.bingie.helper)">RunScript(script.bingie.helper,action=playtrailer,MODE=windowed,title=$INFO[ListItem.Title],local=true)</onclick>
                 <onclick condition="Skin.HasSetting(Use.IMDB.Trailer)">PlayMedia(plugin://plugin.video.imdb.trailers/?action=play_id&amp;imdb=$INFO[ListItem.IMDBNumber],1)</onclick>
                 <visible>!Skin.HasSetting(hidebutton.video.trailer)</visible>
             </control>
 
-            <!-- Cinema -->
+            <control type="radiobutton" id="9002">
+                <visible>[$EXP[SBInfoPage] + $EXP[SBInfoSimilar]] | [!$EXP[SBInfoPage] + [String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow)]]</visible>
+                <onfocus condition="!String.IsEqual(Window.Property(moviecontent),2)">ClearProperty(moviecontent)</onfocus>
+                <onfocus>ClearProperty(ShowDisc)</onfocus>
+                <onfocus>SetProperty(moviecontent,2)</onfocus>
+                <onfocus>SetProperty(videosimilar,1)</onfocus>
+                <include>buttondimensions</include>
+                <include content="buttontextures">
+                    <param name="icon" value="buttonsdialogs/similar.png"/>
+                </include>
+                <visible>!Skin.HasSetting(hidebutton.video.similar)</visible>
+            </control>
+
+            <!-- Cast: shows the cast in the panel above; select to move into it -->
+            <control type="radiobutton" id="9122">
+                <visible>$EXP[SBInfoPage] + Integer.IsGreater(Container(50).NumItems,0) + !Skin.HasSetting(HideActorImages)</visible>
+                <onfocus>ClearProperty(ShowDisc)</onfocus>
+                <onfocus>ClearProperty(moviecontent)</onfocus>
+                <onclick>SetFocus(5050)</onclick>
+                <include>buttondimensions</include>
+                <include content="buttontextures">
+                    <param name="icon" value="buttonsdialogs/cast.png"/>
+                </include>
+            </control>
+
             <control type="radiobutton" id="49">
                 <onfocus>ClearProperty(moviecontent)</onfocus>
                 <onfocus>ClearProperty(ShowDisc)</onfocus>
@@ -1953,7 +1924,9 @@
                 <onclick>RunScript(script.preshowexperience,dbtype=$INFO[ListItem.DBType],dbid=$INFO[ListItem.DBID])</onclick>
                 <visible>String.IsEqual(ListItem.DBTYPE,movie) | String.IsEqual(ListItem.DBTYPE,episode)</visible>
                 <visible>Skin.HasSetting(hidebutton.video.cinema) + System.AddonIsEnabled(script.preshowexperience)</visible>
+                <visible>!$EXP[SBInfoPage]</visible>
             </control>
+
             <control type="radiobutton" id="7">
                 <onfocus>ClearProperty(moviecontent)</onfocus>
                 <onfocus>ClearProperty(ShowDisc)</onfocus>
@@ -1969,7 +1942,9 @@
                 <selected>String.IsEmpty(ListItem.UserRating)</selected>
                 <visible>[String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow) | String.IsEqual(ListItem.DBType,episode)] + Control.IsEnabled(7)</visible>
                 <visible>!Skin.HasSetting(hidebutton.video.rating)</visible>
+                <visible>!$EXP[SBInfoPage]</visible>
             </control>
+
             <control type="radiobutton" id="1236">
                 <onfocus>ClearProperty(moviecontent)</onfocus>
                 <onfocus>ClearProperty(ShowDisc)</onfocus>
@@ -1984,7 +1959,9 @@
                 <onclick>Action(close)</onclick>
                 <onclick>RunScript(plugin.video.specialfeatures,listitem)</onclick>
                 <visible>!Skin.HasSetting(hidebutton.video.specialfeatures)</visible>
+                <visible>!$EXP[SBInfoPage]</visible>
             </control>
+
             <control type="radiobutton" id="9013">
                 <visible>String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow)</visible>
                 <onfocus>ClearProperty(moviecontent)</onfocus>
@@ -1998,19 +1975,9 @@
                     <param name="icon" value="buttonsdialogs/wiki.png"/>
                 </include>
                 <visible>!Skin.HasSetting(hidebutton.video.wiki) + System.AddonIsEnabled(script.wikipedia)</visible>
+                <visible>!$EXP[SBInfoPage]</visible>
             </control>
-            <control type="radiobutton" id="9002">
-                <visible>String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow)</visible>
-                <onfocus condition="!String.IsEqual(Window.Property(moviecontent),2)">ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onfocus>SetProperty(moviecontent,2)</onfocus>
-                <onfocus>SetProperty(videosimilar,1)</onfocus>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/similar.png"/>
-                </include>
-                <visible>!Skin.HasSetting(hidebutton.video.similar)</visible>
-            </control>
+
             <control type="radiobutton" id="9003">
                 <visible>String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow)</visible>
                 <onfocus condition="!String.IsEqual(Window.Property(moviecontent),3)">ClearProperty(moviecontent)</onfocus>
@@ -2023,6 +1990,7 @@
                 </include>
                 <visible>!Skin.HasSetting(hidebutton.video.studio) + !String.IsEmpty(ListItem.Property(stremiobridge.service))</visible>
             </control>
+
             <control type="radiobutton" id="9006">
                 <visible>String.IsEqual(ListItem.DBType,movie)</visible>
                 <onfocus condition="!String.IsEqual(Window.Property(moviecontent),6)">ClearProperty(moviecontent)</onfocus>
@@ -2421,6 +2389,17 @@
             <description>Header Label</description>
             <textcolor>Dark1</textcolor>
             <label>$VAR[LabelWIPDialogVideoInfoHeader]</label>
+            <visible>!$EXP[SBInfoHeaderLogo]</visible>
+        </control>
+        <!-- Arctic Zephyr Stremio: the title's clearlogo instead of its name ("Show clearlogo
+             instead of title"); for an episode, the show's logo with the episode's title below -->
+        <control type="image">
+            <top>-14</top>
+            <height>74</height>
+            <width>640</width>
+            <aspectratio align="left" aligny="bottom">keep</aspectratio>
+            <texture background="true">$INFO[Window(home).Property(sbinfo.clearlogo)]</texture>
+            <visible>$EXP[SBInfoHeaderLogo]</visible>
         </control>
         <control type="label">
             <top>60</top>
@@ -2429,6 +2408,16 @@
             <textcolor>Dark1</textcolor>
             <label>$VAR[LabelWIPDialogVideoInfoTagline]</label>
             <aligny>center</aligny>
+            <visible>!$EXP[SBInfoHeaderLogo] | !String.IsEqual(ListItem.DBType,episode)</visible>
+        </control>
+        <control type="label">
+            <top>60</top>
+            <height>36</height>
+            <font>Tiny</font>
+            <textcolor>Dark1</textcolor>
+            <label>$INFO[ListItem.Title]</label>
+            <aligny>center</aligny>
+            <visible>$EXP[SBInfoHeaderLogo] + String.IsEqual(ListItem.DBType,episode)</visible>
         </control>
     </include>
 

@@ -210,3 +210,10 @@ def test_trim_meta_keeps_what_videos_use():
     assert trimmed["meta"]["videos"][1]["description"] == "D"                     # no overview: kept
     assert Meta.from_dict(trimmed["meta"]) == Meta.from_dict(response["meta"])
     assert trim_meta({"meta": None}) == {"meta": None}
+
+
+def test_poster_shapes():
+    shape = lambda value: MetaPreview.from_dict({"id": "tt1", "name": "X", "posterShape": value}, "movie").poster_shape
+    assert shape("regular") == "poster"     # Stremio's older name for a poster (AIOMetadata's movie search sends it)
+    assert shape(None) == "poster" and shape("poster") == "poster" and shape("odd") == "poster"
+    assert shape("landscape") == "landscape" and shape("Square") == "square"

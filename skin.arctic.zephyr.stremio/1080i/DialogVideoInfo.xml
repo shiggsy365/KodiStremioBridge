@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Foundation -->
 <window id="2003">
-    <defaultcontrol always="true">8</defaultcontrol>
+    <defaultcontrol always="true">9120</defaultcontrol>
+    <!-- Arctic Zephyr Stremio: freeze the page's Stremio Bridge properties. Inside this
+         dialog ListItem.* follows whichever list has focus (cast, similar, the show
+         browser), so the buttons and the show browser read these instead. -->
+    <onload>SetProperty(sbinfo.id,$INFO[ListItem.Property(stremiobridge.id)],home)</onload>
+    <onload>SetProperty(sbinfo.type,$INFO[ListItem.Property(stremiobridge.type)],home)</onload>
+    <onload>SetProperty(sbinfo.video,$INFO[ListItem.Property(stremiobridge.video)],home)</onload>
+    <onload>SetProperty(sbinfo.season,$INFO[ListItem.Property(stremiobridge.season)],home)</onload>
+    <onload>SetProperty(sbinfo.play_action,$INFO[ListItem.Property(stremiobridge.play_action)],home)</onload>
+    <onload>SetProperty(sbinfo.streams_action,$INFO[ListItem.Property(stremiobridge.streams_action)],home)</onload>
+    <onload>SetProperty(sbinfo.watched_action,$INFO[ListItem.Property(stremiobridge.watched_action)],home)</onload>
+    <onload>SetProperty(sbinfo.watchlist_action,$INFO[ListItem.Property(stremiobridge.watchlist_action)],home)</onload>
+    <onload>SetProperty(sbinfo.watchlist,$INFO[ListItem.Property(stremiobridge.watchlist)],home)</onload>
+    <onload>SetProperty(sbinfo.browse,$INFO[ListItem.Property(stremiobridge.browse)],home)</onload>
+    <onload>SetProperty(sbinfo.similar,$INFO[ListItem.Property(stremiobridge.similar)],home)</onload>
+    <onload>SetProperty(sbinfo.focus_video,$INFO[ListItem.Property(stremiobridge.focus_video)],home)</onload>
+    <onload>SetProperty(sbinfo.default_season,$INFO[ListItem.Property(stremiobridge.default_season)],home)</onload>
+    <onload>SetProperty(sbinfo.trailer,$INFO[ListItem.Trailer],home)</onload>
+    <onload>SetProperty(sbinfo.fanart,$INFO[ListItem.Art(fanart)],home)</onload>
+    <onload>SetProperty(sbinfo.clearlogo,$INFO[ListItem.Art(tvshow.clearlogo)],home)</onload>
+    <onload condition="!String.IsEmpty(ListItem.Art(clearlogo))">SetProperty(sbinfo.clearlogo,$INFO[ListItem.Art(clearlogo)],home)</onload>
+    <onload>ClearProperty(sbinfo.watched,home)</onload>
+    <onload>ClearProperty(sbinfo.resumable,home)</onload>
+    <onload condition="Integer.IsGreater(ListItem.PlayCount,0)">SetProperty(sbinfo.watched,1,home)</onload>
+    <onload condition="ListItem.IsResumable">SetProperty(sbinfo.resumable,1,home)</onload>
+    <onload condition="String.IsEmpty(ListItem.Property(stremiobridge.id))">SetFocus(8)</onload>
+    <onload condition="!String.IsEmpty(ListItem.Property(stremiobridge.id))">SetFocus(9120)</onload>
     <onload condition="Control.IsVisible(9201)">SetFocus(9201)</onload>
     <onload condition="Control.IsVisible(9078)">SetFocus(9078)</onload>
     <onload>Control.Move(50,$INFO[Container(50).CurrentItem,-])</onload>
@@ -24,6 +50,8 @@
     <onload>Control.Move(9515,$INFO[Container(9515).CurrentItem,-])</onload>
     <onload>Control.Move(9515,1)</onload>
     <zorder>0</zorder>
+    <onload>ClearProperty(moviecontent)</onload>
+    <onload condition="!String.IsEmpty(ListItem.Property(stremiobridge.browse))">SetProperty(moviecontent,11)</onload>
     <onload>ClearProperty(videosimilar)</onload>
     <onload>ClearProperty(videostudio)</onload>
     <onload>ClearProperty(videoyoutube)</onload>
@@ -32,6 +60,24 @@
     <onunload>ClearProperty(dontslide,home)</onunload>
     <onunload>ClearProperty(ShowDisc)</onunload>
     <onunload>ClearProperty(stremiobridge.info.season,home)</onunload>
+    <onunload>ClearProperty(sbinfo.id,home)</onunload>
+    <onunload>ClearProperty(sbinfo.type,home)</onunload>
+    <onunload>ClearProperty(sbinfo.video,home)</onunload>
+    <onunload>ClearProperty(sbinfo.season,home)</onunload>
+    <onunload>ClearProperty(sbinfo.play_action,home)</onunload>
+    <onunload>ClearProperty(sbinfo.streams_action,home)</onunload>
+    <onunload>ClearProperty(sbinfo.watched_action,home)</onunload>
+    <onunload>ClearProperty(sbinfo.watchlist_action,home)</onunload>
+    <onunload>ClearProperty(sbinfo.watchlist,home)</onunload>
+    <onunload>ClearProperty(sbinfo.browse,home)</onunload>
+    <onunload>ClearProperty(sbinfo.similar,home)</onunload>
+    <onunload>ClearProperty(sbinfo.focus_video,home)</onunload>
+    <onunload>ClearProperty(sbinfo.default_season,home)</onunload>
+    <onunload>ClearProperty(sbinfo.trailer,home)</onunload>
+    <onunload>ClearProperty(sbinfo.fanart,home)</onunload>
+    <onunload>ClearProperty(sbinfo.clearlogo,home)</onunload>
+    <onunload>ClearProperty(sbinfo.watched,home)</onunload>
+    <onunload>ClearProperty(sbinfo.resumable,home)</onunload>
     <onunload condition="!String.IsEmpty(Window(home).Property(shownowplayinginfo))">SetFocus(4000)</onunload>
     <onunload condition="!String.IsEmpty(Window(home).Property(shownowplayinginfo))">ClearProperty(shownowplayinginfo,home)</onunload>
     <onload>ClearProperty(content)</onload>
@@ -46,6 +92,25 @@
     <onunload>ClearProperty(Item_Year,home)</onunload>
     <onunload>ClearProperty(Item_DBTYPE,home)</onunload>
     <controls>
+        <!-- Arctic Zephyr Stremio: the page's own background. Otherwise it's the window
+             behind's, drawn from that window's focused item: right from a library list,
+             but from the search page that's a search result, often without fanart. -->
+        <control type="group">
+            <visible>$EXP[SBInfoPage] + !String.IsEmpty(Window(home).Property(sbinfo.fanart)) + !Skin.HasSetting(global.hidefanart)</visible>
+            <visible>![Player.HasVideo + Skin.HasSetting(global.showvideo)]</visible>
+            <include>Animation.Background.OpenClose</include>
+            <control type="image">
+                <include>Dimensions_Fullscreen</include>
+                <texture colordiffuse="Background">common/bg.jpg</texture>
+            </control>
+            <control type="image">
+                <include>Dimensions_Fullscreen</include>
+                <include>GlobalBackgroundFade</include>
+                <aspectratio>scale</aspectratio>
+                <fadetime>BackgroundFanartFadetime</fadetime>
+                <texture background="true">$INFO[Window(home).Property(sbinfo.fanart)]</texture>
+            </control>
+        </control>
         <include>DialogVideoInfoWIP</include>
         <include content="DialogInfoOverlay">
             <param name="headerinfo" value="$INFO[ListItem.Title]" />

@@ -13,7 +13,8 @@ from stremio.watchstate import next_episode
 
 from .common import ADDON, L, get_client, get_registry, get_watchstate, log, notify
 from .listitems import (
-    YOUTUBE_PLUGIN, apply_info_actions, apply_watch, episode_item, episode_listitem, season_item, season_label,
+    YOUTUBE_PLUGIN, apply_info_actions, apply_watch, episode_item, episode_listitem, mark_item_watched, season_item,
+    season_label,
     single_video_item,
 )
 from .router import route
@@ -62,8 +63,11 @@ def meta_view(plugin, type, id):
         set_content(handle, "videos")
     elif len(seasons) > 1:
         watched = state.watched_episodes(meta.id)
-        items = [season_item(plugin, meta, s, len(meta.episodes(s)),
-                             sum(1 for v in meta.episodes(s) if (v.season, v.episode) in watched))
+        today = datetime.date.today().isoformat()
+        aired = {s: [v for v in meta.episodes(s) if v.is_released(today)] for s in seasons}
+        # Aired episodes only, like Mark as watched: a season is watched once all of them are.
+        items = [season_item(plugin, meta, s, len(aired[s]),
+                             sum(1 for v in aired[s] if (v.season, v.episode) in watched))
                  for s in seasons]
         xbmcplugin.addDirectoryItems(handle, items, len(items))
         set_content(handle, "seasons")
@@ -92,28 +96,37 @@ def season_view(plugin, type, id, season):
 
 
 @route("info_seasons")
-def info_seasons(plugin, type, id):
-    """Season chips shown inside Arctic Zephyr Stremio's information page."""
+def info_seasons(plugin, type, id, focus=None):
+    """Season chips shown inside Arctic Zephyr Stremio's information page;
+    season `focus` is selected."""
     handle = plugin.handle
     meta = load_meta(type, id, quiet=True)
     if meta is None:
         xbmcplugin.endOfDirectory(handle, succeeded=False)
         return
     seasons = visible_seasons(meta)
+    watched = get_watchstate().watched_episodes(meta.id)
+    today = datetime.date.today().isoformat()
     items = []
     for season in seasons:
         item = xbmcgui.ListItem(season_label(season))
         item.setProperty("season", str(season))
-        item.setProperty("path", plugin.url_for("info_episodes", type=type, id=id, season=season))
-        items.append((plugin.url_for("info_episodes", type=type, id=id, season=season), item, True))
+        aired = {(v.season, v.episode) for v in meta.episodes(season) if v.is_released(today)}
+        mark_item_watched(item, bool(aired) and aired <= watched)
+        # The season's own path: its context menu (contextmenu.py) is the season's.
+        items.append((plugin.url_for("season", type=type, id=id, season=season), item, True))
     xbmcplugin.addDirectoryItems(handle, items, len(items))
     xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
+    positions = [str(s) for s in seasons]
+    if focus in positions:
+        select_when_shown(INFO_SEASONS, positions.index(focus), items[positions.index(focus)][0])
 
 
 @route("info_episodes")
-def info_episodes(plugin, type, id, season=""):
+def info_episodes(plugin, type, id, season="", focus=None):
     """Episode thumbnails embedded in the information page. Selecting one opens
-    the same information page for that episode instead of a separate folder."""
+    the same information page for that episode instead of a separate folder.
+    Episode `focus` (a video id) is selected."""
     handle = plugin.handle
     meta = load_meta(type, id, quiet=True)
     if meta is None:
@@ -131,7 +144,7 @@ def info_episodes(plugin, type, id, season=""):
     hide_unreleased = ADDON.getSettingBool("hide_unaired")
     videos = meta.episodes(selected) if selected is not None else meta.videos
     rows = state.lookup([v.id for v in videos])
-    items = []
+    items, shown = [], []
     for video in videos:
         released = video.is_released(today)
         if not released and hide_unreleased:
@@ -142,9 +155,37 @@ def info_episodes(plugin, type, id, season=""):
         apply_info_actions(item, plugin, meta, video, bool(row and row.watched))
         item.setProperty("IsPlayable", "false")
         items.append((plugin.url_for("extended_info", type=type, id=id, video=video.id), item, False))
+        shown.append(video.id)
     xbmcplugin.addDirectoryItems(handle, items, len(items))
     xbmcplugin.setContent(handle, "episodes")
     xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
+    if focus in shown:
+        select_when_shown(INFO_EPISODES, shown.index(focus), items[shown.index(focus)][0])
+
+
+INFO_WINDOW = "movieinformation"
+INFO_SEASONS, INFO_EPISODES = 5060, 5061  # the skin's show browser lists (Includes_Stremio.xml)
+
+
+def select_when_shown(control, position, path, timeout=5.0):
+    """Select item `position` (its path is `path`) of the info page's list
+    `control` once Kodi shows the listing just returned. The skin can't: the
+    list loads after the page opens. Gives up if the page closes or another
+    listing shows up instead."""
+    if position <= 0:
+        return
+    monitor = xbmc.Monitor()
+    for _ in range(int(timeout / 0.1)):
+        if not xbmc.getCondVisibility(f"Window.IsVisible({INFO_WINDOW})"):
+            return
+        if xbmc.getInfoLabel(f"Container({control}).ListItemAbsolute({position}).FileNameAndPath") == path:
+            current = int(xbmc.getInfoLabel(f"Container({control}).CurrentItem") or 1) - 1
+            if current != position:
+                xbmc.executebuiltin(f"Control.Move({control},{position - current})")
+            return
+        if monitor.waitForAbort(0.1):
+            return
+    log(f"Info page list {control} never showed {path}; not selecting item {position}")
 
 
 @route("people")

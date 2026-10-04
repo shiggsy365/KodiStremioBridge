@@ -27,10 +27,16 @@ VIEW_SETTINGS = {
     "seasons": ("view_seasons", 30283),
     "episodes": ("view_episodes", 30284),
 }
+# Used when no view is chosen in the settings. With Arctic Zephyr Stremio:
+# catalogs (movies, shows) open in Poster Flix v2, seasons in Seasons Info v2.
 DEFAULT_VIEW_IDS = {
+    "movies": {"skin.arctic.zephyr.stremio": 521},
+    "tvshows": {"skin.arctic.zephyr.stremio": 521},
     "seasons": {"skin.arctic.zephyr.stremio": 526},
 }
 SKIN_FORCED_VIEW_LABELS = {
+    ("skin.arctic.zephyr.stremio", "movies", 521): 31491,
+    ("skin.arctic.zephyr.stremio", "tvshows", 521): 31491,
     ("skin.arctic.zephyr.stremio", "seasons", 526): 31530,
 }
 _STORED_ID = re.compile(r"\((\d+)\)\s*$")

@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Arctic Zephyr Stremio: a full-screen guide. Channel groups as tabs along the top
+     with the clock on the right; the focused programme under them; the grid below (a
+     slim time ruler, then as many 70px rows as fit: 11, or 13 with "full EPG", which
+     hides the programme info).
+     No header furniture and no genre colours. -->
 <window>
     <menucontrol>9000</menucontrol>
     <background>0</background>
@@ -6,142 +11,101 @@
     <views>10</views>
     <controls>
         <include>GlobalBackground</include>
-        <include>Furniture_Header</include>
-        <include>Furniture_NowPlaying</include>
-        <include>Furniture_Clock</include>
-        <include>Furniture_Weather</include>
         <control type="group" id="50">
             <control type="group">
-                <visible>Control.IsVisible(10)</visible>
                 <include>Animation.Common</include>
-                <left>SidePad</left>
-                <right>SidePad</right>
-                <top>PosterPad</top>
-                <height>640</height>
+                <left>20</left>
+                <right>20</right>
+                <top>10</top>
+                <bottom>10</bottom>
                 <control type="image">
                     <left>-8</left>
                     <right>-8</right>
-                    <top>2</top>
+                    <top>-8</top>
                     <bottom>-8</bottom>
                     <texture colordiffuse="Panel" border="16">common/rounded-shadow8.png</texture>
                 </control>
-                <control type="group">
-                    <top>500</top>
-                    <bottom>10</bottom>
-                    <left>30</left>
-                    <right>30</right>
-                    <visible>!Skin.HasSetting(pvr.fullepg)</visible>
-                    <control type="group">
-                        <orientation>horizontal</orientation>
-                        <width>1460</width>
-                        <top>-9</top>
-                        <control type="label">
-                            <width max="710">auto</width>
-                            <aligny>center</aligny>
-                            <height>64</height>
-                            <font>SmallBold</font>
-                            <textcolor>PanelWhite100</textcolor>
-                            <selectedcolor>PanelWhite100</selectedcolor>
-                            <label>$INFO[ListItem.Title]</label>
+
+                <!-- Top bar: channel groups, guide settings, clock -->
+                <control type="image">
+                    <width>1880</width>
+                    <height>70</height>
+                    <texture colordiffuse="Black12">common/white.png</texture>
+                </control>
+                <control type="list" id="11">
+                    <left>0</left>
+                    <top>3</top>
+                    <width>1500</width>
+                    <height>64</height>
+                    <onup>10</onup>
+                    <ondown>10</ondown>
+                    <onright>11441</onright>
+                    <onleft>11441</onleft>
+                    <orientation>horizontal</orientation>
+                    <viewtype label="535">list</viewtype>
+                    <scrolltime tween="quadratic">400</scrolltime>
+                    <itemlayout width="275" height="64">
+                        <include>11epglayout</include>
+                    </itemlayout>
+                    <focusedlayout width="275" height="64">
+                        <control type="image">
+                            <left>10</left>
+                            <top>56</top>
+                            <width>200</width>
+                            <height>4</height>
+                            <texture colordiffuse="$VAR[ColorHighlight]">common/white.png</texture>
+                            <visible>Control.HasFocus(11)</visible>
                         </control>
-                        <control type="label">
-                            <visible>!String.IsEmpty(ListItem.Genre)</visible>
-                            <width max="710">auto</width>
-                            <aligny>center</aligny>
-                            <align>right</align>
-                            <right>0</right>
-                            <height>64</height>
-                            <font>SmallBold</font>
-                            <textcolor>PanelWhite100</textcolor>
-                            <selectedcolor>PanelWhite100</selectedcolor>
-                            <label>$INFO[ListItem.Genre,, • ]$INFO[ListItem.StartTime]$INFO[ListItem.EndTime, - ,]</label>
-                        </control>
-                    </control>
-                    <control type="textbox">
-                        <top>49</top>
-                        <right>240</right>
-                        <height>67</height>
-                        <align>justify</align>
-                        <font>Tiny</font>
-                        <textcolor>PanelWhite70</textcolor>
-                        <selectedcolor>PanelWhite70</selectedcolor>
-                        <label>$INFO[ListItem.Plot]</label>
-                    </control>
-                    <control type="image">
-                        <right>-15</right>
-                        <top>-3</top>
-                        <width>240</width>
-                        <bottom>0</bottom>
-                        <aspectratio align="center" aligny="center">keep</aspectratio>
-                        <texture>$VAR[ChannelListEPGIconVar]</texture>
-                        <fadetime>PosterFanartFadetime</fadetime>
-                    </control>
+                        <include>11focusepglayout</include>
+                    </focusedlayout>
                 </control>
                 <control type="radiobutton" id="11441">
-                    <top>11</top>
-                    <right>0</right>
+                    <left>1510</left>
+                    <top>-5</top>
                     <font>Button</font>
                     <textcolor>Dark2</textcolor>
                     <width>80</width>
                     <height>80</height>
                     <radioposx>20</radioposx>
                     <radioposy>18</radioposy>
-                    <radiowidth>48</radiowidth>
+                    <radiowidth>40</radiowidth>
                     <onup>10</onup>
                     <ondown>10</ondown>
                     <onleft>11</onleft>
                     <onclick>SetFocus(9000)</onclick>
                     <onright>SetFocus(11,0,absolute)</onright>
-                    <visible>!Control.HasFocus(10)</visible>
-                    <include>Animation.FadeIn</include>
-                    <include>Animation.FadeOut</include>
                     <texturenofocus/>
                     <texturefocus/>
                     <textureradioonfocus colordiffuse="$VAR[ColorHighlight]">buttonsdialogs/settings.png</textureradioonfocus>
-                    <textureradioonnofocus colordiffuse="FFFFFFFF">buttonsdialogs/settings.png</textureradioonnofocus>
+                    <textureradioonnofocus colordiffuse="PanelWhite70">buttonsdialogs/settings.png</textureradioonnofocus>
                     <textureradioofffocus colordiffuse="$VAR[ColorHighlight]">buttonsdialogs/settings.png</textureradioofffocus>
-                    <textureradiooffnofocus colordiffuse="FFFFFFFF">buttonsdialogs/settings.png</textureradiooffnofocus>
+                    <textureradiooffnofocus colordiffuse="PanelWhite70">buttonsdialogs/settings.png</textureradiooffnofocus>
                 </control>
-                <control type="list" id="11">
-                    <top>11</top>
-                    <height>100</height>
-                    <left>0</left>
-                    <right>SidePad</right>
-                    <onup condition="!Skin.HasSetting(global.kioskmode)">9000</onup>
-                    <onright>11441</onright>
-                    <onleft>11441</onleft>
-                    <width>1650</width>
-                    <onup>10</onup>
-                    <ondown>10</ondown>
-                    <visible allowhiddenfocus="true">!Control.HasFocus(10) | ControlGroup(9000).HasFocus()</visible>
-                    <include>Animation.FadeIn</include>
-                    <include>Animation.FadeOut</include>
-                    <orientation>horizontal</orientation>
-                    <viewtype label="535">list</viewtype>
-                    <scrolltime tween="quadratic">400</scrolltime>
-                    <itemlayout width="275" height="54">
-                        <include>11epglayout</include>
-                    </itemlayout>
-                    <focusedlayout width="275" height="54">
-                        <control type="group">
-                            <visible>Control.HasFocus(11) + !Control.HasFocus(10)</visible>
-                            <include>11focusepglayout</include>
-                        </control>
-                        <control type="group">
-                            <visible>!Control.HasFocus(11) + !Control.HasFocus(10)</visible>
-                            <include>11epglayout</include>
-                        </control>
-                    </focusedlayout>
+                <control type="label">
+                    <right>20</right>
+                    <width>300</width>
+                    <height>70</height>
+                    <align>right</align>
+                    <aligny>center</aligny>
+                    <font>LargeBold</font>
+                    <textcolor>$VAR[ColorHighlight]</textcolor>
+                    <label>$INFO[System.Time]</label>
                 </control>
+
                 <control type="epggrid" id="10" description="EPG">
                     <left>0</left>
-                    <top>0</top>
-                    <width>1760</width>
+                    <include content="def_top" condition="Skin.HasSetting(pvr.fullepg)">
+                        <param name="top" value="72"/>
+                    </include>
+                    <include content="def_top" condition="!Skin.HasSetting(pvr.fullepg)">
+                        <param name="top" value="248"/>
+                    </include>
+                    <width>1880</width>
                     <include content="def_height" condition="Skin.HasSetting(pvr.fullepg)">
-                        <param name="height" value="630"/>
+                        <param name="height" value="950"/>
                     </include>
                     <include content="def_height" condition="!Skin.HasSetting(pvr.fullepg)">
-                        <param name="height" value="490"/>
+                        <param name="height" value="810"/>
                     </include>
                     <include content="def_progresstexture" condition="Skin.HasSetting(pvr.fullepg)">
                         <param name="progresstexture" value="pvr/progressline2.png"/>
@@ -155,12 +119,10 @@
                     <scrolltime tween="quadratic">250</scrolltime>
                     <timeblocks>40</timeblocks>
                     <rulerunit>6</rulerunit>
-                    <rulerlayout height="70" width="260">
+                    <rulerlayout height="40" width="260">
                         <control type="label" id="2">
-                            <include>Animation.FadeIn</include>
-                            <visible>Control.HasFocus(10)</visible>
                             <posx>10</posx>
-                            <posy>30</posy>
+                            <posy>4</posy>
                             <width>200</width>
                             <align>left</align>
                             <aligny>top</aligny>
@@ -251,13 +213,13 @@
                             <width>100%</width>
                             <height>69</height>
                             <texture colordiffuse="$VAR[ColorSelectOtherBar]">common/white.png</texture>
-                            <visible>!Control.HasFocus(11) + !Control.HasFocus(11441)</visible>
+                            <visible>Control.HasFocus(10)</visible>
                         </control>
                         <control type="image">
                             <width>100%</width>
                             <height>69</height>
                             <texture border="5" colordiffuse="$VAR[ColorHighlightOtherBar]">common/gradient-box-wide.png</texture>
-                            <visible>!Control.HasFocus(11) + !Control.HasFocus(11441)</visible>
+                            <visible>Control.HasFocus(10)</visible>
                         </control>
                         <control type="image">
                             <width>100%</width>
@@ -302,13 +264,6 @@
                             <texture border="5">common/white.png</texture>
                             <colordiffuse>Black12</colordiffuse>
                         </control>
-                        <control type="image" id="2">
-                            <width>257</width>
-                            <height>67</height>
-                            <texture>pvrgenre/$INFO[ListItem.Property(GenreType)].png</texture>
-                            <aspectratio>scale</aspectratio>
-                            <colordiffuse>5fffffff</colordiffuse>
-                        </control>
                         <control type="image">
                             <posy>6</posy>
                             <width>52</width>
@@ -343,13 +298,13 @@
                             <width>259</width>
                             <height>69</height>
                             <texture border="5">common/white.png</texture>
-                            <visible>Control.HasFocus(11) | Control.HasFocus(11441)</visible>
+                            <visible>!Control.HasFocus(10)</visible>
                             <colordiffuse>Black12</colordiffuse>
                         </control>
                         <control type="image" id="2">
                             <width>258</width>
                             <height>69</height>
-                            <visible>!Control.HasFocus(11) + !Control.HasFocus(11441)</visible>
+                            <visible>Control.HasFocus(10)</visible>
                             <texture border="5">common/white.png</texture>
                         </control>
                         <control type="image" id="2">
@@ -357,7 +312,7 @@
                             <height>67</height>
                             <left>1</left>
                             <top>1</top>
-                            <visible>!Control.HasFocus(11) + !Control.HasFocus(11441)</visible>
+                            <visible>Control.HasFocus(10)</visible>
                             <texture colordiffuse="$VAR[ColorSelectOtherBar]">common/white.png</texture>
                             <colordiffuse>$VAR[ColorHighlight]</colordiffuse>
                         </control>
@@ -366,7 +321,7 @@
                             <height>67</height>
                             <left>1</left>
                             <top>1</top>
-                            <visible>!Control.HasFocus(11) + !Control.HasFocus(11441)</visible>
+                            <visible>Control.HasFocus(10)</visible>
                             <texture border="8" colordiffuse="$VAR[ColorHighlightOtherBar]">common/gradient-box-wide.png</texture>
                             <colordiffuse>$VAR[ColorHighlight]</colordiffuse>
                         </control>
@@ -410,13 +365,52 @@
                         </control>
                     </focusedlayout>
                 </control>
-                <control type="image">
-                    <left>0</left>
-                    <top>9</top>
-                    <right>0</right>
-                    <bottom>0</bottom>
-                    <texture colordiffuse="Box2" border="4" background="true" infill="false">common/box21.png</texture>
-                    <visible>!Skin.HasSetting(thumbnails.white)</visible>
+
+                <!-- The focused programme: under the tab bar, above the grid -->
+                <control type="group">
+                    <top>78</top>
+                    <height>164</height>
+                    <left>30</left>
+                    <right>20</right>
+                    <visible>!Skin.HasSetting(pvr.fullepg)</visible>
+                    <control type="label">
+                        <top>4</top>
+                        <right>280</right>
+                        <height>60</height>
+                        <aligny>center</aligny>
+                        <font>Large</font>
+                        <textcolor>PanelWhite100</textcolor>
+                        <label>$INFO[ListItem.Title]</label>
+                    </control>
+                    <control type="label">
+                        <top>4</top>
+                        <right>270</right>
+                        <width>600</width>
+                        <height>60</height>
+                        <align>right</align>
+                        <aligny>center</aligny>
+                        <font>Large</font>
+                        <textcolor>PanelWhite100</textcolor>
+                        <label>$INFO[ListItem.StartTime]$INFO[ListItem.EndTime, - ,]</label>
+                    </control>
+                    <control type="textbox">
+                        <top>68</top>
+                        <right>270</right>
+                        <height>90</height>
+                        <align>justify</align>
+                        <font>Small</font>
+                        <textcolor>PanelWhite70</textcolor>
+                        <label>$INFO[ListItem.Plot]</label>
+                    </control>
+                    <control type="image">
+                        <right>0</right>
+                        <top>8</top>
+                        <width>250</width>
+                        <height>150</height>
+                        <aspectratio align="center" aligny="center">keep</aspectratio>
+                        <texture>$VAR[ChannelListEPGIconVar]</texture>
+                        <fadetime>PosterFanartFadetime</fadetime>
+                    </control>
                 </control>
             </control>
         </control>

@@ -1,11 +1,14 @@
 """Stremio objects -> Kodi ListItems."""
 
+import datetime
+
 import xbmc
 import xbmcgui
 
 from stremio.models import CAST
+from stremio.watchstate import next_episode
 
-from .common import ADDON, L, add_context_menu, skin_active
+from .common import ADDON, L, add_context_menu, get_mdblist, get_watchstate, skin_active
 
 # Stremio type -> (Kodi media type, container content)
 _KODI_TYPES = {
@@ -102,21 +105,17 @@ def _apply_people(tag, source):
         tag.setTrailer(YOUTUBE_PLUGIN.format(source.trailer))
 
 
-def item_menu(plugin, type_, id_, watched, watched_params=None, show_id=None, trailer="", browse_show=False,
-              partly_watched=False):
+def item_menu(plugin, type_, id_, watched, watched_params=None, show_id=None, trailer=""):
     """The context menu every playable/browsable item gets. `show_id` is the
-    show an episode belongs to (cast, trailer and "Browse show" use it).
-    `partly_watched` (a show with some episodes watched) offers both marks."""
+    show an episode belongs to (its trailer, watchlist and info page use it).
+    One Mark as watched/unwatched entry, for what the item is: a movie, an
+    episode, a season (`watched_params` has it) or a whole show."""
     owner = show_id or id_
     params = watched_params or {}
     # With our skin, Kodi's own Mark as watched covers movies and episodes (the
     # service passes it on); it doesn't offer it for shows and seasons.
     kodi_marks = skin_active() and (type_ in PLAYABLE_TYPES or bool(show_id) or bool(params.get("meta")))
     menu = [] if kodi_marks else [watched_menu(plugin, watched, type_, id_, **params)]
-    if partly_watched and not watched:
-        menu.append(watched_menu(plugin, True, type_, id_, **(watched_params or {})))
-    if browse_show and show_id:
-        menu.append((L(30064), plugin.run_url("extended_info", type=type_, id=show_id)))
     episode = id_ if show_id and id_ != show_id else None  # an episode: its own page, within the show's
     if not skin_active():  # with our skin, Kodi's own Information entry shows the same page
         menu.append((L(30220), plugin.run_url("extended_info", type=type_, id=owner, video=episode)))
@@ -166,14 +165,18 @@ def apply_meta_info(tag, meta, video=None):
 
 def apply_watch(item, row):
     """Watched tick and resume bar from a watch-state row (None = never played)."""
-    if row is None:
-        return
-    tag = item.getVideoInfoTag()
-    playcount = 1 if row.watched else 0
-    tag.setPlaycount(playcount)
-    item.setInfo("video", {"playcount": playcount, "overlay": 7 if row.watched else 6})
-    if row.position > 0 and row.duration > 0:
-        tag.setResumePoint(row.position, row.duration)
+    mark_item_watched(item, bool(row and row.watched))
+    if row is not None and row.position > 0 and row.duration > 0:
+        item.getVideoInfoTag().setResumePoint(row.position, row.duration)
+
+
+def mark_item_watched(item, watched):
+    """Play count and Kodi's watched/unwatched overlay (ListItem.Overlay, which
+    the skin's ticks and markers use): Kodi doesn't derive the overlay from the
+    play count for add-on items."""
+    item.getVideoInfoTag().setPlaycount(1 if watched else 0)
+    overlay = xbmcgui.ICON_OVERLAY_WATCHED if watched else xbmcgui.ICON_OVERLAY_UNWATCHED
+    item.setInfo("video", {"playcount": 1 if watched else 0, "overlay": overlay})
 
 
 def watched_menu(plugin, watched, type_, id_, **params):
@@ -195,10 +198,12 @@ def preview_item(plugin, preview, row=None, started=False, progress=None):
         item.setProperty("TotalEpisodes", str(aired))
         item.setProperty("WatchedEpisodes", str(watched))
         item.setProperty("UnWatchedEpisodes", str(max(0, aired - watched)))
-        if aired and watched >= aired:
-            item.getVideoInfoTag().setPlaycount(1)
+    fully_watched = bool(row and row.watched) or bool(progress and 0 < progress[1] <= progress[0])
+    if fully_watched:
+        mark_item_watched(item, True)
+    apply_title_actions(item, plugin, preview.type, preview.id, fully_watched)
     add_context_menu(item, item_menu(plugin, preview.type, preview.id, bool(row and row.watched),
-                                       trailer=preview.trailer, partly_watched=started))
+                                       trailer=preview.trailer))
 
     if preview.type in PLAYABLE_TYPES:
         return playable_entry(plugin, item, preview.type, preview.id)
@@ -227,55 +232,92 @@ def season_item(plugin, meta, season, episode_count, watched_count=0):
     tag.setSeason(season)
     tag.setTitle(season_label(season))
     tag.setPlot(meta.description)
+    _apply_people(tag, meta)
     item.setProperty("TotalEpisodes", str(episode_count))
     item.setProperty("WatchedEpisodes", str(watched_count))
     item.setProperty("UnWatchedEpisodes", str(max(0, episode_count - watched_count)))
     all_watched = episode_count > 0 and watched_count >= episode_count
-    tag.setPlaycount(1 if all_watched else 0)
+    mark_item_watched(item, all_watched)
+    apply_info_actions(item, plugin, meta, watched=all_watched, season=season)
     add_context_menu(item, item_menu(plugin, meta.type, meta.id, all_watched, {"season": season},
                                        trailer=meta.trailer))
     url = plugin.url_for("season", type=meta.type, id=meta.id, season=season)
     return url, item, True
 
 
-def episode_item(plugin, meta, video, released=True, row=None, browse_show=True):
+def episode_item(plugin, meta, video, released=True, row=None):
     """A playable episode (or channel video). Unreleased ones are shown greyed out."""
     item = episode_listitem(meta, video, released)
     apply_watch(item, row)
     apply_info_actions(item, plugin, meta, video, bool(row and row.watched))
     add_context_menu(item, item_menu(plugin, meta.type, video.id, bool(row and row.watched), {"meta": meta.id},
-                                       show_id=meta.id, trailer=meta.trailer, browse_show=browse_show))
+                                       show_id=meta.id, trailer=meta.trailer))
     return playable_entry(plugin, item, meta.type, video.id, meta=meta.id)
 
 
 def _release_date(iso):
-    import datetime
-
     try:
         return datetime.date.fromisoformat(iso).strftime("%d %B %Y")
     except (TypeError, ValueError):
         return ""
 
 
-def apply_info_actions(item, plugin, meta, video=None, watched=False):
-    """Properties Arctic Zephyr Stremio uses for extra buttons on Kodi's info panel."""
+def apply_info_actions(item, plugin, meta, video=None, watched=False, season=None):
+    """Properties Arctic Zephyr Stremio uses for the buttons on Kodi's info
+    panel, for a movie, a show, one `season` of it or one of its episodes."""
     item.setProperty("ReleaseDate", _release_date(video.air_date if video else meta.premiered))
-    item.setProperty("stremiobridge.type", meta.type)
-    item.setProperty("stremiobridge.id", meta.id)
-    if video is not None:
-        item.setProperty("stremiobridge.video", video.id)
-    item.setProperty("stremiobridge.watched_action", plugin.url_for(
-        "info_toggle", what="watched", type=meta.type, id=meta.id,
-        video=video.id if video else None, value=int(not watched)))
-    from .library import LIBRARY_TYPES
+    shown = video.season if video is not None else season  # the season the show browser opens on
+    focus = video
+    if video is None and meta.videos:
+        from .details import visible_seasons  # details imports this module
+
+        seasons = visible_seasons(meta)
+        upcoming = _next_to_watch(meta)
+        if shown is None:
+            shown = upcoming.season if upcoming and upcoming.season in seasons else (seasons[0] if seasons else None)
+        focus = upcoming if upcoming and upcoming.season == shown else None
+    apply_title_actions(item, plugin, meta.type, meta.id, watched, video.id if video else None, season,
+                        browse=bool(meta.videos), default_season=shown)
+    if focus is not None:
+        item.setProperty("stremiobridge.focus_video", focus.id)  # the browser opens on this episode
+
+
+def _next_to_watch(meta):
+    state = get_watchstate()
+    return next_episode(meta, state.watched_episodes(meta.id), datetime.date.today().isoformat())
+
+
+def apply_title_actions(item, plugin, type_, id_, watched, video=None, season=None, browse=None,
+                        default_season=None):
+    """The info panel's buttons for title `id_` (or its episode `video`, or its
+    `season`): Play, Streams, Mark watched, Watchlist and Similar. `browse`
+    (None: unless it's a movie) makes the in-page show browser its default panel."""
+    from .library import LIBRARY_TYPES  # library and watchlist import details, which imports this module
     from .watchlist import on_watchlist
 
-    listed = on_watchlist(meta.type, meta.id) if meta.type in LIBRARY_TYPES else None
+    item.setProperty("stremiobridge.type", type_)
+    item.setProperty("stremiobridge.id", id_)
+    if video is not None:
+        item.setProperty("stremiobridge.video", video)
+    whole_season = season if video is None and type_ not in PLAYABLE_TYPES else None
+    if whole_season is not None:
+        item.setProperty("stremiobridge.season", str(whole_season))
+    target = {"type": type_, "id": id_, "video": video, "season": whole_season}
+    item.setProperty("stremiobridge.play_action", plugin.url_for("info_play", **target))
+    item.setProperty("stremiobridge.streams_action", plugin.url_for("info_play", pick=1, **target))
+    item.setProperty("stremiobridge.watched_action", plugin.url_for(
+        "info_toggle", what="watched", value=int(not watched), **target))
+    if browse if browse is not None else type_ not in PLAYABLE_TYPES:
+        item.setProperty("stremiobridge.browse", "true")
+        if default_season is not None:
+            item.setProperty("stremiobridge.default_season", str(default_season))
+    if get_mdblist() is not None:
+        item.setProperty("stremiobridge.similar", "true")
+    listed = on_watchlist(type_, id_) if type_ in LIBRARY_TYPES else None
     if listed is not None:
         item.setProperty("stremiobridge.watchlist", "true" if listed else "")
         item.setProperty("stremiobridge.watchlist_action", plugin.url_for(
-            "info_toggle", what="watchlist", type=meta.type, id=meta.id,
-            video=video.id if video else None, value=int(not listed)))
+            "info_toggle", what="watchlist", value=int(not listed), **target))
 
 
 def episode_listitem(meta, video, released=True):

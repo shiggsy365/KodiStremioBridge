@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.11.8"
+       version="0.12.0"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,7 +23,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.11.8 - Show browsing now lives inside the info page with season chips and episode thumbnails.
+        <news>v0.12.0 - One info page for movies, shows, seasons and episodes (Play, Available streams, Mark watched, Watchlist, Find similar, Cast, a season and episode browser); search as you type for Arctic Zephyr Stremio; one Mark as watched entry per level; watched banners for shows and seasons; posters for catalogs that send posterShape "regular"; catalogs default to Poster Flix v2.
+v0.11.8 - Show browsing now lives inside the info page with season chips and episode thumbnails.
 v0.11.7 - Hides music catalogs by default on new setups and restores watched banners for movies and episodes.
 v0.11.6 - Forces Arctic Zephyr Stremio's seasons view label before applying Seasons Info v2.
 v0.11.5 - Seasons default to Seasons Info v2 in Arctic Zephyr Stremio; episode info panels from season browsing show Bridge actions.
@@ -34,29 +35,6 @@ v0.11.1 - Faster Continue Watching and Next Up (results reused until you watch s
 v0.11.0 - New stream page: cards with badges, filter chips, no logos. Extended info for episodes. Selecting can open Extended info for episodes too. Fixed context menu entries overwriting each other, and settings buttons on Fire TV.
 v0.10.3 - With autoplay on: "Show Playable Streams" in context menus and a Streams tile in Extended info. Removing an episode from Continue Watching also removes its show from Next Up until you watch more.
 v0.10.2 - Continue Watching shows descriptions, cast and details.</news>
-    </extension>
-</addon>
-<addon id="script.shiggsy365.globalsearch"
-       name="Global Search"
-       version="1.1.0"
-       provider-name="shiggsy365">
-    <requires>
-        <import addon="xbmc.python" version="3.0.1"/>
-    </requires>
-    <extension point="xbmc.python.script" library="default.py">
-        <provides>executable video audio</provides>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <summary lang="en_GB">Search your library, Stremio Bridge, YouTube and Spotify at once</summary>
-        <description lang="en_GB">Type a search and see results from your Kodi library, Stremio Bridge's search catalogs, YouTube and Spotify (music and podcasts) in one page of rows. Put RunScript(script.shiggsy365.globalsearch) on any menu item or button to open it.</description>
-        <platform>all</platform>
-        <license>GPL-3.0-or-later</license>
-        <source>https://github.com/shiggsy365/KodiStremioBridge</source>
-        <news>v1.1.0 - YouTube results (videos; channels and playlists optional), remembered for an hour; or YouTube shortcuts instead.
-v1.0.0 - First release.</news>
-        <assets>
-            <icon>resources/icon.png</icon>
-        </assets>
     </extension>
 </addon>
 <addon id="script.shiggsy365.dispatcharrbridge"
@@ -113,7 +91,7 @@ v1.0.0 - First release.</news>
         </assets>
     </extension>
 </addon>
-<addon id="skin.arctic.zephyr.stremio" version="1.0.2" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
+<addon id="skin.arctic.zephyr.stremio" version="1.1.0" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
     <requires>
         <import addon="xbmc.gui" version="5.17.0"/>
         <import addon="plugin.video.stremiobridge" version="0.11.8"/>
@@ -142,11 +120,12 @@ v1.0.0 - First release.</news>
             <screenshot>resources/screenshot-09.jpg</screenshot>
             <screenshot>resources/screenshot-10.jpg</screenshot>
         </assets>
-        <news>v1.0.2 - Embeds Stremio Bridge show browsing in the info page with season chips and episode thumbnails.
+        <news>v1.1.0 - Info page rebuilt around Stremio Bridge: Play, Available streams, Mark watched, Watchlist, Trailer, Find similar, Cast, and a season and episode browser for shows, seasons and episodes; Watched banners; a search page with an on-screen keyboard, live results, suggestions and recent searches (search icon by the clock, or Right on the last menu item); a full-screen TV guide; one clearlogo setting for the whole skin; no header over catalogs; no "New" markers.
+v1.0.2 - Embeds Stremio Bridge show browsing in the info page with season chips and episode thumbnails.
 v1.0.1 - Runs Stremio Bridge's setup wizard on first start; Setup wizard in the ... menu; fixed the ... submenu.
 v1.0.0 - Forked from Arctic: Zephyr - Reloaded 3.0.3 (beatmasterRS, upstream commit 27b7bd7) and renamed. Removed the CJK font set (Inter CJK, 54 MB) to keep the skin small. No TMDb Helper or Embuary. Ready-made Home, Movies and TV Shows menus and hubs; Kodi's info page with Browse show, Mark watched, Watchlist and streaming-service buttons; actors open Stremio Bridge's person search; Stremio Bridge's context menu; a ... settings menu.</news>
         <summary lang="en_GB">Arctic: Zephyr - Reloaded, made for Stremio Bridge.</summary>
-        <description lang="en_GB">A fork of Arctic: Zephyr - Reloaded by beatmasterRS, itself based on Arctic: Zephyr by jurialmunkey, made to work with Stremio Bridge, Global Search and Dispatcharr Bridge. Clean, minimal and light, with the layout of Reloaded. Licensed under CC BY-NC-SA 3.0, like the original.</description>
+        <description lang="en_GB">A fork of Arctic: Zephyr - Reloaded by beatmasterRS, itself based on Arctic: Zephyr by jurialmunkey, made to work with Stremio Bridge and Dispatcharr Bridge. Clean, minimal and light, with the layout of Reloaded. Licensed under CC BY-NC-SA 3.0, like the original.</description>
     </extension>
 </addon>
 <addon id="repository.shiggsy365"

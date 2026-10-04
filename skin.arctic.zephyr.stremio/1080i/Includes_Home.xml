@@ -5,7 +5,7 @@
 
         <!-- Classic > bottomright > Disable UpWidget  -->
         <control type="image" description="clearlogo">
-            <visible>Skin.HasSetting(home.netflix.clearlogo) + [Skin.HasSetting(home.classicwidgets) + !Skin.HasSetting(home.vertical) + Skin.HasSetting(home.dontautoshowwidget)] + !Skin.HasSetting(home.modernwidgets)</visible>
+            <visible>Skin.HasSetting(view.netflix.clearlogo) + [Skin.HasSetting(home.classicwidgets) + !Skin.HasSetting(home.vertical) + Skin.HasSetting(home.dontautoshowwidget)] + !Skin.HasSetting(home.modernwidgets)</visible>
             <visible>!Player.HasVideo | !Skin.HasSetting(global.showvideo)</visible>
             <animation effect="fade" start="100" end="0" time="0" condition="Player.HasAudio + Skin.HasSetting(global.showvisualisation) + !String.IsEmpty(Visualisation.Name)">Conditional</animation>
             <include>Animation.FadeIn</include>
@@ -13,8 +13,8 @@
             <animation effect="slide" start="0" end="0,-520" time="500" tween="back" reversible="false" easing="out" condition="Control.HasFocus(301)">Conditional</animation>
             <animation effect="slide" end="0" start="0,-520" time="150" reversible="false" condition="!Control.HasFocus(301)">Conditional</animation>
             <top>495</top>
-            <include content="def_right" condition="!Skin.HasSetting(home.showclearlogoleftbottomclassic)"><param name="right" value="SidePad" /></include>
-            <include content="def_left" condition="Skin.HasSetting(home.showclearlogoleftbottomclassic)"><param name="left" value="SidePad" /></include>
+            <include content="def_right" condition="!Skin.HasSetting(view.netflix.clearlogo)"><param name="right" value="SidePad" /></include>
+            <include content="def_left" condition="Skin.HasSetting(view.netflix.clearlogo)"><param name="left" value="SidePad" /></include>
             <width>275</width>
             <aspectratio scalediffuse="true" align="left">keep</aspectratio>
             <texture background="true">$VAR[ClearLogoHome]</texture>
@@ -24,7 +24,7 @@
 
         <!-- Classic > bottomLeft > Dont Have Disable UpWidget  -->
         <control type="image" description="clearlogo">
-            <visible>Skin.HasSetting(home.netflix.clearlogo) + [Skin.HasSetting(home.classicwidgets) + !Skin.HasSetting(home.dontautoshowwidget) + !Skin.HasSetting(home.vertical)] + !Skin.HasSetting(home.modernwidgets)</visible>
+            <visible>Skin.HasSetting(view.netflix.clearlogo) + [Skin.HasSetting(home.classicwidgets) + !Skin.HasSetting(home.dontautoshowwidget) + !Skin.HasSetting(home.vertical)] + !Skin.HasSetting(home.modernwidgets)</visible>
             <visible>!Player.HasVideo | !Skin.HasSetting(global.showvideo)</visible>
             <animation effect="fade" start="100" end="0" time="0" condition="Player.HasAudio + Skin.HasSetting(global.showvisualisation) + !String.IsEmpty(Visualisation.Name)">Conditional</animation>
             <include>Animation.FadeIn</include>
@@ -32,8 +32,8 @@
             <animation effect="slide" start="0" end="0,-250" time="500" tween="back" reversible="false" easing="out" condition="Control.HasFocus(301)">Conditional</animation>
             <animation effect="slide" end="0" start="0,-220" time="150" reversible="false" condition="!Control.HasFocus(301)">Conditional</animation>
             <top>-40</top>
-            <include content="def_right" condition="!Skin.HasSetting(home.showclearlogoleftbottomclassic)"><param name="right" value="SidePad" /></include>
-            <include content="def_left" condition="Skin.HasSetting(home.showclearlogoleftbottomclassic)"><param name="left" value="SidePad" /></include>
+            <include content="def_right" condition="!Skin.HasSetting(view.netflix.clearlogo)"><param name="right" value="SidePad" /></include>
+            <include content="def_left" condition="Skin.HasSetting(view.netflix.clearlogo)"><param name="left" value="SidePad" /></include>
             <width>275</width>
             <aspectratio scalediffuse="true" align="left">keep</aspectratio>
             <texture background="true">$VAR[ClearLogoHome]</texture>
@@ -44,7 +44,7 @@
 
         <!-- Featured > bottomright > Dont have Disable UpWidget  -->
         <control type="image" description="clearlogo">
-            <visible>Skin.HasSetting(home.netflix.clearlogo) + [!Skin.HasSetting(home.classicwidgets) + !Skin.HasSetting(home.vertical) + !Skin.HasSetting(home.dontautoshowwidget)] + !Skin.HasSetting(home.modernwidgets)</visible>
+            <visible>Skin.HasSetting(view.netflix.clearlogo) + [!Skin.HasSetting(home.classicwidgets) + !Skin.HasSetting(home.vertical) + !Skin.HasSetting(home.dontautoshowwidget)] + !Skin.HasSetting(home.modernwidgets)</visible>
             <visible>!Player.HasVideo | !Skin.HasSetting(global.showvideo)</visible>
             <animation effect="fade" start="100" end="0" time="0" condition="Player.HasAudio + Skin.HasSetting(global.showvisualisation) + !String.IsEmpty(Visualisation.Name)">Conditional</animation>
             <include>Animation.FadeIn</include>
@@ -64,7 +64,7 @@
 
         <!-- Featured > bottomright > have Disable UpWidget  -->
         <control type="image" description="clearlogo">
-            <visible>Skin.HasSetting(home.netflix.clearlogo) + [!Skin.HasSetting(home.classicwidgets) + !Skin.HasSetting(home.vertical) + Skin.HasSetting(home.dontautoshowwidget)] + !Skin.HasSetting(home.modernwidgets)</visible>
+            <visible>Skin.HasSetting(view.netflix.clearlogo) + [!Skin.HasSetting(home.classicwidgets) + !Skin.HasSetting(home.vertical) + Skin.HasSetting(home.dontautoshowwidget)] + !Skin.HasSetting(home.modernwidgets)</visible>
             <visible>!Player.HasVideo | !Skin.HasSetting(global.showvideo)</visible>
             <animation effect="fade" start="100" end="0" time="0" condition="Player.HasAudio + Skin.HasSetting(global.showvisualisation) + !String.IsEmpty(Visualisation.Name)">Conditional</animation>
             <include>Animation.FadeIn</include>
@@ -83,7 +83,7 @@
 
         <!-- MODERN -->
         <control type="image" description="clearlogo">
-            <visible>Skin.HasSetting(home.netflix.clearlogo) + $EXP[HomeIsModern]</visible>
+            <visible>Skin.HasSetting(view.netflix.clearlogo) + $EXP[HomeIsModern]</visible>
             <visible>!Player.HasVideo | !Skin.HasSetting(global.showvideo)</visible>
             <animation effect="fade" start="100" end="0" time="0" condition="Player.HasAudio + Skin.HasSetting(global.showvisualisation) + !String.IsEmpty(Visualisation.Name)">Conditional</animation>
             <include>Animation.FadeIn</include>
@@ -102,7 +102,7 @@
 
         <!-- Vertical > TopRight Header > With Header  -->
         <control type="image" description="clearlogo">
-            <visible>Skin.HasSetting(home.netflix.clearlogo) + [Skin.HasSetting(home.vertical)] + !Skin.HasSetting(home.modernwidgets)</visible>
+            <visible>Skin.HasSetting(view.netflix.clearlogo) + [Skin.HasSetting(home.vertical)] + !Skin.HasSetting(home.modernwidgets)</visible>
             <visible>[!Player.HasVideo | !Skin.HasSetting(global.showvideo)] + ![String.IsEqual(Container(300).ListItem.Property(widget),weatherdaily) | String.IsEqual(Container(300).ListItem.Property(widget),weatherhourly)]</visible>
             <animation effect="fade" start="100" end="0" time="0" condition="Player.HasAudio + Skin.HasSetting(global.showvisualisation)">Conditional</animation>
             <include>Animation.FadeIn</include>
@@ -1539,7 +1539,8 @@
                     <ondown condition="Integer.IsGreater(Container(302).NumItems,0)">SetFocus(302,0)</ondown>
                     <onback condition="Skin.HasSetting(home.onback.go.to.first.widget) + Integer.IsGreater(Container(301).NumItems,0)">SetFocus(301)</onback>
                     <onleft>300</onleft>
-                    <onright>300</onright>
+                    <!-- Arctic Zephyr Stremio: Right on the last menu item opens search (Custom_1170_Search.xml) -->
+                    <onright>ActivateWindow(1170)</onright>
                     <orientation>horizontal</orientation>
                     <scrolltime>200</scrolltime>
                     <include condition="Skin.HasSetting(home.showicons)">HomeContentIcon</include>
@@ -2342,7 +2343,8 @@
                 <onup condition="Skin.HasSetting(home.dontshowfanart) + ![String.IsEqual(Container(300).ListItem.Property(widget),weatherdaily) | String.IsEqual(Container(300).ListItem.Property(widget),weatherhourly)] + [!String.IsEmpty(Container(300).ListItem.Property(widget)) | [String.IsEmpty(Container(300).ListItem.Property(widget)) + [String.IsEmpty(Container(300).ListItem.Property(Background)) + [String.IsEmpty(Skin.String(home.slideshowpath))]]]]">SetFocus(301,0)</onup>
                 <ondown condition="Integer.IsGreater(Container(302).NumItems,0)">SetFocus(302,0)</ondown>
                 <onleft>300</onleft>
-                <onright>300</onright>
+                <!-- Arctic Zephyr Stremio: Right on the last menu item opens search (Custom_1170_Search.xml) -->
+                <onright>ActivateWindow(1170)</onright>
                 <orientation>horizontal</orientation>
                 <scrolltime>200</scrolltime>
                 <include condition="Skin.HasSetting(home.showicons)">HomeContentIcon</include>
@@ -3975,7 +3977,7 @@
                     <include content="MultiWidgetsHeader" condition="$PARAM[labelisvisible]">
                         <param name="id" value="$PARAM[id]"/>
                     </include>
-                    <include condition="Skin.HasSetting(homemenu.netflix) + !Skin.HasSetting(home.netflix.clearlogo) | Skin.HasSetting(homemenu.clean.flix)">IntentButton</include>
+                    <include condition="Skin.HasSetting(homemenu.netflix) + !Skin.HasSetting(view.netflix.clearlogo) | Skin.HasSetting(homemenu.clean.flix)">IntentButton</include>
                     <include content="MultiWidgetsPlotLabel" condition="Skin.HasSetting(homemenu.netflix) + !Skin.HasSetting(homemenu.clean.flix)">
                         <param name="id" value="$PARAM[id]"/>
                         <param name="plotminheight" value="0"/>
@@ -4074,7 +4076,7 @@
             <width>ClearLogoMaxWidth</width>
             <aspectratio scalediffuse="true" align="left">keep</aspectratio>
             <texture background="true">$INFO[Container($PARAM[id]).ListItem.Art(clearlogo)]</texture>
-            <visible>$PARAM[visible] + Skin.HasSetting(home.netflix.clearlogo) + Skin.HasSetting(homemenu.netflix) + !String.IsEmpty(Container($PARAM[id]).ListItem.Art(clearlogo)) + !Skin.HasSetting(homemenu.clean.flix)</visible>
+            <visible>$PARAM[visible] + Skin.HasSetting(view.netflix.clearlogo) + Skin.HasSetting(homemenu.netflix) + !String.IsEmpty(Container($PARAM[id]).ListItem.Art(clearlogo)) + !Skin.HasSetting(homemenu.clean.flix)</visible>
         </control>
         <control type="label">
             <include content="def_font" condition="Skin.HasSetting(homemenu.netflix)">
@@ -4089,7 +4091,7 @@
             <textcolor>Dark1</textcolor>
             <label>$PARAM[label]</label>
             <include condition="Skin.HasSetting(labels.autoscroll)">LabelScroll</include>
-            <visible>$PARAM[visible] + [[[!Skin.HasSetting(home.netflix.clearlogo) | Skin.HasSetting(homemenu.clean.flix)] | [Skin.HasSetting(home.netflix.clearlogo) + Skin.HasSetting(homemenu.netflix) + String.IsEmpty(Container($PARAM[id]).ListItem.Art(clearlogo))]] | !Skin.HasSetting(homemenu.netflix)]</visible>
+            <visible>$PARAM[visible] + [[[!Skin.HasSetting(view.netflix.clearlogo) | Skin.HasSetting(homemenu.clean.flix)] | [Skin.HasSetting(view.netflix.clearlogo) + Skin.HasSetting(homemenu.netflix) + String.IsEmpty(Container($PARAM[id]).ListItem.Art(clearlogo))]] | !Skin.HasSetting(homemenu.netflix)]</visible>
         </control>
         </definition>
     </include>
@@ -4184,7 +4186,7 @@
             <control type="textbox">
                 <include>MultiWidgetsPlotLabelDefinition</include>
                 <label>$INFO[Container($PARAM[id]).ListItem.Plot]</label>
-                <visible>[[String.IsEqual(Container($PARAM[id]).ListItem.DBType,set) | String.IsEqual(Container($PARAM[id]).ListItem.DBType,movie) | String.IsEqual(Container($PARAM[id]).ListItem.DBType,episode) | String.IsEqual(Container($PARAM[id]).ListItem.DBType,tvshow)] + !String.IsEmpty(Container($PARAM[id]).ListItem.Plot)] + Skin.HasSetting(homemenu.netflix) +  [!Skin.HasSetting(home.netflix.clearlogo) | [Skin.HasSetting(home.netflix.clearlogo) + String.IsEmpty(Container($PARAM[id]).ListItem.Art(clearlogo))]]</visible>
+                <visible>[[String.IsEqual(Container($PARAM[id]).ListItem.DBType,set) | String.IsEqual(Container($PARAM[id]).ListItem.DBType,movie) | String.IsEqual(Container($PARAM[id]).ListItem.DBType,episode) | String.IsEqual(Container($PARAM[id]).ListItem.DBType,tvshow)] + !String.IsEmpty(Container($PARAM[id]).ListItem.Plot)] + Skin.HasSetting(homemenu.netflix) +  [!Skin.HasSetting(view.netflix.clearlogo) | [Skin.HasSetting(view.netflix.clearlogo) + String.IsEmpty(Container($PARAM[id]).ListItem.Art(clearlogo))]]</visible>
             </control>
 
             <!-- Sets Movies Episodes Netflix ClearArt -->
@@ -4192,7 +4194,7 @@
                 <height min="36" max="140">auto</height>
                 <include>MultiWidgetsPlotLabelDefinition</include>
                 <label>$INFO[Container($PARAM[id]).ListItem.Plot]</label>
-                <visible>[[String.IsEqual(Container($PARAM[id]).ListItem.DBType,set) | String.IsEqual(Container($PARAM[id]).ListItem.DBType,movie) | String.IsEqual(Container($PARAM[id]).ListItem.DBType,episode) | String.IsEqual(Container($PARAM[id]).ListItem.DBType,tvshow)] + !String.IsEmpty(Container($PARAM[id]).ListItem.Plot)] + Skin.HasSetting(homemenu.netflix) + Skin.HasSetting(home.netflix.clearlogo) + !String.IsEmpty(Container($PARAM[id]).ListItem.Art(clearlogo))</visible>
+                <visible>[[String.IsEqual(Container($PARAM[id]).ListItem.DBType,set) | String.IsEqual(Container($PARAM[id]).ListItem.DBType,movie) | String.IsEqual(Container($PARAM[id]).ListItem.DBType,episode) | String.IsEqual(Container($PARAM[id]).ListItem.DBType,tvshow)] + !String.IsEmpty(Container($PARAM[id]).ListItem.Plot)] + Skin.HasSetting(homemenu.netflix) + Skin.HasSetting(view.netflix.clearlogo) + !String.IsEmpty(Container($PARAM[id]).ListItem.Art(clearlogo))</visible>
             </control>
 
             <!-- Albums -->

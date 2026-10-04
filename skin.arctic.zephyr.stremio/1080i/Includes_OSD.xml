@@ -60,7 +60,7 @@
 
             <!-- TITLE CLEARLOGO -->
             <control type="image" description="clearlogo">
-                <visible>!Skin.HasSetting(osd.showclearlogotitle) + !String.IsEmpty(Player.Art(clearlogo)) + !VideoPlayer.Content(episodes)</visible>
+                <visible>!Skin.HasSetting(view.netflix.clearlogo) + !String.IsEmpty(Player.Art(clearlogo)) + !VideoPlayer.Content(episodes)</visible>
                 <width>340</width>
                 <height>124</height>
                 <aspectratio align="center">keep</aspectratio>
@@ -69,7 +69,7 @@
 
             <!-- TITLE -->
             <control type="textbox" description="Show">
-                <visible>!VideoPlayer.Content(episodes) + [Skin.HasSetting(osd.showclearlogotitle) | [!Skin.HasSetting(osd.showclearlogotitle) + String.IsEmpty(Player.Art(clearlogo))]]</visible>
+                <visible>!VideoPlayer.Content(episodes) + [Skin.HasSetting(view.netflix.clearlogo) | [!Skin.HasSetting(view.netflix.clearlogo) + String.IsEmpty(Player.Art(clearlogo))]]</visible>
                 <height max="225">auto</height>
                 <font>MediumBold3</font>
                 <align>center</align>

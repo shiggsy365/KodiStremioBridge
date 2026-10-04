@@ -184,6 +184,13 @@ class MetaPreview:
         return self._names(WRITER)
 
 
+def _poster_shape(shape):
+    """"poster", "landscape" or "square". Stremio's older name for a poster is
+    "regular" (some addons still send it); anything unknown is a poster too."""
+    shape = (shape or "").lower()
+    return shape if shape in ("landscape", "square") else "poster"
+
+
 def _preview_fields(data, default_type):
     if not isinstance(data, dict):
         return None
@@ -202,7 +209,7 @@ def _preview_fields(data, default_type):
         type=type_,
         name=name,
         poster=data.get("poster") or "",
-        poster_shape=data.get("posterShape") or "poster",
+        poster_shape=_poster_shape(data.get("posterShape")),
         background=data.get("background") or "",
         logo=data.get("logo") or "",
         description=data.get("description") or "",

@@ -2531,10 +2531,10 @@
             <include>Animation.ClearLogo.FadeOut</include>
             <visible>Skin.HasSetting(furniture.logo)</visible>
             <visible>![Window.IsVisible(Home.xml) + Window.IsVisible(DialogVideoInfo.xml)]</visible>
-            <visible>![Window.IsVisible(Home.xml) + Skin.HasSetting(home.netflix.clearlogo) + [$EXP[HomeIsVertical] | $EXP[HomeIsVerticalMultiWidgets]]]</visible>
-            <visible>![Control.IsVisible(504) + Skin.HasSetting(504clearlogo)]</visible>
-            <visible>![Control.IsVisible(509) + Skin.HasSetting(509clearlogo)]</visible>
-            <visible>![Control.IsVisible(510) + Skin.HasSetting(ShowClearart510)]</visible>
+            <visible>![Window.IsVisible(Home.xml) + Skin.HasSetting(view.netflix.clearlogo) + [$EXP[HomeIsVertical] | $EXP[HomeIsVerticalMultiWidgets]]]</visible>
+            <visible>![Control.IsVisible(504) + Skin.HasSetting(view.netflix.clearlogo)]</visible>
+            <visible>![Control.IsVisible(509) + Skin.HasSetting(view.netflix.clearlogo)]</visible>
+            <visible>![Control.IsVisible(510) + Skin.HasSetting(view.netflix.clearlogo)]</visible>
             <animation effect="slide" start="0" end="0,60" time="0" condition="$EXP[HomeIsModernMultiWidgets] + Window.IsVisible(Home.xml)">Conditional</animation>
             <centertop>120</centertop>
             <centerleft>50%</centerleft>
@@ -2548,6 +2548,8 @@
             <top>SidePad</top>
             <left>SidePad</left>
             <visible>!Skin.HasSetting(furniture.header)</visible>
+            <!-- Arctic Zephyr Stremio: none over Stremio Bridge's catalogs -->
+            <visible>!String.Contains(Container.FolderPath,plugin.video.stremiobridge/?action=catalog)</visible>
             <include>Animation.FurnitureVisibleHomeLabel</include>
             <orientation>horizontal</orientation>
             <itemgap>24</itemgap>
@@ -2752,6 +2754,22 @@
                         <aspectratio>keep</aspectratio>
                     </control>
                 </control>
+            </control>
+            <!-- Arctic Zephyr Stremio: search (Custom_1170_Search.xml), on the time's row just
+                 left of it (above the date). The time ends at right 135 with am/pm, 80 without. -->
+            <control type="button" id="9990">
+                <description>Search</description>
+                <centertop>24</centertop>
+                <right>262</right>
+                <width>44</width>
+                <height>44</height>
+                <animation effect="slide" start="0" end="55" time="0" condition="String.IsEmpty(System.Time(xx))">Conditional</animation>
+                <label></label>
+                <font>Null</font>
+                <texturenofocus colordiffuse="Dark2">special://skin/extras/icons/search.png</texturenofocus>
+                <texturefocus colordiffuse="$VAR[ColorHighlight]">special://skin/extras/icons/search.png</texturefocus>
+                <onclick>ActivateWindow(1170)</onclick>
+                <visible>!Window.IsVisible(1170)</visible>
             </control>
             <control type="label">
                 <centertop>24</centertop>

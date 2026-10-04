@@ -6,8 +6,11 @@ those (nor can it tell which item the menu is for). So when the menu opens on
 one of our titles, the service closes it and runs this route instead
 (service.MenuSwap), which shows:
 
-    Play, Information, Mark as watched, Show Playable Streams, Browse show,
-    Add to watchlist, (the item's other entries), Play trailer, Add to favourites
+    Play, Information, Mark as watched (or unwatched: one entry, for the movie,
+    episode, season or show the item is), Show Playable Streams, Add to
+    watchlist, (the item's other entries), Play trailer, Add to favourites
+
+The show itself is browsed from Information (its season and episode browser).
 
 The item's own entries (``stremiobridge.menu``, see common.add_context_menu)
 supply the labels and commands for most of these, so they stay in step with
@@ -47,7 +50,7 @@ def item_target(path):
         return None
     params = dict(parse_qsl(urlsplit(path).query))
     action = params.pop("action", "")
-    if action not in ("play", "meta", "extended_info") or not params.get("type") or not params.get("id"):
+    if action not in ("play", "meta", "season", "extended_info") or not params.get("type") or not params.get("id"):
         return None
     return action, params
 
@@ -74,23 +77,29 @@ def menu_entries(plugin, path, own_entries, favourite, watched=False):
     elif action == "extended_info":
         info, video = path, params.get("video")
         play = plugin.url_for("play", type=type_, id=video or id_, meta=id_ if video else None)
+    elif action == "season":
+        info = plugin.url_for("extended_info", type=type_, id=id_, season=params.get("season"))
+        play = None
     else:  # a show
         info, play = plugin.url_for("extended_info", type=type_, id=id_), None
 
     entries = []
     if play and (type_ in PLAYABLE_TYPES or action != "meta"):
         entries.append((1, xbmc.getLocalizedString(208), f"PlayMedia({play})"))
+    elif action == "season":  # its next episode to watch, as the info page's Play does
+        entries.append((1, xbmc.getLocalizedString(208),
+                        plugin.run_url("info_play", type=type_, id=id_, season=params.get("season"))))
     entries.append((2, xbmc.getLocalizedString(19033), f"RunPlugin({info})"))
     for label, command in own_entries:
         clean = _COLOUR.sub("", label)
-        # Browse show now opens the show's information page, while the current
-        # item's own Extended info entry is still covered by Kodi's Information.
-        place = 5 if clean in (L(30064), "Browse show") and "action=extended_info" in command else rank(command)
+        place = rank(command)
         if place is not None:
             entries.append((place, clean, command))
     if not any(place == 3 for place, _, _ in entries):
         if action == "meta":
             mark = {"type": type_, "id": id_}
+        elif action == "season":
+            mark = {"type": type_, "id": id_, "season": params.get("season")}
         elif action == "play":
             mark = {"type": type_, "id": id_, "meta": params.get("meta")}
         else:
@@ -98,8 +107,6 @@ def menu_entries(plugin, path, own_entries, favourite, watched=False):
             mark = {"type": type_, "id": video or id_, "meta": id_ if video else None}
         entries.append((3, L(30191 if watched else 30190),
                         plugin.run_url("set_watched", value=int(not watched), **mark)))
-    if action == "meta" and not any(place == 5 for place, _, _ in entries):
-        entries.append((5, L(30064), f'ActivateWindow(Videos,"{path}",return)'))
     entries.append((9, xbmc.getLocalizedString(14077 if favourite else 14076), "favourite"))
     entries.sort(key=lambda e: e[0])  # stable: the item's own order within a rank
     return [(label, command) for _, label, command in entries]
@@ -119,27 +126,44 @@ def toggle_favourite(path, title, thumb, folder):
         jsonrpc("Favourites.AddFavourite", title=title, type="media", path=path, thumbnail=thumb)
 
 
+# The skin's info page lists whose items get our menu: the show browser's
+# episodes and seasons, and Find similar (Includes_Stremio.xml / Includes_DialogVideoInfo.xml).
+INFO_LISTS = (5061, 5060, 9502)
+
+
+def focused_item():
+    """``(source, path)``: the infolabel prefix of the item a context menu is
+    for, and its path. In the info page, ``ListItem`` is the page's own title
+    even while one of its lists has focus, so those lists are asked directly."""
+    if xbmc.getCondVisibility("Window.IsVisible(movieinformation)"):
+        for control in INFO_LISTS:
+            if xbmc.getCondVisibility(f"Control.HasFocus({control})"):
+                source = f"Container({control}).ListItem"
+                return source, xbmc.getInfoLabel(f"{source}.FileNameAndPath")
+    return "ListItem", xbmc.getInfoLabel("ListItem.FileNameAndPath")
+
+
 @route("context_menu")
-def context_menu(plugin, path=""):
+def context_menu(plugin, path="", source="ListItem"):
     home = xbmcgui.Window(10000)
     home.setProperty(OPEN_PROPERTY, "1")
     try:
-        _show_menu(plugin, path or xbmc.getInfoLabel("ListItem.FileNameAndPath"))
+        _show_menu(plugin, path or xbmc.getInfoLabel(f"{source}.FileNameAndPath"), source)
     finally:
         home.clearProperty(OPEN_PROPERTY)
 
 
-def _show_menu(plugin, path):
+def _show_menu(plugin, path, source="ListItem"):
     if item_target(path) is None:
         return
-    title = xbmc.getInfoLabel("ListItem.Label")
-    thumb = xbmc.getInfoLabel("ListItem.Art(poster)") or xbmc.getInfoLabel("ListItem.Art(thumb)")
-    folder = xbmc.getCondVisibility("ListItem.IsFolder")
+    title = xbmc.getInfoLabel(f"{source}.Label")
+    thumb = xbmc.getInfoLabel(f"{source}.Art(poster)") or xbmc.getInfoLabel(f"{source}.Art(thumb)")
+    folder = xbmc.getCondVisibility(f"{source}.IsFolder")
     try:
-        own = json.loads(xbmc.getInfoLabel(f"ListItem.Property({MENU_PROPERTY})") or "[]")
+        own = json.loads(xbmc.getInfoLabel(f"{source}.Property({MENU_PROPERTY})") or "[]")
     except ValueError:
         own = []
-    watched = (xbmc.getInfoLabel("ListItem.PlayCount") or "0") != "0"
+    watched = (xbmc.getInfoLabel(f"{source}.PlayCount") or "0") != "0"
     entries = menu_entries(plugin, path, own, is_favourite(path), watched)
     choice = xbmcgui.Dialog().contextmenu([label for label, _ in entries])
     if choice < 0:

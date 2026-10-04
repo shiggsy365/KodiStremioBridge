@@ -350,10 +350,10 @@ class MenuSwap(threading.Thread):
         import xbmcgui
 
         from .common import skin_active
-        from .contextmenu import OPEN_PROPERTY, item_target
+        from .contextmenu import OPEN_PROPERTY, focused_item, item_target
 
         home = xbmcgui.Window(10000)
-        focused, active, checked = None, False, 0.0
+        focused, source, active, checked = None, "ListItem", False, 0.0
         while not self.monitor.waitForAbort(self.POLL):
             if time.time() - checked > 5:
                 active, checked = skin_active(), time.time()
@@ -363,10 +363,10 @@ class MenuSwap(threading.Thread):
                 if focused and not home.getProperty(OPEN_PROPERTY):
                     home.setProperty(OPEN_PROPERTY, "1")  # ours is on its way (the route clears it)
                     xbmc.executebuiltin("Dialog.Close(contextmenu,true)")
-                    xbmc.executebuiltin(f"RunPlugin({plugin_url('context_menu', path=focused)})")
+                    xbmc.executebuiltin(f"RunPlugin({plugin_url('context_menu', path=focused, source=source)})")
                     focused = None
                 continue
-            path = xbmc.getInfoLabel("ListItem.FileNameAndPath")
+            source, path = focused_item()
             focused = path if item_target(path) else None
 
 

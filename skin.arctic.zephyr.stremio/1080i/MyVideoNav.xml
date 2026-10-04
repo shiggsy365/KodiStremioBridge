@@ -369,8 +369,8 @@
                     <include>DefContextButtonGradient</include>
                     <align>left</align>
                     <label>31569</label>
-                    <selected>Skin.HasSetting(509clearlogo)</selected>
-                    <onclick>Skin.ToggleSetting(509clearlogo)</onclick>
+                    <selected>Skin.HasSetting(view.netflix.clearlogo)</selected>
+                    <onclick>Skin.ToggleSetting(view.netflix.clearlogo)</onclick>
                     <visible>Control.IsVisible(509)</visible>
                 </control>
                 <control type="radiobutton" id="9047">
@@ -413,8 +413,8 @@
                     <include>DefContextButtonGradient</include>
                     <align>left</align>
                     <label>31569</label>
-                    <selected>Skin.HasSetting(504clearlogo)</selected>
-                    <onclick>Skin.ToggleSetting(504clearlogo)</onclick>
+                    <selected>Skin.HasSetting(view.netflix.clearlogo)</selected>
+                    <onclick>Skin.ToggleSetting(view.netflix.clearlogo)</onclick>
                     <visible>Control.IsVisible(504)</visible>
                 </control>
                 <control type="radiobutton" id="9029" description="list.show.filename">
@@ -480,8 +480,8 @@
                     <include>DefContextButtonGradient</include>
                     <align>left</align>
                     <label>31569</label>
-                    <selected>Skin.HasSetting(ShowClearart510)</selected>
-                    <onclick>Skin.ToggleSetting(ShowClearart510)</onclick>
+                    <selected>Skin.HasSetting(view.netflix.clearlogo)</selected>
+                    <onclick>Skin.ToggleSetting(view.netflix.clearlogo)</onclick>
                     <visible>Control.IsVisible(510) | Control.IsVisible(520)</visible>
                 </control>
                 <control type="button" id="9071">

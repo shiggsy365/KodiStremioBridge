@@ -21,7 +21,7 @@ import zipfile
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 OUT = os.path.join(ROOT, "docs")
-ADDONS = ["plugin.video.stremiobridge", "script.shiggsy365.globalsearch", "script.shiggsy365.dispatcharrbridge",
+ADDONS = ["plugin.video.stremiobridge", "script.shiggsy365.dispatcharrbridge",
           "service.shiggsy365.tidycache", "skin.arctic.zephyr.stremio",
           "repository.shiggsy365"]
 REPOSITORY = "repository.shiggsy365"

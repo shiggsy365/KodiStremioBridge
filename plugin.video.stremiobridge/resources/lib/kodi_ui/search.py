@@ -3,6 +3,9 @@
 ``?action=search&query=…[&type=movie]`` is stable, so skins can call it too.
 """
 
+import time
+
+import xbmc
 import xbmcgui
 import xbmcplugin
 
@@ -56,7 +59,7 @@ def new_search(plugin, type=None):
     search_window(plugin, query=query, type=type)
 
 
-def find_results(query, type_=None, person=False):
+def find_results(query, type_=None, person=False, quiet=False):
     """Search every enabled search catalog (in the user's order), falling back
     to Cinemeta if none of them finds anything. Returns ``(groups, fallback)``:
     non-empty ``(addon, catalog, previews)`` results, and whether they came
@@ -64,7 +67,8 @@ def find_results(query, type_=None, person=False):
 
     `person`: the query is someone's name (actor/director). People-search
     catalogs are used if there are any; otherwise the normal ones plus
-    Cinemeta, whose search matches cast and crew (title searches mostly don't)."""
+    Cinemeta, whose search matches cast and crew (title searches mostly don't).
+    `quiet`: no progress dialog and no notifications (search as you type)."""
     targets = get_registry().search_catalogs(type_)
     use_cinemeta = ADDON.getSettingBool("cinemeta_fallback")
     if person:
@@ -74,17 +78,18 @@ def find_results(query, type_=None, person=False):
         elif use_cinemeta:
             targets = targets + cinemeta_search_targets(type_)
     if not targets and not use_cinemeta:
-        notify(L(30078), icon=xbmcgui.NOTIFICATION_WARNING)
+        if not quiet:
+            notify(L(30078), icon=xbmcgui.NOTIFICATION_WARNING)
         return [], False
     client = get_client()
-    groups, cancelled = _search(client, targets, query, type_)
+    groups, cancelled = _search(client, targets, query, type_, quiet)
     fallback = False
     if not groups and not cancelled and use_cinemeta:
         # None of the user's search catalogs found anything (some addons' search
         # returns nothing at all): try Cinemeta, whose search also matches people.
-        groups, cancelled = _search(client, cinemeta_search_targets(type_), query, type_)
+        groups, cancelled = _search(client, cinemeta_search_targets(type_), query, type_, quiet)
         fallback = bool(groups)
-    if not groups and not cancelled:
+    if not groups and not cancelled and not quiet:
         notify(L(30073, query=query))
     return (groups if not cancelled else []), fallback
 
@@ -125,19 +130,162 @@ def search(plugin, query, type=None):
     end_listing(handle)
 
 
-def _search(client, targets, query, type_):
+def _search(client, targets, query, type_, quiet=False):
     """``(groups, cancelled)``: non-empty ``(addon, catalog, previews)`` results."""
     if not targets:
         return [], False
-    results, errors, cancelled = run_with_progress(
-        L(30074), 30075, lambda progress: run_search(client, targets, query, progress)
-    )
+    if quiet:
+        results, errors, cancelled = run_search(client, targets, query)
+    else:
+        results, errors, cancelled = run_with_progress(
+            L(30074), 30075, lambda progress: run_search(client, targets, query, progress)
+        )
     for label, exc in errors:
         log(f"Search in {label} failed: {exc}")
     if type_:
         # Catalogs of type "all" return every type; keep only the one asked for.
         results = [(a, c, [p for p in previews if p.type == type_]) for a, c, previews in results]
     return [(addon, catalog, previews) for addon, catalog, previews in results if previews], cancelled
+
+
+# ------------------------------------------------------------------ the skin's search page
+# Arctic Zephyr Stremio's search page (Custom_1170_Search.xml) types into this
+# home window property; its lists call the routes below. They read the query
+# from the property, not their URL (the skin can't URL-encode it); the `q` and
+# `n` parameters only make Kodi reload a list when the query or results change.
+
+SEARCH_QUERY = "sbsearch.query"
+SETTLE_SECONDS = 0.45   # search as you type: wait this long for the next key
+MIN_LENGTH = 2
+RECENT_SEARCHES = 5
+SUGGESTIONS = 8
+
+
+def page_query():
+    return xbmcgui.Window(10000).getProperty(SEARCH_QUERY)
+
+
+def set_page_query(query):
+    xbmcgui.Window(10000).setProperty(SEARCH_QUERY, query)
+
+
+def _settled(query):
+    """True if `query` is still what's typed after a short wait (else the
+    user typed on, and a newer listing is on its way)."""
+    if xbmc.Monitor().waitForAbort(SETTLE_SECONDS):
+        return False
+    return page_query().strip() == query
+
+
+def live_previews(query, type_):
+    """Previews from every search catalog for `type_`, without duplicates."""
+    groups, _ = find_results(query, type_, quiet=True)
+    seen, previews = set(), []
+    for _, _, found in groups:
+        for preview in found:
+            if preview.id not in seen and (type_ is None or preview.type == type_):
+                seen.add(preview.id)
+                previews.append(preview)
+    return previews
+
+
+@route("search_live")
+def search_live(plugin, type=None, q=None):
+    """One results row of the search page (movies or shows) for what's typed."""
+    handle = plugin.handle
+    query = page_query().strip()
+    if len(query) >= MIN_LENGTH and _settled(query):
+        items = preview_items(plugin, live_previews(query, type), get_watchstate())
+        xbmcplugin.addDirectoryItems(handle, items, len(items))
+        set_content(handle, content_for(type or ""))
+    xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
+
+
+@route("search_suggest")
+def search_suggest(plugin, q=None, n=None):
+    """Autofill for what's typed: your past searches that match, then titles
+    from the results (once the result rows have loaded, `n` changes and Kodi
+    asks again; the catalog responses are cached by then)."""
+    handle = plugin.handle
+    query = page_query().strip()
+    suggestions = []
+    if query and _settled(query):
+        lowered = query.lower()
+        past = [h for h in get_history().all() if lowered in h.lower() and h.lower() != lowered]
+        suggestions = sorted(past, key=lambda h: not h.lower().startswith(lowered))
+        loaded = any(part.isdigit() and int(part) > 0 for part in (n or "").split("-")[:2])  # "movies-shows-rev"
+        if loaded and len(query) >= MIN_LENGTH:
+            for type_ in ("movie", "series"):
+                suggestions += [p.name for p in live_previews(query, type_)]
+    seen, items = set(), []
+    for text in suggestions:
+        if text.lower() in seen or text.lower() == query.lower():
+            continue
+        seen.add(text.lower())
+        items.append(_query_item(plugin, text, "DefaultAddonsSearch.png"))
+        if len(items) == SUGGESTIONS:
+            break
+    xbmcplugin.addDirectoryItems(handle, items, len(items))
+    xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
+
+
+@route("search_recent")
+def search_recent(plugin, q=None):
+    """The last few searches, for the search page before you type."""
+    handle = plugin.handle
+    items = [_query_item(plugin, query, "DefaultRecentlyAddedMovies.png", recent=True)
+             for query in get_history().all()[:RECENT_SEARCHES]]
+    xbmcplugin.addDirectoryItems(handle, items, len(items))
+    xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
+
+
+def _query_item(plugin, query, icon, recent=False):
+    item = xbmcgui.ListItem(query)
+    item.setArt({"icon": icon})
+    if recent:
+        add_context_menu(item, [
+            (L(30076), plugin.run_url("search_history_remove", query=query)),
+            (L(30077), plugin.run_url("search_history_clear")),
+        ])
+    return plugin.url_for("search_pick", query=query), item, False
+
+
+@route("search_pick")
+def search_pick(plugin, query):
+    """A suggestion or recent search was chosen: search for it (and remember it)."""
+    set_page_query(query)
+    get_history().add(query)
+    history_changed()
+
+
+@route("search_key")
+def search_key(plugin, key, char=""):
+    """The search page's Space, Delete and Clear keys (the skin can't trim or
+    add a trailing space to a property itself), and its symbol keys
+    (key=type: `char` is added; in a skin command, commas and brackets would
+    be taken as part of it)."""
+    query = page_query()
+    if key == "type":
+        query += char
+    elif key == "space":
+        query = query + " " if query and not query.endswith(" ") else query
+    elif key == "delete":
+        query = query[:-1]
+    elif key == "clear":
+        query = ""
+    set_page_query(query)
+
+
+@route("search_open")
+def search_open(plugin, type, id):
+    """A search page result was chosen: remember the search, open its info page."""
+    query = page_query().strip()
+    if query:
+        get_history().add(query)
+        history_changed()
+    from .infodialog import extended_info  # infodialog imports watching, which imports this module
+
+    extended_info(plugin, type, id)
 
 
 # ------------------------------------------------------------------ search catalog manager
@@ -219,10 +367,18 @@ def move_search_catalog(plugin, addon, catalog, delta):
 @route("search_history_remove")
 def search_history_remove(plugin, query):
     get_history().remove(query)
-    refresh_container()
+    history_changed()
 
 
 @route("search_history_clear")
 def search_history_clear(plugin):
     get_history().clear()
+    history_changed()
+
+
+SEARCH_REVISION = "sbsearch.rev"  # in the search page's list paths: they reload when it changes
+
+
+def history_changed():
     refresh_container()
+    xbmcgui.Window(10000).setProperty(SEARCH_REVISION, str(time.time()))

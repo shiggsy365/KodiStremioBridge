@@ -100,26 +100,6 @@ Install from the repository, so updates arrive automatically:
 Kodi installs `script.module.requests` with it. For the pop-up between episodes, also install
 **Up Next** from the official Kodi repository.
 
-### Also in the repository: Global Search
-
-**Global Search** (`script.shiggsy365.globalsearch`, under *Program add-ons*) searches everything at
-once and shows the results as rows, in the same layout as Stremio Bridge's search:
-
-- your Kodi library: movies, TV shows, episodes, artists, albums and songs;
-- Stremio Bridge: a row for each of its search catalogs;
-- YouTube (with the YouTube add-on): a row of videos (channels and playlists optional), remembered
-  for an hour so repeat searches don't use API quota; or shortcuts instead;
-- Spotify (with the Spotify2 add-on): a row of shortcuts (Songs, Artists, Albums, Playlists,
-  Podcasts, Podcast episodes) that open Spotify's results for your search.
-
-Put `RunScript(script.shiggsy365.globalsearch)` on any menu item, button or key: it asks for the
-search, then shows the results. `RunScript(script.shiggsy365.globalsearch,query=batman)` searches
-straight away. Selecting a result plays it or opens it; Back returns to the results.
-
-Spotify shows shortcuts rather than results by default because Spotify2 allows only 8 Web API
-requests every 30 seconds, and each Spotify search page costs about 4. *Load Spotify results in the
-page* (settings) fills rows instead, for the categories you pick.
-
 ### Also in the repository: Dispatcharr Bridge
 
 **Dispatcharr Bridge** (`script.shiggsy365.dispatcharrbridge`) is for live TV in IPTV Simple served by
@@ -154,11 +134,23 @@ Arctic: Zephyr - Reloaded made for Stremio Bridge, without TMDb Helper or Embuar
   Cinemeta's Featured and Popular lists (with your own metadata addon's details, e.g. AIOMetadata).
   Each opens a hub: Home Hub, and Movies and Series hubs listing all your Stremio Bridge catalogs
   (kept up to date by Stremio Bridge; *Settings → Update Arctic Zephyr Stremio hubs* refreshes them).
-- Kodi's own info page for everything, with Browse show, Mark watched, Watchlist and
-  "More on Netflix / Prime Video / …" (what's popular on your streaming services) buttons; selecting
-  an actor opens Stremio Bridge's person search.
-- A context menu in a fixed order: Play, Information, Mark as watched, Show Playable Streams,
-  Browse show, watchlist, Play trailer, favourites. Kodi's own Mark as watched also updates your history.
+- **One info page for movies, shows, seasons and episodes**, with Play, Available streams, Mark
+  watched, Watchlist, Trailer, Find similar and Cast buttons (plus "More on Netflix / Prime Video /
+  …" when a streaming service has it). On a show, season or episode, Play starts the next episode to
+  watch, and a **season and episode browser** fills the space under the plot, opening on that
+  episode; choosing an episode opens its own page. Selecting an actor opens Stremio Bridge's person
+  search. Watched titles get a *Watched* banner on the poster and episode thumbnails, and watched
+  seasons are struck through.
+- A context menu in a fixed order: Play, Information, Mark as watched (one entry, for the movie,
+  episode, season or show it's opened on), Show Playable Streams, watchlist, Play trailer,
+  favourites. Kodi's own Mark as watched also updates your history.
+- **Search as you type**: an on-screen keyboard (A–Z with a space bar, or 0–9 and symbols) with rows
+  of movie and TV results from Stremio Bridge's search catalogs, autofill suggestions and your last 5
+  searches. Open it with the search icon by the clock, or Right on the last main menu item.
+- A full-screen **TV guide** with channel groups as tabs, the programme's details above the grid and
+  as many channels as fit.
+- Catalogs open in *Poster Flix v2*. *Show clearlogo instead of title* (in its view settings) is one
+  setting for the whole skin: views, Home widgets, the player and the info page.
 - A **…** menu item: Kodi settings, with a file browser, Stremio Bridge settings, Reload Skin and Exit.
 
 With this skin, Stremio Bridge's library integration is off (the skin's menus show your catalogs
@@ -238,7 +230,6 @@ plugin.video.stremiobridge/        the add-on itself
             └── service.py         playback tracker, scrobbling, Up Next, background jobs
 repository.shiggsy365/             the Kodi repository add-on
 service.shiggsy365.tidycache/      Tidy Cache add-on
-script.shiggsy365.globalsearch/    Global Search add-on
 script.shiggsy365.dispatcharrbridge/ Dispatcharr Bridge add-on
 docs/                              the published repository (GitHub Pages), built by tools/build_repo.py
 tests/                             pytest suite with a fake addon HTTP server and Kodistubs
@@ -309,7 +300,10 @@ on its next repository check.
   Kodi can tell their language from the file name.
 - Search: `?action=search&query=…[&type=movie]` is a stable URL that skins can use. Catalogs
   that need more than a query (e.g. a required genre) are skipped. Each result group opens
-  the normal catalog view with `f_search=…`, so paging works there too.
+  the normal catalog view with `f_search=…`, so paging works there too. Search as you type
+  (Arctic Zephyr Stremio's search page) uses `search_live`, `search_suggest` and `search_recent`,
+  which read the query from the home window property `sbsearch.query` and wait for typing to
+  settle; their URL parameters only make Kodi reload the lists.
 - Watch state lives in `watch.db`: one row per video id (`tt…` or `tt…:S:E`). Watched at
   ≥ 90 %, resume point after 2 min (settings). The play route announces what it starts
   (home-window property); the service only tracks playback it was told about. Kodi's own

@@ -538,8 +538,8 @@
                             <visible>ControlGroup(9100).HasFocus(9101)</visible>
                             <include>DefSettingsButtonGradientSkinSettings</include>
                             <label>$LOCALIZE[31025]</label>
-                            <selected>Skin.HasSetting(home.netflix.clearlogo)</selected>
-                            <onclick>Skin.ToggleSetting(home.netflix.clearlogo)</onclick>
+                            <selected>Skin.HasSetting(view.netflix.clearlogo)</selected>
+                            <onclick>Skin.ToggleSetting(view.netflix.clearlogo)</onclick>
                             <visible>![[$EXP[HomeIsModernMultiWidgets] | $EXP[HomeIsVerticalMultiWidgets]] + !Skin.HasSetting(homemenu.netflix)] + !Skin.HasSetting(homemenu.clean.flix)</visible>
                         </control>
                         <control type="radiobutton" id="9858" description="Show Clear Logo Left Bottom Position">
@@ -547,9 +547,9 @@
                             <visible>ControlGroup(9100).HasFocus(9101)</visible>
                             <include>DefSettingsButtonGradientSkinSettings</include>
                             <label>$LOCALIZE[31297]$LOCALIZE[31024]</label>
-                            <visible>Skin.HasSetting(home.netflix.clearlogo) + Skin.HasSetting(home.classicwidgets)</visible>
-                            <selected>Skin.HasSetting(home.showclearlogoleftbottomclassic)</selected>
-                            <onclick>Skin.ToggleSetting(home.showclearlogoleftbottomclassic)</onclick>
+                            <visible>Skin.HasSetting(view.netflix.clearlogo) + Skin.HasSetting(home.classicwidgets)</visible>
+                            <selected>Skin.HasSetting(view.netflix.clearlogo)</selected>
+                            <onclick>Skin.ToggleSetting(view.netflix.clearlogo)</onclick>
                         </control>
                         <control type="radiobutton" id="9856" description="Always Show Weather Widget">
                             <width>1360</width>

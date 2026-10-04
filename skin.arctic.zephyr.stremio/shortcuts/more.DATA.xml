@@ -2,12 +2,6 @@
 <!-- The "..." menu item's submenu -->
 <shortcuts>
     <shortcut>
-        <label>Search (coming soon)</label>
-        <label2>Settings</label2>
-        <icon>special://skin/extras/icons/search.png</icon>
-        <action>Notification(Search,Coming soon,3000)</action>
-    </shortcut>
-    <shortcut>
         <label>Setup wizard</label>
         <label2>Settings</label2>
         <icon>special://skin/extras/icons/addons.png</icon>

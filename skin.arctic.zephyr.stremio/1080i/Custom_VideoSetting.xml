@@ -67,8 +67,8 @@
                     <include>DefContextButtonGradient</include>
                     <label>31569</label>
                     <align>left</align>
-                    <selected>!Skin.HasSetting(osd.showclearlogotitle)</selected>
-                    <onclick>Skin.ToggleSetting(osd.showclearlogotitle)</onclick>
+                    <selected>!Skin.HasSetting(view.netflix.clearlogo)</selected>
+                    <onclick>Skin.ToggleSetting(view.netflix.clearlogo)</onclick>
                     <visible>Skin.HasSetting(osd.usethemeNewOSDSide)</visible>
                 </control>
                 <control type="radiobutton" id="82">
