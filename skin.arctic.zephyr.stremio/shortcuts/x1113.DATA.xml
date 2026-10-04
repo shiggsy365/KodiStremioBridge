@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<shortcuts>
+    <shortcut>
+        <label2>Cinemeta</label2>
+        <label>Featured Series</label>
+        <action>ActivateWindow(Videos,&quot;plugin://plugin.video.stremiobridge/?action=catalog&amp;addon=cinemeta&amp;type=series&amp;id=imdbRating&quot;,return)</action>
+        <icon>DefaultTVShows.png</icon>
+    </shortcut>
+    <shortcut>
+        <label2>Cinemeta</label2>
+        <label>Popular Series</label>
+        <action>ActivateWindow(Videos,&quot;plugin://plugin.video.stremiobridge/?action=catalog&amp;addon=cinemeta&amp;type=series&amp;id=top&quot;,return)</action>
+        <icon>DefaultTVShows.png</icon>
+    </shortcut>
+</shortcuts>

@@ -18,15 +18,25 @@ _CINEMETA_MANIFEST = {
     "catalogs": [
         {"type": "movie", "id": "top", "name": "Popular", "extra": [{"name": "search"}, {"name": "skip"}]},
         {"type": "series", "id": "top", "name": "Popular", "extra": [{"name": "search"}, {"name": "skip"}]},
+        {"type": "movie", "id": "imdbRating", "name": "Featured", "extra": [{"name": "skip"}]},
+        {"type": "series", "id": "imdbRating", "name": "Featured", "extra": [{"name": "skip"}]},
     ],
 }
+# Plugin URLs can name Cinemeta with this key even when it isn't installed
+# (e.g. the widgets Arctic Zephyr Stremio ships).
+CINEMETA_KEY = "cinemeta"
+
+
+def cinemeta_addon():
+    return InstalledAddon(CINEMETA_URL, Manifest.from_dict(_CINEMETA_MANIFEST))
 
 
 def cinemeta_search_targets(type_=None):
     """``(addon, catalog)`` pairs for searching Cinemeta without it being
     installed (a fallback when the user's own search catalogs find nothing)."""
-    addon = InstalledAddon(CINEMETA_URL, Manifest.from_dict(_CINEMETA_MANIFEST))
-    return [(addon, c) for c in addon.manifest.catalogs if type_ is None or c.type == type_]
+    addon = cinemeta_addon()
+    return [(addon, c) for c in addon.manifest.catalogs
+            if (type_ is None or c.type == type_) and c.extra_prop("search") is not None]
 
 
 def cinemeta_fallback(type_, id_):

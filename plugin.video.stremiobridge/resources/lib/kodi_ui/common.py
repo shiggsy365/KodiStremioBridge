@@ -39,6 +39,19 @@ def debug(msg):
     log(msg, level)
 
 
+# Our own skin: Kodi's info page replaces Extended info, and it has no use for
+# the library export (its menus and widgets come from the add-on directly).
+SKIN_ID = "skin.arctic.zephyr.stremio"
+
+
+def skin_active():
+    return xbmc.getSkinDir() == SKIN_ID
+
+
+def library_enabled():
+    return not skin_active()
+
+
 def profile_dir():
     return xbmcvfs.translatePath(ADDON.getAddonInfo("profile"))
 
@@ -189,7 +202,7 @@ def run_with_progress(message, step_string_id, work):
 CONTEXT_MENU_COLOUR = "FFFF8080"  # light red: marks this add-on's entries among Kodi's own
 
 
-_MENU_PROPERTY = "stremiobridge.menu"
+MENU_PROPERTY = "stremiobridge.menu"  # read back by contextmenu.py
 
 
 def add_context_menu(item, entries):
@@ -200,11 +213,13 @@ def add_context_menu(item, entries):
     if not entries:
         return
     try:
-        menu = json.loads(item.getProperty(_MENU_PROPERTY) or "[]")
+        menu = json.loads(item.getProperty(MENU_PROPERTY) or "[]")
     except ValueError:
         menu = []
-    menu += [[f"[COLOR {CONTEXT_MENU_COLOUR}]{label}[/COLOR]", command] for label, command in entries]
-    item.setProperty(_MENU_PROPERTY, json.dumps(menu))
+    if not skin_active():  # our skin shows our own menu (contextmenu.py): nothing to tell apart
+        entries = [(f"[COLOR {CONTEXT_MENU_COLOUR}]{label}[/COLOR]", command) for label, command in entries]
+    menu += [list(entry) for entry in entries]
+    item.setProperty(MENU_PROPERTY, json.dumps(menu))
     item.addContextMenuItems([tuple(entry) for entry in menu])
 
 

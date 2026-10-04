@@ -145,6 +145,25 @@ Fire TV Stick, from filling up. By default, every 7 days it:
 It waits while something is playing. Change how often it runs and how old artwork must be (0
 removes all cached artwork) in its settings, which also have a *Tidy up now* button.
 
+### Also in the repository: Arctic Zephyr Stremio (skin)
+
+**Arctic Zephyr Stremio** (`skin.arctic.zephyr.stremio`, under *Look and feel → Skin*) is a fork of
+Arctic: Zephyr - Reloaded made for Stremio Bridge, without TMDb Helper or Embuary. Out of the box:
+
+- **Home** shows Continue Watching and your MDBList watchlist; **Movies** and **TV Shows** show
+  Cinemeta's Featured and Popular lists (with your own metadata addon's details, e.g. AIOMetadata).
+  Each opens a hub: Home Hub, and Movies and Series hubs listing all your Stremio Bridge catalogs
+  (kept up to date by Stremio Bridge; *Settings → Update Arctic Zephyr Stremio hubs* refreshes them).
+- Kodi's own info page for everything, with Browse show, Mark watched, Watchlist and
+  "More on Netflix / Prime Video / …" (what's popular on your streaming services) buttons; selecting
+  an actor opens Stremio Bridge's person search.
+- A context menu in a fixed order: Play, Information, Mark as watched, Show Playable Streams,
+  Browse show, watchlist, Play trailer, favourites. Kodi's own Mark as watched also updates your history.
+- A **…** menu item: Kodi settings, with a file browser, Stremio Bridge settings, Reload Skin and Exit.
+
+With this skin, Stremio Bridge's library integration is off (the skin's menus show your catalogs
+directly). Licensed CC BY-NC-SA 3.0 like the original; credits in its `CREDITS.md`.
+
 ## Getting started
 
 1. **Add your addons:** open Stremio Bridge's settings, then **Addons → Manage addons → Add

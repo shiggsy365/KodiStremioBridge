@@ -1,5 +1,6 @@
 """Watch state in the UI: Continue Watching, Next Up, mark watched, MDBList."""
 
+import dataclasses
 import datetime
 import json
 import os
@@ -11,7 +12,7 @@ import xbmcplugin
 from mdblist import MDBListAuthError, MDBListError, sync as mdblist_sync
 from stremio import StremioError
 from stremio.aggregate import gather
-from stremio.meta import cinemeta_fallback, fetch_meta, fetch_meta_data, slim_meta
+from stremio.meta import CINEMETA_URL, cinemeta_fallback, fetch_meta, fetch_meta_data, slim_meta
 from stremio.models import Meta, MetaPreview, external_ids
 from stremio.watchstate import PlaybackEntry, next_episode
 
@@ -26,16 +27,19 @@ from .listitems import (
 from .router import route
 from .views import end_listing, set_content
 
-NEXT_UP_SHOWS = 30
+NEXT_UP_SHOWS = 200
+CONTINUE_PAGE = 20      # Continue Watching shows this many, then a Next page tile
 
 
 # ------------------------------------------------------------------ lists
 
 @route("continue")
-def continue_watching(plugin):
+def continue_watching(plugin, page="1"):
     """Part-watched movies and episodes, newest first; with the setting on, also
-    the next episode of shows you're watching (Netflix-style single row)."""
+    the next episode of shows you're watching (Netflix-style single row).
+    CONTINUE_PAGE at a time."""
     handle = plugin.handle
+    page = max(1, int(page))
     state = get_watchstate()
     rows = state.continue_watching()
     metas = resume_metas(rows)
@@ -50,8 +54,17 @@ def continue_watching(plugin):
                                 _next_episode_item(plugin, meta, video, state, remove_label=L(30192)), True))
     entries.sort(key=lambda entry: entry[0], reverse=True)
     xbmcplugin.setPluginCategory(handle, L(30180))
+    more = len(entries) > page * CONTINUE_PAGE
+    entries = entries[(page - 1) * CONTINUE_PAGE:page * CONTINUE_PAGE]
     items = [item for _, item, _ in entries]
     xbmcplugin.addDirectoryItems(handle, items, len(items))
+    if more:
+        from .browse import tile_art  # browse imports listitems, as does this module
+
+        item = xbmcgui.ListItem(L(30050))
+        item.setArt(tile_art("next_page.png"))
+        item.setProperty("SpecialSort", "bottom")
+        xbmcplugin.addDirectoryItem(handle, plugin.url_for("continue", page=page + 1), item, isFolder=True)
     episodes = sum(1 for _, _, is_episode in entries if is_episode)
     set_content(handle, "episodes" if entries and episodes == len(entries)
                 else "movies" if not episodes else "videos")
@@ -99,6 +112,39 @@ def resume_metas(rows):
                 cache.set(f"slim:{type_}:{owner}:{video_id}", slim, SLIM_SECONDS)
                 metas[(owner, video_id)] = Meta.from_dict(slim, type_)
     return metas
+
+
+def preferred_previews(previews):
+    """Cinemeta's lists come with Cinemeta's own, thinner details (no cast
+    photos, for one). With another meta addon first in line for a type (e.g.
+    AIOMetadata), its details replace them, as everywhere else. Each title's
+    details are cached (slimmed); titles it can't describe stay as they were."""
+    registry, cache = get_registry(), get_cache()
+    preferred = {}
+    for type_ in {p.type for p in previews}:
+        addons = registry.addons_for("meta", type_, "tt0000001")
+        preferred[type_] = bool(addons) and addons[0].transport_url != CINEMETA_URL
+    wanted = [p for p in previews if preferred.get(p.type) and p.id.startswith("tt")]
+    if not wanted:
+        return previews
+    metas, missing = {}, []
+    for preview in wanted:
+        hit = cache.get(f"slim:{preview.type}:{preview.id}:")
+        meta = Meta.from_dict(hit[0], preview.type) if hit else None
+        if meta is not None:
+            metas[preview.id] = meta
+        else:
+            missing.append((preview.id, preview.type))
+    if missing:
+        types = dict(missing)
+        for show_id, data in fetch_meta_dicts(missing).items():
+            slim = slim_meta(data)
+            cache.set(f"slim:{types[show_id]}:{show_id}:", slim, SLIM_SECONDS)
+            meta = Meta.from_dict(slim, types[show_id])
+            if meta is not None:
+                metas[show_id] = meta
+    # The richer meta, keeping the list's own id and type (what its links use).
+    return [dataclasses.replace(metas[p.id], id=p.id, type=p.type) if p.id in metas else p for p in previews]
 
 
 def _resume_item(plugin, row, meta=None):

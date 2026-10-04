@@ -2362,3 +2362,177 @@ def _cache_keys():
 
     db = sqlite3.connect(os.path.join(common.profile_dir(), "cache.db"))
     return [key for (key,) in db.execute("SELECT key FROM cache")]
+
+
+def test_skin_helpers(monkeypatch, listing):
+    """Stand-ins for Embuary Helper used by Arctic Zephyr Stremio."""
+    from kodi_ui import skinhelper
+
+    assert skinhelper.jump_letters(["B", "a", "1"], showall=False) == [("#", True), ("A", True), ("B", True)]
+    assert len(skinhelper.jump_letters(["B", "A"])) == 27 and skinhelper.jump_letters(["A", "A"]) == []
+    assert [skinhelper.sms_action(l) for l in ("A", "S", "Z", "0")] == ["jumpsms2", "jumpsms7", "jumpsms9", "firstpage"]
+    assert skinhelper.sms_action("0", descending=True) == "lastpage"
+
+    props = {"Window.Property(Dialog.1.Label)": "Reset", "Window.Property(Dialog.1.Builtin)": "Skin.Reset(x)",
+             "Window.Property(Dialog.2.Label)": "Choose", "Window.Property(Dialog.2.Builtin)": "Skin.SetImage(x)||SetFocus(5)"}
+    ran, shown = [], []
+    monkeypatch.setattr(skinhelper.xbmc, "getInfoLabel", lambda label: props.get(label, ""))
+    monkeypatch.setattr(skinhelper.xbmc, "executebuiltin", ran.append)
+    monkeypatch.setattr(skinhelper.xbmc, "sleep", lambda ms: None)
+    monkeypatch.setattr(xbmcgui.Dialog, "select",
+                        lambda self, heading, items, preselect=-1, useDetails=False: shown.append(heading) or 1)
+    call("skin_select", handle=-1, header="Fanart")
+    assert shown == ["Fanart"] and ran[:2] == ["Skin.SetImage(x)", "SetFocus(5)"]
+    assert "ClearProperty(Dialog.1.Builtin)" in ran                                  # cleaned up afterwards
+
+
+def test_cinemeta_lists_without_installing_it(server, listing, monkeypatch):
+    from stremio import meta
+
+    monkeypatch.setattr(meta, "CINEMETA_URL", server.url + "/manifest.json")
+    server.routes["/catalog/movie/imdbRating.json"] = {"metas": [{"id": "tt1", "type": "movie", "name": "Featured One"}]}
+    items, ends = listing
+    call("catalog", addon="cinemeta", type="movie", id="imdbRating")
+    assert ends == [True] and [p.get("id") for p, _ in items] == ["tt1"]
+    assert [c.id for _, c in meta.cinemeta_search_targets("movie")] == ["top"]     # Featured can't be searched
+
+
+def test_cinemeta_lists_use_your_meta_addon(server, listing, monkeypatch):
+    from kodi_ui import browse, watching
+    from stremio import meta
+
+    cinemeta = server.url + "/cinemeta/manifest.json"
+    for module in (meta, browse, watching):
+        monkeypatch.setattr(module, "CINEMETA_URL", cinemeta)
+    install(server)  # an addon with meta for tt ids, first in line
+    server.routes["/cinemeta/catalog/movie/top.json"] = {"metas": [
+        {"id": "tt1", "type": "movie", "name": "Thin One"}, {"id": "tt404", "type": "movie", "name": "Unknown"}]}
+    server.routes["/meta/movie/tt1.json"] = {"meta": {
+        "id": "tt1", "type": "movie", "name": "Rich One",
+        "app_extras": {"cast": [{"name": "Tim Robbins", "character": "Andy", "photo": "http://p/t.jpg"}]}}}
+    shown = []
+    monkeypatch.setattr(browse, "preview_items", lambda plugin, previews, state, hide_watched=False:
+                        shown.extend(previews) or [])
+    call("catalog", addon="cinemeta", type="movie", id="top")
+    assert [(p.id, p.name) for p in shown] == [("tt1", "Rich One"), ("tt404", "Unknown")]
+    assert shown[0].people[0].photo == "http://p/t.jpg"
+
+
+def test_skin_hub_files(server, listing):
+    from kodi_ui import skinhelper
+
+    server.routes["/manifest.json"] = HUB_ADDON
+    call("add_addon", handle=-1, url=server.url)
+    files = skinhelper.skin_hub_files(common.get_registry(),
+                                      lambda addon, catalog: f"plugin://x/?id={catalog.id}&t={catalog.type}")
+    assert sorted(files) == ["skin.arctic.zephyr.stremio-x1112.DATA.xml", "skin.arctic.zephyr.stremio-x1113.DATA.xml"]
+    import xml.etree.ElementTree as ET
+    movies = ET.fromstring(files["skin.arctic.zephyr.stremio-x1112.DATA.xml"])
+    assert [s.findtext("label") for s in movies] == ["Trending", "Popular"]
+    assert movies[0].findtext("action") == 'ActivateWindow(Videos,"plugin://x/?id=trending&t=movie",return)'
+    assert movies[0].findtext("icon") == "DefaultMovies.png"
+
+
+def test_watched_target_reads_our_paths(monkeypatch):
+    from kodi_ui import service
+
+    monkeypatch.setattr(service, "ADDON_ID", "plugin.video.stremiobridge")
+    base = "plugin://plugin.video.stremiobridge/"
+    assert service.watched_target(f"{base}?action=play&type=movie&id=tt1") == ("movie", "tt1", None)
+    assert service.watched_target(f"{base}?action=play&type=series&id=tt2:1:3&meta=tt2") == ("series", "tt2:1:3", "tt2")
+    assert service.watched_target(f"{base}?action=extended_info&type=series&id=tt2&video=tt2:1:3") == (
+        "series", "tt2:1:3", "tt2")
+    assert service.watched_target(f"{base}?action=catalog&type=movie&id=top") is None
+    assert service.watched_target("plugin://plugin.video.other/?action=play&type=movie&id=tt1") is None
+
+
+def test_kodi_watched_follower_reacts_to_kodis_menu(monkeypatch):
+    from kodi_ui import service
+
+    monkeypatch.setattr(service, "ADDON_ID", "plugin.video.stremiobridge")
+    path = "plugin://plugin.video.stremiobridge/?action=play&type=movie&id=tt1"
+    kodi = {"menu": False, "count": 0, "now": 100.0}
+    monkeypatch.setattr(service.xbmc, "getCondVisibility", lambda cond: kodi["menu"])
+    monkeypatch.setattr(service.xbmc, "getInfoLabel",
+                        lambda label: {"ListItem.FileNameAndPath": path, "ListItem.PlayCount": "1"}[label])
+    monkeypatch.setattr(service, "kodi_playcount", lambda p: kodi["count"])
+    calls = []
+    monkeypatch.setattr(service, "jsonrpc", lambda method, **params: calls.append((method, params))
+                        or kodi.update(count=params["playcount"]))
+    monkeypatch.setattr(service.time, "time", lambda: kodi["now"])
+    worker = FakeWorker()
+    follower = service.KodiWatchedFollower(worker)
+
+    def step(menu=False, count=None, seconds=1.0):
+        kodi["menu"] = menu
+        if count is not None:
+            kodi["count"] = count
+        kodi["now"] += seconds
+        follower.tick()
+
+    step()                        # browsing: our item focused, ticked watched; Kodi's count follows
+    assert calls == [("Files.SetFileDetails", {"file": path, "media": "video", "playcount": 1})]
+    step(menu=True)               # context menu opens
+    step(menu=False, count=0)     # Kodi's Mark as unwatched, menu closes
+    step()                        # settling
+    assert worker.jobs == []
+    step()
+    assert worker.jobs == [("follow_kodi_watched", (path, False))]
+    step(menu=True)
+    step(menu=False)              # menu closed without changing anything
+    step(seconds=2)
+    assert len(worker.jobs) == 1
+
+
+def test_context_menu_order(monkeypatch):
+    from kodi_ui import contextmenu, router
+
+    monkeypatch.setattr(contextmenu, "ADDON_ID", "plugin.video.stremiobridge")
+    labels = {208: "Play", 19033: "Information", 14076: "Add to favourites", 14077: "Remove from favourites"}
+    monkeypatch.setattr(contextmenu.xbmc, "getLocalizedString", lambda n: labels[n])
+    plugin = router.Plugin(["plugin://plugin.video.stremiobridge/", "-1", ""])
+    path = "plugin://plugin.video.stremiobridge/?action=play&type=series&id=tt2%3A1%3A3&meta=tt2"
+    own = [["[COLOR FFFF8080]Play trailer[/COLOR]", "RunPlugin(plugin://x/?action=play_trailer&type=series&id=tt2)"],
+           ["Add to watchlist", "RunPlugin(plugin://x/?action=watchlist_add&type=series&id=tt2)"],
+           ["Browse show", "ActivateWindow(Videos,plugin://x/?action=meta&type=series&id=tt2,return)"],
+           ["Extended info", "RunPlugin(plugin://x/?action=extended_info&type=series&id=tt2)"],
+           ["Show Playable Streams", "PlayMedia(plugin://x/?action=play&type=series&id=tt2:1:3&pick=1)"],
+           ["Remove from Continue Watching", "RunPlugin(plugin://x/?action=dismiss&id=tt2)"],
+           ["Mark as watched", "RunPlugin(plugin://x/?action=set_watched&type=series&id=tt2:1:3&value=1&meta=tt2)"]]
+    entries = contextmenu.menu_entries(plugin, path, own, favourite=False)
+    assert [label for label, _ in entries] == [
+        "Play", "Information", "Mark as watched", "Show Playable Streams", "Browse show", "Add to watchlist",
+        "Remove from Continue Watching", "Play trailer", "Add to favourites"]
+    assert entries[0][1] == f"PlayMedia({path})"
+    assert "action=extended_info" in entries[1][1] and "video=tt2%3A1%3A3" in entries[1][1]
+    assert contextmenu.item_target("plugin://plugin.video.stremiobridge/?action=catalog&type=movie&id=top") is None
+
+
+def test_continue_watching_pages(server, listing, settings, monkeypatch):
+    from kodi_ui import watching
+
+    install(server)
+    clock = {"now": 1000.0}
+    monkeypatch.setattr(common, "get_watchstate", lambda: WatchStateAt(clock))
+    monkeypatch.setattr(watching, "CONTINUE_PAGE", 2)
+    state = common.get_watchstate()
+    for n in range(5):
+        clock["now"] += 10
+        state.record(PlaybackEntry(video_id=f"tt{n}", type="movie", title=f"M{n}"), 600, 6000)
+    items, _ = listing
+    call("continue")
+    assert [p.get("id") or p.get("page") for p, _ in items] == ["tt4", "tt3", "2"]     # then a Next page tile
+    items.clear()
+    call("continue", page="3")
+    assert [p.get("id") for p, _ in items] == ["tt0"]
+
+
+def test_streaming_services_for_a_title(server, monkeypatch):
+    from stremio import streaming
+
+    monkeypatch.setattr(streaming, "STREAMING_URL", server.url + "/streaming/manifest.json")
+    for service, _ in streaming.SERVICES:
+        server.routes[f"/streaming/catalog/movie/{service}.json"] = {"metas": [{"id": "tt9", "type": "movie", "name": "X"}]
+                                                                    if service in ("dnp", "hbm") else []}
+    assert streaming.services_for(common.get_client(), "movie", "tt9") == [("dnp", "Disney+"), ("hbm", "HBO Max")]
+    assert streaming.services_for(common.get_client(), "movie", "kitsu:1") == []

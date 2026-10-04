@@ -21,7 +21,8 @@ from stremio import StremioError
 from stremio.library import WATCHLIST
 
 from .common import (
-    ADDON, L, busy, get_library, get_mdblist, get_watchstate, jsonrpc, log, notify, refresh_container,
+    ADDON, L, busy, get_library, get_mdblist, get_watchstate, jsonrpc, library_enabled, log, notify,
+    refresh_container,
 )
 from .details import load_meta
 from .router import route
@@ -94,8 +95,18 @@ def add_sources():
     tree.write(path, encoding="utf-8", xml_declaration=False)
 
 
+def _library_off():
+    """True (and says so) when library integration is off for our skin."""
+    if library_enabled():
+        return False
+    xbmcgui.Dialog().ok(L(30260), L(30378))
+    return True
+
+
 @route("library_setup")
 def library_setup(plugin):
+    if _library_off():
+        return
     if sources_configured():
         xbmcgui.Dialog().ok(L(30260), L(30274))
         return
@@ -132,7 +143,7 @@ def add_title(type_, id_, source="manual", meta=None):
 
 @route("library_add")
 def library_add(plugin, type, id):
-    if not _ensure_setup():
+    if _library_off() or not _ensure_setup():
         return
     with busy():
         folder = add_title(type, id)
@@ -202,7 +213,7 @@ def update_library():
 
 @route("library_update")
 def library_update(plugin):
-    if not _ensure_setup():
+    if _library_off() or not _ensure_setup():
         return
     with busy():
         summary = update_library()
@@ -289,7 +300,7 @@ def in_library(type_, id_):
 
 def library_menu(plugin, type_, id_):
     """Context-menu entry: Add to / Remove from library (movies and shows)."""
-    if type_ not in LIBRARY_TYPES:
+    if type_ not in LIBRARY_TYPES or not library_enabled():
         return []
     if in_library(type_, id_):
         return [(L(30267), plugin.run_url("library_remove", type=type_, id=id_))]

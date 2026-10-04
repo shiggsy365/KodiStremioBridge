@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.11.1"
+       version="0.11.2"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,14 +23,12 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.11.1 - Faster Continue Watching and Next Up (results reused until you watch something); smaller, compressed cache capped at 25 MB.
+        <news>v0.11.2 - Arctic Zephyr Stremio support: skin helpers, hubs, Cinemeta and streaming-service lists, its own context menu and info page buttons; Kodi's info page replaces Extended info and library integration is off. Kodi's Mark as watched updates your history. Continue Watching pages 20 at a time.
+v0.11.1 - Faster Continue Watching and Next Up (results reused until you watch something); smaller, compressed cache capped at 25 MB.
 v0.11.0 - New stream page: cards with badges, filter chips, no logos. Extended info for episodes. Selecting can open Extended info for episodes too. Fixed context menu entries overwriting each other, and settings buttons on Fire TV.
 v0.10.3 - With autoplay on: "Show Playable Streams" in context menus and a Streams tile in Extended info. Removing an episode from Continue Watching also removes its show from Next Up until you watch more.
 v0.10.2 - Continue Watching shows descriptions, cast and details.
-v0.10.1 - Create, rename and remove hubs (Organise catalogs context menu); settings buttons open reliably.
-v0.10.0 - Hubs (Movies, TV Shows, Anime, More) with Genres; Organise catalogs; tidy names; poster tiles.
-v0.9.0 - Widgets folder, combined Continue Watching, time left, show progress, hide watched, pre-warming, open on next episode.
-v0.8.7 - Actor/director searches: AIOMetadata people search when enabled, otherwise Cinemeta added.</news>
+v0.9.0 - Widgets folder, combined Continue Watching, time left, show progress, hide watched, pre-warming, open on next episode.</news>
     </extension>
 </addon>
 <addon id="script.shiggsy365.globalsearch"
@@ -108,6 +106,40 @@ v1.0.0 - First release.</news>
         <assets>
             <icon>resources/icon.png</icon>
         </assets>
+    </extension>
+</addon>
+<addon id="skin.arctic.zephyr.stremio" version="1.0.0" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
+    <requires>
+        <import addon="xbmc.gui" version="5.17.0"/>
+        <import addon="plugin.video.stremiobridge" version="0.11.2"/>
+        <import addon="script.skinshortcuts" version="0.4.0"/>
+        <import addon="script.image.resource.select" version="0.0.5"/>
+        <import addon="resource.images.weathericons.white" version="0.0.6"/>
+    </requires>
+    <extension point="xbmc.gui.skin" defaultthemename="Textures.xbt" debugging="false" effectslowdown="1">
+        <res width="1920" height="1080" aspect="16:9" default="true" folder="1080i" />
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <license>Creative Commons Non Commercial 3.0 License</license>
+                <source>https://github.com/shiggsy365/KodiStremioBridge</source>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+            <screenshot>resources/screenshot-01.jpg</screenshot>
+            <screenshot>resources/screenshot-02.jpg</screenshot>
+            <screenshot>resources/screenshot-03.jpg</screenshot>
+            <screenshot>resources/screenshot-04.jpg</screenshot>
+            <screenshot>resources/screenshot-05.jpg</screenshot>
+            <screenshot>resources/screenshot-06.jpg</screenshot>
+            <screenshot>resources/screenshot-07.jpg</screenshot>
+            <screenshot>resources/screenshot-08.jpg</screenshot>
+            <screenshot>resources/screenshot-09.jpg</screenshot>
+            <screenshot>resources/screenshot-10.jpg</screenshot>
+        </assets>
+        <news>v1.0.0 - Forked from Arctic: Zephyr - Reloaded 3.0.3 (beatmasterRS, upstream commit 27b7bd7) and renamed. Removed the CJK font set (Inter CJK, 54 MB) to keep the skin small. No TMDb Helper or Embuary. Ready-made Home, Movies and TV Shows menus and hubs; Kodi's info page with Browse show, Mark watched, Watchlist and streaming-service buttons; actors open Stremio Bridge's person search; Stremio Bridge's context menu; a ... settings menu.</news>
+        <summary lang="en_GB">Arctic: Zephyr - Reloaded, made for Stremio Bridge.</summary>
+        <description lang="en_GB">A fork of Arctic: Zephyr - Reloaded by beatmasterRS, itself based on Arctic: Zephyr by jurialmunkey, made to work with Stremio Bridge, Global Search and Dispatcharr Bridge. Clean, minimal and light, with the layout of Reloaded. Licensed under CC BY-NC-SA 3.0, like the original.</description>
     </extension>
 </addon>
 <addon id="repository.shiggsy365"

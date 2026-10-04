@@ -13,7 +13,9 @@ import xbmcplugin
 
 from stremio import StremioError
 from stremio.catalog import catalog_family, catalog_slot, fetch_catalog, next_page, resolve_catalog, with_default_filters
+from stremio.meta import CINEMETA_KEY, CINEMETA_URL, cinemeta_addon
 from stremio.refresh import refresh_manifests
+from stremio.streaming import STREAMING_KEY, STREAMING_URL, streaming_addon
 
 from .common import ADDON, L, get_client, get_registry, get_watchstate, log, notify
 from .listitems import content_for, preview_items
@@ -24,6 +26,10 @@ TYPE_LABELS = {"movie": 30040, "series": 30041, "channel": 30042, "tv": 30043, "
 FILTER_PREFIX = "f_"
 # Re-fetch a manifest on demand (catalog missing, or a numbered one empty) at most this often.
 ON_DEMAND_REFRESH_AGE = 600
+
+# Plugin URLs can name these by key: Cinemeta (Arctic Zephyr Stremio's widgets)
+# and Streaming Catalogs (its info page), installed or not.
+BUILT_IN = {CINEMETA_KEY: cinemeta_addon, STREAMING_KEY: streaming_addon}
 
 
 def type_label(type_):
@@ -80,14 +86,16 @@ def catalog_view(plugin, addon, type, id, skip="0", ps=None, only=None, slot=Non
     try:
         installed = registry.get(addon)
     except StremioError:
-        return _fail(handle, L(30052, name=id))
+        if addon not in BUILT_IN:
+            return _fail(handle, L(30052, name=id))
+        installed = BUILT_IN[addon]()  # lists that work without the addon being installed
     slot, of = (int(slot), int(of)) if slot is not None and of is not None else (None, None)
 
     def resolve():
         return resolve_catalog(installed, type, id, slot, of)
 
     catalog = resolve()
-    if catalog is None and _refresh_if_due(registry, installed):
+    if catalog is None and addon not in BUILT_IN and _refresh_if_due(registry, installed):
         installed = registry.get(addon)
         catalog = resolve()
     if catalog is None:
@@ -97,7 +105,7 @@ def catalog_view(plugin, addon, type, id, skip="0", ps=None, only=None, slot=Non
         state = {FILTER_PREFIX + k: v for k, v in filters.items()}
         state["only"] = only
         state.update(changes)
-        return plugin.url_for("catalog", addon=installed.key, type=type, id=catalog.id,
+        return plugin.url_for("catalog", addon=addon, type=type, id=catalog.id,
                               **slot_params(installed, catalog), **state)
 
     title = installed.display_name(catalog, tidy=ADDON.getSettingBool("tidy_names")) + "".join(
@@ -137,11 +145,15 @@ def catalog_view(plugin, addon, type, id, skip="0", ps=None, only=None, slot=Non
             item = xbmcgui.ListItem(label)
             item.setArt(tile_art("filter_genre.png"))
             item.setProperty("SpecialSort", "top")
-            target = plugin.url_for("choose_filter", addon=installed.key, type=type, id=catalog.id, name=extra.name,
+            target = plugin.url_for("choose_filter", addon=addon, type=type, id=catalog.id, name=extra.name,
                                     only=only, **{FILTER_PREFIX + k: v for k, v in filters.items()})
             xbmcplugin.addDirectoryItem(handle, target, item, isFolder=False)
 
     shown = [p for p in previews if p.type == only] if only else previews
+    if installed.transport_url in (CINEMETA_URL, STREAMING_URL):
+        from .watching import preferred_previews  # watching imports listitems, as does this
+
+        shown = preferred_previews(shown)
     items = preview_items(plugin, shown, get_watchstate(), hide_watched=ADDON.getSettingBool("hide_watched"))
     xbmcplugin.addDirectoryItems(handle, items, len(items))
 

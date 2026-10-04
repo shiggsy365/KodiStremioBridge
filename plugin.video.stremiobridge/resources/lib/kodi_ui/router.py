@@ -41,7 +41,7 @@ class Plugin:
 def run(argv):
     # Handler modules register themselves on import.
     from . import (  # noqa: F401
-        details, hubs, infodialog, library, manage, menus, player, search, searchwindow, views, watching,
+        contextmenu, details, hubs, infodialog, library, manage, menus, player, search, searchwindow, skinhelper, views, watching,
         watchlist,
     )
     from .common import log

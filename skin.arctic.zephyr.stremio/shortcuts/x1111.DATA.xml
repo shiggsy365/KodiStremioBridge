@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<shortcuts>
+    <shortcut>
+        <label2>Home Hub</label2>
+        <label>Continue Watching</label>
+        <action>ActivateWindow(Videos,&quot;plugin://plugin.video.stremiobridge/?action=continue&quot;,return)</action>
+        <icon>DefaultInProgressShows.png</icon>
+    </shortcut>
+    <shortcut>
+        <label2>Home Hub</label2>
+        <label>MDBList Watchlist</label>
+        <action>ActivateWindow(Videos,&quot;plugin://plugin.video.stremiobridge/?action=watchlist&quot;,return)</action>
+        <icon>DefaultVideoPlaylists.png</icon>
+    </shortcut>
+</shortcuts>

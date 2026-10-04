@@ -439,6 +439,16 @@
                         <close>true</close>
                     </control>
                 </setting>
+                <setting id="update_skin_hubs" type="action" label="30376" help="30377">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=skin_hubs)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
                 <setting id="select_opens_info" type="boolean" label="30323" help="30324">
                     <level>0</level>
                     <default>false</default>

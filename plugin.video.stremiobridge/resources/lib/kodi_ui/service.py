@@ -22,8 +22,8 @@ from stremio.catalog import fetch_catalog, with_default_filters
 from stremio.watchstate import RESUME, WATCHED, next_episode
 
 from .common import (
-    ADDON, ADDON_ID, L, get_client, get_mdblist, get_registry, get_watchstate, log, notify, notify_widgets,
-    plugin_url, refresh_when_idle,
+    ADDON, ADDON_ID, L, get_client, get_mdblist, get_registry, get_watchstate, jsonrpc, log, notify,
+    notify_widgets, plugin_url, refresh_when_idle,
     take_announced_playback, take_announcement,
 )
 
@@ -213,15 +213,161 @@ def sync_mdblist(force=False):
 
 def sync_library():
     """Bring Kodi's library copies of exported titles in line with our watch state."""
+    from .common import library_enabled
     from .library import sync_library_watched
 
-    sync_library_watched()
+    if library_enabled():
+        sync_library_watched()
 
 
 def update_library():
+    from .common import library_enabled
     from .library import update_library as update
 
-    update()
+    if library_enabled():
+        update()
+
+
+# ------------------------------------------------------------------ Kodi's own "Mark as watched"
+
+def watched_target(path):
+    """``(type, video id, show id or None)`` for one of our playable items' paths
+    (its play or Extended info link), else None."""
+    from urllib.parse import parse_qsl, urlsplit
+
+    if not path.startswith(f"plugin://{ADDON_ID}/"):
+        return None
+    query = dict(parse_qsl(urlsplit(path).query))
+    action, type_, id_ = query.get("action"), query.get("type"), query.get("id")
+    if not type_ or not id_:
+        return None
+    if action == "play":
+        return type_, id_, query.get("meta")
+    if action == "extended_info":
+        return (type_, query["video"], id_) if query.get("video") else (type_, id_, None)
+    return None
+
+
+def follow_kodi_watched(path, watched):
+    """Record a watched change Kodi made to one of our items."""
+    from .watching import mark_watched
+
+    target = watched_target(path)
+    if target is None:
+        return
+    type_, video_id, meta_id = target
+    row = get_watchstate().get(video_id)
+    if bool(row and row.watched) != watched:
+        log(f"Kodi marked {video_id} {'watched' if watched else 'unwatched'}: following")
+        if mark_watched(type_, video_id, watched, meta_id if meta_id != video_id else None):
+            refresh_when_idle()
+
+
+def kodi_playcount(path):
+    """Kodi's own play count for a plugin path (its video database), 0 if none."""
+    import glob
+    import os
+    import sqlite3
+
+    import xbmcvfs
+
+    folder = xbmcvfs.translatePath("special://database/")
+    databases = sorted(glob.glob(os.path.join(folder, "MyVideos*.db")),
+                       key=lambda name: int("".join(c for c in os.path.basename(name) if c.isdigit()) or 0))
+    if not databases:
+        return 0
+    base = path.partition("?")[0]  # Kodi keeps plugin paths whole as the file name
+    try:
+        with sqlite3.connect(f"file:{databases[-1]}?mode=ro", uri=True, timeout=2) as db:
+            row = db.execute("SELECT files.playCount FROM files JOIN path ON files.idPath = path.idPath "
+                             "WHERE path.strPath = ? AND files.strFilename = ?", (base, path)).fetchone()
+    except sqlite3.Error as exc:
+        log(f"Kodi's video database unreadable: {exc}")
+        return 0
+    return int(row[0] or 0) if row else 0
+
+
+def align_kodi_playcount(path, watched):
+    """Make Kodi's play count for our item agree with the watched tick we gave
+    it, so either of Kodi's marks then shows up as a change."""
+    if (kodi_playcount(path) > 0) != watched:
+        jsonrpc("Files.SetFileDetails", file=path, media="video", playcount=1 if watched else 0)
+
+
+class KodiWatchedFollower:
+    """Kodi's context menu has its own Mark as watched / unwatched, which only
+    changes Kodi's copy (its video database). Kodi's count for the focused item
+    is kept in step with ours, then compared before and after a context menu; a
+    change is recorded here too, so MDBList, Continue Watching and Next Up follow. Checked once a
+    second."""
+
+    SETTLE = 1.5  # Kodi writes the change shortly after the menu closes
+
+    def __init__(self, worker):
+        self.worker = worker
+        self.focused = None     # our item's path, as of the last check without a menu
+        self.pending = None     # (path, Kodi's play count when the menu opened)
+        self.menu_open = False
+        self.check_at = None
+
+    def tick(self):
+        if xbmc.getCondVisibility("Window.IsActive(contextmenu)"):
+            if not self.menu_open:
+                self.menu_open = True
+                self.pending = (self.focused, kodi_playcount(self.focused)) if self.focused else None
+            return
+        if self.menu_open:
+            self.menu_open = False
+            self.check_at = time.time() + self.SETTLE if self.pending else None
+            return
+        if self.check_at is not None:
+            if time.time() < self.check_at:
+                return
+            self.check_at = None
+            path, before = self.pending
+            after = kodi_playcount(path)
+            if (after > 0) != (before > 0):
+                self.worker.submit(follow_kodi_watched, path, after > 0)
+        path = xbmc.getInfoLabel("ListItem.FileNameAndPath")
+        path = path if watched_target(path) else None
+        if path and path != self.focused:
+            align_kodi_playcount(path, (xbmc.getInfoLabel("ListItem.PlayCount") or "0") != "0")
+        self.focused = path
+
+
+class MenuSwap(threading.Thread):
+    """With Arctic Zephyr Stremio: Kodi's context menu on one of our titles is
+    swapped for ours (contextmenu.py), whose entries come in our order. Kodi's
+    menu can't say which item it's for, so the focused item is tracked here."""
+
+    POLL = 0.1
+
+    def __init__(self, monitor):
+        super().__init__(name="stremiobridge-menus", daemon=True)
+        self.monitor = monitor
+
+    def run(self):
+        import xbmcgui
+
+        from .common import skin_active
+        from .contextmenu import OPEN_PROPERTY, item_target
+
+        home = xbmcgui.Window(10000)
+        focused, active, checked = None, False, 0.0
+        while not self.monitor.waitForAbort(self.POLL):
+            if time.time() - checked > 5:
+                active, checked = skin_active(), time.time()
+            if not active:
+                continue
+            if xbmc.getCondVisibility("Window.IsActive(contextmenu)"):
+                if focused and not home.getProperty(OPEN_PROPERTY):
+                    home.setProperty(OPEN_PROPERTY, "1")  # ours is on its way (the route clears it)
+                    xbmc.executebuiltin("Dialog.Close(contextmenu,true)")
+                    xbmc.executebuiltin(f"RunPlugin({plugin_url('context_menu', path=focused)})")
+                    focused = None
+                continue
+            path = xbmc.getInfoLabel("ListItem.FileNameAndPath")
+            focused = path if item_target(path) else None
 
 
 class LibraryMonitor(xbmc.Monitor):
@@ -324,16 +470,28 @@ def prewarm():
     log(f"Pre-warmed {len(catalogs) - len(errors)} catalogs, Continue Watching, Next Up and the watchlist")
 
 
+def refresh_skin_hubs():
+    """Arctic Zephyr Stremio: keep its Movies/Series hubs in step with the catalogs."""
+    from .skinhelper import update_skin_hubs
+
+    if update_skin_hubs() and not xbmc.Player().isPlaying():
+        xbmc.executebuiltin("ReloadSkin()")
+
+
 def run():
     worker = Worker()
     monitor = LibraryMonitor(worker)
     tracker = Tracker(worker)
+    follower = KodiWatchedFollower(worker)
+    MenuSwap(monitor).start()
     next_sync = time.time() + 60             # first syncs shortly after Kodi starts
     next_library = time.time() + 120
     next_prewarm = time.time() + 180
+    next_skin_hubs = time.time() + 20
     log("Service started")
     while not monitor.waitForAbort(1):
         tracker.tick()
+        follower.tick()
         if time.time() >= next_sync:
             next_sync = time.time() + max(1, ADDON.getSettingInt("mdblist_sync_hours")) * 3600
             worker.submit(sync_mdblist)
@@ -343,5 +501,8 @@ def run():
         if time.time() >= next_prewarm:
             next_prewarm = time.time() + PREWARM_EVERY
             worker.submit(prewarm)
+        if next_skin_hubs and time.time() >= next_skin_hubs:
+            next_skin_hubs = None  # once per start: the hubs follow the catalogs you have
+            worker.submit(refresh_skin_hubs)
     worker.stop()
     log("Service stopped")

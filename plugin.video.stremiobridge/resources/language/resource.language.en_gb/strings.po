@@ -569,6 +569,14 @@ msgctxt "#30375"
 msgid "Lang"
 msgstr ""
 
+msgctxt "#30376"
+msgid "Update Arctic Zephyr Stremio hubs"
+msgstr ""
+
+msgctxt "#30377"
+msgid "Fill the skin's Movies Hub and Series Hub with your movie and series catalogs (done automatically when Kodi starts if they changed)."
+msgstr ""
+
 # Usability
 
 msgctxt "#30320"
@@ -1111,4 +1119,8 @@ msgstr ""
 
 msgctxt "#30112"
 msgid "Write detailed request information to the Kodi log."
+msgstr ""
+
+msgctxt "#30378"
+msgid "Library integration is off while Arctic Zephyr Stremio is your skin: its menus and widgets show your catalogs directly."
 msgstr ""

@@ -5,7 +5,7 @@ import xbmcgui
 
 from stremio.models import CAST
 
-from .common import ADDON, L, add_context_menu
+from .common import ADDON, L, add_context_menu, skin_active
 
 # Stremio type -> (Kodi media type, container content)
 _KODI_TYPES = {
@@ -108,13 +108,18 @@ def item_menu(plugin, type_, id_, watched, watched_params=None, show_id=None, tr
     show an episode belongs to (cast, trailer and "Browse show" use it).
     `partly_watched` (a show with some episodes watched) offers both marks."""
     owner = show_id or id_
-    menu = [watched_menu(plugin, watched, type_, id_, **(watched_params or {}))]
+    params = watched_params or {}
+    # With our skin, Kodi's own Mark as watched covers movies and episodes (the
+    # service passes it on); it doesn't offer it for shows and seasons.
+    kodi_marks = skin_active() and (type_ in PLAYABLE_TYPES or bool(show_id) or bool(params.get("meta")))
+    menu = [] if kodi_marks else [watched_menu(plugin, watched, type_, id_, **params)]
     if partly_watched and not watched:
         menu.append(watched_menu(plugin, True, type_, id_, **(watched_params or {})))
     if browse_show and show_id:
         menu.append((L(30064), f"ActivateWindow(Videos,{plugin.url_for('meta', type=type_, id=show_id)},return)"))
     episode = id_ if show_id and id_ != show_id else None  # an episode: its own page, within the show's
-    menu.append((L(30220), plugin.run_url("extended_info", type=type_, id=owner, video=episode)))
+    if not skin_active():  # with our skin, Kodi's own Information entry shows the same page
+        menu.append((L(30220), plugin.run_url("extended_info", type=type_, id=owner, video=episode)))
     from .library import library_menu  # library imports details, which imports this module
 
     menu += library_menu(plugin, type_, owner)
