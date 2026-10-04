@@ -41,6 +41,8 @@ def settings(monkeypatch):
     monkeypatch.setattr(common.ADDON, "getSettingBool", lambda key: bool(values[key]))
     monkeypatch.setattr(common.ADDON, "getSettingInt", lambda key: int(values[key]))
     monkeypatch.setattr(common.ADDON, "getSettingString", lambda key: str(values[key]))
+    monkeypatch.setattr(common.ADDON, "setSettingString", lambda key, value: values.__setitem__(key, value))
+    monkeypatch.setattr(common.ADDON, "setSettingBool", lambda key, value: values.__setitem__(key, bool(value)))
     return values
 
 
@@ -2556,3 +2558,32 @@ def test_setup_wizard_adds_streams_and_metadata(server, monkeypatch):
     assert [a.name for a in common.get_registry().all()] == ["Example Streams", "Example Meta"]
     assert answers == {"yesno": [], "input": []}                 # no more addons; MDBList key left empty
     assert wizard.providers("stream") == ["Example Streams"] and wizard.providers("meta") == ["Example Meta"]
+
+
+def test_setup_wizard_syncs_mdblist_key_then_reloads_skin(settings, monkeypatch):
+    from contextlib import nullcontext
+    from kodi_ui import watching, wizard
+
+    class FakeMDBList:
+        def last_activities(self):
+            return {"server_time": "now"}
+
+    answers = {"yesno": [True, False], "input": ["KEY"]}
+    events = []
+    monkeypatch.setattr(xbmcgui.Dialog, "yesno", lambda self, heading, text, **kw: answers["yesno"].pop(0))
+    monkeypatch.setattr(xbmcgui.Dialog, "input", lambda self, heading, defaultt="", **kw: answers["input"].pop(0))
+    monkeypatch.setattr(xbmcgui.Dialog, "ok", lambda self, heading, text: None)
+    monkeypatch.setattr(xbmcgui.Dialog, "notification", lambda self, *a, **kw: None)
+    monkeypatch.setattr(wizard, "skin_active", lambda: True)
+    monkeypatch.setattr(wizard, "busy", lambda: nullcontext())
+    monkeypatch.setattr(wizard, "_addon_step", lambda *a, **kw: 0)
+    monkeypatch.setattr(wizard, "get_mdblist", lambda: FakeMDBList())
+    monkeypatch.setattr(watching, "run_mdblist_sync", lambda force=False: events.append(("sync", force)))
+    monkeypatch.setattr(xbmc, "executebuiltin", lambda cmd, *a: events.append(cmd))
+
+    call("setup_wizard", handle=-1)
+
+    assert settings["mdblist_enabled"] is True and settings["mdblist_api_key"] == "KEY"
+    assert ("sync", True) in events
+    assert "ReloadSkin()" in events
+    assert events.index(("sync", True)) < events.index("ReloadSkin()")

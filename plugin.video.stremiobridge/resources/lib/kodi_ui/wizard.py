@@ -51,15 +51,15 @@ def setup_wizard(plugin, auto=""):
     added += _addon_step(META, L(30387), L(30388), required=False)
     while dialog.yesno(L(30380), L(30389)):
         added += _ask_addon(L(30390), None)
-    _mdblist_step()
+    mdblist_synced = _mdblist_step()
 
     if added and skin_active():
         from .skinhelper import update_skin_hubs
 
         update_skin_hubs(force=True)
     dialog.ok(L(30380), L(30391))
-    if added and skin_active():
-        xbmc.executebuiltin("ReloadSkin()")  # menus and widgets pick up the new catalogs
+    if (added or mdblist_synced) and skin_active():
+        xbmc.executebuiltin("ReloadSkin()")  # menus and widgets pick up new catalogs and MDBList data
 
 
 def _addon_step(resource, heading, intro, required):
@@ -131,6 +131,14 @@ def _mdblist_step():
             continue
         except MDBListError as exc:
             dialog.ok("MDBList", f"{L(30214)}\n{exc}")  # kept: probably MDBList being down
-            return
+            return False
+        try:
+            from .watching import run_mdblist_sync
+
+            with busy():
+                run_mdblist_sync(force=True)
+        except (MDBListError, StremioError) as exc:
+            dialog.ok("MDBList", f"{L(30214)}\n{exc}")
+            return False
         dialog.notification("MDBList", L(30215), ADDON.getAddonInfo("icon"), 3000)
-        return
+        return True
