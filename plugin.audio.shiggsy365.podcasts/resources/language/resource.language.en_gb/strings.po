@@ -1,0 +1,224 @@
+# Kodi Media Center language file
+# Addon Name: Podcasts
+# Addon id: plugin.audio.shiggsy365.podcasts
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.audio.shiggsy365.podcasts\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30000"
+msgid "Podcasts"
+msgstr ""
+
+msgctxt "#30001"
+msgid "My Podcasts"
+msgstr ""
+
+msgctxt "#30002"
+msgid "My Latest Episodes"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Trending Podcasts"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Top Podcasts"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30006"
+msgid "New search..."
+msgstr ""
+
+msgctxt "#30007"
+msgid "Search podcasts"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Clear search history"
+msgstr ""
+
+msgctxt "#30009"
+msgid "No podcasts yet. Subscribe to one from Trending, Top or Search."
+msgstr ""
+
+msgctxt "#30010"
+msgid "Nothing new. Episodes you start, and new episodes from your podcasts, show here."
+msgstr ""
+
+msgctxt "#30011"
+msgid "Subscribe"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Unsubscribe"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Mark as played"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Mark as unplayed"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Refresh episodes"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Subscribed to {title}"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Unsubscribed from {title}"
+msgstr ""
+
+msgctxt "#30018"
+msgid "Resume from {time}"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Play from the start"
+msgstr ""
+
+msgctxt "#30020"
+msgid "{time} left"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Sync now"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Synced: {sent} sent, {received} received"
+msgstr ""
+
+msgctxt "#30023"
+msgid "Sync failed: {error}"
+msgstr ""
+
+msgctxt "#30024"
+msgid "Go to podcast"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Couldn't load this: {error}"
+msgstr ""
+
+msgctxt "#30026"
+msgid "No results"
+msgstr ""
+
+msgctxt "#30027"
+msgid "Remove from search history"
+msgstr ""
+
+msgctxt "#30028"
+msgid "Sync isn't set up. Turn it on in the add-on settings."
+msgstr ""
+
+msgctxt "#30029"
+msgid "Top podcasts in {genre}"
+msgstr ""
+
+msgctxt "#30100"
+msgid "General"
+msgstr ""
+
+msgctxt "#30101"
+msgid "Country for charts and search"
+msgstr ""
+
+msgctxt "#30102"
+msgid "Apple's two-letter store code, for example gb or us."
+msgstr ""
+
+msgctxt "#30103"
+msgid "Keep podcast feeds for (minutes)"
+msgstr ""
+
+msgctxt "#30104"
+msgid "Show new episodes from the last (days)"
+msgstr ""
+
+msgctxt "#30105"
+msgid "For podcasts you've never played, My Latest Episodes shows their newest episode if it's this recent."
+msgstr ""
+
+msgctxt "#30106"
+msgid "Ask whether to resume"
+msgstr ""
+
+msgctxt "#30107"
+msgid "When off, started episodes always carry on where you left them."
+msgstr ""
+
+msgctxt "#30110"
+msgid "Sync"
+msgstr ""
+
+msgctxt "#30111"
+msgid "Sync with a gPodder server"
+msgstr ""
+
+msgctxt "#30112"
+msgid "Syncs subscriptions and play positions between your Kodi devices (and phone apps that support gPodder sync)."
+msgstr ""
+
+msgctxt "#30113"
+msgid "Server type"
+msgstr ""
+
+msgctxt "#30114"
+msgid "gPodder API (oPodSync, gpodder.net)"
+msgstr ""
+
+msgctxt "#30115"
+msgid "Nextcloud gPodder Sync"
+msgstr ""
+
+msgctxt "#30116"
+msgid "Server address"
+msgstr ""
+
+msgctxt "#30117"
+msgid "For example https://podsync.example.com, or your Nextcloud address."
+msgstr ""
+
+msgctxt "#30118"
+msgid "Username"
+msgstr ""
+
+msgctxt "#30119"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30120"
+msgid "Device id"
+msgstr ""
+
+msgctxt "#30121"
+msgid "Use the same device id on every Kodi so they share one subscription list."
+msgstr ""
+
+msgctxt "#30122"
+msgid "Sync every (minutes)"
+msgstr ""
+
+msgctxt "#30123"
+msgid "Sync now"
+msgstr ""
+
+msgctxt "#30124"
+msgid "Checks the connection and syncs straight away."
+msgstr ""

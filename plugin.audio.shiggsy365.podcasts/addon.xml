@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.audio.shiggsy365.podcasts"
+       name="Podcasts"
+       version="1.0.0"
+       provider-name="shiggsy365">
+    <requires>
+        <import addon="xbmc.python" version="3.0.1"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>audio</provides>
+    </extension>
+    <extension point="xbmc.service" library="service.py"/>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Find, follow and play podcasts</summary>
+        <description lang="en_GB">Browse Apple's top podcasts and genre charts, search, subscribe and play episodes. My Latest Episodes picks up where you left off and lists new episodes from the podcasts you follow. Optional gPodder sync (oPodSync, gpodder.net or Nextcloud gPodder Sync) keeps subscriptions and play positions the same across your Kodi devices.</description>
+        <disclaimer lang="en_GB">Podcast listings come from Apple; episodes play straight from each podcast's own feed.</disclaimer>
+        <platform>all</platform>
+        <license>GPL-3.0-or-later</license>
+        <source>https://github.com/shiggsy365/KodiStremioBridge</source>
+        <news>v1.0.0 - First release: My Podcasts, My Latest Episodes, Trending (Apple genre charts), Top Podcasts, Search, resume, and gPodder sync.</news>
+        <assets>
+            <icon>resources/icon.png</icon>
+            <fanart>resources/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>

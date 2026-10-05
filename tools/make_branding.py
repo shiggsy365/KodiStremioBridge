@@ -8,7 +8,8 @@ resources/{icon.png,fanart.jpg}, repository.shiggsy365/icon.png, Arctic Zephyr
 Stremio's icon.png, fanart.jpg, media/misc/stremio-bridge-logo.png (its startup
 screen) and media/misc/matrix.png (the "Stremio" wordmark beside "Arctic Zephyr"
 in its settings). Drawn here: service.shiggsy365.tidycache/resources/icon.png
-and script.shiggsy365.dispatcharrbridge/resources/icon.png.
+script.shiggsy365.dispatcharrbridge/resources/icon.png and Podcasts'
+resources/{icon.png,fanart.jpg}.
 Needs Pillow.
 """
 
@@ -85,6 +86,39 @@ def switch_icon(path):
     print(os.path.normpath(path))
 
 
+def podcast_mark(draw, cx, cy, u):
+    """A microphone between broadcast arcs, centred on (cx, cy); `u` is the unit size."""
+    draw.rounded_rectangle([cx - 0.11 * u, cy - 0.30 * u, cx + 0.11 * u, cy + 0.06 * u], radius=0.11 * u,
+                           fill=(255, 255, 255))
+    draw.arc([cx - 0.19 * u, cy - 0.20 * u, cx + 0.19 * u, cy + 0.17 * u], 0, 180, fill=ACCENT, width=int(0.04 * u))
+    draw.line([(cx, cy + 0.17 * u), (cx, cy + 0.30 * u)], fill=ACCENT, width=int(0.04 * u))
+    draw.line([(cx - 0.12 * u, cy + 0.30 * u), (cx + 0.12 * u, cy + 0.30 * u)], fill=ACCENT, width=int(0.04 * u))
+    for r in (0.30, 0.42):  # arcs either side
+        box = [cx - r * u, cy - 0.12 * u - r * u, cx + r * u, cy - 0.12 * u + r * u]
+        draw.arc(box, 140, 220, fill=(255, 255, 255), width=int(0.035 * u))
+        draw.arc(box, -40, 40, fill=(255, 255, 255), width=int(0.035 * u))
+
+
+def podcast_icon(path):
+    """Podcasts: a microphone with broadcast arcs."""
+    scale, size = 4, 512
+    s = size * scale
+    image = gradient(s, s)
+    glow(image, [s * 0.1, s * 0.05, s * 0.9, s * 0.8], 90, 70 * scale)
+    podcast_mark(ImageDraw.Draw(image), s * 0.5, s * 0.5, s)
+    image.resize((size, size), Image.LANCZOS).save(path, optimize=True)
+    print(os.path.normpath(path))
+
+
+def podcast_fanart(path):
+    scale, w, h = 2, 1920, 1080
+    image = gradient(w * scale, h * scale)
+    glow(image, [w * scale * 0.55, -h * scale * 0.2, w * scale * 1.1, h * scale * 0.9], 70, 90 * scale)
+    podcast_mark(ImageDraw.Draw(image), w * scale * 0.76, h * scale * 0.46, h * scale * 0.62)
+    image.resize((w, h), Image.LANCZOS).save(path, quality=88, optimize=True)
+    print(os.path.normpath(path))
+
+
 def on_logo(size, logo_scale, dim=1.0):
     """The logo, `logo_scale` times its size, centred on a canvas of `size`
     in the colour of the logo's own edges (it fades into it)."""
@@ -158,3 +192,6 @@ if __name__ == "__main__":
     wordmark(os.path.join(skin, "media", "misc", "matrix.png"))
     tidy_icon(os.path.join(ROOT, "service.shiggsy365.tidycache", "resources", "icon.png"))
     switch_icon(os.path.join(ROOT, "script.shiggsy365.dispatcharrbridge", "resources", "icon.png"))
+    podcasts = os.path.join(ROOT, "plugin.audio.shiggsy365.podcasts", "resources")
+    podcast_icon(os.path.join(podcasts, "icon.png"))
+    podcast_fanart(os.path.join(podcasts, "fanart.jpg"))

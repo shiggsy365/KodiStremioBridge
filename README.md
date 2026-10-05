@@ -113,6 +113,30 @@ same channel with its guide and channel info. Settings: an admin user's Dispatch
 address (found from IPTV Simple's playlist if left empty). Switching affects everyone watching that
 channel, and the channel's source order in Dispatcharr is unchanged.
 
+### Also in the repository: Podcasts
+
+**Podcasts** (`plugin.audio.shiggsy365.podcasts`, under *Music add-ons*) finds, follows and plays
+podcasts. Its home menu has:
+
+- **My Podcasts**: the podcasts you subscribe to (*Subscribe* is in any podcast's context menu);
+- **My Latest Episodes**: episodes you're part-way through first, then each subscription's newest
+  episode released since the last one you played (for one you've never played, if it came out in
+  the last 30 days);
+- **Trending Podcasts**: Apple's top podcasts in each genre;
+- **Top Podcasts**: Apple's overall chart;
+- **Search**, with recent searches kept.
+
+Listings come from Apple (no key needed; set the country in the settings) and episodes play straight
+from each podcast's own feed. Stopping part-way saves your place, and playing again offers to resume.
+
+**Sync between devices (optional).** Turn on *Sync with a gPodder server* to share subscriptions and
+play positions between your Kodi devices, and with phone apps that support gPodder sync (AntennaPod,
+for example). It works with [oPodSync](https://github.com/kd2org/opodsync) (small and easy to host
+yourself), gpodder.net, or the Nextcloud *gPodder Sync* app (choose *Nextcloud* as the server type).
+Use the same *Device id* on every Kodi so they share one subscription list. It syncs on start, every
+15 minutes and shortly after you subscribe or stop listening; when two devices changed the same
+episode, the later change wins.
+
 ### Also in the repository: Tidy Cache
 
 **Tidy Cache** (`service.shiggsy365.tidycache`, under *Services*) keeps a low-storage device, such as a
@@ -231,6 +255,8 @@ plugin.video.stremiobridge/        the add-on itself
 repository.shiggsy365/             the Kodi repository add-on
 service.shiggsy365.tidycache/      Tidy Cache add-on
 script.shiggsy365.dispatcharrbridge/ Dispatcharr Bridge add-on
+plugin.audio.shiggsy365.podcasts/  Podcasts add-on: podcasts/ (Apple, RSS, SQLite state, gPodder sync;
+                                   no Kodi imports) and podcasts_ui/ (menus, playback service)
 docs/                              the published repository (GitHub Pages), built by tools/build_repo.py
 tests/                             pytest suite with a fake addon HTTP server and Kodistubs
 branding/logo.png                  the logo the icons, fanart and skin startup screen are made from
