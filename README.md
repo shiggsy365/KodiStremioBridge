@@ -104,7 +104,7 @@ Kodi installs `script.module.requests` with it. For the pop-up between episodes,
 
 **Dispatcharr Bridge** (`script.shiggsy365.dispatcharrbridge`) is for live TV in IPTV Simple served by
 [Dispatcharr](https://github.com/Dispatcharr/Dispatcharr). While watching a channel, **hold
-Play/Pause** to see its source streams (with M3U account, resolution, codec and bitrate, the current
+OK/Select** to see its source streams (with M3U account, resolution, codec and bitrate, the current
 one marked) and switch to another, or let Dispatcharr try the next one. *Choose source (Dispatcharr)*
 does the same from a channel's or guide entry's context menu.
 

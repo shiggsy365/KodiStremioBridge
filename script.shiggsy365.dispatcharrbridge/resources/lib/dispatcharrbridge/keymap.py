@@ -1,6 +1,9 @@
-"""Long-press Play/Pause while watching opens the source picker: a keymap in
+"""Long-press OK/Select while watching opens the source picker: a keymap in
 special://profile/keymaps, written (or removed) by the service to follow the
-setting. A normal press of Play/Pause still pauses."""
+setting. A normal press of OK/Select still does what it did (Kodi's controls).
+
+Android TV remotes send OK as a keyboard key (Kodi's "return"; "enter" on some);
+CEC and IR remotes as the remote's "select"."""
 
 import os
 
@@ -12,14 +15,17 @@ ADDON = xbmcaddon.Addon()
 FILE = "special://profile/keymaps/shiggsy365.dispatcharrbridge.xml"
 ACTION = "RunScript(script.shiggsy365.dispatcharrbridge)"
 WINDOWS = ("FullscreenLiveTV", "FullscreenVideo")
+# (keymap device section, key names) for OK/Select
+KEYS = (("keyboard", ("return", "enter")), ("remote", ("select",)))
 
 
 def keymap_xml():
-    sections = "".join(
-        f"  <{window}>\n    <keyboard>\n"
-        f"      <play_pause mod=\"longpress\">{ACTION}</play_pause>\n"
-        f"    </keyboard>\n  </{window}>\n" for window in WINDOWS)
-    return f"<keymap>\n{sections}</keymap>\n"
+    def window(name):
+        devices = "".join(
+            f"    <{device}>\n" + "".join(f"      <{key} mod=\"longpress\">{ACTION}</{key}>\n" for key in keys)
+            + f"    </{device}>\n" for device, keys in KEYS)
+        return f"  <{name}>\n{devices}  </{name}>\n"
+    return "<keymap>\n" + "".join(window(name) for name in WINDOWS) + "</keymap>\n"
 
 
 def sync():

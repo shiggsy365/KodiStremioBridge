@@ -36,11 +36,11 @@ msgid "A Dispatcharr API key of an admin user (switching a channel's source need
 msgstr ""
 
 msgctxt "#32006"
-msgid "Long-press Play/Pause to choose a source"
+msgid "Long-press OK/Select to choose a source"
 msgstr ""
 
 msgctxt "#32007"
-msgid "While watching, hold Play/Pause to open the source picker. A normal press still pauses."
+msgid "While watching, hold OK/Select to open the source picker. A normal press still does what it did."
 msgstr ""
 
 msgctxt "#32010"

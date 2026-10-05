@@ -7,7 +7,9 @@ original for sharper results and run this again): Stremio Bridge's
 resources/{icon.png,fanart.jpg}, repository.shiggsy365/icon.png, Arctic Zephyr
 Stremio's icon.png, fanart.jpg, media/misc/stremio-bridge-logo.png (its startup
 screen) and media/misc/matrix.png (the "Stremio" wordmark beside "Arctic Zephyr"
-in its settings). Drawn here: service.shiggsy365.tidycache/resources/icon.png
+in its settings), and branding/social-preview.png (upload it in the GitHub
+repository's Settings -> Social preview). Drawn here:
+service.shiggsy365.tidycache/resources/icon.png,
 script.shiggsy365.dispatcharrbridge/resources/icon.png and Podcasts'
 resources/{icon.png,fanart.jpg}.
 Needs Pillow.
@@ -150,6 +152,12 @@ def logo_fanart(path):
     print(os.path.normpath(path))
 
 
+def social_preview(path):
+    """1280 x 640, for GitHub's Settings -> Social preview (uploaded by hand)."""
+    on_logo((1280, 640), 1.9).save(path, optimize=True)
+    print(os.path.normpath(path))
+
+
 def startup_logo(path):
     """The skin's startup screen: the logo as it is."""
     Image.open(LOGO).convert("RGB").save(path, optimize=True)
@@ -185,6 +193,7 @@ if __name__ == "__main__":
     logo_icon(os.path.join(resources, "icon.png"))
     logo_fanart(os.path.join(resources, "fanart.jpg"))
     logo_icon(os.path.join(ROOT, "repository.shiggsy365", "icon.png"))
+    social_preview(os.path.join(ROOT, "branding", "social-preview.png"))
     skin = os.path.join(ROOT, "skin.arctic.zephyr.stremio")
     logo_icon(os.path.join(skin, "icon.png"))
     logo_fanart(os.path.join(skin, "fanart.jpg"))

@@ -4,7 +4,7 @@
     RunScript(script.shiggsy365.dispatcharrbridge,next)       straight to the next source
     context menu "Choose source" on a channel or guide entry   (context.py)
 
-Long-press Play/Pause while watching opens it (a keymap the service installs).
+Long-press OK/Select while watching opens it (a keymap the service installs).
 """
 
 import json

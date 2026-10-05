@@ -106,5 +106,8 @@ def test_long_press_keymap():
 
     root = ET.fromstring(keymap.keymap_xml())
     for window in ("FullscreenLiveTV", "FullscreenVideo"):
-        key = root.find(f"{window}/keyboard/play_pause")
-        assert key.get("mod") == "longpress" and key.text == "RunScript(script.shiggsy365.dispatcharrbridge)"
+        # OK/Select: an Android TV remote's OK is a keyboard key, a CEC/IR remote's is "select"
+        for path in ("keyboard/return", "keyboard/enter", "remote/select"):
+            key = root.find(f"{window}/{path}")
+            assert key.get("mod") == "longpress" and key.text == "RunScript(script.shiggsy365.dispatcharrbridge)"
+        assert root.find(f"{window}/keyboard/play_pause") is None   # Play/Pause just pauses again
