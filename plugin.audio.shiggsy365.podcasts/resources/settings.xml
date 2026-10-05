@@ -25,6 +25,11 @@
                         <popup>false</popup>
                     </control>
                 </setting>
+                <setting id="hide_played" type="boolean" label="30108" help="30109">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="ask_resume" type="boolean" label="30106" help="30107">
                     <level>0</level>
                     <default>true</default>

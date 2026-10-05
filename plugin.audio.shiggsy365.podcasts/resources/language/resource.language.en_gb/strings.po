@@ -169,6 +169,14 @@ msgctxt "#30107"
 msgid "When off, started episodes always carry on where you left them."
 msgstr ""
 
+msgctxt "#30108"
+msgid "Hide played episodes"
+msgstr ""
+
+msgctxt "#30109"
+msgid "Leave episodes you've played out of every list. Turn this off to see them again, for example to mark one as unplayed."
+msgstr ""
+
 msgctxt "#30110"
 msgid "Sync"
 msgstr ""

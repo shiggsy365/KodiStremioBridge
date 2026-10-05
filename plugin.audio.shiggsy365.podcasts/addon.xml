@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.audio.shiggsy365.podcasts"
        name="Podcasts"
-       version="1.0.4"
+       version="1.0.5"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -17,7 +17,8 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/shiggsy365/KodiStremioBridge</source>
-        <news>v1.0.4 - My Unplayed Podcasts lists podcasts with episodes waiting (and how many); My Latest Episodes shows each podcast's oldest unplayed episode, filling gaps, or episode 1 of one you haven't started.
+        <news>v1.0.5 - New setting: Hide played episodes, which leaves them out of every list.
+v1.0.4 - My Unplayed Podcasts lists podcasts with episodes waiting (and how many); My Latest Episodes shows each podcast's oldest unplayed episode, filling gaps, or episode 1 of one you haven't started.
 v1.0.3 - New My Unplayed Podcasts (subscriptions you haven't started); My Latest Episodes shows the next episode by release date after the last one you played, not the newest.
 v1.0.2 - Home-screen widgets made from My Podcasts or My Latest Episodes refresh after you play, mark, subscribe or sync (re-add existing widgets once).
 v1.0.1 - Played episodes are dimmed and marked Played (Kodi shows no watched tick for audio); Go to podcast now works from home-screen widgets.

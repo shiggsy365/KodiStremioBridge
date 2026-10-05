@@ -21,7 +21,7 @@ from podcasts_ui import common, menus, router, service  # noqa: E402
 
 BASE = "plugin://plugin.audio.shiggsy365.podcasts/"
 FEED = "https://feeds.example/show.xml"
-SETTINGS = {"country": "gb", "feed_cache_minutes": 30, "ask_resume": True,
+SETTINGS = {"country": "gb", "feed_cache_minutes": 30, "ask_resume": True, "hide_played": False,
             "sync_enabled": False, "sync_type": 0, "sync_server": "", "sync_username": "", "sync_password": "",
             "sync_device": "kodi", "sync_minutes": 15}
 
@@ -245,3 +245,12 @@ def test_unplayed_podcasts_lists_podcasts_with_episodes_waiting(listing, item_de
         store.set_played(episode, True)
     call("unplayed_podcasts")
     assert len(items) == 1 and ends == [True, True]
+
+
+@pytest.mark.parametrize("hide, keys", [(False, ["ep-1", "ep-2"]), (True, ["ep-2"])])
+def test_hide_played_episodes_setting(listing, isolated, hide, keys):
+    items, _ = listing
+    isolated["hide_played"] = hide
+    common.get_store().set_played(make_feed()[1][0], True)  # Episode 1 played
+    call("podcast", feed=FEED)
+    assert [p["key"] for p, _, _ in items] == keys

@@ -130,6 +130,7 @@ podcasts. Its home menu has:
 
 Listings come from Apple (no key needed; set the country in the settings) and episodes play straight
 from each podcast's own feed. Stopping part-way saves your place, and playing again offers to resume.
+*Hide played episodes* in the settings leaves played episodes out of every list.
 
 **Sync between devices (optional).** Turn on *Sync with a gPodder server* to share subscriptions and
 play positions between your Kodi devices, and with phone apps that support gPodder sync (AntennaPod,

@@ -211,6 +211,8 @@ def _released(epoch):
 
 def _episode_item(plugin, episode, row, show_podcast=False, extra_menu=()):
     played = bool(row and row["played"])
+    if played and ADDON.getSettingBool("hide_played"):
+        return
     position = row["position"] if row and not played else 0
     duration = episode.duration or (row["duration"] if row else 0)
     released = _released(episode.published)
