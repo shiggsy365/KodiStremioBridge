@@ -40,7 +40,7 @@ v0.10.2 - Continue Watching shows descriptions, cast and details.</news>
 </addon>
 <addon id="plugin.audio.shiggsy365.podcasts"
        name="Podcasts"
-       version="1.0.2"
+       version="1.0.3"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -56,7 +56,8 @@ v0.10.2 - Continue Watching shows descriptions, cast and details.</news>
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/shiggsy365/KodiStremioBridge</source>
-        <news>v1.0.2 - Home-screen widgets made from My Podcasts or My Latest Episodes refresh after you play, mark, subscribe or sync (re-add existing widgets once).
+        <news>v1.0.3 - New My Unplayed Podcasts (subscriptions you haven't started); My Latest Episodes shows the next episode by release date after the last one you played, not the newest.
+v1.0.2 - Home-screen widgets made from My Podcasts or My Latest Episodes refresh after you play, mark, subscribe or sync (re-add existing widgets once).
 v1.0.1 - Played episodes are dimmed and marked Played (Kodi shows no watched tick for audio); Go to podcast now works from home-screen widgets.
 v1.0.0 - First release: My Podcasts, My Latest Episodes, Trending (Apple genre charts), Top Podcasts, Search, resume, and gPodder sync.</news>
         <assets>

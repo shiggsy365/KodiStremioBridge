@@ -66,6 +66,7 @@ def _end(plugin, content=None, cache=True):
 @route("root")
 def root(plugin):
     _folder(plugin, L(30001), "my_podcasts", "DefaultMusicAlbums.png", widget=True)
+    _folder(plugin, L(30031), "unplayed_podcasts", "DefaultMusicAlbums.png", widget=True)
     _folder(plugin, L(30002), "latest", "DefaultMusicRecentlyAdded.png", widget=True)
     _folder(plugin, L(30003), "trending", "DefaultMusicGenres.png")
     _folder(plugin, L(30004), "top", "DefaultMusicTop100.png")
@@ -108,6 +109,14 @@ def my_podcasts(plugin):
     if not podcasts:
         notify(L(30009), time_ms=5000)
     _podcast_items(plugin, podcasts, library.store)
+    _end(plugin, "albums", cache=False)
+
+
+@route("unplayed_podcasts")
+@guarded
+def unplayed_podcasts(plugin):
+    library = get_library()
+    _podcast_items(plugin, library.unplayed_podcasts(), library.store)
     _end(plugin, "albums", cache=False)
 
 

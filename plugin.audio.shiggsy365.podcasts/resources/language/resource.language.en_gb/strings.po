@@ -135,6 +135,10 @@ msgctxt "#30030"
 msgid "Played"
 msgstr ""
 
+msgctxt "#30031"
+msgid "My Unplayed Podcasts"
+msgstr ""
+
 msgctxt "#30100"
 msgid "General"
 msgstr ""

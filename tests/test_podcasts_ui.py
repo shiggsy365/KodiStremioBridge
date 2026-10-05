@@ -67,10 +67,11 @@ def call(action, handle=1, resume=None, **params):
     router.run(argv)
 
 
-def test_root_lists_the_five_sections(listing):
+def test_root_lists_the_six_sections(listing):
     items, ends = listing
     call("root")
-    assert [p["action"] for p, folder, _ in items] == ["my_podcasts", "latest", "trending", "top", "search"]
+    assert [p["action"] for p, folder, _ in items] == ["my_podcasts", "unplayed_podcasts", "latest", "trending",
+                                                       "top", "search"]
     assert all(folder for _, folder, _ in items) and ends == [True]
 
 
@@ -215,10 +216,10 @@ def test_widget_folders_carry_the_reload_token_and_it_is_ignored(listing, monkey
                         lambda handle, url, item, isFolder=False, totalItems=0: urls.append(url) or True)
     call("root")
     token = "&reload=$INFO[Window(Home).Property(" + common.WIDGETS_RELOAD + ")]"
-    assert [u.endswith(token) for u in urls] == [True, True, False, False, False]
+    assert [u.endswith(token) for u in urls] == [True, True, True, False, False, False]
     # The skin evaluates the token; the router drops it rather than passing it to the handler.
     _, ends = listing
-    query = urls[1].split("?", 1)[1].replace(token, "&reload=1712")
+    query = urls[2].split("?", 1)[1].replace(token, "&reload=1712")
     router.run([BASE, "1", "?" + query])
     assert ends == [True, True]
 
@@ -230,3 +231,14 @@ def test_changes_reload_widgets(listing, monkeypatch):
     call("mark", handle=-1, feed=FEED, key="ep-2", played="1")
     call("unsubscribe", handle=-1, feed=FEED)
     assert bumps == [1, 1]
+
+
+def test_unplayed_podcasts_lists_subscriptions_not_started(listing):
+    items, ends = listing
+    store = common.get_store()
+    store.subscribe(Podcast(title="The Example Show", feed_url=FEED, image="https://img/show.jpg"), dirty=False)
+    call("unplayed_podcasts")
+    assert [p.get("feed") for p, _, _ in items] == [FEED]
+    store.record(make_feed()[1][0], 900, 3600)
+    call("unplayed_podcasts")
+    assert len(items) == 1 and ends == [True, True]

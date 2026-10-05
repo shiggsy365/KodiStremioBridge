@@ -297,7 +297,7 @@ def show(feed_url, title, published_days_ago):
     return podcast, episodes
 
 
-def test_latest_in_progress_first_then_newest_per_subscription(store, clock):
+def test_latest_in_progress_first_then_next_per_subscription(store, clock):
     feeds = Feeds({
         "https://a/feed": show("https://a/feed", "A", [1, 8, 15]),
         "https://b/feed": show("https://b/feed", "B", [3, 10]),
@@ -314,7 +314,33 @@ def test_latest_in_progress_first_then_newest_per_subscription(store, clock):
     store.set_played(feeds.feeds["https://d/feed"][1][0], True)
 
     entries = library.latest(NOW)
-    assert [(e.title, bool(row)) for e, row in entries] == [("A 8", True), ("A 1", False), ("B 3", False)]
+    # A: resuming covers it (no second A entry); B: never played, recent; C: nothing recent; D: up to date
+    assert [(e.title, bool(row)) for e, row in entries] == [("A 8", True), ("B 3", False)]
+
+
+def test_latest_shows_the_next_episode_by_release_date_not_the_newest(store):
+    feeds = Feeds({"https://a/feed": show("https://a/feed", "A", [1, 2, 3, 4, 5])})
+    library = Library(store, directory=None, feed_ttl=0, fetch_feed=feeds)
+    store.subscribe(Podcast(title="", feed_url="https://a/feed"), dirty=False)
+    episodes = {e.title: e for e in feeds.feeds["https://a/feed"][1]}
+    store.set_played(episodes["A 4"], True)
+    assert [e.title for e, _ in library.latest(NOW)] == ["A 3"]
+    store.set_played(episodes["A 3"], True)
+    store.set_played(episodes["A 1"], True)   # listened ahead: the gap before it doesn't count
+    assert [e.title for e, _ in library.latest(NOW)] == []
+    store.set_played(episodes["A 1"], False)
+    assert [e.title for e, _ in library.latest(NOW)] == ["A 2"]
+
+
+def test_unplayed_podcasts_are_subscriptions_never_listened_to(store):
+    feeds = Feeds({"https://a/feed": show("https://a/feed", "A", [1, 2]),
+                   "https://b/feed": show("https://b/feed", "B", [1])})
+    library = Library(store, directory=None, feed_ttl=600, fetch_feed=feeds)
+    for url in feeds.feeds:
+        store.subscribe(Podcast(title="", feed_url=url), dirty=False)
+    assert {p.title for p in library.unplayed_podcasts()} == {"A", "B"}
+    store.record(feeds.feeds["https://a/feed"][1][1], 300, 1800)  # started one of A's
+    assert [p.title for p in library.unplayed_podcasts()] == ["B"]
 
 
 def test_latest_respects_last_played_even_if_old(store):
