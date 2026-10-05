@@ -207,3 +207,26 @@ def test_go_to_podcast_works_from_widgets(listing, item_details, monkeypatch):
     (entry,) = [command for label, command in item_details[0]["menu"] if label == "#30024"]
     assert entry.startswith("ActivateWindow(Music,plugin://") and entry.endswith(",return)")
     assert "action=podcast" in entry
+
+
+def test_widget_folders_carry_the_reload_token_and_it_is_ignored(listing, monkeypatch):
+    urls = []
+    monkeypatch.setattr(xbmcplugin, "addDirectoryItem",
+                        lambda handle, url, item, isFolder=False, totalItems=0: urls.append(url) or True)
+    call("root")
+    token = "&reload=$INFO[Window(Home).Property(" + common.WIDGETS_RELOAD + ")]"
+    assert [u.endswith(token) for u in urls] == [True, True, False, False, False]
+    # The skin evaluates the token; the router drops it rather than passing it to the handler.
+    _, ends = listing
+    query = urls[1].split("?", 1)[1].replace(token, "&reload=1712")
+    router.run([BASE, "1", "?" + query])
+    assert ends == [True, True]
+
+
+def test_changes_reload_widgets(listing, monkeypatch):
+    bumps = []
+    monkeypatch.setattr(menus, "notify_widgets", lambda: bumps.append(1))
+    monkeypatch.setattr(menus, "request_sync", lambda: None)
+    call("mark", handle=-1, feed=FEED, key="ep-2", played="1")
+    call("unsubscribe", handle=-1, feed=FEED)
+    assert bumps == [1, 1]

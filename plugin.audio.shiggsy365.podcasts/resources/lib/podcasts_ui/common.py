@@ -107,6 +107,17 @@ def take_announcement(max_age=120):
         return None
 
 
+WIDGETS_RELOAD = f"{ADDON_ID}.widgets.reload"
+# Appended to the folders worth using as widgets: skins evaluate it, so the
+# widget's path changes (and Kodi reloads it) whenever notify_widgets runs.
+RELOAD_TOKEN = f"&reload=$INFO[Window(Home).Property({WIDGETS_RELOAD})]"
+
+
+def notify_widgets():
+    """Bump the reload token so home-screen widgets show the change."""
+    xbmcgui.Window(10000).setProperty(WIDGETS_RELOAD, str(int(time.time() * 1000)))
+
+
 def refresh_if_showing():
     """Refresh the listing if one of ours is on screen (after playback or a sync)."""
     if xbmc.getInfoLabel("Container.FolderPath").startswith(f"plugin://{ADDON_ID}/"):

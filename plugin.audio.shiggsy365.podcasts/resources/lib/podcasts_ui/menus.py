@@ -14,8 +14,8 @@ from podcasts.models import Podcast
 from podcasts.store import find
 
 from .common import (
-    ADDON, ADDON_NAME, L, announce_playback, busy, clock_text, get_library, get_store, get_sync_client, log,
-    notify,
+    ADDON, ADDON_NAME, L, RELOAD_TOKEN, announce_playback, busy, clock_text, get_library, get_store,
+    get_sync_client, log, notify, notify_widgets,
 )
 from .router import route
 
@@ -46,10 +46,12 @@ def guarded(func):
     return wrapper
 
 
-def _folder(plugin, label, action, icon, **params):
+def _folder(plugin, label, action, icon, widget=False, **params):
+    """`widget`: worth picking as a home-screen widget, so its path carries the reload token."""
     item = xbmcgui.ListItem(label, offscreen=True)
     item.setArt({"icon": icon, "thumb": icon})
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(action, **params), item, isFolder=True)
+    url = plugin.url_for(action, **params) + (RELOAD_TOKEN if widget else "")
+    xbmcplugin.addDirectoryItem(plugin.handle, url, item, isFolder=True)
 
 
 def _end(plugin, content=None, cache=True):
@@ -63,8 +65,8 @@ def _end(plugin, content=None, cache=True):
 
 @route("root")
 def root(plugin):
-    _folder(plugin, L(30001), "my_podcasts", "DefaultMusicAlbums.png")
-    _folder(plugin, L(30002), "latest", "DefaultMusicRecentlyAdded.png")
+    _folder(plugin, L(30001), "my_podcasts", "DefaultMusicAlbums.png", widget=True)
+    _folder(plugin, L(30002), "latest", "DefaultMusicRecentlyAdded.png", widget=True)
     _folder(plugin, L(30003), "trending", "DefaultMusicGenres.png")
     _folder(plugin, L(30004), "top", "DefaultMusicTop100.png")
     _folder(plugin, L(30005), "search", "DefaultAddonsSearch.png")
@@ -312,6 +314,7 @@ def mark(plugin, feed, key, played):
     library = get_library()
     library.store.set_played(library.episode(feed, key), played == "1")
     request_sync()
+    notify_widgets()
     xbmc.executebuiltin("Container.Refresh")
 
 
@@ -332,6 +335,7 @@ def subscribe(plugin, feed=None, id=None):
         podcast = _details(library, feed, id)
     library.store.subscribe(podcast)
     request_sync()
+    notify_widgets()
     notify(L(30016, title=podcast.title))
     xbmc.executebuiltin("Container.Refresh")
 
@@ -346,6 +350,7 @@ def unsubscribe(plugin, feed=None, id=None):
     title = next((s["title"] for s in library.store.subscriptions() if s["feed_url"] == feed), "") or feed
     library.store.unsubscribe(feed)
     request_sync()
+    notify_widgets()
     notify(L(30017, title=title))
     xbmc.executebuiltin("Container.Refresh")
 
@@ -373,6 +378,7 @@ def sync_now(plugin):
         log(f"Sync failed: {exc}", xbmc.LOGWARNING)
         notify(L(30023, error=exc), xbmcgui.NOTIFICATION_ERROR, 6000)
         return
+    notify_widgets()
     notify(L(30022, sent=summary["subscriptions_sent"] + summary["positions_sent"],
              received=summary["subscriptions_received"] + summary["positions_received"]))
     xbmc.executebuiltin("Container.Refresh")

@@ -13,7 +13,7 @@ from podcasts.store import PLAYED, RESUME
 from podcasts.sync import sync
 
 from .common import (
-    ADDON, NOW_PLAYING, get_store, get_sync_client, log, refresh_if_showing, take_announcement,
+    ADDON, NOW_PLAYING, get_store, get_sync_client, log, notify_widgets, refresh_if_showing, take_announcement,
 )
 from .menus import SYNC_REQUEST
 
@@ -112,6 +112,7 @@ class Tracker(xbmc.Player):
         self._reset()
         if status in (PLAYED, RESUME):
             self.on_change()
+            notify_widgets()
             refresh_if_showing()
 
 
@@ -148,6 +149,7 @@ class Syncer:
             log(f"Sync crashed: {exc!r}", xbmc.LOGERROR)
             return
         if summary["subscriptions_received"] or summary["positions_received"]:
+            notify_widgets()
             refresh_if_showing()
 
     def soon(self):

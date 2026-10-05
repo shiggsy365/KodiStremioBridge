@@ -44,6 +44,7 @@ def run(argv):
     plugin = Plugin(argv)
     params = dict(plugin.params)
     action = params.pop("action", "root")
+    params.pop("reload", None)  # widget reload token (common.RELOAD_TOKEN): only there to change the path
     handler = ROUTES.get(action)
     if handler is None:
         log(f"Unknown action '{action}'", xbmc.LOGERROR)
