@@ -131,6 +131,10 @@ msgctxt "#30029"
 msgid "Top podcasts in {genre}"
 msgstr ""
 
+msgctxt "#30030"
+msgid "Played"
+msgstr ""
+
 msgctxt "#30100"
 msgid "General"
 msgstr ""

@@ -19,6 +19,7 @@ from .common import (
 )
 from .router import route
 
+PLAYED_COLOUR = "FF8A8A8A"  # played episodes' titles are dimmed
 HISTORY = "search_history"
 HISTORY_SIZE = 20
 SYNC_REQUEST = f"{ADDON.getAddonInfo('id')}.sync_request"  # read by the service
@@ -200,7 +201,11 @@ def _episode_item(plugin, episode, row, show_podcast=False, extra_menu=()):
     duration = episode.duration or (row["duration"] if row else 0)
     released = _released(episode.published)
     label = f"{episode.podcast_title}: {episode.title}" if show_podcast and episode.podcast_title else episode.title
-    if position and duration:
+    if played:
+        # Kodi gives music items no watched overlay, so skins can't tick them: say it in the label.
+        label = f"[COLOR {PLAYED_COLOUR}]{label}[/COLOR]"
+        label2 = L(30030)
+    elif position and duration:
         label2 = L(30020, time=clock_text(max(duration - position, 0)))
     else:
         label2 = released.strftime("%d %b %Y") if released else ""
@@ -225,7 +230,8 @@ def _episode_item(plugin, episode, row, show_podcast=False, extra_menu=()):
     menu = [(L(30014), plugin.run_url("mark", played="0", **params)) if played or position else None,
             (L(30013), plugin.run_url("mark", played="1", **params)) if not played else None]
     if show_podcast:
-        menu.append((L(30024), f"Container.Update({plugin.url_for('podcast', feed=episode.feed_url)})"))
+        # ActivateWindow, not Container.Update: that does nothing from a home-screen widget.
+        menu.append((L(30024), f"ActivateWindow(Music,{plugin.url_for('podcast', feed=episode.feed_url)},return)"))
     menu += list(extra_menu)
     item.addContextMenuItems([entry for entry in menu if entry])
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for("play", **params), item, isFolder=False)

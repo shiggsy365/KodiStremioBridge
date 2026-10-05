@@ -169,3 +169,41 @@ def test_play_resume_question(listing, monkeypatch, resume, choice, expected, as
     call("play", resume=resume, feed=FEED, key="ep-1")
     assert announced["offset"] == expected
     assert bool(questions) == asked
+
+
+@pytest.fixture
+def item_details(monkeypatch):
+    """Labels and context menus of the ListItems made (Kodistubs keeps neither)."""
+    made = []
+    original = xbmcgui.ListItem.__init__
+
+    def init(self, label="", label2="", path="", offscreen=False):
+        original(self, label, label2, path, offscreen)
+        made.append({"label": label, "label2": label2, "menu": []})
+        self._details = made[-1]
+
+    monkeypatch.setattr(xbmcgui.ListItem, "__init__", init)
+    monkeypatch.setattr(xbmcgui.ListItem, "addContextMenuItems",
+                        lambda self, items, replaceItems=False: self._details["menu"].extend(items))
+    return made
+
+
+def test_played_episodes_say_so_in_their_label(listing, item_details, monkeypatch):
+    monkeypatch.setattr(common.ADDON, "getLocalizedString", lambda i: {30030: "Played"}.get(i, f"#{i}"))
+    _, episodes = make_feed()
+    common.get_store().set_played(episodes[0], True)
+    call("podcast", feed=FEED)
+    played, unplayed = item_details
+    assert played["label2"] == "Played" and "[COLOR" in played["label"] and "Episode 1" in played["label"]
+    assert "[COLOR" not in unplayed["label"] and unplayed["label2"] != "Played"
+
+
+def test_go_to_podcast_works_from_widgets(listing, item_details, monkeypatch):
+    monkeypatch.setattr(common.ADDON, "getLocalizedString", lambda i: f"#{i}")
+    _, episodes = make_feed()
+    store = common.get_store()
+    store.record(episodes[0], 900, 3600)
+    call("latest")
+    (entry,) = [command for label, command in item_details[0]["menu"] if label == "#30024"]
+    assert entry.startswith("ActivateWindow(Music,plugin://") and entry.endswith(",return)")
+    assert "action=podcast" in entry
