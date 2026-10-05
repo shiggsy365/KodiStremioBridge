@@ -198,12 +198,6 @@ class Store:
                               "ORDER BY updated DESC").fetchall()
         return [dict(r) for r in rows]
 
-    def listened_feeds(self):
-        """Feed URLs with at least one played or started episode."""
-        with self._db() as db:
-            rows = db.execute("SELECT DISTINCT feed_url FROM progress WHERE played = 1 OR position > 0").fetchall()
-        return {r["feed_url"] for r in rows}
-
     def dirty_progress(self):
         with self._db() as db:
             return [dict(r) for r in db.execute("SELECT * FROM progress WHERE dirty = 1").fetchall()]

@@ -77,13 +77,15 @@ def root(plugin):
 # ---------------------------------------------------------------- podcasts
 
 
-def _podcast_items(plugin, podcasts, store=None):
+def _podcast_items(plugin, podcasts, store=None, counts=None):
+    """`counts`: unplayed episodes per podcast, shown in place of the author."""
     store = store or get_store()
     subscribed = store.subscriptions()
     feeds = {s["feed_url"] for s in subscribed}
     apple_ids = {s["apple_id"] for s in subscribed if s["apple_id"]}
-    for podcast in podcasts:
-        item = xbmcgui.ListItem(podcast.title, podcast.author, offscreen=True)
+    for index, podcast in enumerate(podcasts):
+        label2 = L(30032, count=counts[index]) if counts else podcast.author
+        item = xbmcgui.ListItem(podcast.title, label2, offscreen=True)
         art = podcast.image or "DefaultMusicAlbums.png"
         item.setArt({"thumb": art, "icon": art, "poster": art, "fanart": podcast.image})
         tag = item.getMusicInfoTag()
@@ -116,7 +118,8 @@ def my_podcasts(plugin):
 @guarded
 def unplayed_podcasts(plugin):
     library = get_library()
-    _podcast_items(plugin, library.unplayed_podcasts(), library.store)
+    waiting = library.unplayed_podcasts()
+    _podcast_items(plugin, [p for p, _ in waiting], library.store, counts=[n for _, n in waiting])
     _end(plugin, "albums", cache=False)
 
 
@@ -273,7 +276,7 @@ def podcast(plugin, feed=None, id=None):
 @guarded
 def latest(plugin):
     library = get_library()
-    entries = library.latest(time.time())
+    entries = library.latest()
     if not entries:
         notify(L(30010), time_ms=5000)
     for episode, row in entries:

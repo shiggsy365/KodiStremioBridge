@@ -119,10 +119,11 @@ channel, and the channel's source order in Dispatcharr is unchanged.
 podcasts. Its home menu has:
 
 - **My Podcasts**: the podcasts you subscribe to (*Subscribe* is in any podcast's context menu);
-- **My Unplayed Podcasts**: subscriptions you haven't played an episode of yet;
+- **My Unplayed Podcasts**: the podcasts you subscribe to that have episodes you haven't played,
+  with how many;
 - **My Latest Episodes**: episodes you're part-way through first, then for each other subscription
-  the next episode by release date after the newest one you've played, like Up Next (for one you've
-  never played, its newest episode if it came out in the last 30 days);
+  the oldest episode you haven't played: the next one after where you got to, filling any gaps, or
+  episode 1 of a podcast you haven't started;
 - **Trending Podcasts**: Apple's top podcasts in each genre;
 - **Top Podcasts**: Apple's overall chart;
 - **Search**, with recent searches kept.

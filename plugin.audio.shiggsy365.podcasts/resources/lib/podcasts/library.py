@@ -7,16 +7,13 @@ from .models import Episode, Podcast
 from .store import find
 
 FEED_WORKERS = 8
-LATEST_DAYS = 30  # a podcast you've never played shows its newest episode only if it's this recent
 
 
 class Library:
-    def __init__(self, store, directory, feed_ttl=1800, latest_days=LATEST_DAYS, log=lambda msg: None,
-                 fetch_feed=None):
+    def __init__(self, store, directory, feed_ttl=1800, log=lambda msg: None, fetch_feed=None):
         self.store = store
         self.directory = directory
         self.feed_ttl = feed_ttl
-        self.latest_days = latest_days
         self.log = log
         self._fetch_feed = fetch_feed or (lambda url: feed.fetch(url))
 
@@ -83,11 +80,12 @@ class Library:
 
     # ------------------------------------------------------------ My Latest Episodes
 
-    def latest(self, now):
+    def latest(self):
         """``[(Episode, progress row or None)]``: episodes you're part-way
-        through (most recent first), then for each other subscription the next
-        episode by release date after the newest one you've played (Up Next).
-        A podcast you've never played shows its newest episode if it's recent."""
+        through (most recent first), then for each other subscription its
+        next episode: the oldest by release date that you haven't played.
+        Those are ordered by when you last listened to the podcast, then
+        podcasts you haven't started, newest release first."""
         started = self.store.in_progress()
         subscribed = [s["feed_url"] for s in self.store.subscriptions()]
         feeds = self._feeds(subscribed + [r["feed_url"] for r in started if not r["title"]])
@@ -103,29 +101,26 @@ class Library:
         for url in subscribed:
             if url not in feeds or url in resuming:  # its resume entry above comes first
                 continue
-            episode = self._next_episode(feeds[url][1], self.store.progress_for(url), now)
+            rows = self.store.progress_for(url)
+            episode = next_episode(feeds[url][1], rows)
             if episode is not None:
-                upcoming.append((episode, None))
-        upcoming.sort(key=lambda pair: pair[0].published, reverse=True)
-        return results + upcoming
-
-    def _next_episode(self, episodes, rows, now):
-        """`episodes` are newest first. None when you're up to date."""
-        def listened(episode):
-            row = find(rows, episode)
-            return bool(row and (row["played"] or row["position"]))
-
-        newest_listened = next((i for i, e in enumerate(episodes) if listened(e)), None)
-        if newest_listened is None:
-            recent = episodes and episodes[0].published >= now - self.latest_days * 86400
-            return episodes[0] if recent else None
-        # Walk forward in release order from there: the first one not listened to.
-        return next((e for e in reversed(episodes[:newest_listened]) if not listened(e)), None)
+                last_listened = max((r["updated"] for r in rows.values() if r["played"] or r["position"]), default=0)
+                upcoming.append((last_listened, episode.published, episode))
+        upcoming.sort(key=lambda entry: (entry[0], entry[1]), reverse=True)
+        return results + [(episode, None) for _, _, episode in upcoming]
 
     def unplayed_podcasts(self):
-        """Subscriptions you haven't played any episode of yet."""
-        listened = self.store.listened_feeds()
-        return [p for p in self.my_podcasts() if p.feed_url not in listened]
+        """``[(Podcast, unplayed episode count)]`` for subscriptions with episodes waiting."""
+        podcasts = self.my_podcasts()
+        feeds = self._feeds([p.feed_url for p in podcasts])
+        waiting = []
+        for podcast in podcasts:
+            if podcast.feed_url in feeds:
+                rows = self.store.progress_for(podcast.feed_url)
+                count = sum(1 for e in feeds[podcast.feed_url][1] if not (find(rows, e) or {}).get("played"))
+                if count:
+                    waiting.append((podcast, count))
+        return waiting
 
     @staticmethod
     def _episode_from_row(row, loaded):
@@ -140,3 +135,13 @@ class Library:
         return Episode(feed_url=row["feed_url"], guid=row["guid"], title=row["title"] or row["url"].rsplit("/", 1)[-1],
                        url=row["url"], image=row["image"], published=row["published"], duration=row["duration"],
                        podcast_title=row["podcast_title"] or (loaded[0].title if loaded else ""))
+
+
+def next_episode(episodes, rows):
+    """The oldest episode by release date that you haven't played or started;
+    None when you're up to date. `episodes` are newest first, as feeds give them."""
+    for episode in reversed(episodes):
+        row = find(rows, episode)
+        if not (row and (row["played"] or row["position"])):
+            return episode
+    return None

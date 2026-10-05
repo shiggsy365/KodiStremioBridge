@@ -21,7 +21,7 @@ from podcasts_ui import common, menus, router, service  # noqa: E402
 
 BASE = "plugin://plugin.audio.shiggsy365.podcasts/"
 FEED = "https://feeds.example/show.xml"
-SETTINGS = {"country": "gb", "feed_cache_minutes": 30, "latest_days": 30, "ask_resume": True,
+SETTINGS = {"country": "gb", "feed_cache_minutes": 30, "ask_resume": True,
             "sync_enabled": False, "sync_type": 0, "sync_server": "", "sync_username": "", "sync_password": "",
             "sync_device": "kodi", "sync_minutes": 15}
 
@@ -233,12 +233,15 @@ def test_changes_reload_widgets(listing, monkeypatch):
     assert bumps == [1, 1]
 
 
-def test_unplayed_podcasts_lists_subscriptions_not_started(listing):
+def test_unplayed_podcasts_lists_podcasts_with_episodes_waiting(listing, item_details, monkeypatch):
+    monkeypatch.setattr(common.ADDON, "getLocalizedString", lambda i: {30032: "{count} unplayed"}.get(i, f"#{i}"))
     items, ends = listing
     store = common.get_store()
     store.subscribe(Podcast(title="The Example Show", feed_url=FEED, image="https://img/show.jpg"), dirty=False)
     call("unplayed_podcasts")
     assert [p.get("feed") for p, _, _ in items] == [FEED]
-    store.record(make_feed()[1][0], 900, 3600)
+    assert item_details[-1]["label2"] == "2 unplayed"
+    for episode in make_feed()[1]:
+        store.set_played(episode, True)
     call("unplayed_podcasts")
     assert len(items) == 1 and ends == [True, True]

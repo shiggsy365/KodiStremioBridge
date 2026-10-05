@@ -46,8 +46,7 @@ def get_directory(store=None):
 
 def get_library():
     store = get_store()
-    return Library(store, get_directory(store), feed_ttl=ADDON.getSettingInt("feed_cache_minutes") * 60,
-                   latest_days=ADDON.getSettingInt("latest_days") or 30, log=log)
+    return Library(store, get_directory(store), feed_ttl=ADDON.getSettingInt("feed_cache_minutes") * 60, log=log)
 
 
 def get_sync_client():

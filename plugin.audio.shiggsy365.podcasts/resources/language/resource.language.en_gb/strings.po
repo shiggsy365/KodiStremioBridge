@@ -135,6 +135,10 @@ msgctxt "#30030"
 msgid "Played"
 msgstr ""
 
+msgctxt "#30032"
+msgid "{count} unplayed"
+msgstr ""
+
 msgctxt "#30031"
 msgid "My Unplayed Podcasts"
 msgstr ""
@@ -155,13 +159,7 @@ msgctxt "#30103"
 msgid "Keep podcast feeds for (minutes)"
 msgstr ""
 
-msgctxt "#30104"
-msgid "Show new episodes from the last (days)"
-msgstr ""
 
-msgctxt "#30105"
-msgid "For podcasts you've never played, My Latest Episodes shows their newest episode if it's this recent."
-msgstr ""
 
 msgctxt "#30106"
 msgid "Ask whether to resume"
