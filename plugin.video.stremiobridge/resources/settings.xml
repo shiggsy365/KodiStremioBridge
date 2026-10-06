@@ -59,6 +59,17 @@
         </category>
         <category id="playback" label="30140">
             <group id="1">
+                <setting id="select_action" type="integer" label="30421" help="30424">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30422">0</option>
+                            <option label="30423">1</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
                 <setting id="autoplay" type="boolean" label="30141" help="30142">
                     <level>0</level>
                     <default>false</default>
@@ -463,11 +474,6 @@
                     <control type="button" format="action">
                         <close>true</close>
                     </control>
-                </setting>
-                <setting id="select_opens_info" type="boolean" label="30323" help="30324">
-                    <level>0</level>
-                    <default>false</default>
-                    <control type="toggle"/>
                 </setting>
                 <setting id="hide_watched" type="boolean" label="30325" help="30326">
                     <level>0</level>

@@ -48,6 +48,12 @@ def skin_active():
     return xbmc.getSkinDir() == SKIN_ID
 
 
+def select_opens_info():
+    """Playback > When a title is selected: 0 shows its information page, 1 plays it
+    (and a show or season opens its folder)."""
+    return ADDON.getSettingInt("select_action") == 0
+
+
 def library_enabled():
     return not skin_active()
 

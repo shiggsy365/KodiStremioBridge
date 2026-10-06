@@ -101,7 +101,7 @@
                             <param name="glow_height" value="295" />
                         </include>
                     </focusedlayout>
-                    <content target="videos" sortby="episode" sortorder="ascending">$INFO[Container(526).ListItem.FolderPath]</content>
+                    <content target="videos" sortby="episode" sortorder="ascending">$VAR[SBSeasonEpisodesPath]</content>
                 </control>
                 <control type="scrollbar" id="1603">
                     <include content="scrollbar_hor">
@@ -130,4 +130,11 @@
             </include>
         </control>
     </include>
+    <!-- The focused season's episodes. Stremio Bridge's seasons give their folder as a property:
+         their own path may open the season's information page instead. -->
+    <variable name="SBSeasonEpisodesPath">
+        <value condition="!String.IsEmpty(Container(526).ListItem.Property(stremiobridge.season_path))">$INFO[Container(526).ListItem.Property(stremiobridge.season_path)]</value>
+        <value>$INFO[Container(526).ListItem.FolderPath]</value>
+    </variable>
+
 </includes>

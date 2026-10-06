@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.13.1"
+       version="0.13.2"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -22,7 +22,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.13.1 - Setup in three steps: MDBList API key (Skip, Enter, Cancel setup), a Stremio addon (Enter, Cancel setup), then more addons until Skip.
-v0.13.0 - For Arctic Zephyr Stremio's new look: info page text (Play / Resume S1 E3, facts, age rating and rating, episode ratings); the info page header follows the focused episode; season and episode context menus are a single watched toggle; picking an episode plays or opens streams per the autoplay setting; full release dates on catalog items; catalogs open in the skin's new Stremio view. Next Page on a home widget or hub row reloads the row in place on the next page (with Previous Page), focused on its first title; hub rows get Filter by Genre, also in place. Selecting a show opens its info page when selecting opens info. A saved view the skin no longer has falls back to the default. New "Back stops playback" setting (on). Playing again straight after a Stop no longer fails: a stream that fails to open is tried once more before the next one.</news>
+        <news>v0.13.2 - New Playback setting "When a title is selected": show its information page (default) or play it. Seasons follow it too.
+v0.13.1 - Setup in three steps: MDBList API key (Skip, Enter, Cancel setup), a Stremio addon (Enter, Cancel setup), then more addons until Skip.
+v0.13.0 - For Arctic Zephyr Stremio's new look: info page text and episode cards; widgets and hub rows page in place; shows open their information page; Back stops playback; a stream that fails to open after a quick replay is tried again.</news>
     </extension>
 </addon>

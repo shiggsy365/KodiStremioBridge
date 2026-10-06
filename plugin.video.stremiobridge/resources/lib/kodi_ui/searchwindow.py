@@ -12,7 +12,7 @@ from .browse import type_label
 from stremio import StremioError
 from stremio.catalog import fetch_catalog, next_page
 
-from .common import ADDON, L, busy, get_client, get_watchstate, log
+from .common import ADDON, L, busy, get_client, get_watchstate, log, select_opens_info
 from .details import play_trailer
 from .infodialog import extended_info, open_folder, play_with_resume_choice
 from .listitems import PLAYABLE_TYPES
@@ -207,7 +207,7 @@ def search_window(plugin, query, type=None, person=None):
             continue  # back from Extended info: show the results again
         if action == "trailer":
             play_trailer(plugin, preview.type, preview.id, yt=preview.trailer or None)
-        elif preview.type != "tv" and ADDON.getSettingBool("select_opens_info"):  # live TV just plays
+        elif preview.type != "tv" and select_opens_info():  # live TV just plays
             if not extended_info(plugin, preview.type, preview.id):
                 continue  # back from Extended info: show the results again
         elif preview.type in PLAYABLE_TYPES:

@@ -8,7 +8,7 @@ import xbmcgui
 from stremio.models import CAST
 from stremio.watchstate import next_episode
 
-from .common import ADDON, L, add_context_menu, get_mdblist, get_watchstate, skin_active
+from .common import ADDON, L, add_context_menu, get_mdblist, get_watchstate, select_opens_info, skin_active
 
 # Stremio type -> (Kodi media type, container content)
 _KODI_TYPES = {
@@ -44,7 +44,7 @@ def playable_entry(plugin, item, type_, video_id, **params):
     with "Selecting a movie or episode opens Extended info", opens that page."""
     add_context_menu(item, pick_streams_menu(plugin, type_, video_id, **params))
     show_id = params.get("meta")
-    if ADDON.getSettingBool("select_opens_info") and (type_ == "movie" or (show_id and show_id != video_id)):
+    if select_opens_info() and (type_ == "movie" or (show_id and show_id != video_id)):
         url = plugin.url_for("extended_info", type=type_, id=show_id or video_id,
                              video=video_id if show_id else None)
         return url, item, False
@@ -219,7 +219,7 @@ def preview_item(plugin, preview, row=None, started=False, progress=None):
 
     if preview.type in PLAYABLE_TYPES:
         return playable_entry(plugin, item, preview.type, preview.id)
-    if ADDON.getSettingBool("select_opens_info"):  # the info page, with its season browser
+    if select_opens_info():  # the info page, with its season browser
         return plugin.url_for("extended_info", type=preview.type, id=preview.id), item, False
     return plugin.url_for("meta", type=preview.type, id=preview.id), item, True
 
@@ -263,6 +263,9 @@ def season_item(plugin, meta, season, episode_count, watched_count=0):
     add_context_menu(item, item_menu(plugin, meta.type, meta.id, all_watched, {"season": season},
                                        trailer=meta.trailer))
     url = plugin.url_for("season", type=meta.type, id=meta.id, season=season)
+    item.setProperty("stremiobridge.season_path", url)  # the episodes, for a skin's preview of them
+    if select_opens_info():  # the info page, on this season
+        return plugin.url_for("extended_info", type=meta.type, id=meta.id, season=season), item, False
     return url, item, True
 
 

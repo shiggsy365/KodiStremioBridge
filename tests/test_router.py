@@ -27,7 +27,7 @@ SETTINGS = {"cinemeta_fallback": False, "show_specials": True, "hide_unaired": F
             "upnext_enabled": True, "same_source_next": True, "mdblist_enabled": False, "mdblist_api_key": "",
             "mdblist_scrobble": True, "mdblist_sync_hours": 6, "library_watchlist": False,
             "view_movies": "", "view_tvshows": "", "view_seasons": "Seasons Info v2 (526)", "view_episodes": "", "show_watchlist": True,
-            "genre_filter": False, "select_opens_info": False, "hide_watched": False, "show_widgets_folder": False,
+            "genre_filter": False, "select_action": 1, "hide_watched": False, "show_widgets_folder": False,
             "continue_with_next_up": False, "prewarm": False, "tidy_names": True}
 
 
@@ -2077,7 +2077,7 @@ def test_select_opens_info_setting(server, listing, settings):
     key = common.get_registry().all()[0].key
     call("catalog", addon=key, type="movie", id="top")
     assert items == [({"action": "play", "type": "movie", "id": "tt1"}, False)]
-    settings["select_opens_info"] = True
+    settings["select_action"] = 0
     items.clear()
     call("catalog", addon=key, type="movie", id="top")
     assert items == [({"action": "extended_info", "type": "movie", "id": "tt1"}, False)]
@@ -2499,11 +2499,11 @@ def test_extended_info_for_an_episode(server, settings, info_dialog, monkeypatch
 def test_select_opens_extended_info_for_episodes(server, listing, settings):
     install(server)
     server.routes["/meta/series/tt5.json"] = SHOW
-    settings["select_opens_info"] = True
+    settings["select_action"] = 0
     items, _ = listing
     call("season", type="series", id="tt5", season=2)
     assert items[0] == ({"action": "extended_info", "type": "series", "id": "tt5", "video": "tt5:2:1"}, False)
-    settings["select_opens_info"] = False
+    settings["select_action"] = 1
     items.clear()
     call("season", type="series", id="tt5", season=2)
     assert items[0][0]["action"] == "play"
@@ -3224,7 +3224,7 @@ def test_shows_open_the_info_page_when_selecting_opens_it(server, listing, setti
     items, _ = listing
     call("catalog", addon=key, type="series", id="top")
     assert items[-1] == ({"action": "meta", "type": "series", "id": "tt5"}, True)
-    settings["select_opens_info"] = True
+    settings["select_action"] = 0
     items.clear()
     call("catalog", addon=key, type="series", id="top")
     assert items[-1] == ({"action": "extended_info", "type": "series", "id": "tt5"}, False)
@@ -3254,3 +3254,15 @@ def test_back_stops_playback_keymap(settings, monkeypatch, tmp_path):
     settings["back_stops"] = False
     assert keymap.apply_keymap() and not path.exists()
     assert builtins == ["Action(reloadkeymaps)"] * 2
+
+
+def test_seasons_open_the_info_page_when_selecting_opens_it(server, listing, settings):
+    install(server)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    items, _ = listing
+    call("meta", type="series", id="tt5")
+    assert {p["action"] for p, folder in items} == {"season"}            # Play it: folders
+    settings["select_action"] = 0
+    items.clear()
+    call("meta", type="series", id="tt5")
+    assert all(p["action"] == "extended_info" and p["season"] and folder is False for p, folder in items)
