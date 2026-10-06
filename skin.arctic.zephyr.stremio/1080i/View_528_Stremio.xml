@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Arctic Zephyr Stremio: a list view in the home page's style (Includes_Home.xml,
+     Includes_StremioInfo.xml). The focused title's fanart, its header (SBItemHeader: logo or
+     title, facts with the full release date, pills, genres, scrolling plot), the time and date
+     top right, and one row of rounded posters. Stremio Bridge opens movie and series
+     catalogs in it. -->
+<includes>
+
+    <include name="View_528_Stremio">
+        <description>Stremio View (id=528)</description>
+        <control type="group">
+            <include>Animation.Common</include>
+            <visible>Control.IsVisible(528)</visible>
+            <control type="image">
+                <include>Dimensions_Fullscreen</include>
+                <texture colordiffuse="FF0B0E12">common/white.png</texture>
+            </control>
+            <control type="image">
+                <include>Dimensions_Fullscreen</include>
+                <aspectratio>scale</aspectratio>
+                <fadetime>BackgroundFanartFadetime</fadetime>
+                <texture background="true">$INFO[Container(528).ListItem.Art(fanart)]</texture>
+            </control>
+            <control type="image">
+                <include>Dimensions_Fullscreen</include>
+                <texture>stremio/shade-left.png</texture>
+            </control>
+            <control type="image">
+                <include>Dimensions_Fullscreen</include>
+                <texture>stremio/shade-bottom.png</texture>
+            </control>
+            <include content="SBItemHeader">
+                <param name="id" value="528"/>
+                <param name="top" value="60"/>
+            </include>
+            <!-- time and date, top right -->
+            <control type="label">
+                <right>80</right>
+                <top>52</top>
+                <width>600</width>
+                <height>40</height>
+                <align>right</align>
+                <font>SBInfoFacts</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[System.Time]</label>
+            </control>
+            <control type="label">
+                <right>80</right>
+                <top>92</top>
+                <width>600</width>
+                <height>32</height>
+                <align>right</align>
+                <font>SBInfoSmall</font>
+                <textcolor>FFB4B4B4</textcolor>
+                <label>$INFO[System.Date]</label>
+            </control>
+            <!-- the list's name and the focused position -->
+            <control type="label">
+                <left>80</left>
+                <top>584</top>
+                <width>1300</width>
+                <height>48</height>
+                <aligny>center</aligny>
+                <font>SBInfoTab</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>[B]$INFO[Container.PluginCategory][/B]</label>
+                <visible>!String.IsEmpty(Container.PluginCategory)</visible>
+            </control>
+            <control type="label">
+                <left>80</left>
+                <top>584</top>
+                <width>1300</width>
+                <height>48</height>
+                <aligny>center</aligny>
+                <font>SBInfoTab</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>[B]$INFO[Container.FolderName][/B]</label>
+                <visible>String.IsEmpty(Container.PluginCategory)</visible>
+            </control>
+            <control type="label">
+                <right>80</right>
+                <top>584</top>
+                <width>400</width>
+                <height>48</height>
+                <align>right</align>
+                <aligny>center</aligny>
+                <font>SBInfoSmall</font>
+                <textcolor>FFA0A0A0</textcolor>
+                <label>$INFO[Container(528).CurrentItem]$INFO[Container(528).NumItems, / ]</label>
+            </control>
+        </control>
+        <control type="list" id="528">
+            <left>68</left>
+            <top>650</top>
+            <width>2078</width>
+            <height>360</height>
+            <orientation>horizontal</orientation>
+            <onup condition="!Skin.HasSetting(global.kioskmode)">9000</onup>
+            <ondown>noop</ondown>
+            <onleft>528</onleft>
+            <onright>528</onright>
+            <preloaditems>2</preloaditems>
+            <scrolltime tween="cubic" easing="out">250</scrolltime>
+            <!-- the ".." (parent folder) tile sits off screen to the left -->
+            <animation effect="slide" end="-226,0" time="0" condition="String.IsEqual(Container(528).ListItemAbsolute(0).Label,..)">Conditional</animation>
+            <visible>Container.Content(movies) | Container.Content(tvshows) | Container.Content(sets) | Container.Content(videos)</visible>
+            <include content="forced_view" condition="Skin.HasSetting(enable.forcedviews)">
+                <param name="string" value="$LOCALIZE[31960]" />
+            </include>
+            <viewtype label="31960">list</viewtype>
+            <include>Animation.Common</include>
+            <itemlayout width="226" height="360">
+                <control type="group">
+                    <visible>!ListItem.IsParentFolder</visible>
+                    <include>SBInfoPosterItem</include>
+                    <include>SBListWatchedBadge</include>
+                </control>
+            </itemlayout>
+            <focusedlayout width="226" height="360">
+                <control type="group">
+                    <visible>!ListItem.IsParentFolder</visible>
+                    <include>SBInfoPosterItem</include>
+                    <include>SBListWatchedBadge</include>
+                </control>
+                <control type="image">
+                    <left>12</left>
+                    <top>4</top>
+                    <width>200</width>
+                    <height>300</height>
+                    <texture border="14">stremio/poster-focus.png</texture>
+                    <visible>Control.HasFocus(528)</visible>
+                </control>
+            </focusedlayout>
+        </control>
+    </include>
+
+    <!-- a tick in a dark circle on a watched title's poster -->
+    <include name="SBListWatchedBadge">
+        <control type="group">
+            <left>168</left>
+            <top>14</top>
+            <visible>ListItem.IsPlayed</visible>
+            <control type="image">
+                <width>34</width>
+                <height>34</height>
+                <texture colordiffuse="CC000000">stremio/circle.png</texture>
+            </control>
+            <control type="image">
+                <left>7</left>
+                <top>7</top>
+                <width>20</width>
+                <height>20</height>
+                <texture colordiffuse="FFFFFFFF">indicator/checkmark.png</texture>
+            </control>
+        </control>
+    </include>
+
+</includes>

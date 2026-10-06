@@ -592,11 +592,11 @@ msgid "Widgets"
 msgstr ""
 
 msgctxt "#30323"
-msgid "Selecting a movie or episode opens Extended info"
+msgid "Selecting a movie, show or episode opens Extended info"
 msgstr ""
 
 msgctxt "#30324"
-msgid "Show the details page (cast, ratings, trailer) first, and play from its Play or Streams button. Off: selecting a movie or episode plays it."
+msgid "Show the details page (cast, ratings, trailer) first, and play from its Play or Streams button. Off: selecting a movie or episode plays it, and a show opens its seasons."
 msgstr ""
 
 msgctxt "#30325"
@@ -1231,4 +1231,40 @@ msgstr ""
 
 msgctxt "#30406"
 msgid "No aired episodes to play"
+msgstr ""
+
+msgctxt "#30407"
+msgid "Resume"
+msgstr ""
+
+msgctxt "#30408"
+msgid "Play S{season} E{episode}"
+msgstr ""
+
+msgctxt "#30409"
+msgid "Resume S{season} E{episode}"
+msgstr ""
+
+msgctxt "#30410"
+msgid "{count} Seasons"
+msgstr ""
+
+msgctxt "#30411"
+msgid "1 Season"
+msgstr ""
+
+msgctxt "#30412"
+msgid "S{season} E{episode}"
+msgstr ""
+
+msgctxt "#30413"
+msgid "Previous Page"
+msgstr ""
+
+msgctxt "#30414"
+msgid "Back stops playback"
+msgstr ""
+
+msgctxt "#30415"
+msgid "Back in full-screen video stops it, like the Stop button, instead of leaving it playing behind the menus. Applies to all videos in Kodi."
 msgstr ""

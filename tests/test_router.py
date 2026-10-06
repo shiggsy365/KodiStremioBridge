@@ -1628,12 +1628,23 @@ def test_service_retries_next_stream_on_error(settings, window, monkeypatch):
     played = []
     monkeypatch.setattr(service.xbmc, "executebuiltin", lambda cmd, *a: played.append(cmd))
     monkeypatch.setattr(xbmcgui.Dialog, "notification", lambda *a, **k: None)
-    service.retry_next_stream(retry)
-    assert played == [f"PlayMedia({BASE}?action=play&type=movie&id=tt1&binge=g&resume=1&start=1&tries=1)"]
+    monkeypatch.setattr(service.xbmc, "sleep", lambda ms: None)
+    service.retry_next_stream(retry)                          # first: the same stream again
+    service.retry_next_stream({**retry, "tries": 1})          # then the next one
+    assert played == [f"PlayMedia({BASE}?action=play&type=movie&id=tt1&binge=g&resume=1&start=0&tries=1)",
+                      f"PlayMedia({BASE}?action=play&type=movie&id=tt1&binge=g&resume=1&start=1&tries=2)"]
 
-    service.retry_next_stream({**retry, "next": 3})            # nothing left to try
+    service.retry_next_stream({**retry, "next": 3, "tries": 1})   # nothing left to try
     service.retry_next_stream({**retry, "tries": service.MAX_STREAM_RETRIES})
-    assert len(played) == 1
+    assert len(played) == 2
+
+    # Played again straight after a Stop: the error for the new play arrives
+    # before the old video's stop. The old one is saved and the new one retried.
+    worker.jobs.clear()
+    tracker.entry = PlaybackEntry(video_id="tt1", type="movie")
+    common.announce_playback(PlaybackEntry(video_id="tt1", type="movie"), 0, retry)
+    tracker.onPlayBackError()
+    assert [job for job, _ in worker.jobs] == ["after_playback", "retry_next_stream"] and tracker.entry is None
 
     worker.jobs.clear()                                       # Stop before starting: the user cancelled
     common.announce_playback(PlaybackEntry(video_id="tt1", type="movie"), 0, retry)
@@ -1833,7 +1844,7 @@ def test_choose_and_apply_view(settings, monkeypatch, kodi_ui_state, tmp_path):
     monkeypatch.setattr(views.xbmcaddon.Addon, "getLocalizedString",
                         lambda self, n: "Seasons Info v2" if n == 31530 else "")
     assert views.stored_view_id("seasons") == 526
-    assert views.stored_view_id("movies") == 521 and views.stored_view_id("tvshows") == 521   # Poster Flix v2
+    assert views.stored_view_id("movies") == 528 and views.stored_view_id("tvshows") == 528   # Stremio
 
     settings["view_movies"] = "Wall (52)"
     applied = []
@@ -1934,6 +1945,7 @@ def test_genre_filter_when_browsing_not_on_widgets(server, listing, settings, mo
     settings["genre_filter"] = True
     in_videos = {"value": True}
     monkeypatch.setattr(browse, "browsing_in_videos_window", lambda: in_videos["value"])
+    monkeypatch.setattr(browse, "browsing_in_hub", lambda: False)
     items, _ = listing
 
     call("catalog", addon=key, type="movie", id="top")
@@ -2738,8 +2750,16 @@ def test_context_menu_order(monkeypatch):
     assert [label for label, _ in entries] == [
         "Play", "Information", "Mark as watched", "Show Playable Streams", "Add to watchlist",
         "Remove from Continue Watching", "Play trailer", "Add to favourites"]
-    assert entries[0][1] == f"PlayMedia({path})"
+    # Play and the stream picker take the info page's route: its resume question and autoplay setting
+    play = dict(parse_qsl(urlsplit(entries[0][1][len("RunPlugin("):-1]).query))
+    assert play == {"action": "info_play", "type": "series", "id": "tt2", "video": "tt2:1:3"}
+    streams = dict(parse_qsl(urlsplit(entries[3][1][len("RunPlugin("):-1]).query))
+    assert streams == {"action": "info_play", "type": "series", "id": "tt2", "video": "tt2:1:3", "pick": "1"}
     assert "action=extended_info" in entries[1][1] and "video=tt2%3A1%3A3" in entries[1][1]
+
+    show = contextmenu.menu_entries(plugin, "plugin://plugin.video.stremiobridge/?action=meta&type=series&id=tt2",
+                                    [], favourite=False)
+    assert show[0][0] == "Play" and "action=info_play" in show[0][1]  # a show plays its next episode
     assert contextmenu.item_target("plugin://plugin.video.stremiobridge/?action=catalog&type=movie&id=top") is None
 
 
@@ -2760,6 +2780,31 @@ def test_continue_watching_pages(server, listing, settings, monkeypatch):
     items.clear()
     call("continue", page="3")
     assert [p.get("id") for p, _ in items] == ["tt0"]
+
+
+def test_continue_watching_widget_pages_in_place(server, listing, settings, monkeypatch, home_props):
+    from kodi_ui import browse, watching
+
+    install(server)
+    clock = {"now": 1000.0}
+    monkeypatch.setattr(common, "get_watchstate", lambda: WatchStateAt(clock))
+    monkeypatch.setattr(watching, "CONTINUE_PAGE", 2)
+    monkeypatch.setattr(browse, "browsing_in_videos_window", lambda: False)   # a home widget
+    monkeypatch.setattr(browse.xbmc, "getInfoLabel", lambda label: "3011" if label == "System.CurrentControlId" else "")
+    monkeypatch.setattr(browse.xbmc, "getCondVisibility", lambda cond: False)
+    monkeypatch.setattr(browse.xbmc, "executebuiltin", lambda cmd, *a: None)
+    monkeypatch.setattr(browse.xbmc.Monitor, "waitForAbort", lambda self, t=0: False)
+    state = common.get_watchstate()
+    for n in range(5):
+        clock["now"] += 10
+        state.record(PlaybackEntry(video_id=f"tt{n}", type="movie", title=f"M{n}"), 600, 6000)
+    items, _ = listing
+    call("continue", reload="1")
+    assert items[-1] == ({"action": "row_page", "list": "continue", "skip": "2"}, False)
+    call("row_page", handle=-1, list="continue", skip="2")
+    items.clear()
+    call("continue", reload="2")
+    assert [p.get("id") or p.get("back") for p, _ in items[:3]] == ["1", "tt2", "tt1"]   # Previous Page, page 2
 
 
 def test_streaming_services_for_a_title(server, monkeypatch):
@@ -2932,3 +2977,257 @@ def test_context_menu_in_the_info_page_show_browser_is_the_episodes(monkeypatch)
 
     monkeypatch.setattr(contextmenu.xbmc, "getCondVisibility", lambda cond: False)          # no info page open
     assert contextmenu.focused_item() == ("ListItem", page)
+
+
+# ---------------------------------------------------------------- the info page's text (Arctic Zephyr Stremio)
+
+PAGE_STRINGS = {30221: "Play", 30407: "Resume", 30408: "Play S{season} E{episode}",
+                30409: "Resume S{season} E{episode}", 30410: "{count} Seasons", 30411: "1 Season",
+                30412: "S{season} E{episode}"}
+
+RATED_SHOW = {"meta": {
+    "id": "tt6", "type": "series", "name": "Rated Show", "releaseInfo": "2011-2019", "runtime": "57min",
+    "imdbRating": "9.2", "genres": ["Drama", "Fantasy"], "app_extras": {"certification": "TV-MA"},
+    "videos": [
+        {"id": "tt6:1:1", "season": 1, "episode": 1, "title": "Pilot", "released": "2011-04-17T00:00:00.000Z",
+         "rating": "8.9"},
+        {"id": "tt6:1:2", "season": 1, "episode": 2, "title": "Second", "released": "2011-04-24T00:00:00.000Z",
+         "rating": "0"},
+        {"id": "tt6:2:1", "season": 2, "episode": 1, "title": "Return", "released": "2012-04-01T00:00:00.000Z"},
+    ],
+}}
+
+
+@pytest.fixture
+def page_strings(monkeypatch):
+    monkeypatch.setattr(common.ADDON, "getLocalizedString", lambda i: PAGE_STRINGS.get(i, f"#{i}"))
+
+
+def test_page_text_for_a_show_an_episode_and_a_movie(server, settings, page_strings):
+    from kodi_ui import infodialog
+    from kodi_ui.details import load_meta
+
+    install(server)
+    server.routes["/meta/series/tt6.json"] = RATED_SHOW
+    server.routes["/meta/movie/tt1.json"] = {"meta": {"id": "tt1", "type": "movie", "name": "Film",
+                                                      "releaseInfo": "2010", "runtime": "148 min"}}
+    state = common.get_watchstate()
+    show = load_meta("series", "tt6")
+
+    text = infodialog.page_text(show, None, state)
+    assert text["play_label"] == "Play S1 E1"
+    assert text["facts"] == "2011   2 Seasons   57m"
+    assert (text["genres"], text["certification"], text["rating"]) == ("Drama  •  Fantasy", "TV-MA", "9.2")
+    assert text["subtitle"] == ""
+
+    state.set_watched([PlaybackEntry(video_id="tt6:1:1", type="series", meta_id="tt6", season=1, episode=1)], True)
+    second = PlaybackEntry(video_id="tt6:1:2", type="series", meta_id="tt6", season=1, episode=2)
+    state.record(second, 600, 3400)
+    assert infodialog.page_text(show, None, state)["play_label"] == "Resume S1 E2"
+
+    pilot = show.videos[0]
+    text = infodialog.page_text(show, pilot, state)
+    assert (text["play_label"], text["subtitle"], text["rating"]) == ("Play S1 E1", "S1 E1  Pilot", "8.9")
+    assert text["facts"] == "2011   57m"                     # an episode's page: no season count
+    assert infodialog.page_text(show, show.videos[1], state)["rating"] == ""  # "0" means unrated
+
+    movie = load_meta("movie", "tt1")
+    text = infodialog.page_text(movie, None, state)
+    assert (text["play_label"], text["facts"]) == ("Play", "2010   2h 28m")
+
+
+def test_info_episode_cards_carry_code_and_rating(server, monkeypatch, page_strings):
+    install(server)
+    server.routes["/meta/series/tt6.json"] = RATED_SHOW
+    captured = []
+    props = {}
+    monkeypatch.setattr(xbmcgui.ListItem, "setProperty",
+                        lambda self, key, value: props.setdefault(id(self), {}).__setitem__(key, value))
+    monkeypatch.setattr(xbmcplugin, "addDirectoryItems",
+                        lambda handle, entries, total=0: captured.extend(entries) or True)
+    call("info_episodes", type="series", id="tt6", season=1)
+    cards = [props[id(item)] for _, item, _ in captured]
+    assert [(c["stremiobridge.code"], c.get("stremiobridge.rating")) for c in cards] == [("S1 E1", "8.9"),
+                                                                                       ("S1 E2", None)]
+
+
+# ---------------------------------------------------------------- the info page's browser (Arctic Zephyr Stremio)
+
+@pytest.fixture
+def home_props(monkeypatch):
+    props = {}
+    monkeypatch.setattr(xbmcgui.Window, "setProperty", lambda self, key, value: props.__setitem__(key, value))
+    monkeypatch.setattr(xbmcgui.Window, "getProperty", lambda self, key: props.get(key, ""))
+    monkeypatch.setattr(xbmcgui.Window, "clearProperty", lambda self, key: props.pop(key, None))
+    return props
+
+
+def test_browser_menus_offer_only_the_watched_toggle(monkeypatch, page_strings):
+    from kodi_ui import contextmenu
+
+    monkeypatch.setattr(common.ADDON, "getLocalizedString",
+                        lambda i: {30190: "Mark as watched", 30191: "Mark as unwatched"}.get(i, f"#{i}"))
+    monkeypatch.setattr(xbmc, "getInfoLabel", lambda label: "3" if label.endswith("Property(season)") else "")
+    plugin = router.Plugin([BASE, "1", ""])
+    season = common.plugin_url("season", type="series", id="tt5", season=2)
+    label, command = contextmenu.browser_entry(plugin, season, watched=False)
+    params = dict(parse_qsl(urlsplit(command[len("RunPlugin("):-1]).query))
+    assert label == "Mark as watched"
+    assert params == {"action": "info_mark", "type": "series", "id": "tt5", "season": "2", "tab": "3", "value": "1"}
+
+    episode = common.plugin_url("extended_info", type="series", id="tt5", video="tt5:3:4")
+    label, command = contextmenu.browser_entry(plugin, episode, watched=True)
+    params = dict(parse_qsl(urlsplit(command[len("RunPlugin("):-1]).query))
+    assert label == "Mark as unwatched"
+    assert params == {"action": "info_mark", "type": "series", "id": "tt5", "video": "tt5:3:4", "tab": "3", "value": "0"}
+
+
+def test_info_mark_reloads_the_browser_in_place(monkeypatch, home_props):
+    from kodi_ui import infodialog
+
+    marked = []
+    monkeypatch.setattr(infodialog, "mark_watched", lambda *args: marked.append(args) or True)
+    home_props["sbinfo.video"] = "tt5:3:4"   # the header is about this episode
+    call("info_mark", handle=-1, type="series", id="tt5", video="tt5:3:4", value=1, tab=3)
+    assert marked == [("series", "tt5:3:4", True, "tt5", None)]
+    assert (home_props["sbinfo.season_focus"], home_props["sbinfo.focus_video"]) == ("3", "tt5:3:4")
+    assert home_props["sbinfo.watched"] == "1" and home_props[infodialog.BROWSER_REVISION]
+
+    revision = home_props[infodialog.BROWSER_REVISION]
+    call("info_mark", handle=-1, type="series", id="tt5", season=2, value=0, tab=2)
+    assert marked[-1] == ("series", "tt5", False, None, "2")
+    assert home_props["sbinfo.season_focus"] == "2" and home_props[infodialog.BROWSER_REVISION] >= revision
+
+
+def test_info_page_header_follows_a_settled_episode_card(monkeypatch, home_props):
+    from kodi_ui import service
+
+    now = [1000.0]
+    card = {"Property(stremiobridge.video)": "tt5:1:2", "Property(stremiobridge.page.play_label)": "Play S1 E2",
+            "Property(stremiobridge.page.subtitle)": "S1 E2  Two", "Property(stremiobridge.play_action)": "PLAY",
+            "Plot": "Episode two.", "PlayCount": "1"}
+    monkeypatch.setattr(service.time, "time", lambda: now[0])
+    monkeypatch.setattr(xbmc, "getCondVisibility", lambda condition: True)
+    monkeypatch.setattr(xbmc, "getInfoLabel", lambda label: card.get(label.replace("Container(5061).ListItem.", ""), ""))
+    follower = service.InfoPageFollower(xbmcgui.Window(10000))
+
+    follower.tick()
+    now[0] += 0.5
+    follower.tick()
+    assert "sbinfo.play_label" not in home_props          # not settled yet
+    now[0] += 0.6
+    follower.tick()
+    assert home_props["sbinfo.play_label"] == "Play S1 E2"
+    assert (home_props["sbinfo.subtitle"], home_props["sbinfo.plot"]) == ("S1 E2  Two", "Episode two.")
+    assert (home_props["sbinfo.play_action"], home_props["sbinfo.video"], home_props["sbinfo.watched"]) == \
+        ("PLAY", "tt5:1:2", "1")
+
+
+# ---------------------------------------------------------------- widget and hub rows paged in place
+
+def test_widget_rows_page_in_place(server, listing, settings, monkeypatch, home_props):
+    from kodi_ui import browse
+
+    addon = install(server)
+    server.routes["/catalog/movie/top.json"] = metas(*[f"tt{i}" for i in range(20)])
+    server.routes["/catalog/movie/top/skip=20.json"] = metas(*[f"tt{i}" for i in range(20, 40)])
+    settings["genre_filter"] = True
+    monkeypatch.setattr(browse, "browsing_in_videos_window", lambda: False)   # a home widget
+    monkeypatch.setattr(browse, "browsing_in_hub", lambda: False)
+    builtins, labels = [], {"System.CurrentControlId": "3011"}
+    monkeypatch.setattr(browse.xbmc, "executebuiltin", lambda cmd, *a: builtins.append(cmd))
+    monkeypatch.setattr(browse.xbmc, "getInfoLabel", lambda label: labels.get(label, ""))
+    monkeypatch.setattr(browse.xbmc, "getCondVisibility", lambda cond: False)
+    monkeypatch.setattr(browse.xbmc.Monitor, "waitForAbort", lambda self, t=0: False)
+    items, _ = listing
+
+    call("catalog", addon=addon.key, type="movie", id="top", reload="17")   # the reload token in its path
+    *_, (next_page, folder) = items
+    assert next_page == {"action": "row_page", "addon": addon.key, "type": "movie", "id": "top",
+                         "skip": "20", "ps": "20"} and folder is False   # no filter tile on a home widget
+
+    row = browse.row_key(addon.key, "movie", "top")
+    call("row_page", handle=-1, **{k: v for k, v in next_page.items() if k != "action"})
+    assert home_props[common.WIDGETS_RELOAD]                       # the row reloads ...
+    assert builtins[-1].startswith("SetFocus(3011,")                # ... and gets the focus
+    items.clear()
+    call("catalog", addon=addon.key, type="movie", id="top", reload="18")   # ... on page 2, after Previous Page
+    assert items[0][0]["action"] == "row_page" and items[0][0]["back"] == "1"
+    assert items[1][0]["id"] == "tt20"
+    assert browse.row_state(row)["first"] == 1                     # where the page's first title is
+
+    call("row_page", handle=-1, addon=addon.key, type="movie", id="top", back=1)
+    items.clear()
+    call("catalog", addon=addon.key, type="movie", id="top", reload="19")
+    assert items[0][0]["id"] == "tt0" and browse.row_state(row)["first"] == 0
+
+    # A row without the reload token in its path opens the page in the Videos window.
+    call("catalog", addon=addon.key, type="movie", id="top")
+    call("row_page", handle=-1, addon=addon.key, type="movie", id="top", skip=20, ps=20)
+    assert builtins[-1] == (f'ActivateWindow(Videos,"{BASE}?action=catalog&addon={addon.key}&type=movie&id=top'
+                            f'&skip=20&ps=20",return)')
+
+
+def test_hub_rows_filter_in_place(server, listing, settings, monkeypatch, home_props):
+    from kodi_ui import browse
+
+    key = install(server).key
+    server.routes["/catalog/movie/top.json"] = metas("tt1")
+    server.routes["/catalog/movie/top/genre=Sci-Fi.json"] = metas("tt9")
+    settings["genre_filter"] = True
+    monkeypatch.setattr(browse, "browsing_in_videos_window", lambda: False)
+    monkeypatch.setattr(browse, "browsing_in_hub", lambda: True)
+    builtins, labels = [], {"System.CurrentControlId": "9500"}
+    monkeypatch.setattr(browse.xbmc, "executebuiltin", lambda cmd, *a: builtins.append(cmd))
+    monkeypatch.setattr(browse.xbmc, "getInfoLabel", lambda label: labels.get(label, ""))
+    monkeypatch.setattr(browse.xbmc, "getCondVisibility", lambda cond: False)
+    monkeypatch.setattr(browse.xbmc.Monitor, "waitForAbort", lambda self, t=0: False)
+    monkeypatch.setattr(xbmcgui.Dialog, "select", lambda self, heading, labels, preselect=-1: 2)   # Sci-Fi
+    items, _ = listing
+
+    call("catalog", addon=key, type="movie", id="top", reload="")
+    (picker, _), (movie, _) = items
+    assert picker["action"] == "choose_filter" and picker["row"] and movie["id"] == "tt1"
+    call("choose_filter", handle=-1, **{k: v for k, v in picker.items() if k != "action"})
+    assert builtins[-1].startswith("SetFocus(9500,")               # reloaded in place
+    items.clear()
+    call("catalog", addon=key, type="movie", id="top", reload="20")
+    assert items[1][0]["id"] == "tt9" and browse.row_state(picker["row"])["first"] == 1
+
+
+def test_shows_open_the_info_page_when_selecting_opens_it(server, listing, settings):
+    key = install(server).key
+    server.routes["/catalog/series/top.json"] = {"metas": [{"id": "tt5", "type": "series", "name": "Show"}]}
+    items, _ = listing
+    call("catalog", addon=key, type="series", id="top")
+    assert items[-1] == ({"action": "meta", "type": "series", "id": "tt5"}, True)
+    settings["select_opens_info"] = True
+    items.clear()
+    call("catalog", addon=key, type="series", id="top")
+    assert items[-1] == ({"action": "extended_info", "type": "series", "id": "tt5"}, False)
+
+
+def test_a_stored_view_the_skin_dropped_falls_back_to_the_default(settings, monkeypatch):
+    from kodi_ui import views
+
+    monkeypatch.setattr(views.xbmc, "getSkinDir", lambda: "skin.arctic.zephyr.stremio")
+    monkeypatch.setattr(views, "_skin_xml_folders", lambda: [])
+    monkeypatch.setattr(views, "_video_window_views", lambda folders: [528, 50, 500, 515, 526])
+    settings["view_movies"] = "PVR (53)"                    # removed from the skin
+    settings["view_episodes"] = "Side Cards (515)"
+    assert views.stored_view_id("movies") == 528 and views.stored_view_id("episodes") == 515
+
+
+def test_back_stops_playback_keymap(settings, monkeypatch, tmp_path):
+    from kodi_ui import keymap
+
+    path = tmp_path / "keymaps" / "plugin.video.stremiobridge.xml"
+    monkeypatch.setattr(keymap.xbmcvfs, "translatePath", lambda p: str(path))
+    builtins = []
+    monkeypatch.setattr(keymap.xbmc, "executebuiltin", lambda cmd, *a: builtins.append(cmd))
+    settings["back_stops"] = True
+    assert keymap.apply_keymap() and "<back>Stop</back>" in path.read_text()
+    assert not keymap.apply_keymap()                     # already there: nothing to reload
+    settings["back_stops"] = False
+    assert keymap.apply_keymap() and not path.exists()
+    assert builtins == ["Action(reloadkeymaps)"] * 2

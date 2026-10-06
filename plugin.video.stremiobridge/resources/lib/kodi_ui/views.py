@@ -28,15 +28,15 @@ VIEW_SETTINGS = {
     "episodes": ("view_episodes", 30284),
 }
 # Used when no view is chosen in the settings. With Arctic Zephyr Stremio:
-# catalogs (movies, shows) open in Poster Flix v2, seasons in Seasons Info v2.
+# catalogs (movies, shows) open in its Stremio view, seasons in Seasons Info v2.
 DEFAULT_VIEW_IDS = {
-    "movies": {"skin.arctic.zephyr.stremio": 521},
-    "tvshows": {"skin.arctic.zephyr.stremio": 521},
+    "movies": {"skin.arctic.zephyr.stremio": 528},
+    "tvshows": {"skin.arctic.zephyr.stremio": 528},
     "seasons": {"skin.arctic.zephyr.stremio": 526},
 }
 SKIN_FORCED_VIEW_LABELS = {
-    ("skin.arctic.zephyr.stremio", "movies", 521): 31491,
-    ("skin.arctic.zephyr.stremio", "tvshows", 521): 31491,
+    ("skin.arctic.zephyr.stremio", "movies", 528): 31960,
+    ("skin.arctic.zephyr.stremio", "tvshows", 528): 31960,
     ("skin.arctic.zephyr.stremio", "seasons", 526): 31530,
 }
 _STORED_ID = re.compile(r"\((\d+)\)\s*$")
@@ -163,7 +163,10 @@ def stored_view_id(content):
     stored = ADDON.getSettingString(setting[0])
     match = _STORED_ID.search(stored)
     if match:
-        return int(match.group(1))
+        allowed = _video_window_views(_skin_xml_folders())
+        if allowed is None or int(match.group(1)) in allowed:
+            return int(match.group(1))
+        # a view the skin no longer has (e.g. after an update): use the default
     return DEFAULT_VIEW_IDS.get(content, {}).get(xbmc.getSkinDir())
 
 

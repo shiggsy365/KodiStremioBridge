@@ -207,7 +207,7 @@ def search_window(plugin, query, type=None, person=None):
             continue  # back from Extended info: show the results again
         if action == "trailer":
             play_trailer(plugin, preview.type, preview.id, yt=preview.trailer or None)
-        elif preview.type == "movie" and ADDON.getSettingBool("select_opens_info"):
+        elif preview.type != "tv" and ADDON.getSettingBool("select_opens_info"):  # live TV just plays
             if not extended_info(plugin, preview.type, preview.id):
                 continue  # back from Extended info: show the results again
         elif preview.type in PLAYABLE_TYPES:

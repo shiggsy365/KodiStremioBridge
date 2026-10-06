@@ -38,9 +38,15 @@ CONTINUE_PAGE = 20      # Continue Watching shows this many, then a Next page ti
 def continue_watching(plugin, page="1"):
     """Part-watched movies and episodes, newest first; with the setting on, also
     the next episode of shows you're watching (Netflix-style single row).
-    CONTINUE_PAGE at a time."""
+    CONTINUE_PAGE at a time; a widget pages in place (see browse.row_page)."""
+    from .browse import add_next_page, browsing_in_videos_window, row_key, row_start, row_state
+
     handle = plugin.handle
     page = max(1, int(page))
+    key = row_key("continue", "", "") if page == 1 and not browsing_in_videos_window() else None
+    row = row_state(key) if key else None
+    if row and row["pages"]:
+        page = row["pages"][-1][0]
     state = get_watchstate()
     rows = state.continue_watching()
     metas = resume_metas(rows)
@@ -58,14 +64,13 @@ def continue_watching(plugin, page="1"):
     more = len(entries) > page * CONTINUE_PAGE
     entries = entries[(page - 1) * CONTINUE_PAGE:page * CONTINUE_PAGE]
     items = [item for _, item, _ in entries]
+    if row is not None:
+        row_start(plugin, key, row, 0, list="continue")
     xbmcplugin.addDirectoryItems(handle, items, len(items))
-    if more:
-        from .browse import tile_art  # browse imports listitems, as does this module
-
-        item = xbmcgui.ListItem(L(30050))
-        item.setArt(tile_art("next_page.png"))
-        item.setProperty("SpecialSort", "bottom")
-        xbmcplugin.addDirectoryItem(handle, plugin.url_for("continue", page=page + 1), item, isFolder=True)
+    if more and key:
+        add_next_page(plugin, list="continue", skip=page + 1)
+    elif more:
+        add_next_page(plugin, url=plugin.url_for("continue", page=page + 1))
     episodes = sum(1 for _, _, is_episode in entries if is_episode)
     set_content(handle, "episodes" if entries and episodes == len(entries)
                 else "movies" if not episodes else "videos")

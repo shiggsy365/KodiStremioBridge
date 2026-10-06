@@ -64,6 +64,15 @@ def content_for(type_):
     return _KODI_TYPES.get(type_, ("video", "videos"))[1]
 
 
+GENRE_SEPARATOR = "  \u2022  "
+
+
+def set_genres(item, genres):
+    """Genres as Arctic Zephyr Stremio shows them ("Drama  •  Fantasy");
+    Kodi's own ListItem.Genre joins them with slashes."""
+    item.setProperty("stremiobridge.genres", GENRE_SEPARATOR.join(genres))
+
+
 def _apply_preview(item, preview):
     """Art and info shared by catalog entries and full metas."""
     art = {"fanart": preview.background, "clearlogo": preview.logo}
@@ -79,8 +88,11 @@ def _apply_preview(item, preview):
     tag.setPlot(preview.description)
     if preview.year:
         tag.setYear(preview.year)
+    if preview.premiered:
+        item.setProperty("ReleaseDate", _release_date(preview.premiered))
     if preview.genres:
         tag.setGenres(list(preview.genres))
+        set_genres(item, preview.genres)
     if preview.imdb_rating is not None:
         tag.setRating(preview.imdb_rating, type="imdb", isdefault=True)
     if preview.runtime_seconds:
@@ -207,6 +219,8 @@ def preview_item(plugin, preview, row=None, started=False, progress=None):
 
     if preview.type in PLAYABLE_TYPES:
         return playable_entry(plugin, item, preview.type, preview.id)
+    if ADDON.getSettingBool("select_opens_info"):  # the info page, with its season browser
+        return plugin.url_for("extended_info", type=preview.type, id=preview.id), item, False
     return plugin.url_for("meta", type=preview.type, id=preview.id), item, True
 
 
@@ -215,6 +229,13 @@ def meta_item(meta):
     item = xbmcgui.ListItem(meta.name)
     _apply_meta(item, meta)
     return item
+
+
+def episode_code(video):
+    """"S1 E3" (or "" for a video without numbers)."""
+    if video is None or video.season is None or video.episode is None:
+        return ""
+    return L(30412, season=video.season, episode=video.episode)
 
 
 def season_label(season):
@@ -348,6 +369,7 @@ def episode_listitem(meta, video, released=True):
         tag.setYear(int(video.air_date[:4]))
     if meta.genres:
         tag.setGenres(list(meta.genres))
+        set_genres(item, meta.genres)
     _apply_people(tag, meta)
     return item
 

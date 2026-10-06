@@ -64,6 +64,11 @@
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
+                <setting id="back_stops" type="boolean" label="30414" help="30415">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="sort_mode" type="integer" label="30143">
                     <level>0</level>
                     <default>0</default>

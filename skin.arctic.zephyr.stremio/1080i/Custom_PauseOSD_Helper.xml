@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Arctic Zephyr Stremio: pausing a video opens the OSD (its buttons), once per pause. The OSD
+     can still be closed while paused; this stays open (invisible) until playback resumes. -->
+<window type="dialog" id="1144">
+    <visible>Window.IsActive(fullscreenvideo) + Player.Paused + Player.HasVideo + !Player.Seeking + !Player.Caching + !VideoPlayer.Content(LiveTV)</visible>
+    <onload condition="!Window.IsVisible(videoosd)">ActivateWindow(videoosd)</onload>
+    <controls/>
+</window>

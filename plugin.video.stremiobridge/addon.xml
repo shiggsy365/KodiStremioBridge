@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.12.1"
+       version="0.13.0"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -22,18 +22,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.12.1 - New Kodi Stremio Bridge logo for the icon and fanart.
-v0.12.0 - One info page for movies, shows, seasons and episodes (Play, Available streams, Mark watched, Watchlist, Find similar, Cast, a season and episode browser); search as you type for Arctic Zephyr Stremio; one Mark as watched entry per level; watched banners for shows and seasons; posters for catalogs that send posterShape "regular"; catalogs default to Poster Flix v2.
-v0.11.8 - Show browsing now lives inside the info page with season chips and episode thumbnails.
-v0.11.7 - Hides music catalogs by default on new setups and restores watched banners for movies and episodes.
-v0.11.6 - Forces Arctic Zephyr Stremio's seasons view label before applying Seasons Info v2.
-v0.11.5 - Seasons default to Seasons Info v2 in Arctic Zephyr Stremio; episode info panels from season browsing show Bridge actions.
-v0.11.4 - Setup wizard syncs MDBList after saving an API key and reloads the skin when it completes.
-v0.11.3 - Setup wizard: add your streams and metadata addons and MDBList key step by step (Settings, or the skin's ... menu).
-v0.11.2 - Arctic Zephyr Stremio support: skin helpers, hubs, Cinemeta and streaming-service lists, its own context menu and info page buttons; Kodi's info page replaces Extended info and library integration is off. Kodi's Mark as watched updates your history. Continue Watching pages 20 at a time.
-v0.11.1 - Faster Continue Watching and Next Up (results reused until you watch something); smaller, compressed cache capped at 25 MB.
-v0.11.0 - New stream page: cards with badges, filter chips, no logos. Extended info for episodes. Selecting can open Extended info for episodes too. Fixed context menu entries overwriting each other, and settings buttons on Fire TV.
-v0.10.3 - With autoplay on: "Show Playable Streams" in context menus and a Streams tile in Extended info. Removing an episode from Continue Watching also removes its show from Next Up until you watch more.
-v0.10.2 - Continue Watching shows descriptions, cast and details.</news>
+        <news>v0.13.0 - For Arctic Zephyr Stremio's new look: info page text (Play / Resume S1 E3, facts, age rating and rating, episode ratings); the info page header follows the focused episode; season and episode context menus are a single watched toggle; picking an episode plays or opens streams per the autoplay setting; full release dates on catalog items; catalogs open in the skin's new Stremio view. Next Page on a home widget or hub row reloads the row in place on the next page (with Previous Page), focused on its first title; hub rows get Filter by Genre, also in place. Selecting a show opens its info page when selecting opens info. A saved view the skin no longer has falls back to the default. New "Back stops playback" setting (on). Playing again straight after a Stop no longer fails: a stream that fails to open is tried once more before the next one.
+v0.12.1 - New Kodi Stremio Bridge logo for the icon and fanart.
+v0.12.0 - One info page for movies, shows, seasons and episodes; search as you type for Arctic Zephyr Stremio; watched banners for shows and seasons.</news>
     </extension>
 </addon>

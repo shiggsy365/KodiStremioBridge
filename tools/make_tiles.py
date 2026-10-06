@@ -1,5 +1,5 @@
 """Generate the poster-shaped (2:3) tiles used for "Filter by Genre" and
-"Next Page" in catalog lists.
+"Next Page" / "Previous Page" in catalog lists.
 
     .venv/bin/python tools/make_tiles.py
 
@@ -54,6 +54,15 @@ def arrow(draw):
     shaft = 70 * s
     draw.rectangle([cx - shaft, cy - 14 * s, cx + 18 * s, cy + 14 * s], fill=ACCENT)
     draw.polygon([(cx + 10 * s, cy - 55 * s), (cx + 75 * s, cy), (cx + 10 * s, cy + 55 * s)], fill=ACCENT)
+
+
+def arrow_back(draw):
+    s, cx, cy = SCALE, WIDTH * SCALE / 2, 300 * SCALE
+    radius = 120 * s
+    draw.ellipse([cx - radius, cy - radius, cx + radius, cy + radius], outline=ACCENT, width=14 * s)
+    shaft = 70 * s
+    draw.rectangle([cx - 18 * s, cy - 14 * s, cx + shaft, cy + 14 * s], fill=ACCENT)
+    draw.polygon([(cx - 10 * s, cy - 55 * s), (cx - 75 * s, cy), (cx - 10 * s, cy + 55 * s)], fill=ACCENT)
 
 
 def _p(v):
@@ -179,6 +188,7 @@ def make(name, icon, lines):
 TILES = [
     ("filter_genre.png", funnel, ["Filter by", "Genre"]),
     ("next_page.png", arrow, ["Next", "Page"]),
+    ("previous_page.png", arrow_back, ["Previous", "Page"]),
     ("hub_movies.png", film, ["Movies"]),
     ("hub_tvshows.png", television, ["TV Shows"]),
     ("hub_anime.png", sparkle, ["Anime"]),

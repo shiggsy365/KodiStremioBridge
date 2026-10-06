@@ -23,7 +23,7 @@
             <control type="label">
                 <width>480</width>
                 <height>60</height>
-                <font>Large</font>
+                <font>SBInfoHeading</font>
                 <textcolor>Dark1</textcolor>
                 <label>$LOCALIZE[137]</label>
             </control>
@@ -31,7 +31,7 @@
                 <top>70</top>
                 <width>480</width>
                 <height>70</height>
-                <texture colordiffuse="Dark4" border="5">common/box.png</texture>
+                <texture colordiffuse="33FFFFFF" border="14">stremio/tab.png</texture>
             </control>
             <control type="label">
                 <left>20</left>
@@ -39,7 +39,7 @@
                 <width>440</width>
                 <height>70</height>
                 <aligny>center</aligny>
-                <font>Small</font>
+                <font>SBInfoTab</font>
                 <textcolor>Dark1</textcolor>
                 <label>$INFO[Window(home).Property(sbsearch.query)][COLOR $VAR[ColorHighlight]]|[/COLOR]</label>
                 <visible>!String.IsEmpty(Window(home).Property(sbsearch.query))</visible>
@@ -50,7 +50,7 @@
                 <width>440</width>
                 <height>70</height>
                 <aligny>center</aligny>
-                <font>Small</font>
+                <font>SBInfoTab</font>
                 <textcolor>Dark3</textcolor>
                 <label>Movies and TV shows</label>
                 <visible>String.IsEmpty(Window(home).Property(sbsearch.query))</visible>
@@ -71,39 +71,39 @@
                 <control type="button" id="311">
                     <width>153</width>
                     <height>60</height>
-                    <font>Small</font>
+                    <font>SBInfoTab</font>
                     <align>center</align>
                     <aligny>center</aligny>
                     <textcolor>Dark2</textcolor>
-                    <focusedcolor>Dark1</focusedcolor>
-                    <texturenofocus colordiffuse="Dark4" border="5">common/box.png</texturenofocus>
-                    <texturefocus colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texturefocus>
+                    <focusedcolor>FF101010</focusedcolor>
+                    <texturenofocus colordiffuse="33FFFFFF" border="14">stremio/tab.png</texturenofocus>
+                    <texturefocus colordiffuse="FFFFFFFF" border="14">stremio/tab.png</texturefocus>
                     <label>Delete</label>
                     <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=delete)</onclick>
                 </control>
                 <control type="button" id="312">
                     <width>153</width>
                     <height>60</height>
-                    <font>Small</font>
+                    <font>SBInfoTab</font>
                     <align>center</align>
                     <aligny>center</aligny>
                     <textcolor>Dark2</textcolor>
-                    <focusedcolor>Dark1</focusedcolor>
-                    <texturenofocus colordiffuse="Dark4" border="5">common/box.png</texturenofocus>
-                    <texturefocus colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texturefocus>
+                    <focusedcolor>FF101010</focusedcolor>
+                    <texturenofocus colordiffuse="33FFFFFF" border="14">stremio/tab.png</texturenofocus>
+                    <texturefocus colordiffuse="FFFFFFFF" border="14">stremio/tab.png</texturefocus>
                     <label>Clear</label>
                     <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=clear)</onclick>
                 </control>
                 <control type="button" id="313">
                     <width>153</width>
                     <height>60</height>
-                    <font>Small</font>
+                    <font>SBInfoTab</font>
                     <align>center</align>
                     <aligny>center</aligny>
                     <textcolor>Dark2</textcolor>
-                    <focusedcolor>Dark1</focusedcolor>
-                    <texturenofocus colordiffuse="Dark4" border="5">common/box.png</texturenofocus>
-                    <texturefocus colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texturefocus>
+                    <focusedcolor>FF101010</focusedcolor>
+                    <texturenofocus colordiffuse="33FFFFFF" border="14">stremio/tab.png</texturenofocus>
+                    <texturefocus colordiffuse="FFFFFFFF" border="14">stremio/tab.png</texturefocus>
                     <label>$VAR[StremioSearchKeysToggleLabel]</label>
                     <onclick condition="String.IsEmpty(Window.Property(sbsearch.keys))">SetProperty(sbsearch.keys,symbols)</onclick>
                     <onclick condition="!String.IsEmpty(Window.Property(sbsearch.keys))">ClearProperty(sbsearch.keys)</onclick>
@@ -131,7 +131,7 @@
                     <top>3</top>
                     <width>74</width>
                     <height>58</height>
-                    <texture colordiffuse="Dark4" border="5">common/box.png</texture>
+                    <texture colordiffuse="33FFFFFF" border="14">stremio/tab.png</texture>
                 </control>
                 <control type="label">
                     <visible>String.IsEmpty(ListItem.Property(spacebar))</visible>
@@ -139,7 +139,7 @@
                     <height>64</height>
                     <align>center</align>
                     <aligny>center</aligny>
-                    <font>Small</font>
+                    <font>SBInfoTab</font>
                     <textcolor>Dark2</textcolor>
                     <label>$INFO[ListItem.Label]</label>
                 </control>
@@ -151,14 +151,14 @@
                         <top>3</top>
                         <width>314</width>
                         <height>58</height>
-                        <texture colordiffuse="Dark4" border="5">common/box.png</texture>
+                        <texture colordiffuse="33FFFFFF" border="14">stremio/tab.png</texture>
                     </control>
                     <control type="label">
                         <width>320</width>
                         <height>64</height>
                         <align>center</align>
                         <aligny>center</aligny>
-                        <font>Small</font>
+                        <font>SBInfoTab</font>
                         <textcolor>Dark2</textcolor>
                         <label>Space</label>
                     </control>
@@ -170,7 +170,7 @@
                     <top>3</top>
                     <width>74</width>
                     <height>58</height>
-                    <texture colordiffuse="Dark4" border="5">common/box.png</texture>
+                    <texture colordiffuse="33FFFFFF" border="14">stremio/tab.png</texture>
                     <visible>!Control.HasFocus(301) + String.IsEmpty(ListItem.Property(spacebar))</visible>
                 </control>
                 <control type="image">
@@ -178,7 +178,7 @@
                     <top>3</top>
                     <width>74</width>
                     <height>58</height>
-                    <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                    <texture colordiffuse="FFFFFFFF" border="14">stremio/tab.png</texture>
                     <visible>Control.HasFocus(301) + String.IsEmpty(ListItem.Property(spacebar))</visible>
                 </control>
                 <control type="label">
@@ -187,8 +187,8 @@
                     <height>64</height>
                     <align>center</align>
                     <aligny>center</aligny>
-                    <font>Small</font>
-                    <textcolor>Dark1</textcolor>
+                    <font>SBInfoTab</font>
+                    <textcolor>$VAR[SBSearchOnPill301]</textcolor>
                     <label>[B]$INFO[ListItem.Label][/B]</label>
                 </control>
                 <control type="group">
@@ -199,15 +199,15 @@
                         <top>3</top>
                         <width>314</width>
                         <height>58</height>
-                        <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                        <texture colordiffuse="FFFFFFFF" border="14">stremio/tab.png</texture>
                     </control>
                     <control type="label">
                         <width>320</width>
                         <height>64</height>
                         <align>center</align>
                         <aligny>center</aligny>
-                        <font>Small</font>
-                        <textcolor>Dark1</textcolor>
+                        <font>SBInfoTab</font>
+                        <textcolor>$VAR[SBSearchOnPill301]</textcolor>
                         <label>[B]Space[/B]</label>
                     </control>
                 </control>
@@ -219,15 +219,15 @@
                         <top>3</top>
                         <width>314</width>
                         <height>58</height>
-                        <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                        <texture colordiffuse="FFFFFFFF" border="14">stremio/tab.png</texture>
                     </control>
                     <control type="label">
                         <width>320</width>
                         <height>64</height>
                         <align>center</align>
                         <aligny>center</aligny>
-                        <font>Small</font>
-                        <textcolor>Dark1</textcolor>
+                        <font>SBInfoTab</font>
+                        <textcolor>$VAR[SBSearchOnPill301]</textcolor>
                         <label>[B]Space[/B]</label>
                     </control>
                 </control>
@@ -239,15 +239,15 @@
                         <top>3</top>
                         <width>314</width>
                         <height>58</height>
-                        <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                        <texture colordiffuse="FFFFFFFF" border="14">stremio/tab.png</texture>
                     </control>
                     <control type="label">
                         <width>320</width>
                         <height>64</height>
                         <align>center</align>
                         <aligny>center</aligny>
-                        <font>Small</font>
-                        <textcolor>Dark1</textcolor>
+                        <font>SBInfoTab</font>
+                        <textcolor>$VAR[SBSearchOnPill301]</textcolor>
                         <label>[B]Space[/B]</label>
                     </control>
                 </control>
@@ -259,15 +259,15 @@
                         <top>3</top>
                         <width>314</width>
                         <height>58</height>
-                        <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                        <texture colordiffuse="FFFFFFFF" border="14">stremio/tab.png</texture>
                     </control>
                     <control type="label">
                         <width>320</width>
                         <height>64</height>
                         <align>center</align>
                         <aligny>center</aligny>
-                        <font>Small</font>
-                        <textcolor>Dark1</textcolor>
+                        <font>SBInfoTab</font>
+                        <textcolor>$VAR[SBSearchOnPill301]</textcolor>
                         <label>[B]Space[/B]</label>
                     </control>
                 </control>
@@ -279,14 +279,14 @@
                         <top>3</top>
                         <width>314</width>
                         <height>58</height>
-                        <texture colordiffuse="Dark4" border="5">common/box.png</texture>
+                        <texture colordiffuse="33FFFFFF" border="14">stremio/tab.png</texture>
                     </control>
                     <control type="label">
                         <width>320</width>
                         <height>64</height>
                         <align>center</align>
                         <aligny>center</aligny>
-                        <font>Small</font>
+                        <font>SBInfoTab</font>
                         <textcolor>Dark2</textcolor>
                         <label>Space</label>
                     </control>
@@ -607,7 +607,7 @@
             <top>636</top>
             <width>480</width>
             <height>44</height>
-            <font>Small</font>
+            <font>SBInfoTab</font>
             <textcolor>Dark1</textcolor>
             <label>[B]$VAR[StremioSearchListTitle][/B]</label>
             <visible>Integer.IsGreater(Container(302).NumItems,0)</visible>
@@ -629,7 +629,7 @@
                     <width>448</width>
                     <height>54</height>
                     <aligny>center</aligny>
-                    <font>Small</font>
+                    <font>SBInfoTab</font>
                     <textcolor>Dark2</textcolor>
                     <label>$INFO[ListItem.Label]</label>
                 </control>
@@ -638,7 +638,7 @@
                 <control type="image">
                     <width>480</width>
                     <height>54</height>
-                    <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                    <texture colordiffuse="FFFFFFFF" border="14">stremio/tab.png</texture>
                     <visible>Control.HasFocus(302)</visible>
                 </control>
                 <control type="label">
@@ -646,8 +646,8 @@
                     <width>448</width>
                     <height>54</height>
                     <aligny>center</aligny>
-                    <font>Small</font>
-                    <textcolor>Dark1</textcolor>
+                    <font>SBInfoTab</font>
+                    <textcolor>$VAR[SBSearchOnPill302]</textcolor>
                     <label>$INFO[ListItem.Label]</label>
                 </control>
             </focusedlayout>
@@ -662,7 +662,7 @@
                 <visible>Integer.IsGreater(Container(401).NumItems,0) | Container(401).IsUpdating</visible>
                 <width>1200</width>
                 <height>44</height>
-                <font>Small</font>
+                <font>SBInfoTab</font>
                 <textcolor>Dark1</textcolor>
                 <label>[B]$LOCALIZE[342][/B]$INFO[Container(401).NumItems,  [COLOR grey](,)[/COLOR]]</label>
             </control>
@@ -691,8 +691,8 @@
                         <top>10</top>
                         <width>180</width>
                         <height>270</height>
-                        <aspectratio>scale</aspectratio>
-                        <texture background="true" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
+                        <aspectratio scalediffuse="false">scale</aspectratio>
+                        <texture background="true" diffuse="stremio/poster-mask.png" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
                     </control>
                     <control type="group">
                         <left>10</left>
@@ -709,7 +709,7 @@
                         <top>288</top>
                         <width>180</width>
                         <height>36</height>
-                        <font>Mini</font>
+                        <font>SBInfoSmall</font>
                         <textcolor>Dark2</textcolor>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
@@ -718,27 +718,27 @@
                         <top>322</top>
                         <width>180</width>
                         <height>30</height>
-                        <font>Mini</font>
+                        <font>SBInfoSmall</font>
                         <textcolor>Dark3</textcolor>
                         <label>$INFO[ListItem.Year]</label>
                     </control>
                 </itemlayout>
                 <focusedlayout width="200" height="400">
                     <control type="image">
-                        <left>2</left>
-                        <top>2</top>
-                        <width>196</width>
-                        <height>286</height>
+                        <left>6</left>
+                        <top>6</top>
+                        <width>188</width>
+                        <height>278</height>
                         <visible>Control.HasFocus(401)</visible>
-                        <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                        <texture border="16">stremio/frame-4px.png</texture>
                     </control>
                     <control type="image">
                         <left>10</left>
                         <top>10</top>
                         <width>180</width>
                         <height>270</height>
-                        <aspectratio>scale</aspectratio>
-                        <texture background="true" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
+                        <aspectratio scalediffuse="false">scale</aspectratio>
+                        <texture background="true" diffuse="stremio/poster-mask.png" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
                     </control>
                     <control type="group">
                         <left>10</left>
@@ -755,7 +755,7 @@
                         <top>288</top>
                         <width>180</width>
                         <height>36</height>
-                        <font>Mini</font>
+                        <font>SBInfoSmall</font>
                         <textcolor>Dark1</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -765,7 +765,7 @@
                         <top>322</top>
                         <width>180</width>
                         <height>30</height>
-                        <font>Mini</font>
+                        <font>SBInfoSmall</font>
                         <textcolor>Dark2</textcolor>
                         <label>$INFO[ListItem.Year]</label>
                     </control>
@@ -782,7 +782,7 @@
                 <visible>Integer.IsGreater(Container(402).NumItems,0) | Container(402).IsUpdating</visible>
                 <width>1200</width>
                 <height>44</height>
-                <font>Small</font>
+                <font>SBInfoTab</font>
                 <textcolor>Dark1</textcolor>
                 <label>[B]$LOCALIZE[20343][/B]$INFO[Container(402).NumItems,  [COLOR grey](,)[/COLOR]]</label>
             </control>
@@ -811,8 +811,8 @@
                         <top>10</top>
                         <width>180</width>
                         <height>270</height>
-                        <aspectratio>scale</aspectratio>
-                        <texture background="true" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
+                        <aspectratio scalediffuse="false">scale</aspectratio>
+                        <texture background="true" diffuse="stremio/poster-mask.png" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
                     </control>
                     <control type="group">
                         <left>10</left>
@@ -829,7 +829,7 @@
                         <top>288</top>
                         <width>180</width>
                         <height>36</height>
-                        <font>Mini</font>
+                        <font>SBInfoSmall</font>
                         <textcolor>Dark2</textcolor>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
@@ -838,27 +838,27 @@
                         <top>322</top>
                         <width>180</width>
                         <height>30</height>
-                        <font>Mini</font>
+                        <font>SBInfoSmall</font>
                         <textcolor>Dark3</textcolor>
                         <label>$INFO[ListItem.Year]</label>
                     </control>
                 </itemlayout>
                 <focusedlayout width="200" height="400">
                     <control type="image">
-                        <left>2</left>
-                        <top>2</top>
-                        <width>196</width>
-                        <height>286</height>
+                        <left>6</left>
+                        <top>6</top>
+                        <width>188</width>
+                        <height>278</height>
                         <visible>Control.HasFocus(402)</visible>
-                        <texture colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texture>
+                        <texture border="16">stremio/frame-4px.png</texture>
                     </control>
                     <control type="image">
                         <left>10</left>
                         <top>10</top>
                         <width>180</width>
                         <height>270</height>
-                        <aspectratio>scale</aspectratio>
-                        <texture background="true" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
+                        <aspectratio scalediffuse="false">scale</aspectratio>
+                        <texture background="true" diffuse="stremio/poster-mask.png" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
                     </control>
                     <control type="group">
                         <left>10</left>
@@ -875,7 +875,7 @@
                         <top>288</top>
                         <width>180</width>
                         <height>36</height>
-                        <font>Mini</font>
+                        <font>SBInfoSmall</font>
                         <textcolor>Dark1</textcolor>
                         <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
@@ -885,7 +885,7 @@
                         <top>322</top>
                         <width>180</width>
                         <height>30</height>
-                        <font>Mini</font>
+                        <font>SBInfoSmall</font>
                         <textcolor>Dark2</textcolor>
                         <label>$INFO[ListItem.Year]</label>
                     </control>
@@ -900,7 +900,7 @@
             <width>1200</width>
             <height>60</height>
             <align>center</align>
-            <font>Small</font>
+            <font>SBInfoTab</font>
             <textcolor>Dark3</textcolor>
             <label>$VAR[StremioSearchHint]</label>
             <visible>!Integer.IsGreater(Container(401).NumItems,0) + !Integer.IsGreater(Container(402).NumItems,0) + !Container(401).IsUpdating + !Container(402).IsUpdating</visible>

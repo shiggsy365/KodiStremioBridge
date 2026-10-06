@@ -24,6 +24,7 @@ class Plugin:
         self.handle = int(argv[1]) if len(argv) > 1 and argv[1] else -1
         query = argv[2][1:] if len(argv) > 2 and argv[2].startswith("?") else ""
         self.params = dict(parse_qsl(query))
+        self.names = {name for name, _ in parse_qsl(query, keep_blank_values=True)}  # with empty ones
         # Kodi 19+ adds "resume:true"/"resume:false" when a playable item with a
         # resume point is started; None when it doesn't say.
         flag = argv[3] if len(argv) > 3 else ""

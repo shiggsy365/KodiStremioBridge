@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Arctic Zephyr Stremio's video OSD, in the info page's style (Includes_StremioInfo.xml).
+     DialogSeekBar.xml: a banner along the top (logo or title, an episode's code and title,
+     facts with pills, genres, plot, the clock) and the bar along the bottom (status, time,
+     progress, finish time). VideoOSD.xml: the buttons on that bar, transport first, then
+     Audio, Video and Subtitles (and, for live TV, Channels, Guide and Timeline) as icons.
+     Both panels share one background: the OSD panel colour. -->
+<includes>
+
+    <!-- The banner shows with the OSD, when paused and on Info -->
+    <expression name="SBOSDBannerVisible">Window.IsVisible(videoosd) | Player.Paused | Player.ShowInfo | Window.IsVisible(fullscreeninfo) | !String.IsEmpty(Window(home).Property(osdshowinfo)) | !String.IsEmpty(Window(home).Property(osdinfo))</expression>
+
+    <include name="SBOSDPanel">
+        <control type="image">
+            <left>0</left>
+            <top>0</top>
+            <width>100%</width>
+            <height>100%</height>
+            <texture>common/white.png</texture>
+            <colordiffuse>$VAR[OSDPanel]</colordiffuse>
+            <animation effect="fade" start="100" end="90" condition="true">Conditional</animation>
+        </control>
+    </include>
+
+    <include name="SBOSDBanner">
+        <control type="group">
+            <top>0</top>
+            <height>250</height>
+            <visible>$EXP[SBOSDBannerVisible]</visible>
+            <visible>!VideoPlayer.Content(LiveTV) | !String.IsEmpty(VideoPlayer.Title)</visible>
+            <animation effect="slide" start="0,-250" end="0,0" time="200" tween="cubic" easing="out">Visible</animation>
+            <animation effect="slide" start="0,0" end="0,-250" time="200" tween="cubic" easing="in">Hidden</animation>
+            <animation type="WindowOpen" reversible="false">
+                <effect type="slide" start="0,-250" end="0,0" time="200" tween="cubic" easing="out"/>
+            </animation>
+            <animation type="WindowClose" reversible="false">
+                <effect type="slide" start="0,0" end="0,-250" time="200" tween="cubic" easing="in"/>
+            </animation>
+            <include>SBOSDPanel</include>
+            <control type="image">
+                <bottom>0</bottom>
+                <width>100%</width>
+                <height>1</height>
+                <texture colordiffuse="BoxHomerow">common/sch2.png</texture>
+            </control>
+            <!-- logo, else the title (the show's, for an episode) -->
+            <control type="image">
+                <left>80</left>
+                <top>40</top>
+                <width>720</width>
+                <height>170</height>
+                <aspectratio align="left" aligny="center">keep</aspectratio>
+                <texture background="true">$VAR[SBOSDLogo]</texture>
+            </control>
+            <control type="label">
+                <left>80</left>
+                <top>40</top>
+                <width>760</width>
+                <height>170</height>
+                <aligny>center</aligny>
+                <font>SBInfoTitle</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$VAR[SBOSDTitle]</label>
+                <visible>String.IsEmpty(Player.Art(clearlogo)) + String.IsEmpty(Player.Art(tvshow.clearlogo))</visible>
+            </control>
+            <!-- the clock -->
+            <control type="grouplist">
+                <right>30</right>
+                <top>12</top>
+                <width>500</width>
+                <height>40</height>
+                <orientation>horizontal</orientation>
+                <align>right</align>
+                <itemgap>0</itemgap>
+                <control type="label">
+                    <width>auto</width>
+                    <height>40</height>
+                    <font>SBInfoHeading</font>
+                    <textcolor>$VAR[ColorHighlight]</textcolor>
+                    <label>$INFO[System.Time(hh:mm)]</label>
+                </control>
+                <control type="label">
+                    <width>auto</width>
+                    <height>40</height>
+                    <aligny>bottom</aligny>
+                    <font>SBInfoSmall</font>
+                    <textcolor>FFA0A0A0</textcolor>
+                    <label>$INFO[System.Time(xx)]</label>
+                </control>
+            </control>
+            <control type="label">
+                <right>30</right>
+                <top>52</top>
+                <width>500</width>
+                <height>24</height>
+                <align>right</align>
+                <font>SBInfoBadge</font>
+                <textcolor>FFB4B4B4</textcolor>
+                <label>[UPPERCASE]$INFO[System.Date][/UPPERCASE]</label>
+            </control>
+            <!-- an episode's code and title, the facts, genres and plot -->
+            <control type="grouplist">
+                <left>900</left>
+                <top>66</top>
+                <width>990</width>
+                <height>180</height>
+                <orientation>vertical</orientation>
+                <itemgap>8</itemgap>
+                <usecontrolcoords>true</usecontrolcoords>
+                <control type="label">
+                    <width>990</width>
+                    <height>40</height>
+                    <font>SBInfoFacts</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[VideoPlayer.Season,S, ]$INFO[VideoPlayer.Episode,E,  ]$INFO[VideoPlayer.Title]</label>
+                    <visible>VideoPlayer.Content(episodes)</visible>
+                </control>
+                <control type="grouplist">
+                    <width>990</width>
+                    <height>42</height>
+                    <orientation>horizontal</orientation>
+                    <itemgap>22</itemgap>
+                    <control type="label">
+                        <width>auto</width>
+                        <height>42</height>
+                        <aligny>center</aligny>
+                        <font>SBInfoFacts</font>
+                        <textcolor>FFFFFFFF</textcolor>
+                        <label>$INFO[VideoPlayer.Year]</label>
+                        <visible>!VideoPlayer.Content(LiveTV)</visible>
+                    </control>
+                    <control type="label">
+                        <width>auto</width>
+                        <height>42</height>
+                        <aligny>center</aligny>
+                        <font>SBInfoFacts</font>
+                        <textcolor>FFFFFFFF</textcolor>
+                        <label>$INFO[VideoPlayer.ChannelName]</label>
+                        <visible>VideoPlayer.Content(LiveTV)</visible>
+                    </control>
+                    <control type="label">
+                        <width>auto</width>
+                        <height>42</height>
+                        <aligny>center</aligny>
+                        <font>SBInfoFacts</font>
+                        <textcolor>FFFFFFFF</textcolor>
+                        <label>$INFO[Player.Duration(h),,h ]$INFO[Player.Duration(mm),,m]</label>
+                        <visible>Integer.IsGreater(Player.Duration(h),0) + !VideoPlayer.Content(LiveTV)</visible>
+                    </control>
+                    <control type="label">
+                        <width>auto</width>
+                        <height>42</height>
+                        <aligny>center</aligny>
+                        <font>SBInfoFacts</font>
+                        <textcolor>FFFFFFFF</textcolor>
+                        <label>$INFO[Player.Duration(m),,m]</label>
+                        <visible>!Integer.IsGreater(Player.Duration(h),0) + Integer.IsGreater(Player.Duration(m),0) + !VideoPlayer.Content(LiveTV)</visible>
+                    </control>
+                    <include content="SBInfoPill">
+                        <param name="label" value="$INFO[VideoPlayer.mpaa]"/>
+                        <param name="value" value="VideoPlayer.mpaa"/>
+                    </include>
+                    <include content="SBInfoPill">
+                        <param name="label" value="$INFO[VideoPlayer.Rating]"/>
+                        <param name="value" value="VideoPlayer.Rating"/>
+                    </include>
+                </control>
+                <control type="label">
+                    <width>990</width>
+                    <height>36</height>
+                    <font>SBInfoBody</font>
+                    <textcolor>FFB4B4B4</textcolor>
+                    <label>$INFO[VideoPlayer.Genre]</label>
+                    <visible>!String.IsEmpty(VideoPlayer.Genre)</visible>
+                </control>
+                <control type="textbox">
+                    <width>990</width>
+                    <height>80</height>
+                    <font>SBInfoBody</font>
+                    <textcolor>FFF0F0F0</textcolor>
+                    <label>$INFO[VideoPlayer.Plot]</label>
+                    <autoscroll delay="6000" time="3000" repeat="8000">true</autoscroll>
+                </control>
+            </control>
+        </control>
+    </include>
+
+    <variable name="SBOSDLogo">
+        <value condition="!String.IsEmpty(Player.Art(clearlogo))">$INFO[Player.Art(clearlogo)]</value>
+        <value>$INFO[Player.Art(tvshow.clearlogo)]</value>
+    </variable>
+    <variable name="SBOSDTitle">
+        <value condition="VideoPlayer.Content(episodes) + !String.IsEmpty(VideoPlayer.TVShowTitle)">$INFO[VideoPlayer.TVShowTitle]</value>
+        <value>$INFO[VideoPlayer.Title]</value>
+    </variable>
+
+    <!-- The bottom bar: status and time, progress, and (beside the OSD's buttons) the finish time -->
+    <include name="SBOSDBar">
+        <control type="group">
+            <top>182r</top>
+            <height>182</height>
+            <animation type="WindowOpen" reversible="false">
+                <effect type="slide" start="0,182" end="0,0" time="200" tween="cubic" easing="out"/>
+            </animation>
+            <animation type="WindowClose" reversible="false">
+                <effect type="slide" start="0,0" end="0,182" time="200" tween="cubic" easing="in"/>
+            </animation>
+            <include>SBOSDPanel</include>
+            <control type="image">
+                <top>0</top>
+                <width>100%</width>
+                <height>1</height>
+                <texture colordiffuse="BoxHomerow">common/sch2.png</texture>
+            </control>
+            <control type="label">
+                <left>80</left>
+                <top>24</top>
+                <width>800</width>
+                <height>40</height>
+                <font>SBInfoBody</font>
+                <textcolor>FFE6E6E6</textcolor>
+                <label>$VAR[PlayerStatus]</label>
+            </control>
+            <control type="label">
+                <right>75</right>
+                <top>24</top>
+                <width>900</width>
+                <height>40</height>
+                <align>right</align>
+                <font>SBInfoBody</font>
+                <textcolor>FFE6E6E6</textcolor>
+                <label>$VAR[SBOSDTime]</label>
+            </control>
+            <control type="group">
+                <left>80</left>
+                <right>75</right>
+                <top>58</top>
+                <height>28</height>
+                <include>ProgressBar</include>
+            </control>
+            <control type="label">
+                <right>75</right>
+                <top>106</top>
+                <width>600</width>
+                <height>48</height>
+                <align>right</align>
+                <aligny>center</aligny>
+                <font>SBInfoTab</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$VAR[SBOSDFinish]</label>
+            </control>
+        </control>
+    </include>
+
+    <variable name="SBOSDTime">
+        <value condition="VideoPlayer.Content(LiveTV)">$INFO[PVR.EpgEventElapsedTime]$INFO[PVR.EpgEventDuration,  /  ]</value>
+        <value condition="!String.IsEmpty(Player.SeekNumeric)">$INFO[Player.SeekNumeric(hh:mm:ss)]$INFO[Player.Duration(hh:mm:ss),  /  ]</value>
+        <value>$INFO[Player.Time(hh:mm:ss)]$INFO[Player.Duration(hh:mm:ss),  /  ]</value>
+    </variable>
+    <variable name="SBOSDFinish">
+        <value condition="VideoPlayer.Content(LiveTV)">$INFO[PVR.EpgEventFinishTime,$LOCALIZE[31962] ]</value>
+        <value>$INFO[Player.FinishTime,$LOCALIZE[31961] ]</value>
+    </variable>
+
+    <!-- The OSD's buttons: transport (OSDVideoControlsFlip), then the panels as icons -->
+    <include name="SBOSDIconButton">
+        <param name="left">0</param>
+        <definition>
+            <control type="button" id="$PARAM[id]">
+                <description>$PARAM[description]</description>
+                <left>$PARAM[left]</left>
+                <width>48</width>
+                <height>48</height>
+                <label/>
+                <font/>
+                <texturefocus colordiffuse="$VAR[ColorHighlight]">$PARAM[icon]</texturefocus>
+                <texturenofocus colordiffuse="Dark1">$PARAM[icon]</texturenofocus>
+                <onclick>$PARAM[onclick]</onclick>
+                <visible>$PARAM[visible]</visible>
+                <include>DefOSDUpDown</include>
+            </control>
+        </definition>
+    </include>
+    <include name="SBOSDControls">
+        <control type="group">
+            <animation type="WindowOpen">
+                <effect type="fade" start="0" end="100" time="150" delay="150"/>
+            </animation>
+            <animation type="WindowClose">
+                <effect type="fade" end="0" start="100" time="150"/>
+            </animation>
+            <animation effect="fade" start="100" end="0" time="150" condition="Window.IsVisible(DialogPlayerProcessInfo.xml)">Conditional</animation>
+            <!-- the tempo and subtitle menus open above the bar, over their buttons -->
+            <control type="group">
+                <visible allowhiddenfocus="true">ControlGroup(9950).HasFocus() | Control.HasFocus(20)</visible>
+                <include>Animation.SlideUp</include>
+                <include>Animation.FadeOut</include>
+                <left>420</left>
+                <bottom>192</bottom>
+                <width>316</width>
+                <height>512</height>
+                <control type="image">
+                    <width>100%</width>
+                    <height>100%</height>
+                    <texture border="16" colordiffuse="White100">common/rounded-shadow8.png</texture>
+                </control>
+                <include content="Def_Context_Tempo_Gradient">
+                    <param name="controlid" value="9950"/>
+                </include>
+            </control>
+            <control type="group">
+                <visible allowhiddenfocus="true">ControlGroup(9300).HasFocus() | Control.HasFocus(3)</visible>
+                <include>Animation.SlideUp</include>
+                <include>Animation.FadeOut</include>
+                <left>640</left>
+                <bottom>192</bottom>
+                <width>316</width>
+                <height>272</height>
+                <control type="image">
+                    <width>100%</width>
+                    <height>100%</height>
+                    <texture border="16" colordiffuse="White100">common/rounded-shadow8.png</texture>
+                </control>
+                <include content="Def_Context_Subtitles_Gradient">
+                    <param name="controlid" value="9300"/>
+                </include>
+            </control>
+            <control type="grouplist" id="101">
+                <left>85</left>
+                <bottom>27</bottom>
+                <width>1150</width>
+                <height>48</height>
+                <itemgap>16</itemgap>
+                <orientation>horizontal</orientation>
+                <align>left</align>
+                <usecontrolcoords>true</usecontrolcoords>
+                <onleft>101</onleft>
+                <onright>101</onright>
+                <ondown>noop</ondown>
+                <include>OSDVideoControlsFlip</include>
+                <include content="SBOSDIconButton">
+                    <param name="id" value="1"/>
+                    <param name="left" value="24"/>
+                    <param name="description" value="Audio"/>
+                    <param name="icon" value="osd/audio.png"/>
+                    <param name="onclick" value="ActivateWindow(124)"/>
+                    <param name="visible" value="true"/>
+                </include>
+                <include content="SBOSDIconButton">
+                    <param name="id" value="2"/>
+                    <param name="description" value="Video"/>
+                    <param name="icon" value="osd/videosett.png"/>
+                    <param name="onclick" value="ActivateWindow(123)"/>
+                    <param name="visible" value="true"/>
+                </include>
+                <control type="button" id="3">
+                    <description>Subtitles</description>
+                    <width>48</width>
+                    <height>48</height>
+                    <label/>
+                    <font/>
+                    <texturefocus colordiffuse="$VAR[ColorHighlight]">osd/subtitles.png</texturefocus>
+                    <texturenofocus colordiffuse="Dark1">osd/subtitles.png</texturenofocus>
+                    <onup>9303</onup>
+                    <ondown>9301</ondown>
+                    <onclick>Action(ShowSubtitles)</onclick>
+                </control>
+                <include content="SBOSDIconButton">
+                    <param name="id" value="4"/>
+                    <param name="description" value="Channels"/>
+                    <param name="icon" value="osd/channels.png"/>
+                    <param name="onclick" value="ActivateWindow(pvrosdchannels)"/>
+                    <param name="visible" value="VideoPlayer.Content(LiveTV)"/>
+                </include>
+                <include content="SBOSDIconButton">
+                    <param name="id" value="5"/>
+                    <param name="description" value="Guide"/>
+                    <param name="icon" value="osd/guide.png"/>
+                    <param name="onclick" value="ActivateWindow(pvrchannelguide)"/>
+                    <param name="visible" value="VideoPlayer.Content(LiveTV)"/>
+                </include>
+                <include content="SBOSDIconButton">
+                    <param name="id" value="6"/>
+                    <param name="description" value="Timeline"/>
+                    <param name="icon" value="osd/timeline.png"/>
+                    <param name="onclick" value="ActivateWindow(tvguide,,return)"/>
+                    <param name="visible" value="VideoPlayer.Content(LiveTV)"/>
+                </include>
+            </control>
+        </control>
+    </include>
+
+</includes>

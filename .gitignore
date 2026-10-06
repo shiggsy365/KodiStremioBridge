@@ -3,3 +3,4 @@ __pycache__/
 .venv/
 .pytest_cache/
 dist/
+skin.arctic.zephyr.stremio/1080i/script-skinshortcuts-includes.xml

@@ -786,17 +786,6 @@
         <value condition="!String.IsEmpty(ListItem.Tagline)">$INFO[ListItem.Tagline]</value>
     </variable>
 
-    <variable name="LabelHomeWidgetStyle">
-        <value condition="Skin.HasSetting(home.modernwidgets) + Skin.HasSetting(homemenu.netflix) + Skin.HasSetting(home.vertical.widgets) + Skin.HasSetting(homemenu.clean.flix)">$LOCALIZE[31533]</value>
-        <value condition="!Skin.HasSetting(home.classicwidgets) + Skin.HasSetting(home.vertical) + Skin.HasSetting(home.vertical.widgets) + Skin.HasSetting(homemenu.netflix)">$LOCALIZE[31250] $LOCALIZE[31394] $LOCALIZE[31014]</value>
-        <value condition="Skin.HasSetting(home.modernwidgets) + Skin.HasSetting(home.vertical.widgets) + Skin.HasSetting(homemenu.netflix)">$LOCALIZE[31287] $LOCALIZE[31394] $LOCALIZE[31014]</value>
-        <value condition="Skin.HasSetting(home.modernwidgets) + !Skin.HasSetting(home.vertical.widgets)">$LOCALIZE[31287]</value>
-        <value condition="Skin.HasSetting(home.modernwidgets) + Skin.HasSetting(home.vertical.widgets)">$LOCALIZE[31287] $LOCALIZE[31394]</value>
-        <value condition="!Skin.HasSetting(home.classicwidgets) + !Skin.HasSetting(home.vertical)">$LOCALIZE[31248]</value>
-        <value condition="!Skin.HasSetting(home.classicwidgets) + Skin.HasSetting(home.vertical) + !Skin.HasSetting(home.vertical.widgets)">$LOCALIZE[31250]</value>
-        <value condition="!Skin.HasSetting(home.classicwidgets) + Skin.HasSetting(home.vertical) + Skin.HasSetting(home.vertical.widgets)">$LOCALIZE[31250] $LOCALIZE[31394]</value>
-        <value condition="Skin.HasSetting(home.classicwidgets)">$LOCALIZE[31249]</value>
-    </variable>
 
     <variable name="LabelHomeMenuStyle">
         <value condition="Skin.HasSetting(submenu.compatibility)">$LOCALIZE[31408]</value>
@@ -1300,15 +1289,6 @@
         <value condition="Control.HasFocus(8) + Window.IsVisible(DialogVideoInfo.xml) + !ListItem.IsResumable">Play</value>
         <value condition="Control.HasFocus(8) + Window.IsVisible(DialogVideoInfo.xml) + ListItem.IsResumable">Resume</value>
         <value condition="Control.HasFocus(9078) + Window.IsVisible(DialogVideoInfo.xml)">Play</value>
-        <value condition="Control.HasFocus(9120) + Window.IsVisible(DialogVideoInfo.xml) + $EXP[SBInfoShowLevel]">Play next episode</value>
-        <value condition="Control.HasFocus(9120) + Window.IsVisible(DialogVideoInfo.xml) + $EXP[SBInfoResumable]">Resume</value>
-        <value condition="Control.HasFocus(9120) + Window.IsVisible(DialogVideoInfo.xml)">Play</value>
-        <value condition="Control.HasFocus(9121) + Window.IsVisible(DialogVideoInfo.xml)">Available streams</value>
-        <value condition="Control.HasFocus(9122) + Window.IsVisible(DialogVideoInfo.xml)">Cast</value>
-        <value condition="Control.HasFocus(9102) + Window.IsVisible(DialogVideoInfo.xml)">Mark as watched</value>
-        <value condition="Control.HasFocus(9104) + Window.IsVisible(DialogVideoInfo.xml)">Mark as unwatched</value>
-        <value condition="Control.HasFocus(9103) + Window.IsVisible(DialogVideoInfo.xml)">Add to watchlist</value>
-        <value condition="Control.HasFocus(9105) + Window.IsVisible(DialogVideoInfo.xml)">Remove from watchlist</value>
         <value condition="Control.HasFocus(1224) + Window.IsVisible(DialogVideoInfo.xml)">Play trailer</value>
         <value condition="Control.HasFocus(1223) + Window.IsVisible(DialogVideoInfo.xml)">Play trailer</value>
         <value condition="Control.HasFocus(9002) + Window.IsVisible(DialogVideoInfo.xml)">Find similar</value>
@@ -1625,7 +1605,6 @@
     </variable>
 
     <variable name="DialogSelectlabel">
-        <value condition="Window.IsVisible(Custom_SetHomeViewtype.xml)">$INFO[Container(11).CurrentItem] / $INFO[Container(11).NumItems]</value>
         <value condition="Control.IsVisible(6)">$INFO[Container(6).CurrentItem] / $INFO[Container(6).NumItems]</value>
         <value condition="Control.IsVisible(3)">$INFO[Container(3).CurrentItem] / $INFO[Container(3).NumItems]</value>
         <value condition="Control.IsVisible(11) + ControlGroup(11).HasFocus()">$INFO[Container(11).CurrentItem] / $INFO[Container(11).NumItems]</value>

@@ -9,9 +9,9 @@
     <controls>
         <control type="group">
             <animation effect="fade" start="100" end="0" time="250" condition="Window.IsVisible(DialogSlider.xml)">Conditional</animation>
-            <include condition="!Skin.HasSetting(osd.usethemeNewOSD) + !Skin.HasSetting(osd.usethemeNewOSDSide)">Seekbar1</include>
-            <include condition="Skin.HasSetting(osd.usethemeNewOSD)">Seekbar2</include>
-            <include condition="Skin.HasSetting(osd.usethemeNewOSDSide)">Seekbar3</include>
+            <!-- Arctic Zephyr Stremio's OSD (Includes_StremioOSD.xml) -->
+            <include>SBOSDBanner</include>
+            <include>SBOSDBar</include>
         </control>
         <include>ChannelNumberInput</include>
 

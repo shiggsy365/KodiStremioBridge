@@ -19,6 +19,7 @@ the plain context menu.
 
 import json
 import re
+import time
 from urllib.parse import parse_qsl, urlsplit
 
 import xbmc
@@ -29,6 +30,7 @@ from .listitems import PLAYABLE_TYPES
 from .router import route
 
 OPEN_PROPERTY = "stremiobridge.menu_open"  # set while ours shows (it uses the same window)
+CLOSED_PROPERTY = "stremiobridge.menu_closed"  # when ours last closed (time.time())
 _COLOUR = re.compile(r"\[/?COLOR[^\]]*\]")
 
 # Where the item's own entries go, by what they run; None drops them.
@@ -69,30 +71,30 @@ def menu_entries(plugin, path, own_entries, favourite, watched=False):
     entries leave it to Kodi)."""
     action, params = item_target(path)
     type_, id_ = params["type"], params["id"]
+    # Play and Available streams go through the info page's own route (info_play): the same
+    # "Resume from…" question, autoplay setting, and next episode for a show or season.
     if action == "play":
         show_id = params.get("meta")
         info = plugin.url_for("extended_info", type=type_, id=show_id or id_,
                               video=id_ if show_id and show_id != id_ else None)
-        play = path
+        target = {"type": type_, "id": show_id or id_, "video": id_ if show_id and show_id != id_ else None}
     elif action == "extended_info":
-        info, video = path, params.get("video")
-        play = plugin.url_for("play", type=type_, id=video or id_, meta=id_ if video else None)
+        info = path
+        target = {"type": type_, "id": id_, "video": params.get("video")}
     elif action == "season":
         info = plugin.url_for("extended_info", type=type_, id=id_, season=params.get("season"))
-        play = None
+        target = {"type": type_, "id": id_, "season": params.get("season")}
     else:  # a show
-        info, play = plugin.url_for("extended_info", type=type_, id=id_), None
+        info = plugin.url_for("extended_info", type=type_, id=id_)
+        target = {"type": type_, "id": id_}
 
-    entries = []
-    if play and (type_ in PLAYABLE_TYPES or action != "meta"):
-        entries.append((1, xbmc.getLocalizedString(208), f"PlayMedia({play})"))
-    elif action == "season":  # its next episode to watch, as the info page's Play does
-        entries.append((1, xbmc.getLocalizedString(208),
-                        plugin.run_url("info_play", type=type_, id=id_, season=params.get("season"))))
+    entries = [(1, xbmc.getLocalizedString(208), plugin.run_url("info_play", **target))]
     entries.append((2, xbmc.getLocalizedString(19033), f"RunPlugin({info})"))
     for label, command in own_entries:
         clean = _COLOUR.sub("", label)
         place = rank(command)
+        if place == 4:  # Show playable streams: through info_play, like the info page's button
+            command = plugin.run_url("info_play", pick=1, **target)
         if place is not None:
             entries.append((place, clean, command))
     if not any(place == 3 for place, _, _ in entries):
@@ -112,6 +114,21 @@ def menu_entries(plugin, path, own_entries, favourite, watched=False):
     return [(label, command) for _, label, command in entries]
 
 
+def browser_entry(plugin, path, watched):
+    """The info page's season tabs and episode cards have one entry: mark that
+    season or episode watched (or unwatched), keeping the page where it is."""
+    action, params = item_target(path)
+    # The season tab showing now, so the page reloads on it (read here: once our
+    # menu is open, Container(5060) would be asked of the menu's window).
+    target = {"type": params["type"], "id": params["id"],
+              "tab": xbmc.getInfoLabel("Container(5060).ListItem.Property(season)") or None}
+    if action == "season":
+        target["season"] = params.get("season")
+    else:
+        target["video"] = params.get("video")
+    return L(30191 if watched else 30190), plugin.run_url("info_mark", value=int(not watched), **target)
+
+
 def is_favourite(path):
     favourites = jsonrpc("Favourites.GetFavourites", properties=["path", "windowparameter"]).get("favourites") or []
     return any(path in (f.get("path"), f.get("windowparameter")) for f in favourites)
@@ -128,7 +145,8 @@ def toggle_favourite(path, title, thumb, folder):
 
 # The skin's info page lists whose items get our menu: the show browser's
 # episodes and seasons, and Find similar (Includes_Stremio.xml / Includes_DialogVideoInfo.xml).
-INFO_LISTS = (5061, 5060, 9502)
+INFO_LISTS = (5061, 5060, 5160, 9502)  # episodes, seasons, similar (new page and old)
+BROWSER_LISTS = ("Container(5060).ListItem", "Container(5061).ListItem")
 
 
 def focused_item():
@@ -150,6 +168,8 @@ def context_menu(plugin, path="", source="ListItem"):
     try:
         _show_menu(plugin, path or xbmc.getInfoLabel(f"{source}.FileNameAndPath"), source)
     finally:
+        # While ours closes it's still "a menu": the service leaves menus alone briefly after this.
+        home.setProperty(CLOSED_PROPERTY, str(time.time()))
         home.clearProperty(OPEN_PROPERTY)
 
 
@@ -164,7 +184,10 @@ def _show_menu(plugin, path, source="ListItem"):
     except ValueError:
         own = []
     watched = (xbmc.getInfoLabel(f"{source}.PlayCount") or "0") != "0"
-    entries = menu_entries(plugin, path, own, is_favourite(path), watched)
+    if source in BROWSER_LISTS:
+        entries = [browser_entry(plugin, path, watched)]
+    else:
+        entries = menu_entries(plugin, path, own, is_favourite(path), watched)
     choice = xbmcgui.Dialog().contextmenu([label for label, _ in entries])
     if choice < 0:
         return

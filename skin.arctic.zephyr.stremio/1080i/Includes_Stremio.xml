@@ -256,249 +256,27 @@
         <value>Dark2</value>
     </variable>
 
-    <!-- The show browser's lists: empty until DialogVideoInfo.xml's onload has frozen the
-         page's title (sbinfo.*), so they don't load once with no title. `focus` is what
-         the plugin selects once the list shows: the page's season and its episode (an
-         episode's page) or the next one to watch (a show's or season's page). -->
+    <!-- The info page's season tabs and episodes (Includes_StremioInfo.xml): empty until
+         DialogVideoInfo.xml's onload has frozen the page's title (sbinfo.*), so they don't
+         load once with no title. `focus` is what the plugin selects once the list shows: the
+         page's season (or the one marked watched from it) and its episode, or the next to
+         watch. `rev` changes to reload both in place (Stremio Bridge's info_mark). -->
     <variable name="StremioInfoSeasonsPath">
-        <value condition="!String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(Window(home).Property(sbinfo.browse))">plugin://plugin.video.stremiobridge/?action=info_seasons&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;focus=$INFO[Window(home).Property(sbinfo.default_season)]</value>
+        <value condition="!String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(Window(home).Property(sbinfo.browse))">plugin://plugin.video.stremiobridge/?action=info_seasons&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;focus=$INFO[Window(home).Property(sbinfo.season_focus)]&amp;rev=$INFO[Window(home).Property(sbinfo.browser_rev)]</value>
     </variable>
     <variable name="StremioInfoEpisodesPath">
-        <value condition="!String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(Window(home).Property(sbinfo.browse))">plugin://plugin.video.stremiobridge/?action=info_episodes&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;season=$INFO[Window(home).Property(stremiobridge.info.season)]&amp;focus=$INFO[Window(home).Property(sbinfo.focus_video)]</value>
-    </variable>
-
-    <!-- The info page's show browser: the default panel of a show's, season's or episode's
-         page, shown while Play or Available streams has focus (moviecontent 11; Cast and
-         Find similar swap it out). It fills the space between the plot (ends y=530) and
-         the buttons (start y=874), from the text's left edge (x=570). Seasons on top, that
-         season's episodes below; an episode opens this same page for it. -->
-    <include name="StremioInfoShowBrowser">
-        <control type="group">
-            <visible>String.IsEqual(Window.Property(moviecontent),11) + $EXP[SBInfoBrowse]</visible>
-            <include>Animation.DelayFadeIn</include>
-            <!-- inside the cast group (top 200, left 788): this is y=540, x=570 -->
-            <top>340</top>
-            <left>-218</left>
-            <width>1270</width>
-            <height>326</height>
-            <control type="list" id="5060">
-                <left>-6</left>
-                <top>0</top>
-                <width>1276</width>
-                <height>50</height>
-                <orientation>horizontal</orientation>
-                <onleft>5060</onleft>
-                <onright>5060</onright>
-                <onup>5060</onup>
-                <ondown>5061</ondown>
-                <onback>9000</onback>
-                <onclick>SetProperty(stremiobridge.info.season,$INFO[Container(5060).ListItem.Property(season)],home)</onclick>
-                <onclick>SetFocus(5061,0,absolute)</onclick>
-                <content target="videos">$VAR[StremioInfoSeasonsPath]</content>
-                <itemlayout width="150" height="50">
-                    <control type="label">
-                        <left>6</left>
-                        <top>4</top>
-                        <width>138</width>
-                        <height>40</height>
-                        <align>center</align>
-                        <aligny>center</aligny>
-                        <font>Tiny</font>
-                        <textcolor>$VAR[StremioSeasonColor]</textcolor>
-                        <label>$INFO[ListItem.Label]</label>
-                    </control>
-                    <!-- a fully watched season: struck through (Kodi labels have no strikethrough) -->
-                    <control type="image">
-                        <left>21</left>
-                        <top>25</top>
-                        <width>108</width>
-                        <height>2</height>
-                        <texture colordiffuse="$VAR[StremioSeasonColor]">common/white.png</texture>
-                        <visible>String.IsEqual(ListItem.Overlay,OverlayWatched.png)</visible>
-                    </control>
-                </itemlayout>
-                <focusedlayout width="150" height="50">
-                    <control type="image">
-                        <left>4</left>
-                        <top>2</top>
-                        <width>142</width>
-                        <height>44</height>
-                        <visible>Control.HasFocus(5060)</visible>
-                        <texture colordiffuse="$VAR[ColorHighlight]" border="4">common/box.png</texture>
-                    </control>
-                    <control type="label">
-                        <left>6</left>
-                        <top>4</top>
-                        <width>138</width>
-                        <height>40</height>
-                        <align>center</align>
-                        <aligny>center</aligny>
-                        <font>Tiny</font>
-                        <textcolor>Dark1</textcolor>
-                        <label>[B]$INFO[ListItem.Label][/B]</label>
-                    </control>
-                    <!-- a fully watched season: struck through (Kodi labels have no strikethrough) -->
-                    <control type="image">
-                        <left>21</left>
-                        <top>25</top>
-                        <width>108</width>
-                        <height>2</height>
-                        <texture colordiffuse="Dark1">common/white.png</texture>
-                        <visible>String.IsEqual(ListItem.Overlay,OverlayWatched.png)</visible>
-                    </control>
-                </focusedlayout>
-            </control>
-            <control type="list" id="5061">
-                <!-- tiles are inset 20, so the first thumbnail starts at x=570 -->
-                <left>-20</left>
-                <top>56</top>
-                <width>1290</width>
-                <height>270</height>
-                <orientation>horizontal</orientation>
-                <preloaditems>2</preloaditems>
-                <onleft>5061</onleft>
-                <onright>5061</onright>
-                <onup condition="Integer.IsGreater(Container(5060).NumItems,1)">5060</onup>
-                <ondown>9000</ondown>
-                <onback>9000</onback>
-                <onclick>RunPlugin($INFO[Container(5061).ListItem.FileNameAndPath])</onclick>
-                <content target="videos">$VAR[StremioInfoEpisodesPath]</content>
-                <itemlayout width="300" height="270">
-                    <control type="image">
-                        <left>20</left>
-                        <top>10</top>
-                        <width>260</width>
-                        <height>146</height>
-                        <aspectratio>scale</aspectratio>
-                        <texture background="true" fallback="DefaultTVShows.png">$INFO[ListItem.Art(thumb)]</texture>
-                    </control>
-                    <!-- the widgets' Watched / In progress marker, flush in the thumbnail's corner
-                         (IndicatorPoster insets it by 8, hence -8) -->
-                    <control type="group">
-                        <left>20</left>
-                        <top>10</top>
-                        <width>260</width>
-                        <height>146</height>
-                        <include content="IndicatorPoster" condition="!Skin.HasSetting(hide.markers)">
-                            <param name="right" value="-8" />
-                            <param name="top" value="-8" />
-                        </include>
-                    </control>
-                    <control type="label">
-                        <left>20</left>
-                        <top>160</top>
-                        <width>260</width>
-                        <height>36</height>
-                        <font>Tiny</font>
-                        <textcolor>Dark2</textcolor>
-                        <label>$INFO[ListItem.Label]</label>
-                    </control>
-                    <control type="textbox">
-                        <left>20</left>
-                        <top>198</top>
-                        <width>260</width>
-                        <height>64</height>
-                        <font>Mini</font>
-                        <textcolor>Dark3</textcolor>
-                        <label>$INFO[ListItem.Plot]</label>
-                    </control>
-                </itemlayout>
-                <focusedlayout width="300" height="270">
-                    <control type="image">
-                        <left>12</left>
-                        <top>2</top>
-                        <width>276</width>
-                        <height>162</height>
-                        <visible>Control.HasFocus(5061)</visible>
-                        <texture colordiffuse="$VAR[ColorHighlightSelectbox2]" border="5">common/gradient-box-wide.png</texture>
-                    </control>
-                    <control type="image">
-                        <left>20</left>
-                        <top>10</top>
-                        <width>260</width>
-                        <height>146</height>
-                        <aspectratio>scale</aspectratio>
-                        <texture background="true" fallback="DefaultTVShows.png">$INFO[ListItem.Art(thumb)]</texture>
-                    </control>
-                    <!-- the widgets' Watched / In progress marker, flush in the thumbnail's corner
-                         (IndicatorPoster insets it by 8, hence -8) -->
-                    <control type="group">
-                        <left>20</left>
-                        <top>10</top>
-                        <width>260</width>
-                        <height>146</height>
-                        <include content="IndicatorPoster" condition="!Skin.HasSetting(hide.markers)">
-                            <param name="right" value="-8" />
-                            <param name="top" value="-8" />
-                        </include>
-                    </control>
-                    <control type="label">
-                        <left>20</left>
-                        <top>160</top>
-                        <width>260</width>
-                        <height>36</height>
-                        <font>Tiny</font>
-                        <textcolor>Dark1</textcolor>
-                        <label>$INFO[ListItem.Label]</label>
-                    </control>
-                    <control type="textbox">
-                        <left>20</left>
-                        <top>198</top>
-                        <width>260</width>
-                        <height>64</height>
-                        <font>Mini</font>
-                        <textcolor>Dark2</textcolor>
-                        <label>$INFO[ListItem.Plot]</label>
-                    </control>
-                </focusedlayout>
-            </control>
-        </control>
-    </include>
-
-    <!-- The info page poster's Watched / In progress ribbon: IndicatorPoster's look (the
-         widgets' marker), but from the page's frozen state (sbinfo.*), so it stays the page's
-         while the cast, similar or show browser lists have focus. Poster: x 80-508, y 216. -->
-    <include name="StremioInfoPosterIndicator">
-        <control type="group">
-            <visible>$EXP[SBInfoPage] + !Skin.HasSetting(hide.markers)</visible>
-            <left>408</left>
-            <top>208</top>
-            <width>108</width>
-            <height>108</height>
-            <control type="image">
-                <right>8</right>
-                <top>8</top>
-                <width>100</width>
-                <height>100</height>
-                <texture colordiffuse="$VAR[ColorIndicatorBackgroundWatched]" background="true">misc/overlaywatched.png</texture>
-                <visible>$EXP[SBInfoWatched] + !Skin.HasSetting(hide.markers.watched)</visible>
-            </control>
-            <control type="image">
-                <right>8</right>
-                <top>8</top>
-                <width>100</width>
-                <height>100</height>
-                <texture colordiffuse="$VAR[ColorIndicatorBackgroundInprogress]" background="true">misc/overlaywatched.png</texture>
-                <visible>!$EXP[SBInfoWatched] + $EXP[SBInfoResumable] + !Skin.HasSetting(hide.markers.inprogress)</visible>
-            </control>
-            <control type="label">
-                <right>-9</right>
-                <top>8</top>
-                <align>center</align>
-                <label>$VAR[StremioInfoPosterIndicatorLabel]</label>
-                <width>100</width>
-                <font>WatchedStates</font>
-                <textcolor>$VAR[ColorIndicatorBackgroundLabel]</textcolor>
-                <animation effect="rotate" center="auto" time="0" end="-45" condition="true" loop="false">Conditional</animation>
-            </control>
-        </control>
-    </include>
-    <variable name="StremioInfoPosterIndicatorLabel">
-        <value condition="$EXP[SBInfoWatched] + !Skin.HasSetting(hide.markers.watched)">$LOCALIZE[31493]</value>
-        <value condition="!$EXP[SBInfoWatched] + $EXP[SBInfoResumable] + !Skin.HasSetting(hide.markers.inprogress)">$LOCALIZE[31492]</value>
+        <value condition="!String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(Window(home).Property(sbinfo.browse))">plugin://plugin.video.stremiobridge/?action=info_episodes&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;season=$INFO[Container(5060).ListItem.Property(season)]&amp;focus=$INFO[Window(home).Property(sbinfo.focus_video)]&amp;rev=$INFO[Window(home).Property(sbinfo.browser_rev)]</value>
     </variable>
 
     <!-- The search page (Custom_1170_Search.xml) -->
+    <variable name="SBSearchOnPill301">
+        <value condition="Control.HasFocus(301)">FF101010</value>
+        <value>Dark1</value>
+    </variable>
+    <variable name="SBSearchOnPill302">
+        <value condition="Control.HasFocus(302)">FF101010</value>
+        <value>Dark1</value>
+    </variable>
     <variable name="StremioSearchListPath">
         <value condition="String.IsEmpty(Window(home).Property(sbsearch.query))">plugin://plugin.video.stremiobridge/?action=search_recent&amp;q=$INFO[Window(home).Property(sbsearch.rev)]</value>
         <value>plugin://plugin.video.stremiobridge/?action=search_suggest&amp;q=$INFO[Window(home).Property(sbsearch.query)]&amp;n=$INFO[Container(401).NumItems]-$INFO[Container(402).NumItems]-$INFO[Window(home).Property(sbsearch.rev)]</value>

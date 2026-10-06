@@ -13,9 +13,8 @@ from stremio.watchstate import next_episode
 
 from .common import ADDON, L, get_client, get_registry, get_watchstate, log, notify
 from .listitems import (
-    YOUTUBE_PLUGIN, apply_info_actions, apply_watch, episode_item, episode_listitem, mark_item_watched, season_item,
-    season_label,
-    single_video_item,
+    YOUTUBE_PLUGIN, apply_info_actions, apply_watch, episode_code, episode_item, episode_listitem, mark_item_watched,
+    season_item, season_label, single_video_item,
 )
 from .router import route
 from .views import end_listing, set_content, set_focus
@@ -96,9 +95,9 @@ def season_view(plugin, type, id, season):
 
 
 @route("info_seasons")
-def info_seasons(plugin, type, id, focus=None):
+def info_seasons(plugin, type, id, focus=None, rev=None):
     """Season chips shown inside Arctic Zephyr Stremio's information page;
-    season `focus` is selected."""
+    season `focus` is selected. `rev` only changes the path, to reload it."""
     handle = plugin.handle
     meta = load_meta(type, id, quiet=True)
     if meta is None:
@@ -123,10 +122,10 @@ def info_seasons(plugin, type, id, focus=None):
 
 
 @route("info_episodes")
-def info_episodes(plugin, type, id, season="", focus=None):
-    """Episode thumbnails embedded in the information page. Selecting one opens
-    the same information page for that episode instead of a separate folder.
-    Episode `focus` (a video id) is selected."""
+def info_episodes(plugin, type, id, season="", focus=None, rev=None):
+    """Episode cards embedded in the information page. Selecting one plays it
+    (its play_action: autoplay or the stream list, as the settings say); resting
+    on one puts it in the page's header. Episode `focus` (a video id) is selected."""
     handle = plugin.handle
     meta = load_meta(type, id, quiet=True)
     if meta is None:
@@ -139,6 +138,8 @@ def info_episodes(plugin, type, id, season="", focus=None):
         selected = seasons[0] if seasons else None
     if selected not in seasons:
         selected = seasons[0] if seasons else None
+    from .infodialog import page_text  # infodialog imports this module
+
     state = get_watchstate()
     today = datetime.date.today().isoformat()
     hide_unreleased = ADDON.getSettingBool("hide_unaired")
@@ -154,13 +155,23 @@ def info_episodes(plugin, type, id, season="", focus=None):
         apply_watch(item, row)
         apply_info_actions(item, plugin, meta, video, bool(row and row.watched))
         item.setProperty("IsPlayable", "false")
+        item.setProperty("stremiobridge.code", episode_code(video))
+        if video.rating:
+            item.setProperty("stremiobridge.rating", f"{video.rating:.1f}")
+        # The header takes these over when the card has focus a moment (service.InfoPageFollower)
+        for name, value in page_text(meta, video, state).items():
+            item.setProperty(f"stremiobridge.page.{name}", value)
         items.append((plugin.url_for("extended_info", type=type, id=id, video=video.id), item, False))
         shown.append(video.id)
     xbmcplugin.addDirectoryItems(handle, items, len(items))
     xbmcplugin.setContent(handle, "episodes")
     xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
+    # The list keeps its old position when it loads another season: select the
+    # episode to watch next in the page's own season, else the season's first.
     if focus in shown:
         select_when_shown(INFO_EPISODES, shown.index(focus), items[shown.index(focus)][0])
+    elif items:
+        select_when_shown(INFO_EPISODES, 0, items[0][0])
 
 
 INFO_WINDOW = "movieinformation"
@@ -172,7 +183,7 @@ def select_when_shown(control, position, path, timeout=5.0):
     `control` once Kodi shows the listing just returned. The skin can't: the
     list loads after the page opens. Gives up if the page closes or another
     listing shows up instead."""
-    if position <= 0:
+    if position < 0:
         return
     monitor = xbmc.Monitor()
     for _ in range(int(timeout / 0.1)):

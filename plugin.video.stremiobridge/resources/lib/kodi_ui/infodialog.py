@@ -7,6 +7,7 @@ collects what the user picked; the route acts on it after the dialog closes
 
 import datetime
 import os
+import time
 
 import xbmc
 import xbmcgui
@@ -26,7 +27,8 @@ from .details import INFO_WINDOW, load_meta, play_trailer
 from .library import LIBRARY_TYPES, in_library
 from .watchlist import change_watchlist, on_watchlist
 from .listitems import (
-    PLAYABLE_TYPES, apply_info_actions, apply_watch, episode_listitem, mark_item_watched, meta_item, season_label,
+    GENRE_SEPARATOR, PLAYABLE_TYPES, apply_info_actions, apply_watch, episode_code, episode_listitem,
+    mark_item_watched, meta_item, season_label,
 )
 from .router import route
 from .watching import mark_watched
@@ -240,12 +242,58 @@ def kodi_info(plugin, meta, episode, video_id, state, season=None):
         watched = bool(aired) and aired <= state.watched_episodes(meta.id)
         mark_item_watched(item, watched)
     apply_info_actions(item, plugin, meta, episode, watched, season)
+    for name, value in page_text(meta, episode, state, season).items():
+        item.setProperty(f"stremiobridge.{name}", value)
     services = _services(meta)
     if services:
         item.setProperty("stremiobridge.service", services[0][0])
         item.setProperty("stremiobridge.service_name", services[0][1])
     _close_info()  # another title's page (e.g. from Similar): a fresh page, not the old one's view
     xbmcgui.Dialog().info(item)
+
+
+def page_text(meta, episode, state, season=None):
+    """The info page's text (Arctic Zephyr Stremio's layout, Includes_StremioInfo.xml):
+    the Play button's label, the facts row (year, seasons or runtime), genres,
+    age rating, rating, and for an episode its code and title."""
+    from .details import visible_seasons
+
+    if episode is not None:
+        target = episode
+    elif meta.videos:
+        target = episode_to_play(meta, state, season)
+    else:
+        target = None
+    row = state.get(target.id if target else meta.default_video_id or meta.id)
+    resume = bool(row and row.position > 0 and not row.watched)
+    code = episode_code(target)
+    if code:
+        play = L(30409 if resume else 30408, season=target.season, episode=target.episode)
+    else:
+        play = L(30407) if resume else L(30221)
+
+    facts = []
+    year = int(episode.air_date[:4]) if episode is not None and episode.air_date else meta.year
+    if year:
+        facts.append(str(year))
+    seasons = [s for s in visible_seasons(meta) if s != 0] if meta.videos and episode is None else []
+    if seasons:
+        facts.append(L(30411) if len(seasons) == 1 else L(30410, count=len(seasons)))
+    if meta.runtime_seconds:
+        facts.append(_duration(meta.runtime_seconds))
+    rating = episode.rating if episode is not None else meta.imdb_rating
+    text = {
+        "play_label": play,
+        "facts": "   ".join(facts),
+        "genres": "  •  ".join(meta.genres),
+        "certification": meta.certification,
+        "rating": f"{rating:.1f}" if rating else "",
+        "title": meta.name,
+        "subtitle": "",
+    }
+    if episode is not None:
+        text["subtitle"] = "  ".join(part for part in (episode_code(episode), episode.title) if part)
+    return text
 
 
 def _services(meta):
@@ -332,6 +380,28 @@ def info_toggle(plugin, what, type, id, value, video=None, season=None):
     if done:
         refresh_when_idle()
         extended_info(plugin, type, id, video, season)
+
+
+# The info page's browser lists reload when this home property changes
+# (Includes_Stremio.xml adds it to their paths); the page itself stays.
+BROWSER_REVISION = "sbinfo.browser_rev"
+
+
+@route("info_mark")
+def info_mark(plugin, type, id, value, video=None, season=None, tab=None):
+    """Mark watched from a season tab's or episode card's menu, then reload
+    the season tabs and episodes in place, on season `tab` (the one showing)."""
+    on = bool(int(value))
+    if not mark_watched(type, video or id, on, id if video else None, season):
+        return
+    home = xbmcgui.Window(10000)
+    if tab:
+        home.setProperty("sbinfo.season_focus", tab)
+    if video:
+        home.setProperty("sbinfo.focus_video", video)
+        if home.getProperty("sbinfo.video") == video:  # the header is about this episode
+            home.setProperty("sbinfo.watched", "1" if on else "")
+    home.setProperty(BROWSER_REVISION, str(int(time.time() * 1000)))
 
 
 @route("extended_info")

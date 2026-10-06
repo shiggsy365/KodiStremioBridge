@@ -796,30 +796,64 @@
         </control>
     </include>
 
+    <!-- Arctic Zephyr Stremio: the guide's channel groups as pills (MyPVRGuide.xml) -->
     <include name="11focusepglayout">
+        <control type="image">
+            <left>6</left>
+            <top>8</top>
+            <width>218</width>
+            <height>48</height>
+            <texture border="14" colordiffuse="FFFFFFFF">stremio/tab.png</texture>
+            <visible>Control.HasFocus(11)</visible>
+        </control>
+        <control type="image">
+            <left>6</left>
+            <top>8</top>
+            <width>218</width>
+            <height>48</height>
+            <texture border="14" colordiffuse="40FFFFFF">stremio/tab.png</texture>
+            <visible>!Control.HasFocus(11)</visible>
+        </control>
         <control type="label">
-            <posx>10</posx>
-            <width>200</width>
-            <font>EPGTimeline</font>
-            <height>64</height>
-            <textcolor>$VAR[ColorHighlight]</textcolor>
-            <selectedcolor>$VAR[ColorHighlight]</selectedcolor>
-            <label>$INFO[ListItem.Label]</label>
+            <left>6</left>
+            <top>8</top>
+            <width>218</width>
+            <height>48</height>
+            <align>center</align>
+            <aligny>center</aligny>
+            <font>SBInfoTab</font>
+            <textcolor>FF101010</textcolor>
+            <label>[B]$INFO[ListItem.Label][/B]</label>
+            <visible>Control.HasFocus(11)</visible>
+        </control>
+        <control type="label">
+            <left>6</left>
+            <top>8</top>
+            <width>218</width>
+            <height>48</height>
+            <align>center</align>
+            <aligny>center</aligny>
+            <font>SBInfoTab</font>
+            <textcolor>FFFFFFFF</textcolor>
+            <label>[B]$INFO[ListItem.Label][/B]</label>
+            <visible>!Control.HasFocus(11)</visible>
         </control>
     </include>
 
     <include name="11epglayout">
         <control type="label">
-            <posx>10</posx>
-            <width>200</width>
-            <height>64</height>
-            <font>EPGTimeline</font>
+            <left>6</left>
+            <top>8</top>
+            <width>218</width>
+            <height>48</height>
+            <align>center</align>
+            <aligny>center</aligny>
+            <font>SBInfoTab</font>
+            <textcolor>FFA0A0A0</textcolor>
             <label>$INFO[ListItem.Label]</label>
-            <textcolor>PanelWhite100</textcolor>
-            <selectedcolor>PanelWhite100</selectedcolor>
         </control>
     </include>
-    
+
     <include name="50itemlayout_square_info">
         <control type="image">
             <left>25</left>

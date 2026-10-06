@@ -1,0 +1,1080 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Arctic Zephyr Stremio: the info page of Stremio Bridge's titles (DialogVideoInfo.xml shows
+     this instead of Arctic Zephyr's page when $EXP[SBInfoPage]).
+
+     One page that scrolls as focus moves down (grouplist 9700):
+       header   logo (or title), the episode's code and title, facts (year, seasons or runtime),
+                age rating and rating pills, genres, plot, and the buttons: Play (9610), Available
+                streams (9611), Watched (9612), Watchlist (9613, with MDBList), Trailer (9614)
+       seasons  shows and episodes: season tabs (5060) and episode cards (5061)
+       cast     5150, a copy of Kodi's cast list (50, hidden; Includes_Stremio.xml)
+       similar  5160, MDBList's recommendations
+
+     Everything shown is read from the page's frozen sbinfo.* properties (DialogVideoInfo.xml's
+     onload): inside this dialog ListItem.* follows whichever list has focus. Stremio Bridge
+     writes the text (stremiobridge.play_label, facts, genres, ...: infodialog.page_text). -->
+<includes>
+    <expression name="SBInfoHasCast">!String.IsEmpty(Container(50).ListItemAbsolute(0).Label)</expression>
+    <expression name="SBInfoHasSimilar">$EXP[SBInfoSimilar] + Integer.IsGreater(Container(5160).NumItems,0)</expression>
+    <!-- (5160 must be visible to load at all, so its section shows whenever MDBList is on) -->
+
+    <variable name="SBInfoSimilarPath">
+        <value condition="!String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(Window(home).Property(sbinfo.similar))">plugin://plugin.video.stremiobridge/?action=similar&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;panel=1</value>
+    </variable>
+    <variable name="SBInfoButtonHint">
+        <value condition="Control.HasFocus(9611)">Available streams</value>
+        <value condition="Control.HasFocus(9612) + $EXP[SBInfoWatched]">Mark as unwatched</value>
+        <value condition="Control.HasFocus(9612)">Mark as watched</value>
+        <value condition="Control.HasFocus(9613) + $EXP[SBInfoListed]">Remove from watchlist</value>
+        <value condition="Control.HasFocus(9613)">Add to watchlist</value>
+        <value condition="Control.HasFocus(9614)">Play trailer</value>
+    </variable>
+    <variable name="SBInfoPlayLabel">
+        <value condition="!String.IsEmpty(Window(home).Property(sbinfo.play_label))">$INFO[Window(home).Property(sbinfo.play_label)]</value>
+        <value>$LOCALIZE[208]</value>
+    </variable>
+
+    <!-- Down from the buttons, up from the cast: the next section that's there -->
+    <include name="SBInfoDownFromButtons">
+        <ondown condition="$EXP[SBInfoBrowse]">5060</ondown>
+        <ondown condition="!$EXP[SBInfoBrowse] + $EXP[SBInfoHasCast]">5150</ondown>
+        <ondown condition="!$EXP[SBInfoBrowse] + !$EXP[SBInfoHasCast] + $EXP[SBInfoHasSimilar]">5160</ondown>
+    </include>
+
+    <!-- Left and right along the buttons (9610 Play, 9611 Streams, 9612 Watched, 9613 Watchlist,
+         9614 Trailer), skipping Watchlist without MDBList and Trailer without a trailer -->
+    <expression name="SBInfoHasTrailer">!String.IsEmpty(Window(home).Property(sbinfo.trailer))</expression>
+    <include name="SBInfoNav9610">
+        <onleft>noop</onleft>
+        <onright>9611</onright>
+    </include>
+    <include name="SBInfoNav9611">
+        <onleft>9610</onleft>
+        <onright>9612</onright>
+    </include>
+    <include name="SBInfoNav9612">
+        <onleft>9611</onleft>
+        <onright condition="$EXP[SBInfoWatchlist]">9613</onright>
+        <onright condition="!$EXP[SBInfoWatchlist] + $EXP[SBInfoHasTrailer]">9614</onright>
+    </include>
+    <include name="SBInfoNav9613">
+        <onleft>9612</onleft>
+        <onright condition="$EXP[SBInfoHasTrailer]">9614</onright>
+    </include>
+    <include name="SBInfoNav9614">
+        <onleft condition="$EXP[SBInfoWatchlist]">9613</onleft>
+        <onleft condition="!$EXP[SBInfoWatchlist]">9612</onleft>
+        <onright>noop</onright>
+    </include>
+
+    <!-- One round button of the row: `id`, its icon, and what it runs -->
+    <include name="SBInfoRoundButton">
+        <param name="visible">true</param>
+        <param name="icon_color">FFFFFFFF</param>
+        <param name="shift">false</param>
+        <definition>
+            <control type="group">
+                <left>$PARAM[left]</left>
+                <width>66</width>
+                <height>66</height>
+                <visible>$PARAM[visible]</visible>
+                <animation effect="slide" end="-84,0" time="0" condition="$PARAM[shift]">Conditional</animation>
+                <control type="button" id="$PARAM[id]">
+                    <width>66</width>
+                    <height>66</height>
+                    <texturefocus colordiffuse="FFFFFFFF">stremio/circle.png</texturefocus>
+                    <texturenofocus colordiffuse="40FFFFFF">stremio/circle.png</texturenofocus>
+                    <onup>noop</onup>
+                    <include>SBInfoDownFromButtons</include>
+                    <include>SBInfoNav$PARAM[id]</include>
+                    <onclick>$PARAM[onclick]</onclick>
+                </control>
+                <control type="image">
+                    <left>17</left>
+                    <top>17</top>
+                    <width>32</width>
+                    <height>32</height>
+                    <aspectratio>keep</aspectratio>
+                    <texture colordiffuse="$PARAM[icon_color]">$PARAM[icon]</texture>
+                    <visible>!Control.HasFocus($PARAM[id])</visible>
+                </control>
+                <control type="image">
+                    <left>17</left>
+                    <top>17</top>
+                    <width>32</width>
+                    <height>32</height>
+                    <aspectratio>keep</aspectratio>
+                    <texture colordiffuse="FF101010">$PARAM[icon]</texture>
+                    <visible>Control.HasFocus($PARAM[id])</visible>
+                </control>
+            </control>
+        </definition>
+    </include>
+
+    <!-- A pill with text in it (age rating, rating): a disabled button sizes itself to its label -->
+    <include name="SBInfoPill">
+        <definition>
+            <control type="button">
+                <width>auto</width>
+                <height>42</height>
+                <enable>false</enable>
+                <font>SBInfoFacts</font>
+                <textoffsetx>14</textoffsetx>
+                <align>center</align>
+                <aligny>center</aligny>
+                <disabledcolor>FFE6E6E6</disabledcolor>
+                <texturenofocus border="10" colordiffuse="B3FFFFFF">stremio/badge-outline.png</texturenofocus>
+                <texturefocus border="10" colordiffuse="B3FFFFFF">stremio/badge-outline.png</texturefocus>
+                <label>$PARAM[label]</label>
+                <visible>!String.IsEmpty($PARAM[value])</visible>
+            </control>
+        </definition>
+    </include>
+
+    <include name="SBInfoHeading">
+        <definition>
+            <control type="label">
+                <left>80</left>
+                <top>0</top>
+                <width>1200</width>
+                <height>60</height>
+                <aligny>center</aligny>
+                <font>SBInfoHeading</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$PARAM[label]</label>
+            </control>
+        </definition>
+    </include>
+
+    <include name="StremioInfoPage">
+        <control type="group">
+            <visible>$EXP[SBInfoPage]</visible>
+            <include>Animation.FadeInDialogInfo</include>
+            <!-- shading over the fanart so the text reads -->
+            <control type="image">
+                <include>Dimensions_Fullscreen</include>
+                <texture>stremio/shade-left.png</texture>
+            </control>
+            <control type="image">
+                <include>Dimensions_Fullscreen</include>
+                <texture>stremio/shade-bottom.png</texture>
+            </control>
+
+            <control type="grouplist" id="9700">
+                <left>0</left>
+                <top>0</top>
+                <width>1920</width>
+                <height>1080</height>
+                <orientation>vertical</orientation>
+                <itemgap>0</itemgap>
+                <scrolltime tween="cubic" easing="out">400</scrolltime>
+                <onup>noop</onup>
+                <ondown>noop</ondown>
+
+                <!-- ============================================================ header -->
+                <control type="group">
+                    <width>1920</width>
+                    <height>690</height>
+                    <control type="image">
+                        <left>80</left>
+                        <top>50</top>
+                        <width>640</width>
+                        <height>190</height>
+                        <aspectratio align="left" aligny="bottom">keep</aspectratio>
+                        <texture background="true">$INFO[Window(home).Property(sbinfo.clearlogo)]</texture>
+                        <visible>!String.IsEmpty(Window(home).Property(sbinfo.clearlogo))</visible>
+                    </control>
+                    <control type="label">
+                        <left>80</left>
+                        <top>110</top>
+                        <width>1300</width>
+                        <height>130</height>
+                        <aligny>bottom</aligny>
+                        <font>SBInfoTitle</font>
+                        <textcolor>FFFFFFFF</textcolor>
+                        <label>$INFO[Window(home).Property(sbinfo.title)]</label>
+                        <visible>String.IsEmpty(Window(home).Property(sbinfo.clearlogo))</visible>
+                    </control>
+
+                    <!-- the text: rows close up when one is empty -->
+                    <control type="grouplist">
+                        <left>80</left>
+                        <top>262</top>
+                        <width>1100</width>
+                        <height>300</height>
+                        <orientation>vertical</orientation>
+                        <itemgap>12</itemgap>
+                        <usecontrolcoords>true</usecontrolcoords>
+                        <control type="label">
+                            <width>1100</width>
+                            <height>40</height>
+                            <font>SBInfoFacts</font>
+                            <textcolor>FFFFFFFF</textcolor>
+                            <label>$INFO[Window(home).Property(sbinfo.subtitle)]</label>
+                            <visible>!String.IsEmpty(Window(home).Property(sbinfo.subtitle))</visible>
+                        </control>
+                        <control type="grouplist">
+                            <width>1100</width>
+                            <height>42</height>
+                            <orientation>horizontal</orientation>
+                            <itemgap>22</itemgap>
+                            <control type="label">
+                                <width>auto</width>
+                                <height>42</height>
+                                <aligny>center</aligny>
+                                <font>SBInfoFacts</font>
+                                <textcolor>FFFFFFFF</textcolor>
+                                <label>$INFO[Window(home).Property(sbinfo.facts)]</label>
+                                <visible>!String.IsEmpty(Window(home).Property(sbinfo.facts))</visible>
+                            </control>
+                            <include content="SBInfoPill">
+                                <param name="label" value="$INFO[Window(home).Property(sbinfo.certification)]"/>
+                                <param name="value" value="Window(home).Property(sbinfo.certification)"/>
+                            </include>
+                            <include content="SBInfoPill">
+                                <param name="label" value="$INFO[Window(home).Property(sbinfo.rating)]"/>
+                                <param name="value" value="Window(home).Property(sbinfo.rating)"/>
+                            </include>
+                        </control>
+                        <control type="label">
+                            <width>1100</width>
+                            <height>36</height>
+                            <font>SBInfoBody</font>
+                            <textcolor>FFB4B4B4</textcolor>
+                            <label>$INFO[Window(home).Property(sbinfo.genres)]</label>
+                            <visible>!String.IsEmpty(Window(home).Property(sbinfo.genres))</visible>
+                        </control>
+                        <control type="textbox">
+                            <width>1000</width>
+                            <height>112</height>
+                            <font>SBInfoBody</font>
+                            <textcolor>FFF0F0F0</textcolor>
+                            <label>$INFO[Window(home).Property(sbinfo.plot)]</label>
+                            <autoscroll delay="6000" time="3000" repeat="8000">true</autoscroll>
+                        </control>
+                    </control>
+
+                    <!-- the buttons -->
+                    <!-- (a plain group: a grouplist of groups won't move focus left and right) -->
+                    <control type="group">
+                        <left>80</left>
+                        <top>580</top>
+                        <width>1400</width>
+                        <height>66</height>
+                        <control type="group">
+                            <width>534</width>
+                            <height>66</height>
+                            <control type="button" id="9610">
+                                <width>534</width>
+                                <height>66</height>
+                                <texturefocus border="32" colordiffuse="FFFFFFFF">stremio/pill.png</texturefocus>
+                                <texturenofocus border="32" colordiffuse="40FFFFFF">stremio/pill.png</texturenofocus>
+                                <onup>noop</onup>
+                                <include>SBInfoDownFromButtons</include>
+                                <include>SBInfoNav9610</include>
+                                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.play_action)])</onclick>
+                            </control>
+                            <control type="grouplist">
+                                <width>534</width>
+                                <height>66</height>
+                                <orientation>horizontal</orientation>
+                                <align>center</align>
+                                <itemgap>14</itemgap>
+                                <usecontrolcoords>true</usecontrolcoords>
+                                <control type="image">
+                                    <top>20</top>
+                                    <width>26</width>
+                                    <height>26</height>
+                                    <texture colordiffuse="FF101010">buttonsdialogs/play.png</texture>
+                                    <visible>Control.HasFocus(9610)</visible>
+                                </control>
+                                <control type="image">
+                                    <top>20</top>
+                                    <width>26</width>
+                                    <height>26</height>
+                                    <texture colordiffuse="FFFFFFFF">buttonsdialogs/play.png</texture>
+                                    <visible>!Control.HasFocus(9610)</visible>
+                                </control>
+                                <control type="label">
+                                    <width>auto</width>
+                                    <height>66</height>
+                                    <aligny>center</aligny>
+                                    <font>SBInfoButton</font>
+                                    <textcolor>FF101010</textcolor>
+                                    <label>$VAR[SBInfoPlayLabel]</label>
+                                    <visible>Control.HasFocus(9610)</visible>
+                                </control>
+                                <control type="label">
+                                    <width>auto</width>
+                                    <height>66</height>
+                                    <aligny>center</aligny>
+                                    <font>SBInfoButton</font>
+                                    <textcolor>FFFFFFFF</textcolor>
+                                    <label>$VAR[SBInfoPlayLabel]</label>
+                                    <visible>!Control.HasFocus(9610)</visible>
+                                </control>
+                            </control>
+                        </control>
+                        <include content="SBInfoRoundButton">
+                            <param name="id" value="9611"/>
+                            <param name="left" value="552"/>
+                            <param name="icon" value="buttonsdialogs/streams.png"/>
+                            <param name="onclick" value="RunPlugin($INFO[Window(home).Property(sbinfo.streams_action)])"/>
+                        </include>
+                        <include content="SBInfoRoundButton">
+                            <param name="id" value="9612"/>
+                            <param name="left" value="636"/>
+                            <param name="icon" value="buttonsdialogs/watched.png"/>
+                            <param name="icon_color" value="$VAR[SBInfoWatchedIconColor]"/>
+                            <param name="onclick" value="RunPlugin($INFO[Window(home).Property(sbinfo.watched_action)])"/>
+                        </include>
+                        <include content="SBInfoRoundButton">
+                            <param name="id" value="9613"/>
+                            <param name="left" value="720"/>
+                            <param name="icon" value="$VAR[SBInfoWatchlistIcon]"/>
+                            <param name="visible" value="$EXP[SBInfoWatchlist]"/>
+                            <param name="onclick" value="RunPlugin($INFO[Window(home).Property(sbinfo.watchlist_action)])"/>
+                        </include>
+                        <include content="SBInfoRoundButton">
+                            <param name="id" value="9614"/>
+                            <param name="left" value="804"/>
+                            <param name="shift" value="!$EXP[SBInfoWatchlist]"/>
+                            <param name="icon" value="buttonsdialogs/trailer.png"/>
+                            <param name="visible" value="$EXP[SBInfoHasTrailer]"/>
+                            <param name="onclick" value="PlayMedia($ESCINFO[Window(home).Property(sbinfo.trailer)])"/>
+                        </include>
+                        <control type="label">
+                            <left>898</left>
+                            <width>500</width>
+                            <height>66</height>
+                            <aligny>center</aligny>
+                            <font>SBInfoBody</font>
+                            <textcolor>FFB4B4B4</textcolor>
+                            <label>$VAR[SBInfoButtonHint]</label>
+                            <animation effect="slide" end="-84,0" time="0" condition="!$EXP[SBInfoWatchlist]">Conditional</animation>
+                            <animation effect="slide" end="-84,0" time="0" condition="!$EXP[SBInfoHasTrailer]">Conditional</animation>
+                        </control>
+                    </control>
+                </control>
+
+                <!-- ============================================================ seasons and episodes -->
+                <control type="group">
+                    <width>1920</width>
+                    <height>500</height>
+                    <visible>$EXP[SBInfoBrowse]</visible>
+                    <include content="SBInfoHeading">
+                        <param name="label" value="Seasons"/>
+                    </include>
+                    <control type="list" id="5060">
+                        <left>70</left>
+                        <top>70</top>
+                        <width>1840</width>
+                        <height>60</height>
+                        <orientation>horizontal</orientation>
+                        <onleft>5060</onleft>
+                        <onright>5060</onright>
+                        <onup>9610</onup>
+                        <!-- the episodes below follow the current tab; Down or OK goes to them
+                             (Stremio Bridge selects the next to watch, or a season's first) -->
+                        <ondown>5061</ondown>
+                        <onclick>SetFocus(5061)</onclick>
+                        <onback>9610</onback>
+                        <content target="videos">$VAR[StremioInfoSeasonsPath]</content>
+                        <itemlayout width="170" height="60">
+                            <control type="label">
+                                <left>6</left>
+                                <top>4</top>
+                                <width>158</width>
+                                <height>52</height>
+                                <align>center</align>
+                                <aligny>center</aligny>
+                                <font>SBInfoTab</font>
+                                <textcolor>$VAR[SBInfoSeasonColor]</textcolor>
+                                <label>$INFO[ListItem.Label]</label>
+                            </control>
+                        </itemlayout>
+                        <!-- the current tab (drawn even while the episodes have focus): the season shown -->
+                        <focusedlayout width="170" height="60">
+                            <control type="image">
+                                <left>6</left>
+                                <top>4</top>
+                                <width>158</width>
+                                <height>52</height>
+                                <texture border="14" colordiffuse="FFFFFFFF">stremio/tab.png</texture>
+                                <visible>Control.HasFocus(5060)</visible>
+                            </control>
+                            <control type="image">
+                                <left>6</left>
+                                <top>4</top>
+                                <width>158</width>
+                                <height>52</height>
+                                <texture border="14" colordiffuse="40FFFFFF">stremio/tab.png</texture>
+                                <visible>!Control.HasFocus(5060)</visible>
+                            </control>
+                            <control type="label">
+                                <left>6</left>
+                                <top>4</top>
+                                <width>158</width>
+                                <height>52</height>
+                                <align>center</align>
+                                <aligny>center</aligny>
+                                <font>SBInfoTab</font>
+                                <textcolor>FF101010</textcolor>
+                                <label>[B]$INFO[ListItem.Label][/B]</label>
+                                <visible>Control.HasFocus(5060)</visible>
+                            </control>
+                            <control type="label">
+                                <left>6</left>
+                                <top>4</top>
+                                <width>158</width>
+                                <height>52</height>
+                                <align>center</align>
+                                <aligny>center</aligny>
+                                <font>SBInfoTab</font>
+                                <textcolor>FFFFFFFF</textcolor>
+                                <label>[B]$INFO[ListItem.Label][/B]</label>
+                                <visible>!Control.HasFocus(5060)</visible>
+                            </control>
+                        </focusedlayout>
+                    </control>
+                    <control type="list" id="5061">
+                        <left>80</left>
+                        <top>150</top>
+                        <width>1840</width>
+                        <height>330</height>
+                        <orientation>horizontal</orientation>
+                        <preloaditems>2</preloaditems>
+                        <onleft>5061</onleft>
+                        <onright>5061</onright>
+                        <onup condition="Integer.IsGreater(Container(5060).NumItems,1)">5060</onup>
+                        <onup condition="!Integer.IsGreater(Container(5060).NumItems,1)">9610</onup>
+                        <ondown condition="$EXP[SBInfoHasCast]">5150</ondown>
+                        <ondown condition="!$EXP[SBInfoHasCast] + $EXP[SBInfoHasSimilar]">5160</ondown>
+                        <onback>9610</onback>
+                        <!-- play it (or its streams, as Stremio Bridge's autoplay setting says) -->
+                        <onclick>RunPlugin($INFO[Container(5061).ListItem.Property(stremiobridge.play_action)])</onclick>
+                        <content target="videos">$VAR[StremioInfoEpisodesPath]</content>
+                        <itemlayout width="516" height="330">
+                            <include>SBInfoEpisodeCard</include>
+                        </itemlayout>
+                        <focusedlayout width="516" height="330">
+                            <include content="SBInfoEpisodeCard">
+                                <param name="scroll" value="Control.HasFocus(5061)"/>
+                            </include>
+                            <control type="image">
+                                <left>0</left>
+                                <top>10</top>
+                                <width>494</width>
+                                <height>300</height>
+                                <texture border="16">stremio/card-focus.png</texture>
+                                <visible>Control.HasFocus(5061)</visible>
+                            </control>
+                        </focusedlayout>
+                    </control>
+                </control>
+
+                <!-- ============================================================ cast -->
+                <control type="group">
+                    <width>1920</width>
+                    <height>310</height>
+                    <visible>$EXP[SBInfoHasCast]</visible>
+                    <include content="SBInfoHeading">
+                        <param name="label" value="$LOCALIZE[206]"/>
+                    </include>
+                    <control type="list" id="5150">
+                        <left>66</left>
+                        <top>70</top>
+                        <width>1854</width>
+                        <height>230</height>
+                        <orientation>horizontal</orientation>
+                        <onleft>5150</onleft>
+                        <onright>5150</onright>
+                        <onup condition="$EXP[SBInfoBrowse]">5061</onup>
+                        <onup condition="!$EXP[SBInfoBrowse]">9610</onup>
+                        <ondown condition="$EXP[SBInfoHasSimilar]">5160</ondown>
+                        <onback>9610</onback>
+                        <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_window&amp;query=$INFO[Container(5150).ListItem.Label]&amp;person=1)</onclick>
+                        <include>StremioCastMirrorContent</include>
+                        <itemlayout width="156" height="230">
+                            <include>SBInfoCastItem</include>
+                        </itemlayout>
+                        <focusedlayout width="156" height="230">
+                            <include>SBInfoCastItem</include>
+                            <control type="image">
+                                <left>8</left>
+                                <top>0</top>
+                                <width>140</width>
+                                <height>140</height>
+                                <texture>stremio/ring.png</texture>
+                                <visible>Control.HasFocus(5150)</visible>
+                            </control>
+                        </focusedlayout>
+                    </control>
+                </control>
+
+                <!-- ============================================================ similar -->
+                <control type="group">
+                    <width>1920</width>
+                    <height>430</height>
+                    <visible>$EXP[SBInfoSimilar]</visible>
+                    <control type="group">
+                        <visible>Integer.IsGreater(Container(5160).NumItems,0)</visible>
+                        <include content="SBInfoHeading">
+                            <param name="label" value="Similar"/>
+                        </include>
+                    </control>
+                    <control type="list" id="5160">
+                        <left>68</left>
+                        <top>70</top>
+                        <width>1852</width>
+                        <height>360</height>
+                        <orientation>horizontal</orientation>
+                        <onleft>5160</onleft>
+                        <onright>5160</onright>
+                        <onup condition="$EXP[SBInfoHasCast]">5150</onup>
+                        <onup condition="!$EXP[SBInfoHasCast] + $EXP[SBInfoBrowse]">5061</onup>
+                        <onup condition="!$EXP[SBInfoHasCast] + !$EXP[SBInfoBrowse]">9610</onup>
+                        <onback>9610</onback>
+                        <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=extended_info&amp;type=$INFO[Container(5160).ListItem.Property(stremiobridge.type)]&amp;id=$INFO[Container(5160).ListItem.Property(stremiobridge.id)])</onclick>
+                        <content target="videos">$VAR[SBInfoSimilarPath]</content>
+                        <itemlayout width="226" height="360">
+                            <include>SBInfoPosterItem</include>
+                        </itemlayout>
+                        <focusedlayout width="226" height="360">
+                            <include>SBInfoPosterItem</include>
+                            <control type="image">
+                                <left>12</left>
+                                <top>4</top>
+                                <width>200</width>
+                                <height>300</height>
+                                <texture border="14">stremio/poster-focus.png</texture>
+                                <visible>Control.HasFocus(5160)</visible>
+                            </control>
+                        </focusedlayout>
+                    </control>
+                </control>
+
+                <!-- room below the last row -->
+                <control type="label">
+                    <width>1920</width>
+                    <height>60</height>
+                    <label></label>
+                </control>
+            </control>
+        </control>
+    </include>
+
+    <variable name="SBInfoWatchedIconColor">
+        <value condition="$EXP[SBInfoWatched]">$VAR[ColorHighlight]</value>
+        <value>FFFFFFFF</value>
+    </variable>
+    <variable name="SBInfoWatchlistIcon">
+        <value condition="$EXP[SBInfoListed]">buttonsdialogs/watchlist_remove.png</value>
+        <value>buttonsdialogs/watchlist_add.png</value>
+    </variable>
+    <variable name="SBInfoSeasonColor">
+        <value condition="String.IsEqual(ListItem.Overlay,OverlayWatched.png)">FF6E6E6E</value>
+        <value>FFA0A0A0</value>
+    </variable>
+
+    <!-- An episode card: the thumbnail with its code, title, plot, rating and air date on it -->
+    <include name="SBInfoEpisodeCard">
+        <param name="scroll">false</param>
+        <definition>
+        <control type="image">
+            <left>0</left>
+            <top>10</top>
+            <width>494</width>
+            <height>300</height>
+            <aspectratio scalediffuse="false">scale</aspectratio>
+            <texture background="true" diffuse="stremio/card-mask.png" fallback="DefaultTVShows.png">$INFO[ListItem.Art(thumb)]</texture>
+        </control>
+        <control type="image">
+            <left>0</left>
+            <top>10</top>
+            <width>494</width>
+            <height>300</height>
+            <texture diffuse="stremio/card-mask.png">stremio/card-shade.png</texture>
+        </control>
+        <control type="group">
+            <left>0</left>
+            <top>10</top>
+            <width>494</width>
+            <height>300</height>
+            <include content="IndicatorPoster" condition="!Skin.HasSetting(hide.markers)">
+                <param name="right" value="-8"/>
+                <param name="top" value="-8"/>
+            </include>
+        </control>
+        <control type="group">
+            <left>18</left>
+            <top>276</top>
+            <visible>!String.IsEmpty(ListItem.Property(stremiobridge.code))</visible>
+            <control type="image">
+                <width>104</width>
+                <height>30</height>
+                <texture border="10" colordiffuse="B3101010">stremio/tab.png</texture>
+            </control>
+            <control type="label">
+                <width>104</width>
+                <height>30</height>
+                <align>center</align>
+                <aligny>center</aligny>
+                <font>SBInfoBadge</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Property(stremiobridge.code)]</label>
+            </control>
+        </control>
+        <control type="label">
+            <left>18</left>
+            <top>164</top>
+            <width>458</width>
+            <height>40</height>
+            <font>SBInfoCardTitle</font>
+            <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>A0000000</shadowcolor>
+            <label>$INFO[ListItem.Title]</label>
+        </control>
+        <control type="textbox">
+            <left>18</left>
+            <top>204</top>
+            <width>458</width>
+            <height>66</height>
+            <font>SBInfoCardBody</font>
+            <textcolor>FFE6E6E6</textcolor>
+            <shadowcolor>A0000000</shadowcolor>
+            <label>$INFO[ListItem.Plot]</label>
+            <autoscroll delay="2500" time="2500" repeat="5000">$PARAM[scroll]</autoscroll>
+        </control>
+        <control type="group">
+            <left>219</left>
+            <top>277</top>
+            <visible>!String.IsEmpty(ListItem.Property(stremiobridge.rating))</visible>
+            <control type="image">
+                <width>56</width>
+                <height>28</height>
+                <texture border="10" colordiffuse="B3FFFFFF">stremio/badge-outline.png</texture>
+            </control>
+            <control type="label">
+                <width>56</width>
+                <height>28</height>
+                <align>center</align>
+                <aligny>center</aligny>
+                <font>SBInfoBadge</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Property(stremiobridge.rating)]</label>
+            </control>
+        </control>
+        <control type="label">
+            <left>296</left>
+            <top>276</top>
+            <width>180</width>
+            <height>30</height>
+            <align>right</align>
+            <aligny>center</aligny>
+            <font>SBInfoSmall</font>
+            <textcolor>FFD0D0D0</textcolor>
+            <label>$INFO[ListItem.Property(ReleaseDate)]</label>
+        </control>
+        </definition>
+    </include>
+
+    <!-- A cast member: round photo, name, role -->
+    <include name="SBInfoCastItem">
+        <control type="image">
+            <left>14</left>
+            <top>6</top>
+            <width>128</width>
+            <height>128</height>
+            <aspectratio scalediffuse="false">scale</aspectratio>
+            <texture background="true" diffuse="stremio/circle.png" fallback="DefaultActor.png">$INFO[ListItem.Art(thumb)]</texture>
+        </control>
+        <control type="label">
+            <left>0</left>
+            <top>146</top>
+            <width>156</width>
+            <height>34</height>
+            <align>center</align>
+            <font>SBInfoSmall</font>
+            <textcolor>FFFFFFFF</textcolor>
+            <label>$INFO[ListItem.Label]</label>
+        </control>
+        <control type="label">
+            <left>0</left>
+            <top>180</top>
+            <width>156</width>
+            <height>32</height>
+            <align>center</align>
+            <font>SBInfoSmall</font>
+            <textcolor>FF9A9A9A</textcolor>
+            <label>$INFO[ListItem.Label2]</label>
+        </control>
+    </include>
+
+    <!-- A similar title: rounded poster and its name -->
+    <include name="SBInfoPosterItem">
+        <control type="image">
+            <left>12</left>
+            <top>4</top>
+            <width>200</width>
+            <height>300</height>
+            <aspectratio scalediffuse="false">scale</aspectratio>
+            <texture background="true" diffuse="stremio/poster-mask.png" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
+        </control>
+        <control type="label">
+            <left>12</left>
+            <top>312</top>
+            <width>200</width>
+            <height>34</height>
+            <font>SBInfoSmall</font>
+            <textcolor>FFD0D0D0</textcolor>
+            <label>$INFO[ListItem.Label]</label>
+        </control>
+    </include>
+
+    <!-- A stream card (stremiobridge-streams.xml): title line, three detail lines, badges -->
+    <include name="SBStreamCard">
+        <param name="background">true</param>
+        <param name="scroll">false</param>
+        <definition>
+            <control type="image">
+                <left>0</left>
+                <top>0</top>
+                <width>866</width>
+                <height>222</height>
+                <texture border="16" colordiffuse="99101215">stremio/box-rounded.png</texture>
+                <visible>$PARAM[background]</visible>
+            </control>
+            <control type="label">
+                <left>26</left>
+                <top>14</top>
+                <width>814</width>
+                <height>42</height>
+                <aligny>center</aligny>
+                <font>SBInfoCardTitle</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+            </control>
+            <control type="label">
+                <left>26</left>
+                <top>60</top>
+                <width>814</width>
+                <height>32</height>
+                <aligny>center</aligny>
+                <font>SBInfoCardBody</font>
+                <textcolor>FFD0D0D0</textcolor>
+                <scroll>$PARAM[scroll]</scroll>
+                <label>$INFO[ListItem.Property(line1)]</label>
+            </control>
+            <control type="label">
+                <left>26</left>
+                <top>92</top>
+                <width>814</width>
+                <height>32</height>
+                <aligny>center</aligny>
+                <font>SBInfoCardBody</font>
+                <textcolor>FFD0D0D0</textcolor>
+                <scroll>$PARAM[scroll]</scroll>
+                <label>$INFO[ListItem.Property(line2)]</label>
+            </control>
+            <control type="label">
+                <left>26</left>
+                <top>124</top>
+                <width>814</width>
+                <height>32</height>
+                <aligny>center</aligny>
+                <font>SBInfoCardBody</font>
+                <textcolor>FFD0D0D0</textcolor>
+                <scroll>$PARAM[scroll]</scroll>
+                <label>$INFO[ListItem.Property(line3)]</label>
+            </control>
+            <control type="image">
+                <left>26</left>
+                <top>170</top>
+                <width>814</width>
+                <height>32</height>
+                <aspectratio align="left" aligny="center">keep</aspectratio>
+                <texture>$INFO[ListItem.Art(badges)]</texture>
+            </control>
+        </definition>
+    </include>
+
+    <!-- The TV guide (MyPVRGuide.xml): a channel (number, logo, name in a rounded cell; the focused
+         one in a lighter pill, as logos are often white) and a programme -->
+    <variable name="SBGuideFocusText">
+        <value condition="Control.HasFocus(10)">FF101010</value>
+        <value>FFFFFFFF</value>
+    </variable>
+    <include name="SBGuideChannel">
+        <definition>
+            <control type="image">
+                <left>3</left>
+                <top>3</top>
+                <width>454</width>
+                <height>64</height>
+                <texture border="14" colordiffuse="1FFFFFFF">stremio/tab.png</texture>
+                <visible>!$PARAM[focused]</visible>
+            </control>
+            <control type="image">
+                <left>3</left>
+                <top>3</top>
+                <width>454</width>
+                <height>64</height>
+                <texture border="14" colordiffuse="66FFFFFF">stremio/tab.png</texture>
+                <visible>$PARAM[focused]</visible>
+            </control>
+            <control type="image">
+                <left>3</left>
+                <top>3</top>
+                <width>454</width>
+                <height>64</height>
+                <texture border="14">stremio/frame-4px.png</texture>
+                <visible>ListItem.IsPlaying</visible>
+            </control>
+            <control type="label">
+                <left>8</left>
+                <width>80</width>
+                <height>70</height>
+                <align>center</align>
+                <aligny>center</aligny>
+                <font>SBInfoTab</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.ChannelNumberLabel]</label>
+            </control>
+            <control type="image">
+                <left>96</left>
+                <top>8</top>
+                <width>120</width>
+                <height>54</height>
+                <aspectratio aligny="center" align="center">keep</aspectratio>
+                <texture>$INFO[ListItem.Icon]</texture>
+            </control>
+            <control type="label">
+                <left>230</left>
+                <width>216</width>
+                <height>70</height>
+                <aligny>center</aligny>
+                <font>SBInfoTab</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.ChannelName]</label>
+            </control>
+        </definition>
+    </include>
+    <include name="SBGuideProgramme">
+        <definition>
+            <control type="image">
+                <left>8</left>
+                <top>11</top>
+                <width>48</width>
+                <height>48</height>
+                <texture colordiffuse="$PARAM[color]">special://skin/extras/icons/timer.png</texture>
+                <visible>ListItem.HasTimer | ListItem.IsRecording</visible>
+            </control>
+            <control type="label" id="1">
+                <left>14</left>
+                <top>0</top>
+                <width>228</width>
+                <height>70</height>
+                <aligny>center</aligny>
+                <font>SBInfoTab</font>
+                <textcolor>$PARAM[color]</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>!ListItem.HasTimer + !ListItem.IsRecording</visible>
+            </control>
+            <control type="label" id="1">
+                <left>0</left>
+                <top>0</top>
+                <width>242</width>
+                <height>70</height>
+                <textoffsetx>62</textoffsetx>
+                <aligny>center</aligny>
+                <font>SBInfoTab</font>
+                <textcolor>$PARAM[color]</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>ListItem.HasTimer | ListItem.IsRecording</visible>
+            </control>
+        </definition>
+    </include>
+    <!-- The info page for anything that isn't a Stremio Bridge title (Kodi library items, other
+         add-ons): fanart, logo or title, facts, genres, plot, poster, and Kodi's own Play (8),
+         Resume (9) and Trailer (11) buttons. The hidden list 50 is Kodi's cast list, which the
+         Stremio page copies (StremioCastMirrorContent). -->
+    <include name="SBInfoFallbackButton">
+        <param name="width">300</param>
+        <definition>
+            <control type="button" id="$PARAM[id]">
+                <width>$PARAM[width]</width>
+                <height>66</height>
+                <font>SBInfoButton</font>
+                <align>center</align>
+                <aligny>center</aligny>
+                <textcolor>FFFFFFFF</textcolor>
+                <focusedcolor>FF101010</focusedcolor>
+                <texturefocus border="32" colordiffuse="FFFFFFFF">stremio/pill.png</texturefocus>
+                <texturenofocus border="32" colordiffuse="40FFFFFF">stremio/pill.png</texturenofocus>
+                <label>$PARAM[label]</label>
+                <visible>$PARAM[visible]</visible>
+            </control>
+        </definition>
+    </include>
+    <include name="SBInfoFallbackPage">
+        <control type="group">
+            <visible>!$EXP[SBInfoPage]</visible>
+            <include>Animation.Background.OpenClose</include>
+            <control type="image">
+                <include>Dimensions_Fullscreen</include>
+                <texture colordiffuse="FF0B0E12">common/white.png</texture>
+            </control>
+            <control type="image">
+                <include>Dimensions_Fullscreen</include>
+                <aspectratio>scale</aspectratio>
+                <texture background="true">$INFO[ListItem.Art(fanart)]</texture>
+            </control>
+            <control type="image">
+                <include>Dimensions_Fullscreen</include>
+                <texture>stremio/shade-left.png</texture>
+            </control>
+            <control type="image">
+                <include>Dimensions_Fullscreen</include>
+                <texture>stremio/shade-bottom.png</texture>
+            </control>
+            <control type="image">
+                <right>80</right>
+                <top>120</top>
+                <width>400</width>
+                <height>600</height>
+                <aspectratio scalediffuse="false">scale</aspectratio>
+                <texture background="true" diffuse="stremio/poster-mask.png">$INFO[ListItem.Art(poster)]</texture>
+            </control>
+            <control type="grouplist">
+                <left>80</left>
+                <top>80</top>
+                <width>1200</width>
+                <height>760</height>
+                <orientation>vertical</orientation>
+                <itemgap>16</itemgap>
+                <usecontrolcoords>true</usecontrolcoords>
+                <control type="image">
+                    <width>600</width>
+                    <height>160</height>
+                    <aspectratio align="left" aligny="bottom">keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Art(clearlogo)]</texture>
+                    <visible>!String.IsEmpty(ListItem.Art(clearlogo))</visible>
+                </control>
+                <control type="label">
+                    <width>1200</width>
+                    <height>110</height>
+                    <aligny>bottom</aligny>
+                    <font>SBInfoTitle</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[ListItem.Title]</label>
+                    <visible>String.IsEmpty(ListItem.Art(clearlogo))</visible>
+                </control>
+                <control type="label">
+                    <width>1200</width>
+                    <height>40</height>
+                    <font>SBInfoFacts</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[ListItem.Season,S, ]$INFO[ListItem.Episode,E,  ]$INFO[ListItem.EpisodeName]</label>
+                    <visible>String.IsEqual(ListItem.DBType,episode)</visible>
+                </control>
+                <control type="grouplist">
+                    <width>1200</width>
+                    <height>42</height>
+                    <orientation>horizontal</orientation>
+                    <itemgap>22</itemgap>
+                    <control type="label">
+                        <width>auto</width>
+                        <height>42</height>
+                        <aligny>center</aligny>
+                        <font>SBInfoFacts</font>
+                        <textcolor>FFFFFFFF</textcolor>
+                        <label>$INFO[ListItem.Premiered]</label>
+                        <visible>!String.IsEmpty(ListItem.Premiered)</visible>
+                    </control>
+                    <control type="label">
+                        <width>auto</width>
+                        <height>42</height>
+                        <aligny>center</aligny>
+                        <font>SBInfoFacts</font>
+                        <textcolor>FFFFFFFF</textcolor>
+                        <label>$INFO[ListItem.Year]</label>
+                        <visible>String.IsEmpty(ListItem.Premiered)</visible>
+                    </control>
+                    <control type="label">
+                        <width>auto</width>
+                        <height>42</height>
+                        <aligny>center</aligny>
+                        <font>SBInfoFacts</font>
+                        <textcolor>FFFFFFFF</textcolor>
+                        <label>$INFO[ListItem.Duration(h),,h ]$INFO[ListItem.Duration(mm),,m]</label>
+                        <visible>Integer.IsGreater(ListItem.Duration(h),0)</visible>
+                    </control>
+                    <control type="label">
+                        <width>auto</width>
+                        <height>42</height>
+                        <aligny>center</aligny>
+                        <font>SBInfoFacts</font>
+                        <textcolor>FFFFFFFF</textcolor>
+                        <label>$INFO[ListItem.Duration(m),,m]</label>
+                        <visible>!Integer.IsGreater(ListItem.Duration(h),0) + Integer.IsGreater(ListItem.Duration(m),0)</visible>
+                    </control>
+                    <include content="SBInfoPill">
+                        <param name="label" value="$INFO[ListItem.Mpaa]"/>
+                        <param name="value" value="ListItem.Mpaa"/>
+                    </include>
+                    <include content="SBInfoPill">
+                        <param name="label" value="$INFO[ListItem.Rating]"/>
+                        <param name="value" value="ListItem.Rating"/>
+                    </include>
+                </control>
+                <control type="label">
+                    <width>1200</width>
+                    <height>36</height>
+                    <font>SBInfoBody</font>
+                    <textcolor>FFB4B4B4</textcolor>
+                    <label>$INFO[ListItem.Genre]</label>
+                </control>
+                <control type="textbox">
+                    <width>1100</width>
+                    <height>240</height>
+                    <font>SBInfoBody</font>
+                    <textcolor>FFF0F0F0</textcolor>
+                    <label>$INFO[ListItem.Plot]</label>
+                    <autoscroll delay="6000" time="3000" repeat="8000">true</autoscroll>
+                </control>
+            </control>
+            <control type="grouplist" id="9700">
+                <left>80</left>
+                <top>900</top>
+                <width>1300</width>
+                <height>66</height>
+                <orientation>horizontal</orientation>
+                <itemgap>20</itemgap>
+                <onup>noop</onup>
+                <ondown>noop</ondown>
+                <include content="SBInfoFallbackButton">
+                    <param name="id" value="9"/>
+                    <param name="label" value="$LOCALIZE[13362]"/>
+                    <param name="visible" value="ListItem.IsResumable"/>
+                </include>
+                <include content="SBInfoFallbackButton">
+                    <param name="id" value="8"/>
+                    <param name="label" value="$VAR[SBInfoFallbackPlayLabel]"/>
+                    <param name="visible" value="true"/>
+                </include>
+                <include content="SBInfoFallbackButton">
+                    <param name="id" value="11"/>
+                    <param name="label" value="$LOCALIZE[20410]"/>
+                    <param name="visible" value="!String.IsEmpty(ListItem.Trailer)"/>
+                </include>
+            </control>
+        </control>
+        <include>StremioHiddenCastList</include>
+    </include>
+    <variable name="SBInfoFallbackPlayLabel">
+        <value condition="ListItem.IsFolder">$LOCALIZE[1024]</value>
+        <value>$LOCALIZE[208]</value>
+    </variable>
+
+</includes>

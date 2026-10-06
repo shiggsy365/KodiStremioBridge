@@ -49,6 +49,38 @@
     <onload condition="!Skin.HasSetting(startup.init)">Skin.SetBool(disable.only.hide.menu.items)</onload>
     <onload condition="!Skin.HasSetting(startup.init)">Skin.SetBool(startup.init)</onload>
     
+    <!-- Arctic Zephyr Stremio has one home layout (Netflix-style rows); the layout chooser is
+         gone, and this puts any device that had another one back on it, every start -->
+    <onload>Skin.SetBool(home.modernwidgets)</onload>
+    <onload>Skin.SetBool(home.vertical.widgets)</onload>
+    <onload>Skin.SetBool(homemenu.netflix)</onload>
+    <onload>Skin.SetBool(home.submenu2)</onload>
+    <onload>Skin.Reset(home.vertical)</onload>
+    <onload>Skin.Reset(home.classicwidgets)</onload>
+    <onload>Skin.Reset(homemenu.clean.flix)</onload>
+    <!-- ... and the home menu bar, header and "More clean & minimal" as the skin is built for
+         (their settings are gone too) -->
+    <onload>Skin.SetBool(no.homemenu.clear)</onload>
+    <onload>Skin.SetBool(homemenu.items.underlined)</onload>
+    <onload>Skin.SetBool(disable.only.hide.menu.items)</onload>
+    <onload>Skin.Reset(home.oldmenuheight)</onload>
+    <onload>Skin.Reset(submenu.compatibility)</onload>
+    <onload>Skin.Reset(hide.furniture.flags.vertical.widgets)</onload>
+    <onload>Skin.Reset(home.showicons)</onload>
+    <onload>Skin.Reset(homemenu.only.icons)</onload>
+    <onload>Skin.Reset(home.show.label)</onload>
+    <onload>Skin.Reset(homemenu.clean.flix.no.slide)</onload>
+    <onload>Skin.Reset(homemenu.slide)</onload>
+    <onload>Skin.Reset(only.hide.if.widgetcontainer.gets.focus)</onload>
+    <onload>Skin.Reset(home.showheader)</onload>
+    <onload>Skin.Reset(homemenu.hide.lines)</onload>
+    <!-- the OSD (Includes_StremioOSD.xml) has its own clock in its banner -->
+    <onload>Skin.Reset(ClockOSD)</onload>
+
+    <!-- Defaults new in Arctic Zephyr Stremio 1.2.0, set once: still changeable in the settings -->
+    <onload condition="!Skin.HasSetting(sb.defaults.1)">Skin.SetBool(global.showvideo)</onload>
+    <onload condition="!Skin.HasSetting(sb.defaults.1)">Skin.SetBool(sb.defaults.1)</onload>
+
     <!-- Go home -->
     <onload condition="!Skin.HasSetting(disable.startup.window)">ReplaceWindow(1150)</onload>
     <onload condition="Skin.HasSetting(disable.startup.window)">ReplaceWindow($INFO[System.StartupWindow])</onload>    

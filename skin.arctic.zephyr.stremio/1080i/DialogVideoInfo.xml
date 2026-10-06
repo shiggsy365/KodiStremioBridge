@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Foundation -->
 <window id="2003">
-    <defaultcontrol always="true">9120</defaultcontrol>
+    <defaultcontrol always="true">9610</defaultcontrol>
     <!-- Arctic Zephyr Stremio: freeze the page's Stremio Bridge properties. Inside this
          dialog ListItem.* follows whichever list has focus (cast, similar, the show
          browser), so the buttons and the show browser read these instead. -->
@@ -18,7 +18,17 @@
     <onload>SetProperty(sbinfo.similar,$INFO[ListItem.Property(stremiobridge.similar)],home)</onload>
     <onload>SetProperty(sbinfo.focus_video,$INFO[ListItem.Property(stremiobridge.focus_video)],home)</onload>
     <onload>SetProperty(sbinfo.default_season,$INFO[ListItem.Property(stremiobridge.default_season)],home)</onload>
+    <onload>SetProperty(sbinfo.season_focus,$INFO[ListItem.Property(stremiobridge.default_season)],home)</onload>
+    <onload>ClearProperty(sbinfo.browser_rev,home)</onload>
     <onload>SetProperty(sbinfo.trailer,$INFO[ListItem.Trailer],home)</onload>
+    <onload>SetProperty(sbinfo.play_label,$ESCINFO[ListItem.Property(stremiobridge.play_label)],home)</onload>
+    <onload>SetProperty(sbinfo.facts,$ESCINFO[ListItem.Property(stremiobridge.facts)],home)</onload>
+    <onload>SetProperty(sbinfo.genres,$ESCINFO[ListItem.Property(stremiobridge.genres)],home)</onload>
+    <onload>SetProperty(sbinfo.certification,$ESCINFO[ListItem.Property(stremiobridge.certification)],home)</onload>
+    <onload>SetProperty(sbinfo.rating,$ESCINFO[ListItem.Property(stremiobridge.rating)],home)</onload>
+    <onload>SetProperty(sbinfo.title,$ESCINFO[ListItem.Property(stremiobridge.title)],home)</onload>
+    <onload>SetProperty(sbinfo.subtitle,$ESCINFO[ListItem.Property(stremiobridge.subtitle)],home)</onload>
+    <onload>SetProperty(sbinfo.plot,$ESCINFO[ListItem.Plot],home)</onload>
     <onload>SetProperty(sbinfo.fanart,$INFO[ListItem.Art(fanart)],home)</onload>
     <onload>SetProperty(sbinfo.clearlogo,$INFO[ListItem.Art(tvshow.clearlogo)],home)</onload>
     <onload condition="!String.IsEmpty(ListItem.Art(clearlogo))">SetProperty(sbinfo.clearlogo,$INFO[ListItem.Art(clearlogo)],home)</onload>
@@ -26,40 +36,11 @@
     <onload>ClearProperty(sbinfo.resumable,home)</onload>
     <onload condition="Integer.IsGreater(ListItem.PlayCount,0)">SetProperty(sbinfo.watched,1,home)</onload>
     <onload condition="ListItem.IsResumable">SetProperty(sbinfo.resumable,1,home)</onload>
-    <onload condition="String.IsEmpty(ListItem.Property(stremiobridge.id))">SetFocus(8)</onload>
-    <onload condition="!String.IsEmpty(ListItem.Property(stremiobridge.id))">SetFocus(9120)</onload>
-    <onload condition="Control.IsVisible(9201)">SetFocus(9201)</onload>
-    <onload condition="Control.IsVisible(9078)">SetFocus(9078)</onload>
-    <onload>Control.Move(50,$INFO[Container(50).CurrentItem,-])</onload>
-    <onload>Control.Move(50,1)</onload>
-    <onload>Control.Move(5050,$INFO[Container(5050).CurrentItem,-])</onload>
-    <onload>Control.Move(5050,1)</onload>
-    <onload>SetProperty(stremiobridge.info.season,$INFO[ListItem.Property(stremiobridge.default_season)],home)</onload>
-    <onload>Control.Move(5060,$INFO[Container(5060).CurrentItem,-])</onload>
-    <onload>Control.Move(5060,1)</onload>
-    <onload>Control.Move(5061,$INFO[Container(5061).CurrentItem,-])</onload>
-    <onload>Control.Move(5061,1)</onload>
-    <onload>Control.Move(9502,$INFO[Container(9502).CurrentItem,-])</onload>
-    <onload>Control.Move(9502,1)</onload>
-    <onload>Control.Move(9503,$INFO[Container(9503).CurrentItem,-])</onload>
-    <onload>Control.Move(9503,1)</onload>
-    <onload>Control.Move(9505,$INFO[Container(9505).CurrentItem,-])</onload>
-    <onload>Control.Move(9505,1)</onload>
-    <onload>Control.Move(9506,$INFO[Container(9506).CurrentItem,-])</onload>
-    <onload>Control.Move(9506,1)</onload>
-    <onload>Control.Move(9515,$INFO[Container(9515).CurrentItem,-])</onload>
-    <onload>Control.Move(9515,1)</onload>
+    <onload condition="!$EXP[SBInfoPage] + ListItem.IsResumable">SetFocus(9)</onload>
+    <onload condition="!$EXP[SBInfoPage] + !ListItem.IsResumable">SetFocus(8)</onload>
+    <!-- Stremio Bridge titles: the new page (Includes_StremioInfo.xml) opens on Play -->
+    <onload condition="$EXP[SBInfoPage]">SetFocus(9610)</onload>
     <zorder>0</zorder>
-    <onload>ClearProperty(moviecontent)</onload>
-    <onload condition="!String.IsEmpty(ListItem.Property(stremiobridge.browse))">SetProperty(moviecontent,11)</onload>
-    <onload>ClearProperty(videosimilar)</onload>
-    <onload>ClearProperty(videostudio)</onload>
-    <onload>ClearProperty(videoyoutube)</onload>
-    <onload>ClearProperty(ShowDisc)</onload>
-    <onunload>ClearProperty(SetUserRating,home)</onunload>
-    <onunload>ClearProperty(dontslide,home)</onunload>
-    <onunload>ClearProperty(ShowDisc)</onunload>
-    <onunload>ClearProperty(stremiobridge.info.season,home)</onunload>
     <onunload>ClearProperty(sbinfo.id,home)</onunload>
     <onunload>ClearProperty(sbinfo.type,home)</onunload>
     <onunload>ClearProperty(sbinfo.video,home)</onunload>
@@ -73,24 +54,26 @@
     <onunload>ClearProperty(sbinfo.similar,home)</onunload>
     <onunload>ClearProperty(sbinfo.focus_video,home)</onunload>
     <onunload>ClearProperty(sbinfo.default_season,home)</onunload>
+    <onunload>ClearProperty(sbinfo.season_focus,home)</onunload>
+    <onunload>ClearProperty(sbinfo.browser_rev,home)</onunload>
     <onunload>ClearProperty(sbinfo.trailer,home)</onunload>
     <onunload>ClearProperty(sbinfo.fanart,home)</onunload>
     <onunload>ClearProperty(sbinfo.clearlogo,home)</onunload>
     <onunload>ClearProperty(sbinfo.watched,home)</onunload>
     <onunload>ClearProperty(sbinfo.resumable,home)</onunload>
+    <onunload>ClearProperty(sbinfo.play_label,home)</onunload>
+    <onunload>ClearProperty(sbinfo.facts,home)</onunload>
+    <onunload>ClearProperty(sbinfo.genres,home)</onunload>
+    <onunload>ClearProperty(sbinfo.certification,home)</onunload>
+    <onunload>ClearProperty(sbinfo.rating,home)</onunload>
+    <onunload>ClearProperty(sbinfo.title,home)</onunload>
+    <onunload>ClearProperty(sbinfo.subtitle,home)</onunload>
+    <onunload>ClearProperty(sbinfo.plot,home)</onunload>
     <onunload condition="!String.IsEmpty(Window(home).Property(shownowplayinginfo))">SetFocus(4000)</onunload>
     <onunload condition="!String.IsEmpty(Window(home).Property(shownowplayinginfo))">ClearProperty(shownowplayinginfo,home)</onunload>
-    <onload>ClearProperty(content)</onload>
-    <onload>ClearProperty(down)</onload>
-    <onload condition="Skin.HasSetting(showartwork.video.tmdbhelper) + !Skin.HasSetting(hidebutton.video.fanart) + !String.IsEmpty(ListItem.Label)">SetProperty(Item_Title,$INFO[ListItem.Label],home)</onload>
-    <onload condition="Skin.HasSetting(showartwork.video.tmdbhelper) + !Skin.HasSetting(hidebutton.video.fanart) + !String.IsEmpty(ListItem.Year)">SetProperty(Item_Year,$INFO[ListItem.Year],home)</onload>
-    <onload condition="Skin.HasSetting(showartwork.video.tmdbhelper) + !Skin.HasSetting(hidebutton.video.fanart) + !String.IsEmpty(ListItem.DBTYPE)">SetProperty(Item_DBTYPE,$INFO[ListItem.DBTYPE],home)</onload>
     <onload condition="Skin.HasSetting(home.netflix.autoplay.trailer) + Skin.HasSetting(trailer.stop.on.dialogvideoinfo) + $EXP[TrailerIsPlaying] + Player.Playing">Stop</onload>
     <onload condition="Skin.HasSetting(home.netflix.autoplay.trailer) + Skin.HasSetting(trailer.pause.on.dialogvideoinfo) + $EXP[TrailerIsPlaying] + Player.Playing">Pause</onload>
     <onunload condition="Skin.HasSetting(home.netflix.autoplay.trailer) + Skin.HasSetting(trailer.pause.on.dialogvideoinfo) + $EXP[TrailerIsPlaying] + Player.Paused">Pause</onunload>
-    <onunload>ClearProperty(Item_Title,home)</onunload>
-    <onunload>ClearProperty(Item_Year,home)</onunload>
-    <onunload>ClearProperty(Item_DBTYPE,home)</onunload>
     <controls>
         <!-- Arctic Zephyr Stremio: the page's own background. Otherwise it's the window
              behind's, drawn from that window's focused item: right from a library list,
@@ -111,10 +94,8 @@
                 <texture background="true">$INFO[Window(home).Property(sbinfo.fanart)]</texture>
             </control>
         </control>
-        <include>DialogVideoInfoWIP</include>
-        <include content="DialogInfoOverlay">
-            <param name="headerinfo" value="$INFO[ListItem.Title]" />
-            <param name="plotinfo" value="$INFO[ListItem.Tagline,[B],[/B][CR][CR]]$INFO[ListItem.Plot]" />
-        </include>
+        <!-- Library titles and other add-ons' items: a small page in the same style -->
+        <include>SBInfoFallbackPage</include>
+        <include>StremioInfoPage</include>
     </controls>
 </window>

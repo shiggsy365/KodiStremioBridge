@@ -191,22 +191,6 @@
                     <enable>!System.AddonIsEnabled(script.artistslideshow) | Skin.HasSetting(ArtistSlideShow.Disabled)</enable>
                     <onclick>Skin.ToggleSetting(musicvis.fanartfallback)</onclick>
                 </control>
-                <control type="radiobutton" id="131" description="Show slideshow in background">
-                    <align>left</align>
-                    <include>DefContextButtonGradient</include>
-                    <label>31561</label>
-                    <enable>System.AddonIsEnabled(script.artistslideshow)</enable>
-                    <selected>!Skin.HasSetting(ArtistSlideShow.Disabled)</selected>
-                    <onclick>Skin.ToggleSetting(ArtistSlideShow.Disabled)</onclick>
-                </control>
-                <control type="radiobutton" id="132" description="Animate Artist slideshow">
-                    <align>left</align>
-                    <include>DefContextButtonGradient</include>
-                    <label>31354</label>
-                    <selected>Skin.HasSetting(ArtistSlideshow.Animate)</selected>
-                    <onclick>Skin.ToggleSetting(ArtistSlideshow.Animate)</onclick>
-                    <enable>Skin.HasSetting(musicvis.fanartfallback) | [!Skin.HasSetting(ArtistSlideShow.Disabled) + System.AddonIsEnabled(script.artistslideshow)]</enable>
-                </control>
                 <control type="radiobutton" id="177">
                     <description>Filter</description>
                     <include>DefContextButtonGradient</include>

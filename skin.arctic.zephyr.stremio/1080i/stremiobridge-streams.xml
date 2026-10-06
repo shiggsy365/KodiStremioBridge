@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Arctic Zephyr Stremio's stream picker. Kodi takes this over Stremio Bridge's own
+     (plugin.video.stremiobridge/resources/skins/Default/1080i/stremiobridge-streams.xml):
+     the same controls and properties, in the info page's style (Includes_StremioInfo.xml).
+     Header (logo or title, count), filter chips (list 60), stream cards in two columns
+     (panel 50) with their badge strip, the focused stream's file name. -->
+<window>
+    <defaultcontrol always="true">50</defaultcontrol>
+    <animation effect="fade" time="150">WindowOpen</animation>
+    <animation effect="fade" time="150">WindowClose</animation>
+    <controls>
+        <control type="image">
+            <include>Dimensions_Fullscreen</include>
+            <texture colordiffuse="FF0B0E12">common/white.png</texture>
+        </control>
+        <control type="image">
+            <include>Dimensions_Fullscreen</include>
+            <aspectratio>scale</aspectratio>
+            <texture background="true">$INFO[Window.Property(fanart)]</texture>
+        </control>
+        <control type="image">
+            <include>Dimensions_Fullscreen</include>
+            <texture colordiffuse="80000000">common/white.png</texture>
+        </control>
+        <control type="image">
+            <include>Dimensions_Fullscreen</include>
+            <texture>stremio/shade-left.png</texture>
+        </control>
+        <control type="image">
+            <include>Dimensions_Fullscreen</include>
+            <texture>stremio/shade-bottom.png</texture>
+        </control>
+
+        <!-- Header -->
+        <control type="image">
+            <left>80</left>
+            <top>40</top>
+            <width>600</width>
+            <height>130</height>
+            <aspectratio align="left" aligny="bottom">keep</aspectratio>
+            <texture background="true">$INFO[Window.Property(logo)]</texture>
+            <visible>!String.IsEmpty(Window.Property(logo))</visible>
+        </control>
+        <control type="label">
+            <left>80</left>
+            <top>60</top>
+            <width>1760</width>
+            <height>110</height>
+            <aligny>bottom</aligny>
+            <font>SBInfoTitle</font>
+            <textcolor>FFFFFFFF</textcolor>
+            <label>$INFO[Window.Property(title)]</label>
+            <visible>String.IsEmpty(Window.Property(logo))</visible>
+        </control>
+        <control type="label">
+            <left>80</left>
+            <top>182</top>
+            <width>1760</width>
+            <height>40</height>
+            <font>SBInfoFacts</font>
+            <textcolor>FFFFFFFF</textcolor>
+            <label>$INFO[Window.Property(subtitle)]</label>
+        </control>
+
+        <!-- Filter chips: the active one in a pill, the focused one white -->
+        <control type="list" id="60">
+            <left>74</left>
+            <top>232</top>
+            <width>1766</width>
+            <height>60</height>
+            <orientation>horizontal</orientation>
+            <onup>noop</onup>
+            <ondown>50</ondown>
+            <scrolltime>150</scrolltime>
+            <itemlayout width="200" height="60">
+                <control type="image">
+                    <left>6</left>
+                    <top>4</top>
+                    <width>188</width>
+                    <height>52</height>
+                    <texture border="14" colordiffuse="40FFFFFF">stremio/tab.png</texture>
+                    <visible>String.IsEqual(ListItem.Property(active),1)</visible>
+                </control>
+                <control type="label">
+                    <left>6</left>
+                    <top>4</top>
+                    <width>188</width>
+                    <height>52</height>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <font>SBInfoTab</font>
+                    <textcolor>FFA0A0A0</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                    <visible>!String.IsEqual(ListItem.Property(active),1)</visible>
+                </control>
+                <control type="label">
+                    <left>6</left>
+                    <top>4</top>
+                    <width>188</width>
+                    <height>52</height>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <font>SBInfoTab</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>[B]$INFO[ListItem.Label][/B]</label>
+                    <visible>String.IsEqual(ListItem.Property(active),1)</visible>
+                </control>
+            </itemlayout>
+            <focusedlayout width="200" height="60">
+                <control type="image">
+                    <left>6</left>
+                    <top>4</top>
+                    <width>188</width>
+                    <height>52</height>
+                    <texture border="14" colordiffuse="40FFFFFF">stremio/tab.png</texture>
+                    <visible>String.IsEqual(ListItem.Property(active),1) + !Control.HasFocus(60)</visible>
+                </control>
+                <control type="image">
+                    <left>6</left>
+                    <top>4</top>
+                    <width>188</width>
+                    <height>52</height>
+                    <texture border="14" colordiffuse="FFFFFFFF">stremio/tab.png</texture>
+                    <visible>Control.HasFocus(60)</visible>
+                </control>
+                <control type="label">
+                    <left>6</left>
+                    <top>4</top>
+                    <width>188</width>
+                    <height>52</height>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <font>SBInfoTab</font>
+                    <textcolor>FF101010</textcolor>
+                    <label>[B]$INFO[ListItem.Label][/B]</label>
+                    <visible>Control.HasFocus(60)</visible>
+                </control>
+                <control type="label">
+                    <left>6</left>
+                    <top>4</top>
+                    <width>188</width>
+                    <height>52</height>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <font>SBInfoTab</font>
+                    <textcolor>FFA0A0A0</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                    <visible>!Control.HasFocus(60) + !String.IsEqual(ListItem.Property(active),1)</visible>
+                </control>
+                <control type="label">
+                    <left>6</left>
+                    <top>4</top>
+                    <width>188</width>
+                    <height>52</height>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <font>SBInfoTab</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>[B]$INFO[ListItem.Label][/B]</label>
+                    <visible>!Control.HasFocus(60) + String.IsEqual(ListItem.Property(active),1)</visible>
+                </control>
+            </focusedlayout>
+        </control>
+
+        <!-- Stream cards, two columns -->
+        <control type="panel" id="50">
+            <left>80</left>
+            <top>310</top>
+            <width>1760</width>
+            <height>714</height>
+            <orientation>vertical</orientation>
+            <onup>60</onup>
+            <scrolltime>200</scrolltime>
+            <itemlayout width="880" height="238">
+                <include>SBStreamCard</include>
+            </itemlayout>
+            <focusedlayout width="880" height="238">
+                <control type="image">
+                    <left>0</left>
+                    <top>0</top>
+                    <width>866</width>
+                    <height>222</height>
+                    <texture border="16" colordiffuse="B32A2D33">stremio/box-rounded.png</texture>
+                </control>
+                <include content="SBStreamCard">
+                    <param name="background" value="false"/>
+                    <param name="scroll" value="true"/>
+                </include>
+                <control type="image">
+                    <left>0</left>
+                    <top>0</top>
+                    <width>866</width>
+                    <height>222</height>
+                    <texture border="16">stremio/frame-4px.png</texture>
+                    <visible>Control.HasFocus(50)</visible>
+                </control>
+            </focusedlayout>
+        </control>
+
+        <!-- The focused stream's file name -->
+        <control type="fadelabel">
+            <left>80</left>
+            <top>1032</top>
+            <width>1760</width>
+            <height>36</height>
+            <font>SBInfoSmall</font>
+            <textcolor>FFA0A0A0</textcolor>
+            <scroll>true</scroll>
+            <scrollout>false</scrollout>
+            <pauseatend>3000</pauseatend>
+            <label>$INFO[Container(50).ListItem.Property(filename)]</label>
+        </control>
+        <control type="label">
+            <left>80</left>
+            <top>500</top>
+            <width>1760</width>
+            <height>60</height>
+            <align>center</align>
+            <font>SBInfoFacts</font>
+            <textcolor>FFA0A0A0</textcolor>
+            <label>$INFO[Window.Property(empty)]</label>
+            <visible>Integer.IsEqual(Container(50).NumItems,0)</visible>
+        </control>
+    </controls>
+</window>

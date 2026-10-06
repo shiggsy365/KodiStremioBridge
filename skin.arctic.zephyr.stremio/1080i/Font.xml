@@ -479,6 +479,64 @@
             <filename>MC360.ttf</filename>
             <size>25</size>
         </font>
+
+        <!-- Arctic Zephyr Stremio: the info page (Includes_StremioInfo.xml) -->
+        <font>
+            <name>SBInfoTitle</name>
+            <filename>MC360.ttf</filename>
+            <size>68</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoHeading</name>
+            <filename>MC360.ttf</filename>
+            <size>40</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoFacts</name>
+            <filename>MC360.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoBody</name>
+            <filename>MC360.ttf</filename>
+            <size>29</size>
+        </font>
+        <font>
+            <name>SBInfoButton</name>
+            <filename>MC360.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoCardTitle</name>
+            <filename>MC360.ttf</filename>
+            <size>31</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoCardBody</name>
+            <filename>MC360.ttf</filename>
+            <size>24</size>
+        </font>
+        <font>
+            <name>SBInfoSmall</name>
+            <filename>MC360.ttf</filename>
+            <size>24</size>
+        </font>
+        <font>
+            <name>SBInfoBadge</name>
+            <filename>MC360.ttf</filename>
+            <size>19</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoTab</name>
+            <filename>MC360.ttf</filename>
+            <size>29</size>
+        </font>
     </fontset>
     <fontset id="Default bold" unicode="true">
         <font>
@@ -958,6 +1016,64 @@
             <filename>MC360.ttf</filename>
             <size>25</size>
         </font>
+
+        <!-- Arctic Zephyr Stremio: the info page (Includes_StremioInfo.xml) -->
+        <font>
+            <name>SBInfoTitle</name>
+            <filename>MC360.ttf</filename>
+            <size>68</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoHeading</name>
+            <filename>MC360.ttf</filename>
+            <size>40</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoFacts</name>
+            <filename>MC360.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoBody</name>
+            <filename>MC360.ttf</filename>
+            <size>29</size>
+        </font>
+        <font>
+            <name>SBInfoButton</name>
+            <filename>MC360.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoCardTitle</name>
+            <filename>MC360.ttf</filename>
+            <size>31</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoCardBody</name>
+            <filename>MC360.ttf</filename>
+            <size>24</size>
+        </font>
+        <font>
+            <name>SBInfoSmall</name>
+            <filename>MC360.ttf</filename>
+            <size>24</size>
+        </font>
+        <font>
+            <name>SBInfoBadge</name>
+            <filename>MC360.ttf</filename>
+            <size>19</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoTab</name>
+            <filename>MC360.ttf</filename>
+            <size>29</size>
+        </font>
     </fontset>
     <fontset id="Default bold (2)" unicode="true">
         <font>
@@ -1418,6 +1534,64 @@
             <filename>MC360.ttf</filename>
             <size>26</size>
             <style>bold</style>
+        </font>
+
+        <!-- Arctic Zephyr Stremio: the info page (Includes_StremioInfo.xml) -->
+        <font>
+            <name>SBInfoTitle</name>
+            <filename>MC360.ttf</filename>
+            <size>68</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoHeading</name>
+            <filename>MC360.ttf</filename>
+            <size>40</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoFacts</name>
+            <filename>MC360.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoBody</name>
+            <filename>MC360.ttf</filename>
+            <size>29</size>
+        </font>
+        <font>
+            <name>SBInfoButton</name>
+            <filename>MC360.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoCardTitle</name>
+            <filename>MC360.ttf</filename>
+            <size>31</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoCardBody</name>
+            <filename>MC360.ttf</filename>
+            <size>24</size>
+        </font>
+        <font>
+            <name>SBInfoSmall</name>
+            <filename>MC360.ttf</filename>
+            <size>24</size>
+        </font>
+        <font>
+            <name>SBInfoBadge</name>
+            <filename>MC360.ttf</filename>
+            <size>19</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoTab</name>
+            <filename>MC360.ttf</filename>
+            <size>29</size>
         </font>
     </fontset>
     <fontset id="Fallback" unicode="true">
@@ -1899,6 +2073,74 @@
             <name>SmallPVR</name>
             <filename>default-light.ttf</filename>
             <size>25</size>
+        </font>
+
+        <!-- Arctic Zephyr Stremio: the info page (Includes_StremioInfo.xml) -->
+        <font>
+            <name>SBInfoTitle</name>
+            <filename>default-light.ttf</filename>
+            <size>68</size>
+            <style>bold</style>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoHeading</name>
+            <filename>default-light.ttf</filename>
+            <size>40</size>
+            <style>bold</style>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoFacts</name>
+            <filename>default-light.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBody</name>
+            <filename>default-light.ttf</filename>
+            <size>29</size>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoButton</name>
+            <filename>default-light.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardTitle</name>
+            <filename>default-light.ttf</filename>
+            <size>31</size>
+            <style>bold</style>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardBody</name>
+            <filename>default-light.ttf</filename>
+            <size>24</size>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoSmall</name>
+            <filename>default-light.ttf</filename>
+            <size>24</size>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBadge</name>
+            <filename>default-light.ttf</filename>
+            <size>19</size>
+            <style>bold</style>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoTab</name>
+            <filename>default-light.ttf</filename>
+            <size>29</size>
+            <linespacing>1.1</linespacing>
         </font>
     </fontset>
     <fontset id="Fallback bold" unicode="true">
@@ -2387,6 +2629,74 @@
             <filename>default-light.ttf</filename>
             <size>25</size>
         </font>
+
+        <!-- Arctic Zephyr Stremio: the info page (Includes_StremioInfo.xml) -->
+        <font>
+            <name>SBInfoTitle</name>
+            <filename>default-light.ttf</filename>
+            <size>68</size>
+            <style>bold</style>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoHeading</name>
+            <filename>default-light.ttf</filename>
+            <size>40</size>
+            <style>bold</style>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoFacts</name>
+            <filename>default-light.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBody</name>
+            <filename>default-light.ttf</filename>
+            <size>29</size>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoButton</name>
+            <filename>default-light.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardTitle</name>
+            <filename>default-light.ttf</filename>
+            <size>31</size>
+            <style>bold</style>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardBody</name>
+            <filename>default-light.ttf</filename>
+            <size>24</size>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoSmall</name>
+            <filename>default-light.ttf</filename>
+            <size>24</size>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBadge</name>
+            <filename>default-light.ttf</filename>
+            <size>19</size>
+            <style>bold</style>
+            <linespacing>1.1</linespacing>
+        </font>
+        <font>
+            <name>SBInfoTab</name>
+            <filename>default-light.ttf</filename>
+            <size>29</size>
+            <linespacing>1.1</linespacing>
+        </font>
     </fontset>
     <fontset id="AZ Standard" unicode="true">
         <font>
@@ -2868,6 +3178,74 @@
             <filename>RobotoCondensed-Regular.ttf</filename>
             <size>25</size>
         </font>
+
+        <!-- Arctic Zephyr Stremio: the info page (Includes_StremioInfo.xml) -->
+        <font>
+            <name>SBInfoTitle</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>68</size>
+            <style>bold</style>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoHeading</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>40</size>
+            <style>bold</style>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoFacts</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBody</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>29</size>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoButton</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardTitle</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>31</size>
+            <style>bold</style>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardBody</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>24</size>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoSmall</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>24</size>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBadge</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>19</size>
+            <style>bold</style>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoTab</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>29</size>
+            <linespacing>1.17</linespacing>
+        </font>
     </fontset>
     <fontset id="AZ Standard bold" unicode="true">
         <font>
@@ -3330,6 +3708,74 @@
             <filename>RobotoCondensed-Regular.ttf</filename>
             <size>26</size>
             <style>bold</style>
+        </font>
+
+        <!-- Arctic Zephyr Stremio: the info page (Includes_StremioInfo.xml) -->
+        <font>
+            <name>SBInfoTitle</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>68</size>
+            <style>bold</style>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoHeading</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>40</size>
+            <style>bold</style>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoFacts</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBody</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>29</size>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoButton</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardTitle</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>31</size>
+            <style>bold</style>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardBody</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>24</size>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoSmall</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>24</size>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBadge</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>19</size>
+            <style>bold</style>
+            <linespacing>1.17</linespacing>
+        </font>
+        <font>
+            <name>SBInfoTab</name>
+            <filename>RobotoCondensed-Regular.ttf</filename>
+            <size>29</size>
+            <linespacing>1.17</linespacing>
         </font>
     </fontset>
     <fontset id="Segoe Light" unicode="true">
@@ -3812,6 +4258,74 @@
             <filename>Segoe-Light.ttf</filename>
             <size>25</size>
         </font>
+
+        <!-- Arctic Zephyr Stremio: the info page (Includes_StremioInfo.xml) -->
+        <font>
+            <name>SBInfoTitle</name>
+            <filename>Segoe-Light.ttf</filename>
+            <size>68</size>
+            <style>bold</style>
+            <linespacing>1.02</linespacing>
+        </font>
+        <font>
+            <name>SBInfoHeading</name>
+            <filename>Segoe-Light.ttf</filename>
+            <size>40</size>
+            <style>bold</style>
+            <linespacing>1.02</linespacing>
+        </font>
+        <font>
+            <name>SBInfoFacts</name>
+            <filename>Segoe-Light.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <linespacing>1.02</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBody</name>
+            <filename>Segoe-Light.ttf</filename>
+            <size>29</size>
+            <linespacing>1.02</linespacing>
+        </font>
+        <font>
+            <name>SBInfoButton</name>
+            <filename>Segoe-Light.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <linespacing>1.02</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardTitle</name>
+            <filename>Segoe-Light.ttf</filename>
+            <size>31</size>
+            <style>bold</style>
+            <linespacing>1.02</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardBody</name>
+            <filename>Segoe-Light.ttf</filename>
+            <size>24</size>
+            <linespacing>1.02</linespacing>
+        </font>
+        <font>
+            <name>SBInfoSmall</name>
+            <filename>Segoe-Light.ttf</filename>
+            <size>24</size>
+            <linespacing>1.02</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBadge</name>
+            <filename>Segoe-Light.ttf</filename>
+            <size>19</size>
+            <style>bold</style>
+            <linespacing>1.02</linespacing>
+        </font>
+        <font>
+            <name>SBInfoTab</name>
+            <filename>Segoe-Light.ttf</filename>
+            <size>29</size>
+            <linespacing>1.02</linespacing>
+        </font>
     </fontset>
     <fontset id="Arial" unicode="true">
         <font>
@@ -4293,6 +4807,74 @@
             <name>SmallPVR</name>
             <filename>arial.ttf</filename>
             <size>25</size>
+        </font>
+
+        <!-- Arctic Zephyr Stremio: the info page (Includes_StremioInfo.xml) -->
+        <font>
+            <name>SBInfoTitle</name>
+            <filename>arial.ttf</filename>
+            <size>68</size>
+            <style>bold</style>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoHeading</name>
+            <filename>arial.ttf</filename>
+            <size>40</size>
+            <style>bold</style>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoFacts</name>
+            <filename>arial.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBody</name>
+            <filename>arial.ttf</filename>
+            <size>29</size>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoButton</name>
+            <filename>arial.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardTitle</name>
+            <filename>arial.ttf</filename>
+            <size>31</size>
+            <style>bold</style>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardBody</name>
+            <filename>arial.ttf</filename>
+            <size>24</size>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoSmall</name>
+            <filename>arial.ttf</filename>
+            <size>24</size>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBadge</name>
+            <filename>arial.ttf</filename>
+            <size>19</size>
+            <style>bold</style>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoTab</name>
+            <filename>arial.ttf</filename>
+            <size>29</size>
+            <linespacing>1.22</linespacing>
         </font>
     </fontset>
     <fontset id="Arial 2" unicode="true">
@@ -4825,6 +5407,84 @@
             <size>25</size>
             <aspect>0.9</aspect>
         </font>
+
+        <!-- Arctic Zephyr Stremio: the info page (Includes_StremioInfo.xml) -->
+        <font>
+            <name>SBInfoTitle</name>
+            <filename>arial.ttf</filename>
+            <size>68</size>
+            <style>bold</style>
+            <aspect>0.9</aspect>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoHeading</name>
+            <filename>arial.ttf</filename>
+            <size>40</size>
+            <style>bold</style>
+            <aspect>0.9</aspect>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoFacts</name>
+            <filename>arial.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <aspect>0.9</aspect>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBody</name>
+            <filename>arial.ttf</filename>
+            <size>29</size>
+            <aspect>0.9</aspect>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoButton</name>
+            <filename>arial.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+            <aspect>0.9</aspect>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardTitle</name>
+            <filename>arial.ttf</filename>
+            <size>31</size>
+            <style>bold</style>
+            <aspect>0.9</aspect>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoCardBody</name>
+            <filename>arial.ttf</filename>
+            <size>24</size>
+            <aspect>0.9</aspect>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoSmall</name>
+            <filename>arial.ttf</filename>
+            <size>24</size>
+            <aspect>0.9</aspect>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoBadge</name>
+            <filename>arial.ttf</filename>
+            <size>19</size>
+            <style>bold</style>
+            <aspect>0.9</aspect>
+            <linespacing>1.22</linespacing>
+        </font>
+        <font>
+            <name>SBInfoTab</name>
+            <filename>arial.ttf</filename>
+            <size>29</size>
+            <aspect>0.9</aspect>
+            <linespacing>1.22</linespacing>
+        </font>
     </fontset>
     <fontset id="Assistant" unicode="true">
         <font>
@@ -5309,6 +5969,64 @@
             <name>SmallPVR</name>
             <filename>Assistant-ExtraLight.ttf</filename>
             <size>25</size>
+        </font>
+
+        <!-- Arctic Zephyr Stremio: the info page (Includes_StremioInfo.xml) -->
+        <font>
+            <name>SBInfoTitle</name>
+            <filename>Assistant-ExtraLight.ttf</filename>
+            <size>68</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoHeading</name>
+            <filename>Assistant-ExtraLight.ttf</filename>
+            <size>40</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoFacts</name>
+            <filename>Assistant-ExtraLight.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoBody</name>
+            <filename>Assistant-ExtraLight.ttf</filename>
+            <size>29</size>
+        </font>
+        <font>
+            <name>SBInfoButton</name>
+            <filename>Assistant-ExtraLight.ttf</filename>
+            <size>30</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoCardTitle</name>
+            <filename>Assistant-ExtraLight.ttf</filename>
+            <size>31</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoCardBody</name>
+            <filename>Assistant-ExtraLight.ttf</filename>
+            <size>24</size>
+        </font>
+        <font>
+            <name>SBInfoSmall</name>
+            <filename>Assistant-ExtraLight.ttf</filename>
+            <size>24</size>
+        </font>
+        <font>
+            <name>SBInfoBadge</name>
+            <filename>Assistant-ExtraLight.ttf</filename>
+            <size>19</size>
+            <style>bold</style>
+        </font>
+        <font>
+            <name>SBInfoTab</name>
+            <filename>Assistant-ExtraLight.ttf</filename>
+            <size>29</size>
         </font>
     </fontset>
 </fonts>

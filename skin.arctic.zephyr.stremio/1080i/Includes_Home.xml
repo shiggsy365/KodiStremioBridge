@@ -1417,19 +1417,20 @@
                     <control type="image" description="BottomBG">
                         <width>100%</width>
                         <height>15</height>
-                        <bottom>181</bottom>
+                        <bottom>101</bottom>
                         <texture colordiffuse="Background">common/shadow-50.png</texture>
                     </control>
                     <control type="image" description="BottomBG">
                         <width>100%</width>
                         <height>15</height>
                         <bottom>24</bottom>
+                        <visible>false</visible>
                         <texture flipy="true" colordiffuse="Background">common/shadow-50.png</texture>
                     </control>
                 </control>
                 <control type="image" description="FanartOverlay">
                     <width>100%</width>
-                    <height>160</height>
+                    <height>80</height>
                     <bottom>30</bottom>
                     <aspectratio aligny="bottom">scale</aspectratio>
                     <texture colordiffuse="Background">common/white.png</texture>
@@ -1443,7 +1444,7 @@
                     <control type="image" description="Shadow">
                         <width>100%</width>
                         <height>1</height>
-                        <bottom>190</bottom>
+                        <bottom>110</bottom>
                         <texture flipy="true" colordiffuse="BoxHomerow">common/sch2.png</texture>
                         <animation effect="fade" start="100" end="25" time="0" condition="!Skin.HasSetting(no.homemenu.clear) + $EXP[HomeIsModernMultiWidgets]">Conditional</animation>
                     </control>
@@ -1451,6 +1452,7 @@
                         <width>100%</width>
                         <height>1</height>
                         <bottom>29</bottom>
+                        <visible>false</visible>
                         <texture flipy="true" colordiffuse="BoxHomerow">common/sch2.png</texture>
                         <visible>!Skin.HasSetting(thumbnails.white)</visible>
                         <animation effect="fade" start="100" end="25" time="0" condition="!Skin.HasSetting(no.homemenu.clear) + $EXP[HomeIsModernMultiWidgets]">Conditional</animation>
@@ -1494,28 +1496,32 @@
                     </control>
                 </control>
             </control>
-            <include>Furniture_Clock</include>
+            <!-- the clock at 60%, to fit the lower bar -->
+            <control type="group">
+                <animation effect="zoom" end="60" center="1880,1080" time="0" condition="true">Conditional</animation>
+                <include>Furniture_Clock</include>
+            </control>
             <control type="group">
                 <animation effect="slide" start="0" end="0,163" time="150" condition="!Control.HasFocus(300) + !Control.HasFocus(302) + Skin.HasSetting(homemenu.slide) + !Skin.HasSetting(disable.only.hide.menu.items) + $EXP[HomeIsModernMultiWidgets] + !Skin.HasSetting(homemenu.clean.flix)">Conditional</animation>
                 <control type="image">
-                    <visible>Integer.IsGreater(Container(300).NumItems,6)</visible>
-                    <top>962</top>
+                    <visible>false</visible> <!-- Arctic Zephyr Stremio: the icon menu fits; no scroll arrows -->
+                    <top>1012</top>
                     <left>52</left>
                     <include>arrowdimensions</include>
                     <texture colordiffuse="Dark2" flipx="true">common/arrow-small-right.png</texture>
                 </control>
                 <control type="image">
-                    <visible>Integer.IsGreater(Container(300).NumItems,6)</visible>
+                    <visible>false</visible> <!-- Arctic Zephyr Stremio: the icon menu fits; no scroll arrows -->
                     <visible>!Skin.HasSetting(furniture.clock)</visible>
-                    <top>962</top>
+                    <top>1012</top>
                     <right>480</right>
                     <include>arrowdimensions</include>
                     <texture colordiffuse="Dark2" flipx="false">common/arrow-small-right.png</texture>
                 </control>
                 <control type="image">
-                    <visible>Integer.IsGreater(Container(300).NumItems,6)</visible>
+                    <visible>false</visible> <!-- Arctic Zephyr Stremio: the icon menu fits; no scroll arrows -->
                     <visible>Skin.HasSetting(furniture.clock)</visible>
-                    <top>962</top>
+                    <top>1012</top>
                     <right>42</right>
                     <include>arrowdimensions</include>
                     <texture colordiffuse="Dark2" flipx="false">common/arrow-small-right.png</texture>
@@ -1539,8 +1545,6 @@
                     <ondown condition="Integer.IsGreater(Container(302).NumItems,0)">SetFocus(302,0)</ondown>
                     <onback condition="Skin.HasSetting(home.onback.go.to.first.widget) + Integer.IsGreater(Container(301).NumItems,0)">SetFocus(301)</onback>
                     <onleft>300</onleft>
-                    <!-- Arctic Zephyr Stremio: Right on the last menu item opens search (Custom_1170_Search.xml) -->
-                    <onright>ActivateWindow(1170)</onright>
                     <orientation>horizontal</orientation>
                     <scrolltime>200</scrolltime>
                     <include condition="Skin.HasSetting(home.showicons)">HomeContentIcon</include>
@@ -1707,83 +1711,32 @@
                 <onright>302</onright>
                 <orientation>horizontal</orientation>
                 <scrolltime>200</scrolltime>
-                <top>952</top>
+                <!-- Arctic Zephyr Stremio: in the half-height bar, like the main menu (HomeContentNoIcon) -->
+                <top>1012</top>
                 <animation effect="slide" start="0" end="0,-30" time="0" condition="[$EXP[HomeIsClassic] | $EXP[HomeIsSpotlight]]">Conditional</animation>
                 <animation effect="slide" start="0" end="0,-24" time="0" condition="Skin.HasSetting(home.modernwidgets) + Skin.HasSetting(home.vertical.widgets) + Skin.HasSetting(home.oldmenuheight)">Conditional</animation>
                 <animation effect="slide" start="0" end="0,-27" time="0" condition="$EXP[HomeIsModernMultiWidgets] + Skin.HasSetting(submenu.compatibility) + !Skin.HasSetting(home.oldmenuheight)">Conditional</animation>
-                <itemlayout width="222" height="64">
+                <itemlayout width="200" height="56">
                     <control type="label">
-                        <align>center</align>
-                        <aligny>top</aligny>
+                        <left>20</left>
                         <width>180</width>
-                        <top>30</top>
-                        <centerleft>45.7%</centerleft>
-                        <textcolor>Dark3</textcolor>
-                        <font>HomeIcon</font>
+                        <height>56</height>
+                        <aligny>center</aligny>
+                        <font>SBInfoTab</font>
+                        <textcolor>FFA0A0A0</textcolor>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                 </itemlayout>
-                <focusedlayout width="222" height="64">
-                    <control type="group">
-                        <visible>!Skin.HasSetting(homemenu.items.underlined)</visible>
-                        <control type="label">
-                            <align>center</align>
-                            <aligny>top</aligny>
-                            <width>90%</width>
-                            <top>30</top>
-                            <centerleft>45.7%</centerleft>
-                            <textcolor>$VAR[ColorHighlight]</textcolor>
-                            <font>HomeIcon</font>
-                            <label>$INFO[ListItem.Label]</label>
-                        </control>
-                        <control type="image">
-                            <top>10</top>
-                            <centerleft>45.7%</centerleft>
-                            <include>arrowdimensions</include>
-                            <texture colordiffuse="$VAR[ColorHighlight]" flipy="true">common/arrow-small.png</texture>
-                            <animation effect="fade" end="100" start="0" delay="300" time="400" reversible="false">Focus</animation>
-                        </control>
+                <focusedlayout width="200" height="56">
+                    <control type="label">
+                        <left>20</left>
+                        <width>180</width>
+                        <height>56</height>
+                        <aligny>center</aligny>
+                        <font>SBInfoFacts</font>
+                        <textcolor>FFFFFFFF</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
                     </control>
-                    <control type="group">
-                        <visible>Skin.HasSetting(homemenu.items.underlined)</visible>
-                        <control type="label">
-                            <align>center</align>
-                            <aligny>top</aligny>
-                            <width>90%</width>
-                            <top>30</top>
-                            <centerleft>45.7%</centerleft>
-                            <textcolor>Dark1</textcolor>
-                            <font>HomeIcon</font>
-                            <label>$INFO[ListItem.Label]</label>
-                        </control>
-                        <control type="group">
-                            <visible>Control.HasFocus(302)</visible>
-                            <include>Animation.FadeIn</include>
-                            <include>Animation.FadeOut</include>
-                            <control type="image">
-                                <top>74</top>
-                                <centerleft>45.7%</centerleft>
-                                <width>90%</width>
-                                <height>4</height>
-                                <texture colordiffuse="$VAR[ColorHighlight]">common/box.png</texture>
-                            </control>
-                            <control type="image">
-                                <top>74</top>
-                                <centerleft>45.7%</centerleft>
-                                <width>90%</width>
-                                <height>4</height>
-                                <texture colordiffuse="$VAR[ColorHighlightSelectbox2]">common/gradient-box.png</texture>
-                            </control>
-                        </control>
-                        <control type="image">
-                            <top>10</top>
-                            <centerleft>45.7%</centerleft>
-                            <include>arrowdimensions</include>
-                            <texture colordiffuse="Dark3" flipy="true">common/arrow-small.png</texture>
-                            <animation effect="fade" end="100" start="0" delay="300" time="400" reversible="false">Focus</animation>
-                        </control>
-                    </control>
-                    <include condition="$EXP[HasHomemenuAutoSlideOutAnimation]">SlideOutItemsButton</include>
                 </focusedlayout>
                 <content>
                     <include>skinshortcuts-submenu</include>
@@ -2343,8 +2296,6 @@
                 <onup condition="Skin.HasSetting(home.dontshowfanart) + ![String.IsEqual(Container(300).ListItem.Property(widget),weatherdaily) | String.IsEqual(Container(300).ListItem.Property(widget),weatherhourly)] + [!String.IsEmpty(Container(300).ListItem.Property(widget)) | [String.IsEmpty(Container(300).ListItem.Property(widget)) + [String.IsEmpty(Container(300).ListItem.Property(Background)) + [String.IsEmpty(Skin.String(home.slideshowpath))]]]]">SetFocus(301,0)</onup>
                 <ondown condition="Integer.IsGreater(Container(302).NumItems,0)">SetFocus(302,0)</ondown>
                 <onleft>300</onleft>
-                <!-- Arctic Zephyr Stremio: Right on the last menu item opens search (Custom_1170_Search.xml) -->
-                <onright>ActivateWindow(1170)</onright>
                 <orientation>horizontal</orientation>
                 <scrolltime>200</scrolltime>
                 <include condition="Skin.HasSetting(home.showicons)">HomeContentIcon</include>
@@ -2355,7 +2306,8 @@
     </include>
 
     <include name="HomeContentNoIcon">
-        <top>942</top>
+        <!-- Arctic Zephyr Stremio: a bar half the original height, in the info page's font -->
+        <top>982</top>
         <animation type="Conditional" condition="!Control.HasFocus(302) + Skin.HasSetting(home.submenu2)" reversible="false">
             <effect type="fade" start="0" end="100" time="150" tween="sine" easing="in" delay="150" />
             <effect type="slide" start="0,30" end="0,0" time="200" tween="sine" easing="out" delay="150" />
@@ -2364,81 +2316,39 @@
             <effect type="fade" start="100" end="0" time="100" tween="sine" easing="out" />
             <effect type="slide" start="0,0" end="0,30" time="150" tween="sine" easing="out" />
         </animation>
-        <itemlayout width="222" height="64">
-            <control type="label">
-                <align>center</align>
-                <aligny>top</aligny>
-                <width>180</width>
-                <top>0</top>
-                <centerleft>45.7%</centerleft>
-                <textcolor>Dark3</textcolor>
-                <font>Home</font>
-                <label>$INFO[ListItem.Label]</label>
+        <!-- Arctic Zephyr Stremio: icons only, packed to the left; the focused item opens out to its name -->
+        <itemlayout width="76" height="56">
+            <control type="image">
+                <left>20</left>
+                <top>10</top>
+                <width>36</width>
+                <height>36</height>
+                <aspectratio>keep</aspectratio>
+                <texture colordiffuse="FF9A9A9A">$INFO[ListItem.Icon]</texture>
             </control>
         </itemlayout>
-        <focusedlayout width="222" height="64">
-            <control type="group">
-                <visible>!Skin.HasSetting(homemenu.items.underlined)</visible>
-                <control type="label">
-                    <align>center</align>
-                    <aligny>top</aligny>
-                    <width>90%</width>
-                    <top>0</top>
-                    <centerleft>45.7%</centerleft>
-                    <textcolor>$VAR[ColorHighlight]</textcolor>
-                    <font>Home</font>
-                    <label>$INFO[ListItem.Label]</label>
-                    <animation effect="fade" start="100" end="50" delay="0" time="150" condition="!Control.HasFocus(300) + !Control.HasFocus(302) + !Skin.HasSetting(home.vertical)">Conditional</animation>
-                </control>
-                <control type="image">
-                    <top>50</top>
-                    <centerleft>45.7%</centerleft>
-                    <include>arrowdimensions</include>
-                    <texture colordiffuse="$VAR[ColorHighlight]">common/arrow-small.png</texture>
-                    <visible>Control.HasFocus(300)</visible>
-                    <visible>Integer.IsGreater(Container(302).NumItems,0)</visible>
-                    <animation effect="fade" end="100" start="0" delay="300" time="400" reversible="false">Focus</animation>
-                </control>
+        <focusedlayout width="190" height="56">
+            <control type="label">
+                <left>20</left>
+                <top>0</top>
+                <width>170</width>
+                <height>56</height>
+                <aligny>center</aligny>
+                <font>SBInfoFacts</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>Control.HasFocus(300) | Control.HasFocus(302)</visible>
             </control>
-            <control type="group">
-                <visible>Skin.HasSetting(homemenu.items.underlined)</visible>
-                <control type="label">
-                    <align>center</align>
-                    <aligny>top</aligny>
-                    <width>90%</width>
-                    <top>0</top>
-                    <centerleft>45.7%</centerleft>
-                    <textcolor>Dark1</textcolor>
-                    <font>Home</font>
-                    <label>$INFO[ListItem.Label]</label>
-                    <animation effect="fade" start="100" end="50" delay="0" time="150" condition="!Control.HasFocus(300) + !Control.HasFocus(302) + !Skin.HasSetting(home.vertical)">Conditional</animation>
-                </control>
-                <control type="image">
-                    <top>70</top>
-                    <centerleft>45.7%</centerleft>
-                    <include>arrowdimensions</include>
-                    <texture colordiffuse="Dark3">common/arrow-small.png</texture>
-                    <visible>Control.HasFocus(300)</visible>
-                    <visible>Integer.IsGreater(Container(302).NumItems,0)</visible>
-                    <animation effect="fade" end="100" start="0" delay="300" time="400" reversible="false">Focus</animation>
-                </control>
-                <control type="group">
-                    <animation effect="fade" start="100" end="50" delay="0" time="150" condition="!Control.HasFocus(300) + !Control.HasFocus(302) + !Skin.HasSetting(home.vertical)">Conditional</animation>
-                    <control type="image">
-                        <top>55</top>
-                        <centerleft>45.7%</centerleft>
-                        <width>90%</width>
-                        <height>4</height>
-                        <texture colordiffuse="$VAR[ColorHighlight]">common/box.png</texture>
-                    </control>
-                    <control type="image">
-                        <top>55</top>
-                        <centerleft>45.7%</centerleft>
-                        <width>90%</width>
-                        <height>4</height>
-                        <texture colordiffuse="$VAR[ColorHighlightSelectbox2]">common/gradient-box.png</texture>
-                    </control>
-                </control>
+            <control type="label">
+                <left>20</left>
+                <top>0</top>
+                <width>170</width>
+                <height>56</height>
+                <aligny>center</aligny>
+                <font>SBInfoTab</font>
+                <textcolor>FFB4B4B4</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>!Control.HasFocus(300) + !Control.HasFocus(302)</visible>
             </control>
 
             <!-- Set TMDbHelper WidgetContainer -->
@@ -3774,7 +3684,7 @@
             <param name="top" value="10" />
         </include>
         <include content="def_top" condition="Skin.HasSetting(homemenu.netflix) + Skin.HasSetting(home.widgets.show.reflections)">
-            <param name="top" value="415" />
+            <param name="top" value="585" />
         </include>
         <include content="def_top" condition="!Skin.HasSetting(homemenu.netflix) + Skin.HasSetting(home.widgets.show.reflections)">
             <param name="top" value="0" />
@@ -3782,15 +3692,9 @@
         <orientation>horizontal</orientation>
         <itemgap>10</itemgap>
         <include condition="!Skin.HasSetting(widgets.fade)">Animation.Vertical.Widgets.Label</include>
-        <include content="Kodi_Logo_Home">
-            <param name="dimensions" value="30"/>
-            <param name="top" value="5"/>
-            <param name="left" value="0"/>
-            <param name="left-gradient" value="-40"/>
-        </include>
         <control type="label">
             <height>38</height>
-            <font>SmallNavi</font>
+            <font>SBInfoFacts</font>
             <width>auto</width>
             <textcolor>$VAR[WidgetColorSwitch]</textcolor>
             <label>$VAR[WidgetLabelWidgets$PARAM[idshort]]</label>
@@ -3885,7 +3789,7 @@
                     <param name="height" value="770" />
                 </include>
                 <include content="def_height" condition="Skin.HasSetting(homemenu.netflix) + Skin.HasSetting(home.widgets.show.reflections)">
-                    <param name="height" value="830" />
+                    <param name="height" value="1000" />
                 </include>
                 <include content="def_height" condition="!Skin.HasSetting(homemenu.netflix) + Skin.HasSetting(home.widgets.show.reflections)">
                     <param name="height" value="830" />
@@ -3898,7 +3802,7 @@
                     <param name="bottom" value="188" />
                 </include>
                 <include content="def_bottom" condition="Skin.HasSetting(home.widgets.show.reflections)">
-                    <param name="bottom" value="160" />
+                    <param name="bottom" value="80" />
                 </include>
                 <width>1920</width>
                 <onup condition="!Skin.HasSetting(disable.widgets.onup.go.back.to.last.item)">SetFocus(8888)</onup>
@@ -3928,76 +3832,160 @@
         </control>
     </include>
 
+    <!-- The info page's style of header for the focused item of list `id`, as on the home
+         rows and the hubs: logo or title, an episode's code and title, facts (full release
+         date, else year; runtime) with age rating and rating pills, genres, the plot. -->
+    <include name="SBItemHeader">
+        <param name="labelisvisible">true</param>
+        <definition>
+        <control type="grouplist">
+            <left>SidePad</left>
+            <top>$PARAM[top]</top>
+            <width>1000</width>
+            <height>440</height>
+            <orientation>vertical</orientation>
+            <itemgap>12</itemgap>
+            <usecontrolcoords>true</usecontrolcoords>
+            <visible>!String.IsEqual(ListItem.Property(LabelMore),more)</visible>
+            <!-- logo (the show's, for an episode), else the title -->
+            <control type="image">
+                <width>600</width>
+                <height>150</height>
+                <aspectratio align="left" aligny="bottom">keep</aspectratio>
+                <texture background="true">$INFO[Container($PARAM[id]).ListItem.Art(clearlogo)]</texture>
+                <visible>$PARAM[labelisvisible] + !String.IsEmpty(Container($PARAM[id]).ListItem.Art(clearlogo))</visible>
+            </control>
+            <control type="image">
+                <width>600</width>
+                <height>150</height>
+                <aspectratio align="left" aligny="bottom">keep</aspectratio>
+                <texture background="true">$INFO[Container($PARAM[id]).ListItem.Art(tvshow.clearlogo)]</texture>
+                <visible>$PARAM[labelisvisible] + String.IsEmpty(Container($PARAM[id]).ListItem.Art(clearlogo)) + !String.IsEmpty(Container($PARAM[id]).ListItem.Art(tvshow.clearlogo))</visible>
+            </control>
+            <control type="label">
+                <width>1000</width>
+                <height>110</height>
+                <aligny>bottom</aligny>
+                <font>SBInfoTitle</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[Container($PARAM[id]).ListItem.TvShowTitle]</label>
+                <visible>$PARAM[labelisvisible] + String.IsEmpty(Container($PARAM[id]).ListItem.Art(clearlogo)) + String.IsEmpty(Container($PARAM[id]).ListItem.Art(tvshow.clearlogo)) + String.IsEqual(Container($PARAM[id]).ListItem.DBType,episode)</visible>
+            </control>
+            <control type="label">
+                <width>1000</width>
+                <height>110</height>
+                <aligny>bottom</aligny>
+                <font>SBInfoTitle</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[Container($PARAM[id]).ListItem.Label]</label>
+                <visible>$PARAM[labelisvisible] + String.IsEmpty(Container($PARAM[id]).ListItem.Art(clearlogo)) + String.IsEmpty(Container($PARAM[id]).ListItem.Art(tvshow.clearlogo)) + !String.IsEqual(Container($PARAM[id]).ListItem.DBType,episode)</visible>
+            </control>
+            <!-- an episode: its code and title -->
+            <control type="label">
+                <width>1000</width>
+                <height>40</height>
+                <font>SBInfoFacts</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[Container($PARAM[id]).ListItem.Season,S, ]$INFO[Container($PARAM[id]).ListItem.Episode,E,  ]$INFO[Container($PARAM[id]).ListItem.Title]</label>
+                <visible>String.IsEqual(Container($PARAM[id]).ListItem.DBType,episode)</visible>
+            </control>
+            <!-- facts and pills -->
+            <control type="grouplist">
+                <width>1000</width>
+                <height>42</height>
+                <orientation>horizontal</orientation>
+                <itemgap>22</itemgap>
+                <control type="label">
+                    <width>auto</width>
+                    <height>42</height>
+                    <aligny>center</aligny>
+                    <font>SBInfoFacts</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[Container($PARAM[id]).ListItem.Property(ReleaseDate)]</label>
+                    <visible>!String.IsEmpty(Container($PARAM[id]).ListItem.Property(ReleaseDate))</visible>
+                </control>
+                <control type="label">
+                    <width>auto</width>
+                    <height>42</height>
+                    <aligny>center</aligny>
+                    <font>SBInfoFacts</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[Container($PARAM[id]).ListItem.Year]</label>
+                    <visible>String.IsEmpty(Container($PARAM[id]).ListItem.Property(ReleaseDate)) + !String.IsEmpty(Container($PARAM[id]).ListItem.Year)</visible>
+                </control>
+                <control type="label">
+                    <width>auto</width>
+                    <height>42</height>
+                    <aligny>center</aligny>
+                    <font>SBInfoFacts</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[Container($PARAM[id]).ListItem.Duration(h),,h ]$INFO[Container($PARAM[id]).ListItem.Duration(mm),,m]</label>
+                    <visible>Integer.IsGreater(Container($PARAM[id]).ListItem.Duration(h),0)</visible>
+                </control>
+                <control type="label">
+                    <width>auto</width>
+                    <height>42</height>
+                    <aligny>center</aligny>
+                    <font>SBInfoFacts</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[Container($PARAM[id]).ListItem.Duration(m),,m]</label>
+                    <visible>!String.IsEmpty(Container($PARAM[id]).ListItem.Duration) + !Integer.IsGreater(Container($PARAM[id]).ListItem.Duration(h),0)</visible>
+                </control>
+                <include content="SBInfoPill">
+                    <param name="label" value="$INFO[Container($PARAM[id]).ListItem.Mpaa]"/>
+                    <param name="value" value="Container($PARAM[id]).ListItem.Mpaa"/>
+                </include>
+                <include content="SBInfoPill">
+                    <param name="label" value="$INFO[Container($PARAM[id]).ListItem.Rating]"/>
+                    <param name="value" value="Container($PARAM[id]).ListItem.Rating"/>
+                </include>
+            </control>
+            <control type="label">
+                <width>1000</width>
+                <height>36</height>
+                <font>SBInfoBody</font>
+                <textcolor>FFB4B4B4</textcolor>
+                <label>$INFO[Container($PARAM[id]).ListItem.Property(stremiobridge.genres)]</label>
+                <visible>!String.IsEmpty(Container($PARAM[id]).ListItem.Property(stremiobridge.genres))</visible>
+            </control>
+            <control type="label">
+                <width>1000</width>
+                <height>36</height>
+                <font>SBInfoBody</font>
+                <textcolor>FFB4B4B4</textcolor>
+                <label>$INFO[Container($PARAM[id]).ListItem.Genre]</label>
+                <visible>String.IsEmpty(Container($PARAM[id]).ListItem.Property(stremiobridge.genres)) + !String.IsEmpty(Container($PARAM[id]).ListItem.Genre)</visible>
+            </control>
+            <control type="textbox">
+                <width>1000</width>
+                <height>112</height>
+                <font>SBInfoBody</font>
+                <textcolor>FFF0F0F0</textcolor>
+                <label>$INFO[Container($PARAM[id]).ListItem.Plot]</label>
+                <autoscroll delay="6000" time="3000" repeat="8000">true</autoscroll>
+            </control>
+        </control>
+        </definition>
+    </include>
+
+    <!-- Arctic Zephyr Stremio: the header above the home rows, in the info page's style
+         (Includes_StremioInfo.xml): logo or title, an episode's code and title, facts (the
+         full release date, else the year; runtime) with age rating and rating pills, genres,
+         and the plot, scrolling. One layout only. -->
     <include name="FullScreenInfoSub">
         <param name="id" value="$PARAM[id]"/>
         <param name="labelisvisible" value="$PARAM[labelisvisible]" default="true"/>
         <definition>
             <control type="group">
-                <animation effect="slide" start="0" end="0,385" time="0" condition="[Integer.IsEqual(Container(301).NumItems,1) + !String.IsEqual(Container(300).ListItem.Property(widgetFullscreen),yes)] + !Skin.HasSetting(homemenu.netflix)">Conditional</animation>
-                <animation effect="slide" start="0" end="0,30" time="0" condition="[Integer.IsEqual(Container(301).NumItems,1) + !String.IsEqual(Container(300).ListItem.Property(widgetFullscreen),yes)] + !Skin.HasSetting(homemenu.netflix) + Skin.HasSetting(home.widgets.show.reflections)">Conditional</animation>
-                <animation effect="slide" start="0" end="0,10" time="0" condition="!Skin.HasSetting(homemenu.netflix) + !Skin.HasSetting(home.widgets.show.reflections)">Conditional</animation>
-                <animation effect="slide" start="0" end="0,-15" time="0" condition="!Skin.HasSetting(homemenu.netflix) + Skin.HasSetting(home.widgets.show.reflections)">Conditional</animation>
-                <animation effect="fade" start="100" end="0" time="150" condition="!ControlGroup(301).HasFocus() + Skin.HasSetting(home.hide.netflix.plot) + Skin.HasSetting(homemenu.netflix) + !Skin.HasSetting(homemenu.clean.flix)">Conditional</animation>
+                <animation effect="fade" start="100" end="0" time="150" condition="!ControlGroup(301).HasFocus() + Skin.HasSetting(home.hide.netflix.plot)">Conditional</animation>
                 <include condition="!Skin.HasSetting(widgets.fade)">Animation.Vertical.Widgets.Label</include>
-                <control type="grouplist">
-                    <left>SidePad</left>
-                    <include content="def_width" condition="Skin.HasSetting(homemenu.netflix)">
-                        <param name="width" value="NetflixPlotWidth" />
-                    </include>
-                    <include content="def_width" condition="!Skin.HasSetting(homemenu.netflix)">
-                        <param name="width" value="1270" />
-                    </include>
-                    <orientation>vertical</orientation>
-                    <include content="def_top" condition="Skin.HasSetting(homemenu.clean.flix) + [Skin.HasSetting(home.oldmenuheight) | Skin.HasSetting(submenu.compatibility)] + !Skin.HasSetting(hidewidgettitle)">
-                        <param name="top" value="-295" />
-                    </include>
-                    <include content="def_top" condition="Skin.HasSetting(homemenu.clean.flix) + !Skin.HasSetting(hidewidgettitle)">
-                        <param name="top" value="-280" />
-                    </include>
-                    <include content="def_top" condition="Skin.HasSetting(homemenu.clean.flix) + [Skin.HasSetting(home.oldmenuheight) | Skin.HasSetting(submenu.compatibility)]">
-                        <param name="top" value="-290" />
-                    </include>
-                    <include content="def_top" condition="Skin.HasSetting(homemenu.clean.flix)">
-                        <param name="top" value="-260" />
-                    </include>
-                    <include content="def_top" condition="Skin.HasSetting(homemenu.netflix) + !Skin.HasSetting(home.widgets.show.reflections)">
-                        <param name="top" value="-750" />
-                    </include>
-                    <include content="def_top" condition="!Skin.HasSetting(homemenu.netflix) + !Skin.HasSetting(home.widgets.show.reflections)">
-                        <param name="top" value="-373" />
-                    </include>
-                    <include content="def_top" condition="Skin.HasSetting(homemenu.netflix) + Skin.HasSetting(home.widgets.show.reflections)">
-                        <param name="top" value="-790" />
-                    </include>
-                    <include content="def_top" condition="!Skin.HasSetting(homemenu.netflix) + Skin.HasSetting(home.widgets.show.reflections)">
-                        <param name="top" value="-412" />
-                    </include>
-                    <itemgap>15</itemgap>
-                    <visible>!String.IsEqual(ListItem.Property(LabelMore),more)</visible>
-                    <include content="MultiWidgetsHeader" condition="$PARAM[labelisvisible]">
-                        <param name="id" value="$PARAM[id]"/>
-                    </include>
-                    <include condition="Skin.HasSetting(homemenu.netflix) + !Skin.HasSetting(view.netflix.clearlogo) | Skin.HasSetting(homemenu.clean.flix)">IntentButton</include>
-                    <include content="MultiWidgetsPlotLabel" condition="Skin.HasSetting(homemenu.netflix) + !Skin.HasSetting(homemenu.clean.flix)">
-                        <param name="id" value="$PARAM[id]"/>
-                        <param name="plotminheight" value="0"/>
-                        <param name="plotmaxheight" value="176"/>
-                    </include>
-                    <include content="MultiWidgetsPlotLabel" condition="!Skin.HasSetting(homemenu.netflix) + !Skin.HasSetting(homemenu.clean.flix)">
-                        <param name="id" value="$PARAM[id]"/>
-                        <param name="plotminheight" value="0"/>
-                        <param name="plotmaxheight" value="212"/>
-                    </include>
-                    <include content="MultiWidgetsPlotLabel" condition="Skin.HasSetting(homemenu.clean.flix)">
-                        <param name="id" value="$PARAM[id]"/>
-                        <param name="plotminheight" value="0"/>
-                        <param name="plotmaxheight" value="72"/>
-                    </include>
-                    <include content="MultiWidgetsSubLabel">
-                        <param name="id" value="$PARAM[id]"/>
-                        <param name="setcontent" value="videodb://movies/sets/$INFO[Container($PARAM[id]).ListItem.DBID]/?setid=$INFO[Container($PARAM[id]).ListItem.DBID]"/>
-                    </include>
-                </control>
+                <!-- each row has a 1000 px slot (DefMultiWidgetContainer's top + height): its
+                     header starts 60 px down the screen, the next row's stays out of sight -->
+                <include content="SBItemHeader">
+                    <param name="id" value="$PARAM[id]"/>
+                    <param name="top" value="-940"/>
+                    <param name="labelisvisible" value="$PARAM[labelisvisible]"/>
+                </include>
             </control>
         </definition>
     </include>

@@ -2620,3 +2620,15 @@ msgstr ""
 msgctxt "#31950"
 msgid "..."
 msgstr ""
+
+msgctxt "#31960"
+msgid "Stremio"
+msgstr ""
+
+msgctxt "#31961"
+msgid "Finishes at"
+msgstr ""
+
+msgctxt "#31962"
+msgid "Ends at"
+msgstr ""

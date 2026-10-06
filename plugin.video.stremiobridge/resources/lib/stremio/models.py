@@ -152,6 +152,7 @@ class MetaPreview:
     runtime: str = ""
     people: tuple = ()  # Person entries: cast, directors, writers
     trailer: str = ""   # YouTube id
+    released: str = ""  # ISO date-time, when the addon gives one
 
     @classmethod
     def from_dict(cls, data, default_type=None):
@@ -167,6 +168,12 @@ class MetaPreview:
     @property
     def runtime_seconds(self):
         return parse_runtime(self.runtime)
+
+    @property
+    def premiered(self):
+        """``YYYY-MM-DD`` or ""."""
+        match = _DATE.match(self.released)
+        return match.group(1) if match else ""
 
     def _names(self, job):
         return tuple(p.name for p in self.people if p.job == job)
@@ -219,6 +226,7 @@ def _preview_fields(data, default_type):
         runtime=str(data.get("runtime") or ""),
         people=parse_people(data),
         trailer=_trailer(data),
+        released=str(data.get("released") or ""),
     )
 
 
@@ -320,6 +328,7 @@ class Video:
     released: str = ""
     thumbnail: str = ""
     overview: str = ""
+    rating: float = None  # the episode's own rating, when the addon gives one (Cinemeta often sends "0")
 
     @classmethod
     def from_dict(cls, data):
@@ -333,6 +342,7 @@ class Video:
             released=str(data.get("released") or ""),
             thumbnail=data.get("thumbnail") or "",
             overview=data.get("overview") or data.get("description") or "",
+            rating=_rating(data.get("imdbRating") or data.get("rating")),
         )
 
     @property
@@ -346,8 +356,18 @@ class Video:
         return not self.air_date or self.air_date <= today
 
 
+def _rating(value):
+    """A 0-10 rating, or None for missing, unreadable or zero ("0" means unrated)."""
+    try:
+        rating = float(value)
+    except (TypeError, ValueError):
+        return None
+    return rating if 0 < rating <= 10 else None
+
+
 # The video fields Video.from_dict reads; trim_meta drops the rest before caching.
-VIDEO_KEYS = ("id", "title", "name", "season", "episode", "number", "released", "thumbnail", "overview")
+VIDEO_KEYS = ("id", "title", "name", "season", "episode", "number", "released", "thumbnail", "overview",
+              "rating", "imdbRating")
 
 
 def trim_meta(response):
@@ -373,7 +393,6 @@ class Meta(MetaPreview):
     """A full meta object, as returned by the ``meta`` resource."""
 
     country: str = ""
-    released: str = ""
     certification: str = ""  # age rating, local one preferred (e.g. "15", "TV-MA")
     videos: tuple = ()
     default_video_id: str = ""
@@ -388,17 +407,11 @@ class Meta(MetaPreview):
         return cls(
             **fields_,
             country=data.get("country") or "",
-            released=str(data.get("released") or ""),
             certification=_certification(data),
             videos=tuple(v for v in (Video.from_dict(x) for x in data.get("videos") or []) if v),
             default_video_id=hints.get("defaultVideoId") or "",
             external_ids=tuple(sorted(external_ids(fields_["id"], data).items())),
         )
-
-    @property
-    def premiered(self):
-        match = _DATE.match(self.released)
-        return match.group(1) if match else ""
 
     @property
     def seasons(self):

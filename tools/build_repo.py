@@ -10,12 +10,20 @@ installed from there. Older zips of each add-on are removed.
 
 Bump an add-on's version in its addon.xml before building, or Kodi won't see
 the update.
+
+Skins in PACK_MEDIA ship their media/ folder packed into media/Textures.xbt
+(faster to load than loose images), which needs Kodi's TexturePacker: install
+kodi-tools-texturepacker, or set TEXTUREPACKER to its path (an unpacked
+`apt-get download kodi-tools-texturepacker` works).
 """
 
 import hashlib
 import html
 import os
 import re
+import shutil
+import subprocess
+import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
 
@@ -27,6 +35,9 @@ ADDONS = ["plugin.video.stremiobridge", "plugin.audio.shiggsy365.podcasts", "scr
 REPOSITORY = "repository.shiggsy365"
 SKIP_DIRS = {"__pycache__", ".pytest_cache"}
 SKIP_SUFFIXES = (".pyc", ".pyo", ".orig", ".rej", "~")
+# Written into the skin by Skin Shortcuts when Kodi runs it from this folder
+SKIP_FILES = {"script-skinshortcuts-includes.xml"}
+PACK_MEDIA = {"skin.arctic.zephyr.stremio"}
 # Fixed timestamp: zips of unchanged files are byte-identical, so rebuilding
 # doesn't churn the git history.
 ZIP_TIME = (2024, 1, 1, 0, 0, 0)
@@ -46,8 +57,23 @@ def files_of(addon_dir):
     for folder, dirs, files in os.walk(addon_dir):
         dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS and not d.startswith("."))
         for name in sorted(files):
-            if not name.startswith(".") and not name.endswith(SKIP_SUFFIXES):
+            if not name.startswith(".") and not name.endswith(SKIP_SUFFIXES) and name not in SKIP_FILES:
                 yield os.path.join(folder, name)
+
+
+def texture_packer():
+    found = os.environ.get("TEXTUREPACKER") or shutil.which("kodi-TexturePacker") or shutil.which("TexturePacker")
+    if not found:
+        raise SystemExit("TexturePacker not found: install kodi-tools-texturepacker or set TEXTUREPACKER")
+    return found
+
+
+def pack_media(media):
+    """`media` packed into a Textures.xbt in a temporary folder; returns its path."""
+    output = os.path.join(tempfile.mkdtemp(prefix="xbt-"), "Textures.xbt")
+    subprocess.run([texture_packer(), "-dupecheck", "-input", media, "-output", output], check=True,
+                   stdout=subprocess.DEVNULL)
+    return output
 
 
 def build_zip(addon_dir, addon_id, version):
@@ -57,14 +83,22 @@ def build_zip(addon_dir, addon_id, version):
         if old.startswith(addon_id + "-") and old.endswith((".zip", ".zip.sha256")):
             os.remove(os.path.join(folder, old))
     path = os.path.join(folder, f"{addon_id}-{version}.zip")
+    media = os.path.join(addon_dir, "media")
+    packed = pack_media(media) if addon_id in PACK_MEDIA else None
+    files = [f for f in files_of(addon_dir) if not (packed and f.startswith(media + os.sep))]
+    if packed:
+        files.append(packed)
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as zf:
-        for file in files_of(addon_dir):
-            arcname = os.path.join(addon_id, os.path.relpath(file, addon_dir)).replace(os.sep, "/")
+        for file in files:
+            relative = os.path.join("media", "Textures.xbt") if file == packed else os.path.relpath(file, addon_dir)
+            arcname = os.path.join(addon_id, relative).replace(os.sep, "/")
             info = zipfile.ZipInfo(arcname, ZIP_TIME)
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o644 << 16
             with open(file, "rb") as f:
                 zf.writestr(info, f.read())
+    if packed:
+        shutil.rmtree(os.path.dirname(packed), ignore_errors=True)
     with open(path, "rb") as f:
         digest = hashlib.sha256(f.read()).hexdigest()
     with open(path + ".sha256", "w") as f:

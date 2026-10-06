@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.12.1"
+       version="0.13.0"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,19 +23,9 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.12.1 - New Kodi Stremio Bridge logo for the icon and fanart.
-v0.12.0 - One info page for movies, shows, seasons and episodes (Play, Available streams, Mark watched, Watchlist, Find similar, Cast, a season and episode browser); search as you type for Arctic Zephyr Stremio; one Mark as watched entry per level; watched banners for shows and seasons; posters for catalogs that send posterShape "regular"; catalogs default to Poster Flix v2.
-v0.11.8 - Show browsing now lives inside the info page with season chips and episode thumbnails.
-v0.11.7 - Hides music catalogs by default on new setups and restores watched banners for movies and episodes.
-v0.11.6 - Forces Arctic Zephyr Stremio's seasons view label before applying Seasons Info v2.
-v0.11.5 - Seasons default to Seasons Info v2 in Arctic Zephyr Stremio; episode info panels from season browsing show Bridge actions.
-v0.11.4 - Setup wizard syncs MDBList after saving an API key and reloads the skin when it completes.
-v0.11.3 - Setup wizard: add your streams and metadata addons and MDBList key step by step (Settings, or the skin's ... menu).
-v0.11.2 - Arctic Zephyr Stremio support: skin helpers, hubs, Cinemeta and streaming-service lists, its own context menu and info page buttons; Kodi's info page replaces Extended info and library integration is off. Kodi's Mark as watched updates your history. Continue Watching pages 20 at a time.
-v0.11.1 - Faster Continue Watching and Next Up (results reused until you watch something); smaller, compressed cache capped at 25 MB.
-v0.11.0 - New stream page: cards with badges, filter chips, no logos. Extended info for episodes. Selecting can open Extended info for episodes too. Fixed context menu entries overwriting each other, and settings buttons on Fire TV.
-v0.10.3 - With autoplay on: "Show Playable Streams" in context menus and a Streams tile in Extended info. Removing an episode from Continue Watching also removes its show from Next Up until you watch more.
-v0.10.2 - Continue Watching shows descriptions, cast and details.</news>
+        <news>v0.13.0 - For Arctic Zephyr Stremio's new look: info page text (Play / Resume S1 E3, facts, age rating and rating, episode ratings); the info page header follows the focused episode; season and episode context menus are a single watched toggle; picking an episode plays or opens streams per the autoplay setting; full release dates on catalog items; catalogs open in the skin's new Stremio view. Next Page on a home widget or hub row reloads the row in place on the next page (with Previous Page), focused on its first title; hub rows get Filter by Genre, also in place. Selecting a show opens its info page when selecting opens info. A saved view the skin no longer has falls back to the default. New "Back stops playback" setting (on). Playing again straight after a Stop no longer fails: a stream that fails to open is tried once more before the next one.
+v0.12.1 - New Kodi Stremio Bridge logo for the icon and fanart.
+v0.12.0 - One info page for movies, shows, seasons and episodes; search as you type for Arctic Zephyr Stremio; watched banners for shows and seasons.</news>
     </extension>
 </addon>
 <addon id="plugin.audio.shiggsy365.podcasts"
@@ -123,10 +113,10 @@ v1.0.0 - First release.</news>
         </assets>
     </extension>
 </addon>
-<addon id="skin.arctic.zephyr.stremio" version="1.1.1" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
+<addon id="skin.arctic.zephyr.stremio" version="1.2.0" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
     <requires>
         <import addon="xbmc.gui" version="5.17.0"/>
-        <import addon="plugin.video.stremiobridge" version="0.11.8"/>
+        <import addon="plugin.video.stremiobridge" version="0.13.0"/>
         <import addon="script.skinshortcuts" version="0.4.0"/>
         <import addon="script.image.resource.select" version="0.0.5"/>
         <import addon="resource.images.weathericons.white" version="0.0.6"/>
@@ -152,11 +142,7 @@ v1.0.0 - First release.</news>
             <screenshot>resources/screenshot-09.jpg</screenshot>
             <screenshot>resources/screenshot-10.jpg</screenshot>
         </assets>
-        <news>v1.1.1 - Kodi Stremio Bridge logo on the startup screen, icon and fanart; "Stremio" in place of "Reloaded" beside the skin name.
-v1.1.0 - Info page rebuilt around Stremio Bridge: Play, Available streams, Mark watched, Watchlist, Trailer, Find similar, Cast, and a season and episode browser for shows, seasons and episodes; Watched banners; a search page with an on-screen keyboard, live results, suggestions and recent searches (search icon by the clock, or Right on the last menu item); a full-screen TV guide; one clearlogo setting for the whole skin; no header over catalogs; no "New" markers.
-v1.0.2 - Embeds Stremio Bridge show browsing in the info page with season chips and episode thumbnails.
-v1.0.1 - Runs Stremio Bridge's setup wizard on first start; Setup wizard in the ... menu; fixed the ... submenu.
-v1.0.0 - Forked from Arctic: Zephyr - Reloaded 3.0.3 (beatmasterRS, upstream commit 27b7bd7) and renamed. Removed the CJK font set (Inter CJK, 54 MB) to keep the skin small. No TMDb Helper or Embuary. Ready-made Home, Movies and TV Shows menus and hubs; Kodi's info page with Browse show, Mark watched, Watchlist and streaming-service buttons; actors open Stremio Bridge's person search; Stremio Bridge's context menu; a ... settings menu.</news>
+        <news>v1.2.0 - One look across the skin. New info page: full-screen artwork, logo, facts and rating pills, scrolling plot, Play with Streams, Watched, Watchlist and Trailer, season tabs, episode cards, cast and similar titles. Home: one layout, the same header (full release date) over rounded rows, a slim menu bar with icons that open to text, Search and Settings in the menu, the clock in the bar. Themed hubs, stream picker, search, TV guide and video OSD (top banner with logo, facts and plot; bottom bar with icon buttons and finish time; pausing opens it). New "Stremio" list view, the default for Stremio Bridge catalogs, without the ".." tile. Hub rows page and filter in place. Skin settings trimmed: no Arctic: Zephyr - Reloaded page, Home menu bar or header options; now-playing video in the background on by default. Faster: images packed into Textures.xbt; the info page no longer builds the old Arctic Zephyr page; the Videos and Games windows keep only the views in use; artist slideshow and plot overlay helpers removed.</news>
         <summary lang="en_GB">Arctic: Zephyr - Reloaded, made for Stremio Bridge.</summary>
         <description lang="en_GB">A fork of Arctic: Zephyr - Reloaded by beatmasterRS, itself based on Arctic: Zephyr by jurialmunkey, made to work with Stremio Bridge and Dispatcharr Bridge. Clean, minimal and light, with the layout of Reloaded. Licensed under CC BY-NC-SA 3.0, like the original.</description>
     </extension>

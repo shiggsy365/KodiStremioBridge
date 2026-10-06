@@ -6,7 +6,8 @@
     <include file="Includes_Lyrics.xml"/>
     <include file="Includes_Lists.xml"/>
     <include file="Includes_Stremio.xml"/>
-    <include file="Includes_DialogVideoInfo.xml"/>
+    <include file="Includes_StremioInfo.xml"/>
+    <include file="Includes_StremioOSD.xml"/>
     <include file="Includes_DialogMusicInfo.xml"/>
     <include file="Includes_DialogAddonInfo.xml"/>
     <include file="Includes_DialogPVRInfo.xml"/>
@@ -17,39 +18,20 @@
 
     <!-- Views -->
     <include file="View_50_List.xml"/>
+    <include file="View_528_Stremio.xml"/>
     <include file="View_51_BigWide.xml"/>
-    <include file="View_52_BigList.xml"/>
-    <include file="View_53_Poster.xml"/>
     <include file="View_54_Banner.xml"/>
     <include file="View_55_Wall.xml"/>
     <include file="View_515_SideCards.xml"/>
-    <include file="View_56_MediaInfo.xml"/>
     <include file="View_57_ExtraInfo.xml"/>
-    <include file="View_58_Cards.xml"/>
-    <include file="View_59_BannerWall.xml"/>
     <include file="View_500_Thumbnails.xml"/>
     <include file="View_503_Poster_Square.xml"/>
     <include file="View_505_Wall_Square.xml"/>
-    <include file="View_501_Modern_Fanart.xml"/>
-    <include file="View_504_Netflix.xml"/>
-    <include file="View_507_Fanart.xml"/>
-    <include file="View_509_Shift.xml"/>
-    <include file="View_513_Shifted.xml"/>
-    <include file="View_510_Minimal.xml"/>
-    <include file="View_520_Minimal.xml"/>
-    <include file="View_511_Double.xml"/>
-    <include file="View_512_Double_Banner.xml"/>
     <include file="View_506_Slider.xml"/>
     <include file="View_514_Albums.xml"/>
     <include file="View_517_WallSmall.xml"/>
-    <include file="View_516_SeasonsInfo.xml"/>
     <include file="View_526_SeasonsInfo_V2.xml"/>
-    <include file="View_519_Shift_Modern.xml"/>
-    <include file="View_521_Minimal_V2.xml"/>
     <include file="View_523_Minimal_V2_Music.xml"/>
-    <include file="View_522_Minimal_V2_Episodes.xml"/>
-    <include file="View_524_Minimal_V2_Seasons.xml"/>
-    <include file="View_527_List_V2.xml"/>
     <include file="Includes_Furniture.xml"/>
     <include file="Includes_Home.xml"/>
     <include file="Includes_Labels.xml"/>
@@ -1681,382 +1663,6 @@
         </control>
     </include>
 
-    <include name="DialogVideoInfoNavigation">
-        <control type="grouplist" id="9000">
-            <visible>true</visible>
-            <bottom>224</bottom>
-            <left>570</left>
-            <right>81</right>
-            <include>listdimensions</include>
-            <ondown condition="String.IsEqual(Window.Property(moviecontent),1) + String.IsEqual(Window.Property(ShowDisc),1) + String.IsEqual(ListItem.DBType,movie) + !String.IsEmpty(ListItem.Art(discart))">ClearProperty(ShowDisc)</ondown>
-            <ondown condition="!String.IsEqual(Window.Property(ShowDisc),1)">9601</ondown>
-            <orientation>horizontal</orientation>
-            <onup condition="String.IsEqual(Window.Property(moviecontent),2)">9502</onup>
-            <onup condition="String.IsEqual(Window.Property(moviecontent),3)">9503</onup>
-            <onup condition="String.IsEqual(Window.Property(moviecontent),4)">9504</onup>
-            <onup condition="String.IsEqual(Window.Property(moviecontent),7)">9506</onup>
-            <onup condition="String.IsEqual(Window.Property(moviecontent),8)">9515</onup>
-            <onup condition="String.IsEqual(Window.Property(moviecontent),10)">9560</onup>
-            <onup condition="String.IsEqual(Window.Property(moviecontent),11)">5061</onup>
-            <onup condition="String.IsEqual(Window.Property(moviecontent),5) + Integer.IsGreater(Container(9505).NumItems,0)">95051</onup>
-            <onup condition="String.IsEqual(Window.Property(moviecontent),6)">7011</onup>
-            <onup condition="String.IsEqual(Window.Property(moviecontent),1) + !String.IsEqual(Window.Property(ShowDisc),1) + String.IsEqual(ListItem.DBType,movie) + !String.IsEmpty(ListItem.Art(discart))">SetProperty(ShowDisc,1)</onup>
-            <onup condition="String.IsEqual(Window.Property(moviecontent),1) + String.IsEqual(Window.Property(ShowDisc),1) + String.IsEqual(ListItem.DBType,movie) + !String.IsEmpty(ListItem.Art(discart))">ClearProperty(ShowDisc)</onup>
-            <onup condition="String.IsEmpty(Window.Property(moviecontent)) + String.IsEqual(ListItem.DBType,set)">50</onup>
-            <onup condition="String.IsEmpty(Window.Property(moviecontent)) + !String.IsEqual(ListItem.DBType,set)">5050</onup>
-            <control type="radiobutton" id="8">
-                <onfocus>ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <include>buttondimensions</include>
-                <texturenofocus colordiffuse="Dark4" border="0">common/boxsquare.png</texturenofocus>
-                <texturefocus colordiffuse="$VAR[ColorHighlight]" border="0">common/boxsquare.png</texturefocus>
-                <textureradioonfocus colordiffuse="FFFFFFFF">buttonsdialogs/continue.png</textureradioonfocus>
-                <textureradioonnofocus colordiffuse="FFFFFFFF">buttonsdialogs/continue.png</textureradioonnofocus>
-                <textureradioofffocus colordiffuse="FFFFFFFF">buttonsdialogs/play.png</textureradioofffocus>
-                <textureradiooffnofocus colordiffuse="FFFFFFFF">buttonsdialogs/play.png</textureradiooffnofocus>
-                <selected>ListItem.IsResumable</selected>
-                <visible>!ListItem.IsPlaying</visible>
-                <visible>!String.IsEqual(ListItem.DBType,tvshow)</visible>
-                <visible>!$EXP[SBInfoPage]</visible>
-            </control>
-
-            <control type="radiobutton" id="9078">
-                <onfocus>ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onclick condition="Skin.HasSetting(home.netflix.autoplay.trailer) + $EXP[TrailerIsPlaying] + !Skin.HasSetting(trailer.dont.stop.on.unfocus)">Stop</onclick>
-                <onclick condition="Skin.HasSetting(home.netflix.autoplay.trailer) + $EXP[TrailerIsPlaying] + !Skin.HasSetting(trailer.dont.stop.on.unfocus)">ClearProperty(TrailerPath,home)</onclick>
-                <onclick>SendClick(8)</onclick>
-                <include>buttondimensions</include>
-                <texturenofocus colordiffuse="Dark4" border="0">common/boxsquare.png</texturenofocus>
-                <texturefocus colordiffuse="$VAR[ColorHighlight]" border="0">common/boxsquare.png</texturefocus>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/folder.png"/>
-                </include>
-                <visible>String.IsEqual(ListItem.DBType,tvshow)</visible>
-                <visible>!$EXP[SBInfoPage]</visible>
-            </control>
-
-            <control type="radiobutton" id="9201">
-                <onfocus>ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <include>buttondimensions</include>
-                <onclick condition="Player.Playing">Pause</onclick>
-                <onclick condition="!Player.Playing">Play</onclick>
-                <texturenofocus colordiffuse="Dark4" border="0">common/boxsquare.png</texturenofocus>
-                <texturefocus colordiffuse="$VAR[ColorHighlight]" border="0">common/boxsquare.png</texturefocus>
-                <textureradioonfocus colordiffuse="FFFFFFFF">buttonsdialogs/pause.png</textureradioonfocus>
-                <textureradioonnofocus colordiffuse="FFFFFFFF">buttonsdialogs/pause.png</textureradioonnofocus>
-                <textureradioofffocus colordiffuse="FFFFFFFF">buttonsdialogs/continue.png</textureradioofffocus>
-                <textureradiooffnofocus colordiffuse="FFFFFFFF">buttonsdialogs/continue.png</textureradiooffnofocus>
-                <selected>Player.Playing</selected>
-                <visible>ListItem.IsPlaying</visible>
-            </control>
-
-            <control type="radiobutton" id="9077">
-                <visible>String.IsEqual(ListItem.DBType,tvshow) + Integer.IsGreater(ListItem.Property(UnwatchedEpisodes),0) + !String.IsEmpty(ListItem.DBID) + !Skin.HasSetting(HideNextUpEpisodeButton) + !String.IsEmpty(Container(9911).ListItem.FileNameAndPath)</visible>
-                <onfocus>ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onclick>Dialog.Close(all)</onclick>
-                <onclick>PlayMedia($ESCINFO[Container(9911).ListItem.FileNameAndPath])</onclick>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/upnext.png"/>
-                </include>
-            </control>
-
-            <!-- Arctic Zephyr Stremio: Stremio Bridge's titles use their own buttons, whose
-                 links the plugin sets on the item (frozen as sbinfo.* by DialogVideoInfo.xml).
-                 Play: the movie or episode, or a show's / season's next episode to watch -->
-            <control type="radiobutton" id="9120">
-                <visible>$EXP[SBInfoPage]</visible>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onfocus condition="$EXP[SBInfoBrowse] + !String.IsEqual(Window.Property(moviecontent),11)">ClearProperty(moviecontent)</onfocus>
-                <onfocus condition="$EXP[SBInfoBrowse]">SetProperty(moviecontent,11)</onfocus>
-                <onfocus condition="!$EXP[SBInfoBrowse]">ClearProperty(moviecontent)</onfocus>
-                <onclick condition="Skin.HasSetting(home.netflix.autoplay.trailer) + $EXP[TrailerIsPlaying]">Stop</onclick>
-                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.play_action)])</onclick>
-                <include>buttondimensions</include>
-                <texturenofocus colordiffuse="Dark4" border="0">common/boxsquare.png</texturenofocus>
-                <texturefocus colordiffuse="$VAR[ColorHighlight]" border="0">common/boxsquare.png</texturefocus>
-                <textureradioonfocus colordiffuse="FFFFFFFF">buttonsdialogs/continue.png</textureradioonfocus>
-                <textureradioonnofocus colordiffuse="FFFFFFFF">buttonsdialogs/continue.png</textureradioonnofocus>
-                <textureradioofffocus colordiffuse="FFFFFFFF">buttonsdialogs/play.png</textureradioofffocus>
-                <textureradiooffnofocus colordiffuse="FFFFFFFF">buttonsdialogs/play.png</textureradiooffnofocus>
-                <selected>$EXP[SBInfoResumable]</selected>
-            </control>
-
-            <!-- Available streams: choose the stream yourself -->
-            <control type="radiobutton" id="9121">
-                <visible>$EXP[SBInfoPage]</visible>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onfocus condition="$EXP[SBInfoBrowse] + !String.IsEqual(Window.Property(moviecontent),11)">ClearProperty(moviecontent)</onfocus>
-                <onfocus condition="$EXP[SBInfoBrowse]">SetProperty(moviecontent,11)</onfocus>
-                <onfocus condition="!$EXP[SBInfoBrowse]">ClearProperty(moviecontent)</onfocus>
-                <onclick condition="Skin.HasSetting(home.netflix.autoplay.trailer) + $EXP[TrailerIsPlaying]">Stop</onclick>
-                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.streams_action)])</onclick>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/streams.png"/>
-                </include>
-            </control>
-
-            <!-- Mark watched -->
-            <control type="radiobutton" id="9102">
-                <visible>$EXP[SBInfoPage] + !$EXP[SBInfoWatched]</visible>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.watched_action)])</onclick>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/watched.png"/>
-                </include>
-            </control>
-
-            <!-- Mark unwatched -->
-            <control type="radiobutton" id="9104">
-                <visible>$EXP[SBInfoPage] + $EXP[SBInfoWatched]</visible>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.watched_action)])</onclick>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/unwatched.png"/>
-                </include>
-            </control>
-
-            <!-- Add to watchlist (MDBList) -->
-            <control type="radiobutton" id="9103">
-                <visible>$EXP[SBInfoWatchlist] + !$EXP[SBInfoListed]</visible>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.watchlist_action)])</onclick>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/watchlist_add.png"/>
-                </include>
-            </control>
-
-            <!-- Remove from watchlist -->
-            <control type="radiobutton" id="9105">
-                <visible>$EXP[SBInfoWatchlist] + $EXP[SBInfoListed]</visible>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onclick>RunPlugin($INFO[Window(home).Property(sbinfo.watchlist_action)])</onclick>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/watchlist_remove.png"/>
-                </include>
-            </control>
-
-            <control type="radiobutton" id="9001">
-                <!-- Arctic Zephyr Stremio: this is already Kodi's info page -->
-                <visible>false</visible>
-                <onfocus condition="!String.IsEqual(Window.Property(moviecontent),1)">ClearProperty(moviecontent)</onfocus>
-                <onfocus>SetProperty(moviecontent,1)</onfocus>
-                <onclick condition="String.IsEqual(ListItem.DBType,movie)">RunPlugin(plugin://plugin.video.stremiobridge/?action=extended_info&amp;type=movie&amp;id=$INFO[ListItem.IMDBNumber])</onclick>
-                <onclick condition="String.IsEqual(ListItem.DBType,tvshow)">RunPlugin(plugin://plugin.video.stremiobridge/?action=extended_info&amp;type=series&amp;id=$INFO[ListItem.IMDBNumber])</onclick>
-                <onclick condition="String.IsEqual(ListItem.DBType,episode)">Action(Info)</onclick>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/info.png"/>
-                </include>
-            </control>
-
-            <control type="radiobutton" id="1224">
-                <onfocus condition="!$EXP[SBInfoPage]">ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/trailer.png"/>
-                </include>
-                <visible>!Skin.HasSetting(PlayTrailerWindowed) + [[Skin.HasSetting(Use.IMDB.Trailer) + System.AddonIsEnabled(plugin.video.imdb.trailers) + !String.IsEmpty(ListItem.IMDBNumber)] | [!Skin.HasSetting(Use.IMDB.Trailer) + String.IsEmpty(ListItem.Trailer) + System.AddonIsEnabled(script.bingie.helper)] | [!Skin.HasSetting(Use.IMDB.Trailer) + [!String.IsEmpty(ListItem.Trailer) | !String.IsEmpty(Window(home).Property(sbinfo.trailer))]]]</visible>                
-                <onclick condition="Skin.HasSetting(Use.IMDB.Trailer) | String.IsEmpty(ListItem.Trailer)">Dialog.Close(2003)</onclick>                
-                <onclick condition="!Skin.HasSetting(Use.IMDB.Trailer) + !String.IsEmpty(ListItem.Trailer)">SendClick(11)</onclick>
-                <onclick condition="!Skin.HasSetting(Use.IMDB.Trailer) + String.IsEmpty(ListItem.Trailer) + System.AddonIsEnabled(script.bingie.helper)">RunScript(script.bingie.helper,action=playtrailer,MODE=fullscreen,title=$INFO[ListItem.Title],local=true)</onclick>
-                <onclick condition="Skin.HasSetting(Use.IMDB.Trailer)">PlayMedia(plugin://plugin.video.imdb.trailers/?action=play_id&amp;imdb=$INFO[ListItem.IMDBNumber])</onclick>                
-                <visible>!Skin.HasSetting(hidebutton.video.trailer)</visible>
-            </control>
-
-            <control type="radiobutton" id="1223">
-                <onfocus condition="!String.IsEqual(Window.Property(moviecontent),6)">ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onfocus>SetProperty(moviecontent,6)</onfocus>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/trailer.png"/>
-                </include>
-                <visible>Skin.HasSetting(PlayTrailerWindowed) + [[Skin.HasSetting(Use.IMDB.Trailer) + System.AddonIsEnabled(plugin.video.imdb.trailers) + !String.IsEmpty(ListItem.IMDBNumber)] | [!Skin.HasSetting(Use.IMDB.Trailer) + String.IsEmpty(ListItem.Trailer) + System.AddonIsEnabled(script.bingie.helper)] | [!Skin.HasSetting(Use.IMDB.Trailer) + [!String.IsEmpty(ListItem.Trailer) | !String.IsEmpty(Window(home).Property(sbinfo.trailer))]]]</visible>
-                <onclick condition="!Skin.HasSetting(Use.IMDB.Trailer) + !String.IsEmpty(ListItem.Trailer)">PlayMedia($INFO[ListItem.Trailer],1)</onclick>
-                <onclick condition="!Skin.HasSetting(Use.IMDB.Trailer) + String.IsEmpty(ListItem.Trailer) + System.AddonIsEnabled(script.bingie.helper)">RunScript(script.bingie.helper,action=playtrailer,MODE=windowed,title=$INFO[ListItem.Title],local=true)</onclick>
-                <onclick condition="Skin.HasSetting(Use.IMDB.Trailer)">PlayMedia(plugin://plugin.video.imdb.trailers/?action=play_id&amp;imdb=$INFO[ListItem.IMDBNumber],1)</onclick>
-                <visible>!Skin.HasSetting(hidebutton.video.trailer)</visible>
-            </control>
-
-            <control type="radiobutton" id="9002">
-                <visible>[$EXP[SBInfoPage] + $EXP[SBInfoSimilar]] | [!$EXP[SBInfoPage] + [String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow)]]</visible>
-                <onfocus condition="!String.IsEqual(Window.Property(moviecontent),2)">ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onfocus>SetProperty(moviecontent,2)</onfocus>
-                <onfocus>SetProperty(videosimilar,1)</onfocus>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/similar.png"/>
-                </include>
-                <visible>!Skin.HasSetting(hidebutton.video.similar)</visible>
-            </control>
-
-            <!-- Cast: shows the cast in the panel above; select to move into it -->
-            <control type="radiobutton" id="9122">
-                <visible>$EXP[SBInfoPage] + Integer.IsGreater(Container(50).NumItems,0) + !Skin.HasSetting(HideActorImages)</visible>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onfocus>ClearProperty(moviecontent)</onfocus>
-                <onclick>SetFocus(5050)</onclick>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/cast.png"/>
-                </include>
-            </control>
-
-            <control type="radiobutton" id="49">
-                <onfocus>ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <description>Home Theatre</description>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/playcinema.png"/>
-                </include>
-                <onclick>RunScript(script.preshowexperience,dbtype=$INFO[ListItem.DBType],dbid=$INFO[ListItem.DBID])</onclick>
-                <visible>String.IsEqual(ListItem.DBTYPE,movie) | String.IsEqual(ListItem.DBTYPE,episode)</visible>
-                <visible>Skin.HasSetting(hidebutton.video.cinema) + System.AddonIsEnabled(script.preshowexperience)</visible>
-                <visible>!$EXP[SBInfoPage]</visible>
-            </control>
-
-            <control type="radiobutton" id="7">
-                <onfocus>ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <include>OnFocusOnClick</include>
-                <include>ClearOnFocusOnClick</include>
-                <include>buttondimensions</include>
-                <texturenofocus colordiffuse="Dark4" border="0">common/boxsquare.png</texturenofocus>
-                <texturefocus colordiffuse="$VAR[ColorHighlight]" border="0">common/boxsquare.png</texturefocus>
-                <textureradioonfocus colordiffuse="FFFFFFFF">buttonsdialogs/rating.png</textureradioonfocus>
-                <textureradioonnofocus colordiffuse="FFFFFFFF">buttonsdialogs/rating.png</textureradioonnofocus>
-                <textureradioofffocus colordiffuse="FFFFFFFF">buttonsdialogs/rating_new.png</textureradioofffocus>
-                <textureradiooffnofocus colordiffuse="FFFFFFFF">buttonsdialogs/rating_new.png</textureradiooffnofocus>
-                <selected>String.IsEmpty(ListItem.UserRating)</selected>
-                <visible>[String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow) | String.IsEqual(ListItem.DBType,episode)] + Control.IsEnabled(7)</visible>
-                <visible>!Skin.HasSetting(hidebutton.video.rating)</visible>
-                <visible>!$EXP[SBInfoPage]</visible>
-            </control>
-
-            <control type="radiobutton" id="1236">
-                <onfocus>ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <include>OnFocusOnClick</include>
-                <include>ClearOnFocusOnClick</include>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/more.png"/>
-                </include>
-                <visible>System.AddonIsEnabled(plugin.video.specialfeatures)</visible>
-                <visible>String.IsEqual(Window(home).Property(SpecialFeatures.Visible),true)</visible>
-                <onclick>Action(close)</onclick>
-                <onclick>RunScript(plugin.video.specialfeatures,listitem)</onclick>
-                <visible>!Skin.HasSetting(hidebutton.video.specialfeatures)</visible>
-                <visible>!$EXP[SBInfoPage]</visible>
-            </control>
-
-            <control type="radiobutton" id="9013">
-                <visible>String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow)</visible>
-                <onfocus>ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onfocus>ClearProperty(dontslide,home)</onfocus>
-                <onclick>SetProperty(dontslide,1,home)</onclick>
-                <onclick condition="String.IsEqual(ListItem.DBType,movie)">RunScript(script.wikipedia,wikipedia=$VAR[Wiki_Label],tmdb_type=movie,language=$VAR[LanguageCheck])</onclick>
-                <onclick condition="String.IsEqual(ListItem.DBType,tvshow)">RunScript(script.wikipedia,wikipedia=$VAR[Wiki_Label],tmdb_type=tv,language=$VAR[LanguageCheck])</onclick>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/wiki.png"/>
-                </include>
-                <visible>!Skin.HasSetting(hidebutton.video.wiki) + System.AddonIsEnabled(script.wikipedia)</visible>
-                <visible>!$EXP[SBInfoPage]</visible>
-            </control>
-
-            <control type="radiobutton" id="9003">
-                <visible>String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow)</visible>
-                <onfocus condition="!String.IsEqual(Window.Property(moviecontent),3)">ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onfocus>SetProperty(moviecontent,3)</onfocus>
-                <onfocus>SetProperty(videostudio,1)</onfocus>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/studio.png"/>
-                </include>
-                <visible>!Skin.HasSetting(hidebutton.video.studio) + !String.IsEmpty(ListItem.Property(stremiobridge.service))</visible>
-            </control>
-
-            <control type="radiobutton" id="9006">
-                <visible>String.IsEqual(ListItem.DBType,movie)</visible>
-                <onfocus condition="!String.IsEqual(Window.Property(moviecontent),6)">ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onfocus>SetProperty(moviecontent,7)</onfocus>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/director.png"/>
-                </include>
-                <visible>Skin.HasSetting(showbutton.video.director)</visible>
-            </control>
-            <control type="radiobutton" id="9015">
-                <visible>String.IsEqual(ListItem.DBType,movie)</visible>
-                <onfocus condition="!String.IsEqual(Window.Property(moviecontent),6)">ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onfocus>SetProperty(moviecontent,8)</onfocus>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/set.png"/>
-                </include>
-                <visible>Skin.HasSetting(showbutton.video.set) + !String.IsEmpty(ListItem.SetId)</visible>
-            </control>
-            <control type="radiobutton" id="9004">
-                <visible>String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow)</visible>
-                <onfocus condition="!String.IsEqual(Window.Property(moviecontent),4)">ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onfocus>SetProperty(moviecontent,4)</onfocus>
-                <onfocus>SetProperty(videoyoutube,1)</onfocus>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/youtube.png"/>
-                </include>
-                <visible>false</visible> <!-- Arctic Zephyr Stremio: no YouTube button -->
-            </control>
-            <control type="radiobutton" id="9005">
-                <onfocus condition="!String.IsEqual(Window.Property(moviecontent),5)">ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <onfocus>SetProperty(moviecontent,5)</onfocus>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/image.png"/>
-                </include>
-                <visible>false</visible> <!-- Arctic Zephyr Stremio: no artwork button -->
-            </control>
-            <control type="radiobutton" id="9011">
-                <onfocus>ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/trakt.png"/>
-                </include>
-                <visible>!Skin.HasSetting(hidebutton.video.trakt) + [!String.IsEmpty(ListItem.Property(tmdb_id)) | !String.IsEmpty(window(home).property(tmdbhelper.listitem.tmdb_id))] + [String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow)] + !String.IsEmpty(Window(Home).Property(TMDbHelper.TraktIsAuth))</visible>
-            </control>
-            <control type="radiobutton" id="9010">
-                <onfocus>ClearProperty(moviecontent)</onfocus>
-                <onfocus>ClearProperty(ShowDisc)</onfocus>
-                <include>buttondimensions</include>
-                <include content="buttontextures">
-                    <param name="icon" value="buttonsdialogs/manage.png"/>
-                </include>
-                <onclick>SetFocus(9400)</onclick>
-                <visible>false</visible> <!-- Arctic Zephyr Stremio: no Manage button -->
-            </control>
-        </control>
-    </include>
-
     <include name="DialogExtendedVideoInfoNavigation">
         <control type="grouplist" id="9000">
             <bottom>224</bottom>
@@ -3471,27 +3077,7 @@
         <include>skinshortcuts-template-widget-vertical.6</include>
     </include>
 
-    <include name="ResetViewtypes">
-        <onclick>Skin.Reset(home.classicwidgets)</onclick>
-        <onclick>Skin.Reset(home.vertical)</onclick>
-        <onclick>Skin.Reset(home.modernwidgets)</onclick>
-        <onclick>Skin.Reset(home.vertical.widgets)</onclick>
-        <onclick>Skin.Reset(homemenu.netflix)</onclick>
-        <onclick>Skin.Reset(homemenu.clean.flix)</onclick>
-    </include>
 
-    <variable name="HomemenuViewtypeImage">
-        <value condition="Control.HasFocus(1)">1</value>
-        <value condition="Control.HasFocus(2)">2</value>
-        <value condition="Control.HasFocus(3)">3</value>
-        <value condition="Control.HasFocus(4)">4</value>
-        <value condition="Control.HasFocus(5)">5</value>
-        <value condition="Control.HasFocus(6)">6</value>
-        <value condition="Control.HasFocus(7)">7</value>
-        <value condition="Control.HasFocus(8)">8</value>
-        <value condition="Control.HasFocus(9)">9</value>
-        <value>1</value>
-    </variable>
 
     <variable name="AlbumPath">
         <value condition="ListItem.IsFolder + String.IsEqual(ListItem.DBType,album)">$INFO[ListItem.FolderPath]</value>
@@ -5095,7 +4681,8 @@
         <param name="colordiffuse" default="BoxWidget"/>
         <definition>
         <bordersize>1</bordersize>
-        <bordertexture border="4" colordiffuse="$PARAM[colordiffuse]" infill="false">common/box21.png</bordertexture>
+        <!-- Arctic Zephyr Stremio: rounded, like the artwork it frames (tools/make_info_textures.py) -->
+        <bordertexture border="16" colordiffuse="$PARAM[colordiffuse]" infill="false">stremio/frame-1px.png</bordertexture>
         </definition>
     </include>
     

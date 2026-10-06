@@ -36,7 +36,14 @@
         <action>ActivateWindow(Tvchannels)</action>
     </shortcut>
     <shortcut>
-        <label>31950</label>
+        <label>137</label>
+        <label2>Common Shortcut</label2>
+        <defaultID>search</defaultID>
+        <icon>special://skin/extras/icons/search.png</icon>
+        <action>ActivateWindow(1170)</action>
+    </shortcut>
+    <shortcut>
+        <label>5</label>
         <label2>Settings</label2>
         <defaultID>more</defaultID>
         <icon>special://skin/extras/icons/settings.png</icon>

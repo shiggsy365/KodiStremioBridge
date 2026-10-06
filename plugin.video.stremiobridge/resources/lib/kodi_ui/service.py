@@ -109,12 +109,16 @@ class Tracker(xbmc.Player):
         self._finish(ended=True)
 
     def onPlayBackError(self):
+        # A play announced but not started yet is the one that failed: playing
+        # again straight after a Stop, Kodi can report the error before the
+        # previous video's stop reaches us. Otherwise it's the tracked video.
+        announced = take_announcement()
         if self.entry:
             self._finish(ended=False)
-            return
-        # Failed before the video started: if the play route said how, try the
-        # next stream (autoplay only; a Stop before starting is the user cancelling).
-        announced = take_announcement()
+            if announced is None:
+                return
+        # Failed before the video started: if the play route said how, try
+        # again (autoplay only; a Stop before starting is the user cancelling).
         retry = (announced or {}).get("retry")
         if retry:
             self.worker.submit(retry_next_stream, retry)
@@ -181,13 +185,22 @@ MAX_STREAM_RETRIES = 5
 
 
 def retry_next_stream(retry):
-    if retry["next"] >= retry["total"] or retry["tries"] >= MAX_STREAM_RETRIES:
-        log(f"Not retrying {retry['id']}: tried {retry['tries'] + 1} streams after playback errors")
+    """After a stream failed to play: the same stream once more first (opening
+    it can fail for a moment, e.g. replaying straight after a Stop while the
+    server is still closing the last connection), then the next ones."""
+    same = retry["tries"] == 0
+    start = retry["next"] - 1 if same else retry["next"]
+    if start >= retry["total"] or retry["tries"] >= MAX_STREAM_RETRIES:
+        log(f"Not retrying {retry['id']}: tried {retry['tries'] + 1} times after playback errors")
         return
-    notify(L(30178))
+    if same:
+        log(f"Trying {retry['id']} again")
+        xbmc.sleep(1000)
+    else:
+        notify(L(30178))
     xbmc.executebuiltin("PlayMedia({})".format(plugin_url(
         "play", type=retry["type"], id=retry["id"], meta=retry.get("meta"), binge=retry.get("binge"),
-        resume="1" if retry.get("resume") else None, start=retry["next"], tries=retry["tries"] + 1)))
+        resume="1" if retry.get("resume") else None, start=start, tries=retry["tries"] + 1)))
 
 
 def after_playback(status):
@@ -338,36 +351,95 @@ class KodiWatchedFollower:
 class MenuSwap(threading.Thread):
     """With Arctic Zephyr Stremio: Kodi's context menu on one of our titles is
     swapped for ours (contextmenu.py), whose entries come in our order. Kodi's
-    menu can't say which item it's for, so the focused item is tracked here."""
+    menu can't say which item it's for, so the focused item is tracked here.
+    The same loop runs the info page's episode follower (one thread: Kodi's
+    Python can crash when several service threads start importing at once,
+    so everything is imported here, before the thread starts)."""
 
     POLL = 0.1
+    SETTLE_AFTER_OURS = 0.6  # seconds: our menu's closing animation
 
     def __init__(self, monitor):
         super().__init__(name="stremiobridge-menus", daemon=True)
-        self.monitor = monitor
-
-    def run(self):
         import xbmcgui
 
         from .common import skin_active
-        from .contextmenu import OPEN_PROPERTY, focused_item, item_target
+        from .contextmenu import CLOSED_PROPERTY, OPEN_PROPERTY, focused_item, item_target
 
-        home = xbmcgui.Window(10000)
+        self.monitor = monitor
+        self.home = xbmcgui.Window(10000)
+        self.skin_active, self.open_property, self.closed_property = skin_active, OPEN_PROPERTY, CLOSED_PROPERTY
+        self.focused_item, self.item_target = focused_item, item_target
+        self.follower = InfoPageFollower(self.home)
+
+    def run(self):
+        home = self.home
         focused, source, active, checked = None, "ListItem", False, 0.0
         while not self.monitor.waitForAbort(self.POLL):
             if time.time() - checked > 5:
-                active, checked = skin_active(), time.time()
+                active, checked = self.skin_active(), time.time()
             if not active:
                 continue
             if xbmc.getCondVisibility("Window.IsActive(contextmenu)"):
-                if focused and not home.getProperty(OPEN_PROPERTY):
-                    home.setProperty(OPEN_PROPERTY, "1")  # ours is on its way (the route clears it)
+                # A menu Kodi opened, for the item focused just before (with a menu open,
+                # Control.HasFocus is about the menu, so `focused` is kept from then).
+                # Not ours: it sets the open property while it shows, and for a moment
+                # after it closes it's still on screen.
+                closed = float(home.getProperty(self.closed_property) or 0)
+                if focused and not home.getProperty(self.open_property) and time.time() - closed > self.SETTLE_AFTER_OURS:
+                    home.setProperty(self.open_property, "1")  # ours is on its way (the route clears it)
                     xbmc.executebuiltin("Dialog.Close(contextmenu,true)")
                     xbmc.executebuiltin(f"RunPlugin({plugin_url('context_menu', path=focused, source=source)})")
-                    focused = None
                 continue
-            source, path = focused_item()
-            focused = path if item_target(path) else None
+            if xbmc.getCondVisibility("Window.IsVisible(contextmenu)"):
+                continue  # a menu closing: focus isn't back on the item yet, keep the one we have
+            source, path = self.focused_item()
+            focused = path if self.item_target(path) else None
+            self.follower.tick()
+
+
+class InfoPageFollower:
+    """Arctic Zephyr Stremio's info page: once an episode card has had focus
+    for a moment, the page's header (text, Play, Streams, Watched) is about
+    that episode. The skin reads the header from home-window properties
+    (sbinfo.*); they're copied here from the card's own properties."""
+
+    SETTLE = 1.0   # seconds on one card before the header follows it
+    EPISODES = "Container(5061).ListItem"
+    TEXT = ("play_label", "facts", "rating", "subtitle")
+    ACTIONS = ("play_action", "streams_action", "watched_action")
+
+    def __init__(self, home):
+        self.home = home
+        self.seen, self.since, self.shown = "", 0.0, ""
+
+    def tick(self):
+        if not xbmc.getCondVisibility("Window.IsVisible(movieinformation)"):
+            self.seen = self.shown = ""
+            return
+        if not xbmc.getCondVisibility("Control.HasFocus(5061)"):
+            self.seen = ""
+            return
+        video = xbmc.getInfoLabel(f"{self.EPISODES}.Property(stremiobridge.video)")
+        if video != self.seen:
+            self.seen, self.since = video, time.time()
+        elif video and video != self.shown and time.time() - self.since >= self.SETTLE:
+            self.show(video)
+            self.shown = video
+
+    def show(self, video):
+        home = self.home
+
+        def get(label):
+            return xbmc.getInfoLabel(f"{self.EPISODES}.{label}")
+
+        for name in self.TEXT:
+            home.setProperty(f"sbinfo.{name}", get(f"Property(stremiobridge.page.{name})"))
+        for name in self.ACTIONS:
+            home.setProperty(f"sbinfo.{name}", get(f"Property(stremiobridge.{name})"))
+        home.setProperty("sbinfo.plot", get("Plot"))
+        home.setProperty("sbinfo.video", video)
+        home.setProperty("sbinfo.watched", "1" if (get("PlayCount") or "0") != "0" else "")
 
 
 class LibraryMonitor(xbmc.Monitor):
@@ -377,6 +449,11 @@ class LibraryMonitor(xbmc.Monitor):
     def __init__(self, worker):
         super().__init__()
         self.worker = worker
+
+    def onSettingsChanged(self):
+        from .keymap import apply_keymap
+
+        apply_keymap()
 
     def onNotification(self, sender, method, data):
         if method == "VideoLibrary.OnUpdate":
@@ -484,6 +561,9 @@ def run():
     tracker = Tracker(worker)
     follower = KodiWatchedFollower(worker)
     MenuSwap(monitor).start()
+    from .keymap import apply_keymap
+
+    apply_keymap()
     next_sync = time.time() + 60             # first syncs shortly after Kodi starts
     next_library = time.time() + 120
     next_prewarm = time.time() + 180

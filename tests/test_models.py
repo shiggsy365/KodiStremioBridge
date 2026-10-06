@@ -217,3 +217,11 @@ def test_poster_shapes():
     assert shape("regular") == "poster"     # Stremio's older name for a poster (AIOMetadata's movie search sends it)
     assert shape(None) == "poster" and shape("poster") == "poster" and shape("odd") == "poster"
     assert shape("landscape") == "landscape" and shape("Square") == "square"
+
+
+@pytest.mark.parametrize("raw, rating", [({"rating": "8.9"}, 8.9), ({"imdbRating": 7}, 7.0), ({"rating": "0"}, None),
+                                         ({"rating": "n/a"}, None), ({}, None), ({"rating": "11"}, None)])
+def test_video_rating(raw, rating):
+    from stremio.models import Video
+
+    assert Video.from_dict({"id": "tt1:1:1", **raw}).rating == rating
