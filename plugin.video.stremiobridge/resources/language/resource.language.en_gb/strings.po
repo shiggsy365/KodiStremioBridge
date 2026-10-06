@@ -1129,40 +1129,8 @@ msgctxt "#30380"
 msgid "Setup"
 msgstr ""
 
-msgctxt "#30381"
-msgid "Welcome! Let's add your streams addon (e.g. AIOStreams), metadata addon (e.g. AIOMetadata) and MDBList API key.[CR]Tip: type long links with the Kore app or Kodi's web remote."
-msgstr ""
-
-msgctxt "#30382"
-msgid "Later"
-msgstr ""
-
-msgctxt "#30383"
-msgid "Set up"
-msgstr ""
-
 msgctxt "#30384"
-msgid "You can run setup any time from the ... menu, or from Stremio Bridge's settings."
-msgstr ""
-
-msgctxt "#30385"
-msgid "Streams addon"
-msgstr ""
-
-msgctxt "#30386"
-msgid "Enter the manifest link of your streams addon (e.g. AIOStreams), ending in /manifest.json. Without one, nothing can play."
-msgstr ""
-
-msgctxt "#30387"
-msgid "Metadata addon"
-msgstr ""
-
-msgctxt "#30388"
-msgid "Enter the manifest link of your metadata addon (e.g. AIOMetadata), ending in /manifest.json, for posters, cast and episode lists. Leave it empty to use Cinemeta."
-msgstr ""
-
-msgctxt "#30389"
-msgid "Add another addon (catalogs, subtitles, ...)?"
+msgid "Setup stopped. You can run it again any time from Settings, or from Stremio Bridge's settings."
 msgstr ""
 
 msgctxt "#30390"
@@ -1173,28 +1141,8 @@ msgctxt "#30391"
 msgid "All set. Your addons' catalogs are in the Movies and TV Shows hubs; add more any time under Manage addons."
 msgstr ""
 
-msgctxt "#30392"
-msgid "You already have: {names}. Add another?"
-msgstr ""
-
-msgctxt "#30393"
-msgid "Keep"
-msgstr ""
-
-msgctxt "#30394"
-msgid "Add"
-msgstr ""
-
-msgctxt "#30395"
-msgid "Without a streams addon nothing will play. Skip this step anyway?"
-msgstr ""
-
 msgctxt "#30396"
 msgid "Skip"
-msgstr ""
-
-msgctxt "#30397"
-msgid "Skip anyway"
 msgstr ""
 
 msgctxt "#30398"
@@ -1209,10 +1157,6 @@ msgctxt "#30400"
 msgid "{name} doesn't provide this. Add it anyway?"
 msgstr ""
 
-msgctxt "#30401"
-msgid "Your MDBList key works. Change it?"
-msgstr ""
-
 msgctxt "#30402"
 msgid "MDBList API key (mdblist.com > Preferences > API)"
 msgstr ""
@@ -1223,10 +1167,6 @@ msgstr ""
 
 msgctxt "#30404"
 msgid "Add your streams and metadata addons and MDBList key, step by step."
-msgstr ""
-
-msgctxt "#30405"
-msgid "Change"
 msgstr ""
 
 msgctxt "#30406"
@@ -1267,4 +1207,24 @@ msgstr ""
 
 msgctxt "#30415"
 msgid "Back in full-screen video stops it, like the Stop button, instead of leaving it playing behind the menus. Applies to all videos in Kodi."
+msgstr ""
+
+msgctxt "#30416"
+msgid "Cancel setup"
+msgstr ""
+
+msgctxt "#30417"
+msgid "Enter"
+msgstr ""
+
+msgctxt "#30418"
+msgid "Step 1: your MDBList API key (mdblist.com > Preferences > API), for ratings, lists, your watchlist and watched sync."
+msgstr ""
+
+msgctxt "#30419"
+msgid "Step 2: the manifest link of a Stremio addon, ending in /manifest.json (e.g. AIOStreams for streams)."
+msgstr ""
+
+msgctxt "#30420"
+msgid "Add another Stremio addon (metadata, catalogs, subtitles, ...)?"
 msgstr ""

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="skin.arctic.zephyr.stremio" version="1.2.0" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
+<addon id="skin.arctic.zephyr.stremio" version="1.2.1" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
     <requires>
         <import addon="xbmc.gui" version="5.17.0"/>
-        <import addon="plugin.video.stremiobridge" version="0.13.0"/>
+        <import addon="plugin.video.stremiobridge" version="0.13.1"/>
         <import addon="script.skinshortcuts" version="0.4.0"/>
+        <import addon="plugin.video.youtube" version="7.0.0"/>
+        <import addon="service.upnext" version="1.1.9"/>
         <import addon="script.image.resource.select" version="0.0.5"/>
         <import addon="resource.images.weathericons.white" version="0.0.6"/>
     </requires>
@@ -28,7 +30,8 @@
             <screenshot>resources/screenshot-09.jpg</screenshot>
             <screenshot>resources/screenshot-10.jpg</screenshot>
         </assets>
-        <news>v1.2.0 - One look across the skin. New info page: full-screen artwork, logo, facts and rating pills, scrolling plot, Play with Streams, Watched, Watchlist and Trailer, season tabs, episode cards, cast and similar titles. Home: one layout, the same header (full release date) over rounded rows, a slim menu bar with icons that open to text, Search and Settings in the menu, the clock in the bar. Themed hubs, stream picker, search, TV guide and video OSD (top banner with logo, facts and plot; bottom bar with icon buttons and finish time; pausing opens it). New "Stremio" list view, the default for Stremio Bridge catalogs, without the ".." tile. Hub rows page and filter in place. Skin settings trimmed: no Arctic: Zephyr - Reloaded page, Home menu bar or header options; now-playing video in the background on by default. Faster: images packed into Textures.xbt; the info page no longer builds the old Arctic Zephyr page; the Videos and Games windows keep only the views in use; artist slideshow and plot overlay helpers removed.</news>
+        <news>v1.2.1 - Installs YouTube (trailers) and Up Next (next episode) with the skin.
+v1.2.0 - One look across the skin. New info page: full-screen artwork, logo, facts and rating pills, scrolling plot, Play with Streams, Watched, Watchlist and Trailer, season tabs, episode cards, cast and similar titles. Home: one layout, the same header (full release date) over rounded rows, a slim menu bar with icons that open to text, Search and Settings in the menu, the clock in the bar. Themed hubs, stream picker, search, TV guide and video OSD (top banner with logo, facts and plot; bottom bar with icon buttons and finish time; pausing opens it). New "Stremio" list view, the default for Stremio Bridge catalogs, without the ".." tile. Hub rows page and filter in place. Skin settings trimmed: no Arctic: Zephyr - Reloaded page, Home menu bar or header options; now-playing video in the background on by default. Faster: images packed into Textures.xbt; the info page no longer builds the old Arctic Zephyr page; the Videos and Games windows keep only the views in use; artist slideshow and plot overlay helpers removed.</news>
         <summary lang="en_GB">Arctic: Zephyr - Reloaded, made for Stremio Bridge.</summary>
         <description lang="en_GB">A fork of Arctic: Zephyr - Reloaded by beatmasterRS, itself based on Arctic: Zephyr by jurialmunkey, made to work with Stremio Bridge and Dispatcharr Bridge. Clean, minimal and light, with the layout of Reloaded. Licensed under CC BY-NC-SA 3.0, like the original.</description>
     </extension>

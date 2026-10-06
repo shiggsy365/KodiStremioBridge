@@ -2818,24 +2818,51 @@ def test_streaming_services_for_a_title(server, monkeypatch):
     assert streaming.services_for(common.get_client(), "movie", "kitsu:1") == []
 
 
-def test_setup_wizard_adds_streams_and_metadata(server, monkeypatch):
+def wizard_dialogs(monkeypatch, answers, shown=None):
+    """Script the wizard's dialogs: `answers` lists replies per kind. yesnocustom:
+    1 Enter, 2 Skip, 0 Cancel setup; yesno: True Enter, False Cancel setup."""
+    monkeypatch.setattr(xbmcgui.Dialog, "yesnocustom",
+                        lambda self, heading, text, **kw: answers["yesnocustom"].pop(0), raising=False)
+    monkeypatch.setattr(xbmcgui.Dialog, "yesno", lambda self, heading, text, **kw: answers["yesno"].pop(0))
+    monkeypatch.setattr(xbmcgui.Dialog, "input", lambda self, heading, defaultt="", **kw: answers["input"].pop(0))
+    monkeypatch.setattr(xbmcgui.Dialog, "ok", lambda self, heading, text: (shown if shown is not None else []).append(text))
+    monkeypatch.setattr(xbmcgui.Dialog, "notification", lambda self, *a, **kw: None)
+
+
+def test_setup_wizard_adds_addons_until_skip(server, monkeypatch):
     from conftest import STREAM_ADDON
 
     server.routes["/s/manifest.json"] = STREAM_ADDON
     server.routes["/manifest.json"] = CINEMETA_LIKE
-    answers = {"yesno": [True, False], "input": [server.url + "/s/manifest.json", server.url + "/manifest.json", ""]}
+    # 1. MDBList: Skip. 2. addon: Enter (an empty link asks again). 3. another: Enter, then Skip.
+    answers = {"yesnocustom": [2, 1, 2], "yesno": [True, True],
+               "input": ["", server.url + "/s/manifest.json", server.url + "/manifest.json"]}
     shown = []
-    monkeypatch.setattr(xbmcgui.Dialog, "yesno", lambda self, heading, text, **kw: answers["yesno"].pop(0))
-    monkeypatch.setattr(xbmcgui.Dialog, "input", lambda self, heading, defaultt="", **kw: answers["input"].pop(0))
-    monkeypatch.setattr(xbmcgui.Dialog, "ok", lambda self, heading, text: shown.append(heading))
-    monkeypatch.setattr(xbmcgui.Dialog, "notification", lambda self, *a, **kw: None)
+    wizard_dialogs(monkeypatch, answers, shown)
     from kodi_ui import wizard
 
     assert not wizard.is_set_up()
     call("setup_wizard", handle=-1)
     assert [a.name for a in common.get_registry().all()] == ["Example Streams", "Example Meta"]
-    assert answers == {"yesno": [], "input": []}                 # no more addons; MDBList key left empty
-    assert wizard.providers("stream") == ["Example Streams"] and wizard.providers("meta") == ["Example Meta"]
+    assert answers == {"yesnocustom": [], "yesno": [], "input": []}
+    assert shown == [common.L(30391)]                           # finished
+
+
+def test_setup_wizard_cancel_stops_it(server, monkeypatch):
+    from conftest import STREAM_ADDON
+
+    server.routes["/s/manifest.json"] = STREAM_ADDON
+    answers = {"yesnocustom": [2, 0], "yesno": [True], "input": [server.url + "/s/manifest.json"]}
+    shown = []
+    wizard_dialogs(monkeypatch, answers, shown)
+    call("setup_wizard", handle=-1)                             # Skip, add one, Cancel setup
+    assert [a.name for a in common.get_registry().all()] == ["Example Streams"]
+    assert shown == [common.L(30384)]                           # stopped
+
+    answers.update(yesnocustom=[0], yesno=[], input=[])
+    shown.clear()
+    call("setup_wizard", handle=-1)                             # Cancel setup at step 1: nothing else asked
+    assert answers == {"yesnocustom": [], "yesno": [], "input": []} and shown == [common.L(30384)]
 
 
 def test_setup_wizard_syncs_mdblist_key_then_reloads_skin(settings, monkeypatch):
@@ -2846,15 +2873,11 @@ def test_setup_wizard_syncs_mdblist_key_then_reloads_skin(settings, monkeypatch)
         def last_activities(self):
             return {"server_time": "now"}
 
-    answers = {"yesno": [True, False], "input": ["KEY"]}
+    answers = {"yesnocustom": [1], "yesno": [False], "input": ["KEY"]}   # Enter the key, then Cancel setup
     events = []
-    monkeypatch.setattr(xbmcgui.Dialog, "yesno", lambda self, heading, text, **kw: answers["yesno"].pop(0))
-    monkeypatch.setattr(xbmcgui.Dialog, "input", lambda self, heading, defaultt="", **kw: answers["input"].pop(0))
-    monkeypatch.setattr(xbmcgui.Dialog, "ok", lambda self, heading, text: None)
-    monkeypatch.setattr(xbmcgui.Dialog, "notification", lambda self, *a, **kw: None)
+    wizard_dialogs(monkeypatch, answers)
     monkeypatch.setattr(wizard, "skin_active", lambda: True)
     monkeypatch.setattr(wizard, "busy", lambda: nullcontext())
-    monkeypatch.setattr(wizard, "_addon_step", lambda *a, **kw: 0)
     monkeypatch.setattr(wizard, "get_mdblist", lambda: FakeMDBList())
     monkeypatch.setattr(watching, "run_mdblist_sync", lambda force=False: events.append(("sync", force)))
     monkeypatch.setattr(xbmc, "executebuiltin", lambda cmd, *a: events.append(cmd))
