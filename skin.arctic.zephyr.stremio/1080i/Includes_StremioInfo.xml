@@ -249,7 +249,7 @@
                             <height>112</height>
                             <font>SBInfoBody</font>
                             <textcolor>FFF0F0F0</textcolor>
-                            <label>$INFO[Window(home).Property(sbinfo.plot)]</label>
+                            <label>$INFO[Window(home).Property(sbinfo.plot)]$INFO[Window(home).Property(sbinfo.plotreset)]</label>
                             <autoscroll delay="6000" time="3000" repeat="8000">true</autoscroll>
                         </control>
                     </control>

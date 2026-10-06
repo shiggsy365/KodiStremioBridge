@@ -29,6 +29,10 @@
     <onload>SetProperty(sbinfo.title,$ESCINFO[ListItem.Property(stremiobridge.title)],home)</onload>
     <onload>SetProperty(sbinfo.subtitle,$ESCINFO[ListItem.Property(stremiobridge.subtitle)],home)</onload>
     <onload>SetProperty(sbinfo.plot,$ESCINFO[ListItem.Plot],home)</onload>
+    <!-- a changed label restarts the plot's scrolling from the top (the textbox keeps its
+         place between pages otherwise) -->
+    <onload>SetProperty(sbinfo.plotreset," ",home)</onload>
+    <onload>AlarmClock(sbinfoplotreset,ClearProperty(sbinfo.plotreset,home),00:01,silent)</onload>
     <onload>SetProperty(sbinfo.fanart,$INFO[ListItem.Art(fanart)],home)</onload>
     <onload>SetProperty(sbinfo.clearlogo,$INFO[ListItem.Art(tvshow.clearlogo)],home)</onload>
     <onload condition="!String.IsEmpty(ListItem.Art(clearlogo))">SetProperty(sbinfo.clearlogo,$INFO[ListItem.Art(clearlogo)],home)</onload>

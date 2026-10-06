@@ -183,6 +183,15 @@ Arctic: Zephyr - Reloaded made for Stremio Bridge, without TMDb Helper or Embuar
 With this skin, Stremio Bridge's library integration is off (the skin's menus show your catalogs
 directly). Licensed CC BY-NC-SA 3.0 like the original; credits in its `CREDITS.md`.
 
+#### Screenshots
+
+| | |
+|---|---|
+| ![Home](screenshots/01-home.jpg)<br>Home | ![Movies hub](screenshots/02-movies-hub.jpg)<br>Movies hub |
+| ![Movie info page](screenshots/03-movie-info.jpg)<br>Movie info page | ![Series info page](screenshots/04-series-info.jpg)<br>Series info page, with the season and episode browser |
+| ![Streams](screenshots/05-streams.jpg)<br>Available streams | ![TV guide](screenshots/06-epg.jpg)<br>TV guide |
+| ![Search](screenshots/07-search.jpg)<br>Search as you type | |
+
 ## Getting started
 
 1. **Add your addons:** open Stremio Bridge's settings, then **Addons → Manage addons → Add
