@@ -3,6 +3,9 @@
 <window type="window" id="1116">
     <defaultcontrol always="true">9501</defaultcontrol>
     <menucontrol>9000</menucontrol>
+    <!-- the row opens on the first chip\'s list (DefHubWindow) -->
+    <onload>ClearProperty(sbhub.list)</onload>
+    <onload>SetProperty(sbhub.pos,1)</onload>
     <onload>SetProperty(TMDbHelper.WidgetContainer,9500,Home)</onload>
     <onunload>ClearProperty(TMDbHelper.WidgetContainer,home)</onunload>
     <controls>

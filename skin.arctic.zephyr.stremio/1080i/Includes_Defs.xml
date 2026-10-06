@@ -860,9 +860,20 @@
                 <ondown>9500</ondown>
                 <onleft>9501</onleft>
                 <onright>9501</onright>
+                <!-- the row shows the clicked chip's list (the first until one is clicked) -->
+                <onclick>SetProperty(sbhub.list,$INFO[Container(9501).ListItem.Property(list)])</onclick>
+                <onclick>SetProperty(sbhub.pos,$INFO[Container(9501).CurrentItem])</onclick>
                 <preloaditems>2</preloaditems>
                 <scrolltime tween="cubic" easing="out">250</scrolltime>
                 <itemlayout width="300" height="60">
+                    <control type="image">
+                        <left>6</left>
+                        <top>4</top>
+                        <width>288</width>
+                        <height>52</height>
+                        <texture border="14" colordiffuse="40FFFFFF">stremio/tab.png</texture>
+                        <visible>Integer.IsEqual(ListItem.CurrentItem,Window.Property(sbhub.pos))</visible>
+                    </control>
                     <control type="label">
                         <left>6</left>
                         <top>4</top>
@@ -873,6 +884,19 @@
                         <font>SBInfoTab</font>
                         <textcolor>FFA0A0A0</textcolor>
                         <label>$INFO[ListItem.Label]</label>
+                        <visible>!Integer.IsEqual(ListItem.CurrentItem,Window.Property(sbhub.pos))</visible>
+                    </control>
+                    <control type="label">
+                        <left>6</left>
+                        <top>4</top>
+                        <width>288</width>
+                        <height>52</height>
+                        <align>center</align>
+                        <aligny>center</aligny>
+                        <font>SBInfoTab</font>
+                        <textcolor>FFFFFFFF</textcolor>
+                        <label>[B]$INFO[ListItem.Label][/B]</label>
+                        <visible>Integer.IsEqual(ListItem.CurrentItem,Window.Property(sbhub.pos))</visible>
                     </control>
                 </itemlayout>
                 <focusedlayout width="300" height="60">
@@ -890,7 +914,7 @@
                         <width>288</width>
                         <height>52</height>
                         <texture border="14" colordiffuse="40FFFFFF">stremio/tab.png</texture>
-                        <visible>!Control.HasFocus(9501)</visible>
+                        <visible>!Control.HasFocus(9501) + Integer.IsEqual(ListItem.CurrentItem,Window.Property(sbhub.pos))</visible>
                     </control>
                     <control type="label">
                         <left>6</left>
@@ -914,7 +938,19 @@
                         <font>SBInfoTab</font>
                         <textcolor>FFFFFFFF</textcolor>
                         <label>[B]$INFO[ListItem.Label][/B]</label>
-                        <visible>!Control.HasFocus(9501)</visible>
+                        <visible>!Control.HasFocus(9501) + Integer.IsEqual(ListItem.CurrentItem,Window.Property(sbhub.pos))</visible>
+                    </control>
+                    <control type="label">
+                        <left>6</left>
+                        <top>4</top>
+                        <width>288</width>
+                        <height>52</height>
+                        <align>center</align>
+                        <aligny>center</aligny>
+                        <font>SBInfoTab</font>
+                        <textcolor>FFA0A0A0</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                        <visible>!Control.HasFocus(9501) + !Integer.IsEqual(ListItem.CurrentItem,Window.Property(sbhub.pos))</visible>
                     </control>
                 </focusedlayout>
                 <content>
@@ -1072,12 +1108,18 @@
         </control>
     </include>
 
+    <!-- The hub's row: the clicked chip's list, else the first chip's. Stremio Bridge rows
+         reload (Next Page, filters) when its reload token changes. -->
     <variable name="SBHubRowPath">
-        <!-- Stremio Bridge rows reload (Next Page, filters) when its reload token changes -->
-        <value condition="String.StartsWith(Container(9501).ListItem.Property(list),plugin://plugin.video.stremiobridge/)">$INFO[Container(9501).ListItem.Property(list)]&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</value>
-        <value condition="!String.IsEmpty(Container(9501).ListItem.Property(list))">$INFO[Container(9501).ListItem.Property(list)]</value>
+        <value condition="String.StartsWith($VAR[SBHubList],plugin://plugin.video.stremiobridge/)">$VAR[SBHubList]&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</value>
+        <value condition="!String.IsEmpty(Container(9501).ListItemAbsolute(0).Property(list))">$VAR[SBHubList]</value>
         <value>$VAR[DefHubWidget]</value>
     </variable>
+    <variable name="SBHubList">
+        <value condition="!String.IsEmpty(Window.Property(sbhub.list))">$INFO[Window.Property(sbhub.list)]</value>
+        <value>$INFO[Container(9501).ListItemAbsolute(0).Property(list)]</value>
+    </variable>
+
     <variable name="DefHubWidget">
         <value condition="Window.IsVisible(1111) + !String.IsEmpty(Skin.String(Widget.1111))">$INFO[Skin.String(Widget.1111)]</value>
         <value condition="Window.IsVisible(1112) + !String.IsEmpty(Skin.String(Widget.1112))">$INFO[Skin.String(Widget.1112)]</value>
