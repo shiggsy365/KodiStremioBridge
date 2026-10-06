@@ -39,30 +39,14 @@
             <control type="button" id="3616">
                 <include>HiddenButton</include>   
             </control>
-            <control type="label">
-                <description>Loading</description>
-                <width>100%</width>
-                <height>100%</height>
-                <align>center</align>
-                <aligny>center</aligny>
-                <label>Arctic [COLOR=$VAR[ColorHighlight]]Zephyr[/COLOR]</label>
-                <font>EpisodeNumber</font>
-                <textcolor>Dark1</textcolor>
-	            <animation effect="fade" start="100" end="0" time="500">WindowClose</animation>
-                <visible>String.IsEmpty(Skin.String(StartupPlaylist)) + String.IsEmpty(Skin.String(startupfanart.fallback))</visible>
-            </control>
-            <!-- Arctic Zephyr Stremio: the Kodi Stremio Bridge logo under "Arctic Zephyr"
-                 (made by tools/make_branding.py from branding/logo.png) -->
+            <!-- Arctic Zephyr Stremio: the Kodi Stremio Bridge splash (branding/splash.jpg) -->
             <control type="image">
-                <centerleft>50%</centerleft>
-                <top>612</top>
-                <width>556</width>
-                <height>298</height>
-                <aspectratio>keep</aspectratio>
-                <texture>misc/stremio-bridge-logo.png</texture>
-                <animation effect="fade" start="0" end="100" time="500">Visible</animation>
-	            <animation effect="fade" start="100" end="0" time="500">WindowClose</animation>
-                <visible>String.IsEmpty(Skin.String(StartupPlaylist)) + String.IsEmpty(Skin.String(startupfanart.fallback)) + Control.HasFocus(3616)</visible>
+                <include>Dimensions_Fullscreen</include>
+                <aspectratio>scale</aspectratio>
+                <texture>misc/startup-splash.jpg</texture>
+                <animation effect="fade" start="0" end="100" time="400">WindowOpen</animation>
+                <animation effect="fade" start="100" end="0" time="500">WindowClose</animation>
+                <visible>String.IsEmpty(Skin.String(StartupPlaylist)) + String.IsEmpty(Skin.String(startupfanart.fallback))</visible>
             </control>
             <control type="videowindow">
                 <visible>Player.HasVideo + !String.IsEmpty(Skin.String(StartupPlaylist))</visible>

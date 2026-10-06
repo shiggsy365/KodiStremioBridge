@@ -906,6 +906,15 @@
                             <onclick>Skin.ToggleSetting(global.showvideo)</onclick>
                             <onclick condition="!Skin.HasSetting(global.showvideo)">Skin.Reset(extended.nowplaying.videowindow)</onclick>
                         </control>
+                        <control type="radiobutton" id="9799" description="Kodi's splash">
+                            <width>1360</width>
+                            <visible>ControlGroup(9100).HasFocus(9102)</visible>
+                            <include>DefSettingsButtonGradientSkinSettings</include>
+                            <label>31963</label>
+                            <selected>Skin.HasSetting(sb.kodi.splash)</selected>
+                            <onclick>Skin.ToggleSetting(sb.kodi.splash)</onclick>
+                            <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=kodi_splash)</onclick>
+                        </control>
                         <control type="radiobutton" id="9719" description="Show vis in background">
                             <width>1360</width>
                             <visible>ControlGroup(9100).HasFocus(9102)</visible>

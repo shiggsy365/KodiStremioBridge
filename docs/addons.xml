@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.13.2"
+       version="0.13.3"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,7 +23,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.13.2 - New Playback setting "When a title is selected": show its information page (default) or play it. Seasons follow it too.
+        <news>v0.13.3 - With Arctic Zephyr Stremio, Kodi's own splash at start-up can be the Kodi Stremio Bridge splash (skin setting, on by default).
+v0.13.2 - New Playback setting "When a title is selected": show its information page (default) or play it. Seasons follow it too.
 v0.13.1 - Setup in three steps: MDBList API key (Skip, Enter, Cancel setup), a Stremio addon (Enter, Cancel setup), then more addons until Skip.
 v0.13.0 - For Arctic Zephyr Stremio's new look: info page text and episode cards; widgets and hub rows page in place; shows open their information page; Back stops playback; a stream that fails to open after a quick replay is tried again.</news>
     </extension>
@@ -113,10 +114,10 @@ v1.0.0 - First release.</news>
         </assets>
     </extension>
 </addon>
-<addon id="skin.arctic.zephyr.stremio" version="1.2.4" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
+<addon id="skin.arctic.zephyr.stremio" version="1.2.5" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
     <requires>
         <import addon="xbmc.gui" version="5.17.0"/>
-        <import addon="plugin.video.stremiobridge" version="0.13.2"/>
+        <import addon="plugin.video.stremiobridge" version="0.13.3"/>
         <import addon="script.skinshortcuts" version="0.4.0"/>
         <import addon="plugin.video.youtube" version="7.0.0"/>
         <import addon="service.upnext" version="1.1.9"/>
@@ -144,7 +145,8 @@ v1.0.0 - First release.</news>
             <screenshot>resources/screenshot-09.jpg</screenshot>
             <screenshot>resources/screenshot-10.jpg</screenshot>
         </assets>
-        <news>v1.2.4 - A show's seasons list previews each season's episodes without opening its information page.
+        <news>v1.2.5 - New Kodi Stremio Bridge splash on the startup screen, and in place of Kodi's own splash (Settings > Background).
+v1.2.4 - A show's seasons list previews each season's episodes without opening its information page.
 v1.2.3 - The info page's plot always starts from the top (it could open already scrolled).
 v1.2.2 - Hubs load only the list you pick: the row shows the first catalog, and changes when you click another chip (moving across the chips no longer loads each one).
 v1.2.1 - Installs YouTube (trailers) and Up Next (next episode) with the skin.

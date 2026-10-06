@@ -80,6 +80,9 @@
     <!-- Defaults new in Arctic Zephyr Stremio 1.2.0, set once: still changeable in the settings -->
     <onload condition="!Skin.HasSetting(sb.defaults.1)">Skin.SetBool(global.showvideo)</onload>
     <onload condition="!Skin.HasSetting(sb.defaults.1)">Skin.SetBool(sb.defaults.1)</onload>
+    <!-- 1.2.5: Kodi's own splash is ours too (Stremio Bridge writes it; Settings > Background) -->
+    <onload condition="!Skin.HasSetting(sb.defaults.2)">Skin.SetBool(sb.kodi.splash)</onload>
+    <onload condition="!Skin.HasSetting(sb.defaults.2)">Skin.SetBool(sb.defaults.2)</onload>
 
     <!-- Go home -->
     <onload condition="!Skin.HasSetting(disable.startup.window)">ReplaceWindow(1150)</onload>

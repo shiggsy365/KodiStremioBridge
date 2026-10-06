@@ -3266,3 +3266,19 @@ def test_seasons_open_the_info_page_when_selecting_opens_it(server, listing, set
     items.clear()
     call("meta", type="series", id="tt5")
     assert all(p["action"] == "extended_info" and p["season"] and folder is False for p, folder in items)
+
+
+def test_kodi_splash_follows_the_skin_setting(monkeypatch, tmp_path):
+    from kodi_ui import splash
+
+    ours = tmp_path / "ours.jpg"
+    ours.write_bytes(b"stremio splash")
+    target = tmp_path / "home" / "media" / "splash.jpg"
+    monkeypatch.setattr(splash, "our_splash", lambda: str(ours))
+    monkeypatch.setattr(splash.xbmcvfs, "translatePath", lambda p: str(target))
+    assert splash.apply_splash(want=True) and target.read_bytes() == b"stremio splash"
+    assert not splash.apply_splash(want=True)                    # already there
+    assert splash.apply_splash(want=False) and not target.exists()
+    target.write_bytes(b"the user's own")                        # not ours: left alone either way
+    assert not splash.apply_splash(want=True) and not splash.apply_splash(want=False)
+    assert target.read_bytes() == b"the user's own"

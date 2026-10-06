@@ -562,8 +562,10 @@ def run():
     follower = KodiWatchedFollower(worker)
     MenuSwap(monitor).start()
     from .keymap import apply_keymap
+    from .splash import apply_splash
 
     apply_keymap()
+    apply_splash()
     next_sync = time.time() + 60             # first syncs shortly after Kodi starts
     next_library = time.time() + 120
     next_prewarm = time.time() + 180
@@ -584,5 +586,6 @@ def run():
         if next_skin_hubs and time.time() >= next_skin_hubs:
             next_skin_hubs = None  # once per start: the hubs follow the catalogs you have
             worker.submit(refresh_skin_hubs)
+            worker.submit(apply_splash)  # again: on a first start the skin sets its default late
     worker.stop()
     log("Service stopped")

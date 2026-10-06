@@ -5,10 +5,10 @@
 From branding/logo.png (the Kodi Stremio Bridge logo; replace it with a larger
 original for sharper results and run this again): Stremio Bridge's
 resources/{icon.png,fanart.jpg}, repository.shiggsy365/icon.png, Arctic Zephyr
-Stremio's icon.png, fanart.jpg, media/misc/stremio-bridge-logo.png (its startup
-screen) and media/misc/matrix.png (the "Stremio" wordmark beside "Arctic Zephyr"
+Stremio's icon.png, fanart.jpg and media/misc/matrix.png (the "Stremio" wordmark beside "Arctic Zephyr"
 in its settings), and branding/social-preview.png (upload it in the GitHub
-repository's Settings -> Social preview). Drawn here:
+repository's Settings -> Social preview). From branding/splash.jpg: the skin's
+startup screen, media/misc/startup-splash.jpg. Drawn here:
 service.shiggsy365.tidycache/resources/icon.png,
 script.shiggsy365.dispatcharrbridge/resources/icon.png and Podcasts'
 resources/{icon.png,fanart.jpg}.
@@ -158,9 +158,14 @@ def social_preview(path):
     print(os.path.normpath(path))
 
 
-def startup_logo(path):
-    """The skin's startup screen: the logo as it is."""
-    Image.open(LOGO).convert("RGB").save(path, optimize=True)
+def startup_splash(path):
+    """The skin's startup screen: branding/splash.jpg cropped to 16:9, at 1920 x 1080."""
+    image = Image.open(os.path.join(ROOT, "branding", "splash.jpg")).convert("RGB")
+    width, height = image.size
+    crop = min(width, round(height * 16 / 9))
+    left = (width - crop) // 2
+    image = image.crop((left, 0, left + crop, round(crop * 9 / 16))).resize((1920, 1080), Image.LANCZOS)
+    image.save(path, quality=90, optimize=True, progressive=True)
     print(os.path.normpath(path))
 
 
@@ -197,7 +202,7 @@ if __name__ == "__main__":
     skin = os.path.join(ROOT, "skin.arctic.zephyr.stremio")
     logo_icon(os.path.join(skin, "icon.png"))
     logo_fanart(os.path.join(skin, "fanart.jpg"))
-    startup_logo(os.path.join(skin, "media", "misc", "stremio-bridge-logo.png"))
+    startup_splash(os.path.join(skin, "media", "misc", "startup-splash.jpg"))
     wordmark(os.path.join(skin, "media", "misc", "matrix.png"))
     tidy_icon(os.path.join(ROOT, "service.shiggsy365.tidycache", "resources", "icon.png"))
     switch_icon(os.path.join(ROOT, "script.shiggsy365.dispatcharrbridge", "resources", "icon.png"))
