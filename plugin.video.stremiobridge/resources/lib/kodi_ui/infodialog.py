@@ -23,7 +23,7 @@ from .common import (
     ADDON, L, busy, clock_text, get_client, get_mdblist, get_watchstate, library_enabled, log, notify,
     refresh_when_idle, skin_active,
 )
-from .details import INFO_WINDOW, load_meta, play_trailer
+from .details import INFO_WINDOW, SEASONS_READY, load_show, play_trailer
 from .library import LIBRARY_TYPES, in_library
 from .watchlist import change_watchlist, on_watchlist
 from .listitems import (
@@ -252,10 +252,11 @@ def kodi_info(plugin, meta, episode, video_id, state, season=None):
     xbmcgui.Dialog().info(item)
 
 
-def page_text(meta, episode, state, season=None):
+def page_text(meta, episode, state, season=None, rows=None):
     """The info page's text (Arctic Zephyr Stremio's layout, Includes_StremioInfo.xml):
     the Play button's label, the facts row (year, seasons or runtime), genres,
-    age rating, rating, and for an episode its code and title."""
+    age rating, rating, and for an episode its code and title. `rows` is
+    watch state already looked up (``{video_id: Row}``), for a list of episodes."""
     from .details import visible_seasons
 
     if episode is not None:
@@ -264,7 +265,8 @@ def page_text(meta, episode, state, season=None):
         target = episode_to_play(meta, state, season)
     else:
         target = None
-    row = state.get(target.id if target else meta.default_video_id or meta.id)
+    video_id = target.id if target else meta.default_video_id or meta.id
+    row = rows.get(video_id) if rows is not None else state.get(video_id)
     resume = bool(row and row.position > 0 and not row.watched)
     code = episode_code(target)
     if code:
@@ -323,7 +325,7 @@ def info_play(plugin, type, id, video=None, season=None, pick=None):
     played, else its first unwatched aired one."""
     _close_info()
     if video is None and type not in PLAYABLE_TYPES:
-        meta = load_meta(type, id)
+        meta = load_show(type, id)  # numbers and dates are enough to choose the episode
         if meta is None:
             return
         if meta.videos:
@@ -338,12 +340,25 @@ def info_play(plugin, type, id, video=None, season=None, pick=None):
     play_with_resume_choice(plugin, type, video, id if video != id else None, pick=pick == "1")
 
 
+_to_play = {}
+
+
 def episode_to_play(meta, state, season=None):
-    """The episode a show's (or season's) Play button starts, or None."""
+    """The episode a show's (or season's) Play button starts, or None.
+    Remembered for this process: a show's season list asks once per season."""
+    today = datetime.date.today().isoformat()
+    watched = frozenset(state.watched_episodes(meta.id))
+    key = (meta.id, len(meta.videos), season, today, watched)
+    if key not in _to_play:
+        if len(_to_play) > 200:  # the service lives on: don't grow for ever
+            _to_play.clear()
+        _to_play[key] = _episode_to_play(meta, watched, today, season)
+    return _to_play[key]
+
+
+def _episode_to_play(meta, watched, today, season):
     from .details import visible_seasons
 
-    today = datetime.date.today().isoformat()
-    watched = state.watched_episodes(meta.id)
     if season is None:
         upcoming = next_episode(meta, watched, today)
         if upcoming is not None:
@@ -396,6 +411,7 @@ def info_mark(plugin, type, id, value, video=None, season=None, tab=None):
         return
     home = xbmcgui.Window(10000)
     if tab:
+        home.clearProperty(SEASONS_READY)  # the episodes reload on `tab`, not wherever the tabs are mid-reload
         home.setProperty("sbinfo.season_focus", tab)
     if video:
         home.setProperty("sbinfo.focus_video", video)
@@ -412,12 +428,12 @@ def extended_info(plugin, type, id, video=None, season=None):
     from the dialog (played, searched, ...)."""
     if skin_active() and plugin.handle >= 0:
         # Selected in a list or widget: Kodi waits on us (busy, which hides its
-        # info page) until we answer, so answer first and open the page apart.
+        # info page) until we answer, so answer first, then open the page from
+        # this same call (another call would start Python again: most of a
+        # second on a Fire TV Stick).
         xbmcplugin.setResolvedUrl(plugin.handle, False, xbmcgui.ListItem())
-        url = plugin.url_for("extended_info", type=type, id=id, video=video, season=season)
-        xbmc.executebuiltin(f"RunPlugin({url})")
-        return False
-    meta = load_meta(type, id)
+        plugin.handle = -1
+    meta = load_show(type, id, videos={video} if video else ())
     if meta is None:
         return False
     state = get_watchstate()
@@ -503,7 +519,10 @@ def play_with_resume_choice(plugin, type_, video_id, meta_id=None, pick=False):
             return False
         resume = "1" if choice == 0 else "0"
     url = plugin.url_for("play", type=type_, id=video_id, meta=meta_id, resume=resume, pick=1 if pick else None)
-    xbmc.executebuiltin(f"PlayMedia({url})")
+    # noresume: asked already. Without it Kodi asks again whenever it has its own
+    # bookmark for this URL (it keeps one per plugin URL played); the playback
+    # service seeks to our resume point instead.
+    xbmc.executebuiltin(f"PlayMedia({url},noresume)")
     return True
 
 

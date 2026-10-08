@@ -1,6 +1,8 @@
 """Smoke tests for the Kodi layer, run against Kodistubs (no real Kodi needed)."""
 
 import contextlib
+import dataclasses
+import importlib
 import os
 from urllib.parse import parse_qsl, urlencode, urlsplit
 
@@ -62,6 +64,14 @@ def listing(monkeypatch):
     monkeypatch.setattr(xbmcplugin, "endOfDirectory",
                         lambda handle, succeeded=True, **kw: ends.append(succeeded))
     return items, ends
+
+
+def test_route_table_names_each_handlers_module():
+    """router.HANDLERS (a call imports only its action's module) matches the @route decorators."""
+    for module in router.HANDLERS:
+        importlib.import_module(f"kodi_ui.{module}")
+    assert router.ROUTE_MODULES == {action: handler.__module__.rpartition(".")[2]
+                                    for action, handler in router.ROUTES.items()}
 
 
 def call(action, handle=1, **params):
@@ -222,7 +232,7 @@ def test_series_seasons_and_episodes(server, listing, settings):
     assert all(ends)
 
 
-def test_info_page_show_browser_routes(server, listing, settings):
+def test_info_page_show_browser_routes(server, listing, settings, monkeypatch):
     install(server)
     server.routes["/meta/series/tt5.json"] = SHOW
     state = common.get_watchstate()
@@ -233,8 +243,13 @@ def test_info_page_show_browser_routes(server, listing, settings):
     assert [(p["action"], p["season"]) for p, _ in items] == [("season", "1"), ("season", "2"), ("season", "0")]
     assert ends == [True]
 
+    from kodi_ui import listitems
+
+    asked = []  # Watchlist and Similar are the page header's: the cards don't look them up
+    monkeypatch.setattr(listitems, "get_mdblist", lambda: asked.append(1))
     items.clear()
     call("info_episodes", type="series", id="tt5", season=1)
+    assert asked == []
     assert items == [
         ({"action": "extended_info", "type": "series", "id": "tt5", "video": "tt5:1:1"}, False),
         ({"action": "extended_info", "type": "series", "id": "tt5", "video": "tt5:1:2"}, False),
@@ -1194,7 +1209,7 @@ def test_extended_info_actions(server, settings, info_dialog, monkeypatch):
     monkeypatch.setattr(xbmcgui.Dialog, "contextmenu", lambda self, items: 0)   # "Resume from 15:00"
     info_dialog["script"] = ["play"]
     call("extended_info", handle=-1, type="movie", id="tt1")
-    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=movie&id=tt1&resume=1)"
+    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=movie&id=tt1&resume=1,noresume)"
 
     info_dialog["script"] = ["play"]                         # a show: Play opens its seasons
     call("extended_info", handle=-1, type="series", id="tt5")
@@ -1208,7 +1223,7 @@ def test_extended_info_actions(server, settings, info_dialog, monkeypatch):
     info_dialog["script"] = ["streams"]
     call("extended_info", handle=-1, type="movie", id="tt1")
     assert info_dialog["dialog"]._actions[:2] == ["play", "streams"]
-    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=movie&id=tt1&resume=0&pick=1)"
+    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=movie&id=tt1&resume=0&pick=1,noresume)"
     info_dialog["script"] = ["play"]                         # shows have no Streams tile
     call("extended_info", handle=-1, type="series", id="tt5")
     assert "streams" not in info_dialog["dialog"]._actions
@@ -1377,7 +1392,7 @@ def test_search_window_rows_and_actions(server, settings, search_ui, monkeypatch
     call("search_window", handle=-1, query="dune")
     assert seen == ["tt2"] and len(search_ui["openings"]) == 2
     assert search_ui["openings"][1]["focus"] == (0, 1)
-    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=movie&id=tt2)"
+    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=movie&id=tt2,noresume)"
 
     # Context menu: mark watched in place (the window stays open), then Back.
     search_ui["script"] = [[("menu", 0, 0, 1)]]
@@ -1631,8 +1646,8 @@ def test_service_retries_next_stream_on_error(settings, window, monkeypatch):
     monkeypatch.setattr(service.xbmc, "sleep", lambda ms: None)
     service.retry_next_stream(retry)                          # first: the same stream again
     service.retry_next_stream({**retry, "tries": 1})          # then the next one
-    assert played == [f"PlayMedia({BASE}?action=play&type=movie&id=tt1&binge=g&resume=1&start=0&tries=1)",
-                      f"PlayMedia({BASE}?action=play&type=movie&id=tt1&binge=g&resume=1&start=1&tries=2)"]
+    assert played == [f"PlayMedia({BASE}?action=play&type=movie&id=tt1&binge=g&resume=1&start=0&tries=1,noresume)",
+                      f"PlayMedia({BASE}?action=play&type=movie&id=tt1&binge=g&resume=1&start=1&tries=2,noresume)"]
 
     service.retry_next_stream({**retry, "next": 3, "tries": 1})   # nothing left to try
     service.retry_next_stream({**retry, "tries": service.MAX_STREAM_RETRIES})
@@ -2490,10 +2505,10 @@ def test_extended_info_for_an_episode(server, settings, info_dialog, monkeypatch
     dialog = info_dialog["dialog"]
     assert dialog.playable and dialog._actions[:2] == ["play", "streams"]
     assert "Three" in info_dialog["props"]["title"]
-    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=series&id=tt5%3A2%3A1&meta=tt5)"
+    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=series&id=tt5%3A2%3A1&meta=tt5,noresume)"
     info_dialog["script"] = ["streams"]
     call("extended_info", handle=-1, type="series", id="tt5", video="tt5:2:1")
-    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=series&id=tt5%3A2%3A1&meta=tt5&pick=1)"
+    assert builtins[-1] == f"PlayMedia({BASE}?action=play&type=series&id=tt5%3A2%3A1&meta=tt5&pick=1,noresume)"
 
 
 def test_select_opens_extended_info_for_episodes(server, listing, settings):
@@ -2603,6 +2618,48 @@ def test_next_up_is_reused_until_the_watch_state_changes(server, listing, settin
     items.clear()
     call("next_up")                                                               # watched more: worked out again
     assert [p["id"] for p, _ in items] == ["tt5:1:3"]
+
+
+def test_long_running_shows_are_read_from_their_index(server, listing, settings, monkeypatch):
+    """A long show's meta is indexed when read; the info page, its Play button,
+    playback and Next Up then read the index: the same results, nothing fetched."""
+    from stremio import showindex
+    from kodi_ui import details
+
+    monkeypatch.setattr(showindex, "MIN_VIDEOS", 3)
+    settings.update(cache_meta_hours=24)
+    install(server)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    state = common.get_watchstate()
+    state.set_watched([PlaybackEntry(video_id="tt5:1:1", type="series", meta_id="tt5", season=1, episode=1)], True)
+    items, _ = listing
+
+    def lists():
+        items.clear()
+        call("info_seasons", type="series", id="tt5")
+        call("info_episodes", type="series", id="tt5", season=2)
+        call("next_up")
+        return list(items)
+
+    assert details.show_index("series", "tt5") is None
+    whole = lists()                                     # reads the meta whole, and indexes it
+    full = details.load_meta("series", "tt5")
+    index = details.show_index("series", "tt5")
+    assert index is not None
+    from kodi_ui import watching
+
+    def whole_meta(*args):
+        raise AssertionError("read the whole meta")
+
+    monkeypatch.setattr(details, "fetch_meta_source", whole_meta)
+    monkeypatch.setattr(watching, "fetch_meta_source", whole_meta)
+    common.get_cache().set(next(k for k in _cache_keys() if k.startswith("nextup:")), None, -1)  # work it out again
+    assert lists() == whole
+
+    shown = details.load_show("series", "tt5", seasons={2}, videos={"tt5:0:1"})
+    assert dataclasses.replace(shown, videos=()) == dataclasses.replace(full, videos=())
+    assert shown.episodes(2) == full.episodes(2) and shown.episodes(0) == full.episodes(0)
+    assert [v.title for v in shown.episodes(1)] == ["", ""]    # numbers and dates only
 
 
 def _cache_keys():
@@ -2937,13 +2994,21 @@ def test_show_browser_selects_the_focused_episode(server, listing, monkeypatch):
     shown, moves = {}, []
     monkeypatch.setattr(details.xbmc, "getCondVisibility", lambda cond: "movieinformation" in cond)
     monkeypatch.setattr(details.xbmc, "getInfoLabel", lambda label: shown.get(label, ""))
-    monkeypatch.setattr(details.xbmc, "executebuiltin", lambda cmd, *a: moves.append(cmd))
     items, _ = listing
+    kept = {}  # where Kodi leaves a list's selection when a new listing arrives (the old one's position)
 
-    def kodi_shows(control, position, path):  # Kodi shows the listing just returned, first item selected
+    def kodi_moves(cmd, *args):
+        moves.append(cmd)
+        control, steps = cmd[len("Control.Move("):-1].split(",")
+        key = f"Container({control}).CurrentItem"
+        shown[key] = str(int(shown[key]) + int(steps))
+
+    monkeypatch.setattr(details.xbmc, "executebuiltin", kodi_moves)
+
+    def kodi_shows(control, position, path):  # Kodi shows the listing just returned
         shown.clear()
         shown[f"Container({control}).ListItemAbsolute({position}).FileNameAndPath"] = path
-        shown[f"Container({control}).CurrentItem"] = "1"
+        shown[f"Container({control}).CurrentItem"] = kept.get(control, "1")
 
     real_select = details.select_when_shown
     monkeypatch.setattr(details, "select_when_shown",
@@ -2951,13 +3016,22 @@ def test_show_browser_selects_the_focused_episode(server, listing, monkeypatch):
     call("info_episodes", type="series", id="tt5", season=1, focus="tt5:1:2")
     assert moves == ["Control.Move(5061,1)"]
 
+    home = {}
+    monkeypatch.setattr(xbmcgui.Window, "setProperty", lambda self, key, value: home.__setitem__(key, value))
     items.clear(), moves.clear()
     call("info_seasons", type="series", id="tt5", focus="2")
     assert moves == ["Control.Move(5060,1)"]
+    assert home == {"sbinfo.seasons_ready": "1"}   # the episodes follow the tabs from now on
 
     items.clear(), moves.clear()
     call("info_episodes", type="series", id="tt5", season=2, focus="tt5:1:2")   # not in this season
     assert moves == []
+
+    kept[5060] = "3"  # the last page's tabs had their 3rd selected: moved from there
+    items.clear(), moves.clear(), home.clear()
+    call("info_seasons", type="series", id="tt5", focus="2")
+    assert moves == ["Control.Move(5060,-1)"] and shown["Container(5060).CurrentItem"] == "2"
+    assert home == {"sbinfo.seasons_ready": "1"}
 
 
 def test_marking_from_the_info_page_shows_it_again(server, kodi_ui_state, monkeypatch):
@@ -2977,6 +3051,23 @@ def test_marking_from_the_info_page_shows_it_again(server, kodi_ui_state, monkey
     assert common.get_watchstate().watched_episodes("tt5") == {(1, 1)}
     assert reopened == [("series", "tt5", "tt5:2:1", None)]   # the page that was open, with the new state
     del home
+
+
+def test_selecting_a_title_answers_kodi_then_opens_its_page(server, settings, monkeypatch):
+    """With our skin, a title selected in a list (Kodi waits on the call) gets
+    its page from the same call, once Kodi has its answer."""
+    from kodi_ui import infodialog
+
+    install(server)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    monkeypatch.setattr(infodialog, "skin_active", lambda: True)
+    events = []
+    monkeypatch.setattr(xbmcplugin, "setResolvedUrl", lambda handle, ok, item: events.append(("answered", handle, ok)))
+    monkeypatch.setattr(xbmcgui.Dialog, "info", lambda self, item: events.append(("page",)), raising=False)
+    monkeypatch.setattr(infodialog.xbmc, "executebuiltin", lambda cmd, *a: events.append(("builtin", cmd)))
+
+    call("extended_info", handle=4, type="series", id="tt5")
+    assert [e for e in events if e[0] != "builtin" or "RunPlugin" in e[1]] == [("answered", 4, False), ("page",)]
 
 
 def test_context_menu_in_the_info_page_show_browser_is_the_episodes(monkeypatch):
@@ -3282,3 +3373,10 @@ def test_kodi_splash_follows_the_skin_setting(monkeypatch, tmp_path):
     target.write_bytes(b"the user's own")                        # not ours: left alone either way
     assert not splash.apply_splash(want=True) and not splash.apply_splash(want=False)
     assert target.read_bytes() == b"the user's own"
+    import hashlib
+
+    target.write_bytes(b"an earlier version's splash")             # ours from before: replaced, or removed
+    monkeypatch.setattr(splash, "PREVIOUS", {hashlib.sha256(b"an earlier version's splash").hexdigest()})
+    assert splash.apply_splash(want=True) and target.read_bytes() == b"stremio splash"
+    target.write_bytes(b"an earlier version's splash")
+    assert splash.apply_splash(want=False) and not target.exists()

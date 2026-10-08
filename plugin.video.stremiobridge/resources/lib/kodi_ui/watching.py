@@ -12,7 +12,7 @@ import xbmcplugin
 from mdblist import MDBListAuthError, MDBListError, sync as mdblist_sync
 from stremio import StremioError
 from stremio.aggregate import gather
-from stremio.meta import CINEMETA_URL, cinemeta_fallback, fetch_meta, fetch_meta_data, slim_meta
+from stremio.meta import CINEMETA_URL, cinemeta_fallback, fetch_meta_source, slim_meta
 from stremio.models import Meta, MetaPreview, external_ids
 from stremio.watchstate import PlaybackEntry, next_episode
 
@@ -20,7 +20,7 @@ from .common import (
     ADDON, L, add_context_menu, busy, get_cache, get_client, get_mdblist, get_registry, get_watchstate, log, notify,
     notify_widgets, profile_dir, refresh_container,
 )
-from .details import load_meta
+from .details import PAGE, index_if_long, load_meta, show_index
 from .listitems import (
     PLAYABLE_TYPES, apply_info_actions, apply_meta_info, apply_title_actions, apply_watch, content_for, episode_item,
     item_menu, playable_entry, preview_items,
@@ -111,7 +111,11 @@ def resume_metas(rows):
         else:
             missing.append((owner, type_, video_id))
     if missing:
-        found = fetch_meta_dicts(list(dict.fromkeys((owner, type_) for owner, type_, _ in missing)))
+        wanted = {}
+        for owner, _, video_id in missing:
+            wanted.setdefault(owner, set()).add(video_id)
+        found = fetch_slim_metas(list(dict.fromkeys((owner, type_) for owner, type_, _ in missing)),
+                                 lambda meta: [v for v in meta.videos if v.id in wanted.get(meta.id, ())])
         for owner, type_, video_id in missing:
             if owner in found:
                 slim = slim_meta(found[owner], video_id)
@@ -143,8 +147,8 @@ def preferred_previews(previews):
             missing.append((preview.id, preview.type))
     if missing:
         types = dict(missing)
-        for show_id, data in fetch_meta_dicts(missing).items():
-            slim = slim_meta(data)
+        for show_id, data in fetch_slim_metas(missing).items():
+            slim = data
             cache.set(f"slim:{types[show_id]}:{show_id}:", slim, SLIM_SECONDS)
             meta = Meta.from_dict(slim, types[show_id])
             if meta is not None:
@@ -159,7 +163,7 @@ def _resume_item(plugin, row, meta=None):
     else:
         label = row.title or row.video_id
     left = time_left(row)
-    item = xbmcgui.ListItem(label, label2=left)
+    item = xbmcgui.ListItem(label, label2=left, offscreen=True)
     item.setProperty("TimeLeft", left)
     poster = row.poster or (meta.poster if meta else "")
     art = {"thumb": row.thumb or poster, "poster": poster, "tvshow.poster": poster,
@@ -199,32 +203,61 @@ def _next_episode_item(plugin, meta, video, state, remove_label=None):
 
 
 def fetch_metas(shows):
-    """``{show_id: Meta}`` for ``[(show_id, type), ...]``, fetched in parallel (cached)."""
+    """``{show_id: Meta}`` for ``[(show_id, type), ...]``, fetched in parallel (cached).
+    A long-running show's comes from its index: episode numbers and dates only."""
     registry, client = get_registry(), get_client()
+    metas, rest = {}, []
+    for show_id, type_ in shows:
+        index = show_index(type_, show_id, registry, client)
+        if index is not None:
+            metas[index.meta.id] = index.meta
+        else:
+            rest.append((show_id, type_))
+    for _, _, meta in _fetch_sources(rest, registry, client).values():
+        metas[meta.id] = meta
+    return metas
+
+
+def fetch_slim_metas(shows, pick=None):
+    """``{id: the addon's meta dict, with only some videos}`` for ``[(id, type), ...]``:
+    the videos ``pick(Meta)`` returns (none without `pick`). What Continue
+    Watching and Next Up keep (see slim_meta); a long-running show's comes from
+    its index, without reading its whole episode list."""
+    registry, client = get_registry(), get_client()
+    slim, rest = {}, []
+    for show_id, type_ in shows:
+        index = show_index(type_, show_id, registry, client)
+        videos = list(pick(index.meta)) if index is not None and pick else []
+        found = []
+        for season in {v.season for v in videos}:
+            raw = index.raw_season(client.cache, season) or []
+            found += [d for d in raw if isinstance(d, dict) and d.get("id") in {v.id for v in videos}]
+        if index is None or len(found) < len(videos):  # no index, or its seasons are gone
+            rest.append((show_id, type_))
+        else:
+            slim[show_id] = dict(index.summary, videos=found)
+    for show_id, (_, raw, meta) in _fetch_sources(rest, registry, client).items():
+        wanted = {v.id for v in pick(meta)} if pick else set()
+        slim[show_id] = dict(raw, videos=[v for v in raw.get("videos") or []
+                                          if isinstance(v, dict) and v.get("id") in wanted])
+    return slim
+
+
+def _fetch_sources(shows, registry=None, client=None):
+    """``{id: (transport url, meta dict, Meta)}`` for ``[(id, type), ...]``, fetched
+    in parallel (cached); long-running shows are indexed on the way."""
+    if not shows:
+        return {}
+    registry, client = registry or get_registry(), client or get_client()
     use_cinemeta = ADDON.getSettingBool("cinemeta_fallback")
 
     def task(show_id, type_):
         def run():
             fallbacks = cinemeta_fallback(type_, show_id) if use_cinemeta else []
-            return fetch_meta(client, registry.addons_for("meta", type_, show_id), type_, show_id, fallbacks)[1]
-        return run
-
-    results, errors, _ = gather([(show_id, task(show_id, type_)) for show_id, type_ in shows])
-    for label, exc in errors:
-        log(f"No meta for {label}: {exc}")
-    return {meta.id: meta for _, meta in results}
-
-
-def fetch_meta_dicts(shows):
-    """``{id: the addon's meta dict}`` for ``[(id, type), ...]``, fetched in parallel (cached)."""
-    registry, client = get_registry(), get_client()
-    use_cinemeta = ADDON.getSettingBool("cinemeta_fallback")
-
-    def task(show_id, type_):
-        def run():
-            fallbacks = cinemeta_fallback(type_, show_id) if use_cinemeta else []
-            return show_id, fetch_meta_data(client, registry.addons_for("meta", type_, show_id), type_, show_id,
-                                            fallbacks)[1]
+            _, url, raw, meta = fetch_meta_source(client, registry.addons_for("meta", type_, show_id), type_,
+                                                  show_id, fallbacks)
+            index_if_long(client, type_, show_id, url, raw, meta)
+            return show_id, (url, raw, meta)
         return run
 
     results, errors, _ = gather([(show_id, task(show_id, type_)) for show_id, type_ in shows])
@@ -244,13 +277,14 @@ def next_up(state, limit=NEXT_UP_SHOWS):
     if hit:
         return _from_slim(hit[0])
     shows = state.recent_shows(limit)
-    found = fetch_meta_dicts(shows)
-    saved = []
-    for show_id, type_ in shows:
-        meta = Meta.from_dict(found[show_id], type_) if show_id in found else None
-        video = next_episode(meta, state.watched_episodes(meta.id), today) if meta else None
-        if video is not None:
-            saved.append({"type": type_, "video": video.id, "meta": slim_meta(found[show_id], video.id)})
+
+    def upcoming(meta):
+        video = next_episode(meta, state.watched_episodes(meta.id), today)
+        return [video] if video is not None else []
+
+    found = fetch_slim_metas(shows, upcoming)
+    saved = [{"type": type_, "video": found[show_id]["videos"][0]["id"], "meta": found[show_id]}
+             for show_id, type_ in shows if found.get(show_id, {}).get("videos")]
     cache.set(key, saved, SLIM_SECONDS)
     return _from_slim(saved)
 
@@ -396,6 +430,9 @@ def similar(plugin, type, id, panel=None):
         return
     xbmcplugin.setPluginCategory(handle, L(30226))
     items = preview_items(plugin, previews, get_watchstate())
+    if quiet:  # the info page's panel
+        for _, item, _ in items:
+            item.setProperty(PAGE, id)
     xbmcplugin.addDirectoryItems(handle, items, len(items))
     types = {p.type for p in previews}
     set_content(handle, content_for(types.pop() if len(types) == 1 else ""))

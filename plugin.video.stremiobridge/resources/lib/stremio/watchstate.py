@@ -323,15 +323,15 @@ class WatchState:
         """Changes whenever anything Next Up depends on changes (episodes watched
         or unwatched, started, dismissed), so results built from the watch
         state can be reused until then."""
-        digest = hashlib.sha1()
+        # Aggregates sqlite works out itself: hashing every row in Python took
+        # 0.7 s on a Fire TV Stick with 16,000 episodes watched. Every change
+        # sets a new time, so the time totals move with it.
         with self._lock:
-            for row in self._db.execute(
-                    "SELECT video_id, watched, watched_at, updated_at, position FROM progress "
-                    "WHERE season IS NOT NULL ORDER BY video_id"):
-                digest.update(repr(row).encode())
-            for row in self._db.execute("SELECT meta_id, dismissed_at FROM dismissed ORDER BY meta_id"):
-                digest.update(repr(row).encode())
-        return digest.hexdigest()[:16]
+            rows = [self._db.execute(
+                "SELECT COUNT(*), TOTAL(watched), TOTAL(watched_at), TOTAL(updated_at), TOTAL(position),"
+                " MAX(watched_at), MAX(updated_at) FROM progress WHERE season IS NOT NULL").fetchone(),
+                self._db.execute("SELECT COUNT(*), TOTAL(dismissed_at), MAX(dismissed_at) FROM dismissed").fetchone()]
+        return hashlib.sha1(repr(rows).encode()).hexdigest()[:16]
 
     def clear(self):
         with self._lock:

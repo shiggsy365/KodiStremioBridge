@@ -57,7 +57,7 @@ def catalog_item(plugin, addon, catalog, show_type=False):
     """A folder entry for a catalog, as used by type menus and the front page."""
     detail = f"{type_label(catalog.type)} · {addon.name}" if show_type else addon.name
     name = addon.display_name(catalog, tidy=ADDON.getSettingBool("tidy_names"))
-    item = xbmcgui.ListItem(f"{name}  [COLOR grey]{detail}[/COLOR]")
+    item = xbmcgui.ListItem(f"{name}  [COLOR grey]{detail}[/COLOR]", offscreen=True)
     if addon.manifest.logo:
         item.setArt({"icon": addon.manifest.logo, "thumb": addon.manifest.logo})
     return plugin.url_for("catalog", addon=addon.key, type=catalog.type, id=catalog.id,
@@ -77,7 +77,7 @@ def type_menu(plugin, type):
     xbmcplugin.setPluginCategory(handle, type_label(type))
     registry = get_registry()
     if registry.search_catalogs(type):
-        item = xbmcgui.ListItem(f"[B]{L(30079, type=type_label(type))}[/B]")
+        item = xbmcgui.ListItem(f"[B]{L(30079, type=type_label(type))}[/B]", offscreen=True)
         item.setArt({"icon": "DefaultAddonsSearch.png"})
         xbmcplugin.addDirectoryItem(handle, plugin.url_for("new_search", type=type), item, isFolder=False)
 
@@ -163,7 +163,7 @@ def catalog_view(plugin, addon, type, id, skip="0", ps=None, only=None, slot=Non
             label = L(30295, name=extra.name.capitalize())
             if current and current.lower() != "none":
                 label += f"  [COLOR FF999999]· {current}[/COLOR]"
-            item = xbmcgui.ListItem(label)
+            item = xbmcgui.ListItem(label, offscreen=True)
             item.setArt(tile_art("filter_genre.png"))
             item.setProperty("SpecialSort", "top")
             if in_hub:
@@ -206,7 +206,7 @@ def catalog_view(plugin, addon, type, id, skip="0", ps=None, only=None, slot=Non
 def add_next_page(plugin, url=None, **row):
     """The Next Page tile: opening `url`, or moving a row (`row`: row_page's
     parameters) on a page."""
-    item = xbmcgui.ListItem(L(30050))
+    item = xbmcgui.ListItem(L(30050), offscreen=True)
     item.setArt(tile_art("next_page.png"))
     item.setProperty("SpecialSort", "bottom")
     if url:
@@ -223,7 +223,7 @@ def row_start(plugin, key, row, leading, **params):
     Returns the number of tiles added."""
     added = 0
     if row["pages"]:
-        item = xbmcgui.ListItem(L(30413))
+        item = xbmcgui.ListItem(L(30413), offscreen=True)
         item.setArt(tile_art("previous_page.png"))
         item.setProperty("SpecialSort", "top")
         item.setProperty("IsPlayable", "true")  # see row_page
@@ -276,7 +276,7 @@ def reload_row(control, key, wait=10.0):
 def _answer(plugin):
     """Kodi "plays" a row's tiles and waits: tell it there's nothing to play."""
     if plugin.handle >= 0:
-        xbmcplugin.setResolvedUrl(plugin.handle, False, xbmcgui.ListItem())
+        xbmcplugin.setResolvedUrl(plugin.handle, False, xbmcgui.ListItem(offscreen=True))
 
 
 def _row_control(state, wait=3.0):

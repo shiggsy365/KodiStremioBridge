@@ -260,11 +260,15 @@
          DialogVideoInfo.xml's onload has frozen the page's title (sbinfo.*), so they don't
          load once with no title. `focus` is what the plugin selects once the list shows: the
          page's season (or the one marked watched from it) and its episode, or the next to
-         watch. `rev` changes to reload both in place (Stremio Bridge's info_mark). -->
+         watch. `rev` changes to reload both in place (Stremio Bridge's info_mark).
+         Until the season tabs have loaded and moved to that season (the plugin then sets
+         sbinfo.seasons_ready), the episodes are the page's season's: following the tabs
+         straight away loaded season 1 first, then the right season again. -->
     <variable name="StremioInfoSeasonsPath">
         <value condition="!String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(Window(home).Property(sbinfo.browse))">plugin://plugin.video.stremiobridge/?action=info_seasons&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;focus=$INFO[Window(home).Property(sbinfo.season_focus)]&amp;rev=$INFO[Window(home).Property(sbinfo.browser_rev)]</value>
     </variable>
     <variable name="StremioInfoEpisodesPath">
+        <value condition="!String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(Window(home).Property(sbinfo.browse)) + String.IsEmpty(Window(home).Property(sbinfo.seasons_ready))">plugin://plugin.video.stremiobridge/?action=info_episodes&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;season=$INFO[Window(home).Property(sbinfo.season_focus)]&amp;focus=$INFO[Window(home).Property(sbinfo.focus_video)]&amp;rev=$INFO[Window(home).Property(sbinfo.browser_rev)]</value>
         <value condition="!String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(Window(home).Property(sbinfo.browse))">plugin://plugin.video.stremiobridge/?action=info_episodes&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;season=$INFO[Container(5060).ListItem.Property(season)]&amp;focus=$INFO[Window(home).Property(sbinfo.focus_video)]&amp;rev=$INFO[Window(home).Property(sbinfo.browser_rev)]</value>
     </variable>
 

@@ -32,7 +32,7 @@ def root(plugin):
     if ADDON.getSettingBool("show_watchlist") and get_mdblist() is not None:
         personal.append((L(30300), "watchlist", "watchlist.png"))
     for label, action, art in personal:
-        item = xbmcgui.ListItem(label)
+        item = xbmcgui.ListItem(label, offscreen=True)
         item.setArt(tile_art(art))
         xbmcplugin.addDirectoryItem(handle, plugin.url_for(action), item, isFolder=True)
 
@@ -43,16 +43,16 @@ def root(plugin):
     xbmcplugin.addDirectoryItems(handle, hubs, len(hubs))
 
     if not registry.all():
-        hint = xbmcgui.ListItem(f"[I]{L(30004)}[/I]")
+        hint = xbmcgui.ListItem(f"[I]{L(30004)}[/I]", offscreen=True)
         xbmcplugin.addDirectoryItem(handle, plugin.url_for("manage"), hint, isFolder=True)
 
     if registry.search_catalogs():
-        item = xbmcgui.ListItem(L(30070))
+        item = xbmcgui.ListItem(L(30070), offscreen=True)
         item.setArt(tile_art("search.png"))
         xbmcplugin.addDirectoryItem(handle, plugin.url_for("search_menu"), item, isFolder=True)
 
     if ADDON.getSettingBool("show_widgets_folder"):
-        item = xbmcgui.ListItem(L(30322))
+        item = xbmcgui.ListItem(L(30322), offscreen=True)
         item.setArt(tile_art("widgets.png"))
         xbmcplugin.addDirectoryItem(handle, plugin.url_for("widgets"), item, isFolder=True)
 
@@ -72,7 +72,7 @@ def widgets(plugin):
     if get_mdblist() is not None:
         entries.append((L(30300), plugin.url_for("watchlist"), "DefaultVideoPlaylists.png"))
     for label, url, icon in entries:
-        item = xbmcgui.ListItem(label)
+        item = xbmcgui.ListItem(label, offscreen=True)
         item.setArt({"icon": icon})
         xbmcplugin.addDirectoryItem(handle, url + reload_token, item, isFolder=True)
     registry = get_registry()

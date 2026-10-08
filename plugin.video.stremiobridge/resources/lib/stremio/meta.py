@@ -53,27 +53,38 @@ def fetch_meta(client, addons, type_, id_, fallbacks=()):
     are ``(name, transport_url)`` pairs tried afterwards unless already asked.
     Addons that fail or answer ``{"meta": null}`` are skipped.
     """
-    name, data = fetch_meta_data(client, addons, type_, id_, fallbacks)
-    return name, Meta.from_dict(data, type_)
+    name, _, _, meta = fetch_meta_source(client, addons, type_, id_, fallbacks)
+    return name, meta
 
 
 def fetch_meta_data(client, addons, type_, id_, fallbacks=()):
     """Like fetch_meta, but ``(source_name, the addon's meta dict)``, for
     callers that keep a slimmed copy of it (see slim_meta)."""
+    name, _, data, _ = fetch_meta_source(client, addons, type_, id_, fallbacks)
+    return name, data
+
+
+def meta_candidates(addons, fallbacks=()):
+    """``(name, transport_url)`` in the order they're asked for a meta."""
     candidates = [(a.name, a.transport_url) for a in addons]
     asked = {url for _, url in candidates}
-    candidates += [(name, url) for name, url in fallbacks if url not in asked]
+    return candidates + [(name, url) for name, url in fallbacks if url not in asked]
 
+
+def fetch_meta_source(client, addons, type_, id_, fallbacks=()):
+    """``(source_name, transport_url, meta dict, Meta)``: the dict is parsed once
+    (a long-running show's thousands of episodes make that the slow part)."""
     errors = []
-    for name, url in candidates:
+    for name, url in meta_candidates(addons, fallbacks):
         try:
             data = client.get_resource(url, "meta", type_, id_)
         except AddonRequestError as exc:
             errors.append(f"{name}: {exc}")
             continue
         raw = data.get("meta") if isinstance(data, dict) else None
-        if Meta.from_dict(raw, type_) is not None:
-            return name, raw
+        meta = Meta.from_dict(raw, type_)
+        if meta is not None:
+            return name, url, raw, meta
         errors.append(f"{name}: no meta")
     raise MetaNotFound(f"No meta for {type_} {id_}" + (f" ({'; '.join(errors)})" if errors else ""))
 

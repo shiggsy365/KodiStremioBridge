@@ -16,7 +16,7 @@ def manage(plugin):
     handle = plugin.handle
     registry = get_registry()
 
-    add_item = xbmcgui.ListItem(f"[B]{L(30001)}[/B]")
+    add_item = xbmcgui.ListItem(f"[B]{L(30001)}[/B]", offscreen=True)
     add_item.setArt({"icon": "DefaultAddSource.png"})
     xbmcplugin.addDirectoryItem(handle, plugin.url_for("add_addon"), add_item, isFolder=False)
 
@@ -25,7 +25,7 @@ def manage(plugin):
         label = f"{m.name}  [COLOR grey]v{m.version}[/COLOR]"
         if not addon.enabled:
             label = f"[COLOR grey]{m.name}  v{m.version}  ({L(30003)})[/COLOR]"
-        item = xbmcgui.ListItem(label, label2=m.description)
+        item = xbmcgui.ListItem(label, label2=m.description, offscreen=True)
         if m.logo:
             item.setArt({"icon": m.logo, "thumb": m.logo})
         item.getVideoInfoTag().setPlot(_details_text(addon))
@@ -168,7 +168,7 @@ def addon_catalogs(plugin, addon):
             menu.append((L(30023), plugin.run_url("set_catalog_pref", addon=addon, catalog=catalog.key,
                                                   field="search", value=int(not prefs.search))))
 
-        item = xbmcgui.ListItem(f"{catalog.name}  [COLOR grey]{catalog.type}[/COLOR]   " + "   ".join(flags))
+        item = xbmcgui.ListItem(f"{catalog.name}  [COLOR grey]{catalog.type}[/COLOR]   " + "   ".join(flags), offscreen=True)
         add_context_menu(item, menu)
 
         # Selecting the item toggles its primary flag.

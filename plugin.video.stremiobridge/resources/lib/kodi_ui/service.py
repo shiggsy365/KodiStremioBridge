@@ -198,9 +198,10 @@ def retry_next_stream(retry):
         xbmc.sleep(1000)
     else:
         notify(L(30178))
-    xbmc.executebuiltin("PlayMedia({})".format(plugin_url(
+    # noresume: `resume` says it already (Kodi would ask if it had a bookmark for the URL)
+    xbmc.executebuiltin("PlayMedia({},noresume)".format(plugin_url(
         "play", type=retry["type"], id=retry["id"], meta=retry.get("meta"), binge=retry.get("binge"),
-        resume="1" if retry.get("resume") else None, start=start, tries=retry["tries"] + 1)))
+        resume="1" if retry.get("resume") else "0", start=start, tries=retry["tries"] + 1)))
 
 
 def after_playback(status):
@@ -495,13 +496,19 @@ def _upnext_episode(meta, video):
 def signal_upnext(entry):
     """Tell Up Next what follows this episode; it calls our play URL (with the
     same source group) when the user continues."""
-    from .details import load_meta
+    from .details import load_show
 
-    meta = load_meta(entry.type, entry.meta_id, quiet=True)
+    today = datetime.date.today().isoformat()
+
+    def seasons(meta):  # this episode's and the next one's, in full
+        following = next_episode(meta, {(entry.season, entry.episode)}, today)
+        return {entry.season} | ({following.season} if following else set())
+
+    meta = load_show(entry.type, entry.meta_id, quiet=True, seasons=seasons)
     if meta is None:
         return
     current = next((v for v in meta.videos if v.id == entry.video_id), None)
-    following = next_episode(meta, {(entry.season, entry.episode)}, datetime.date.today().isoformat())
+    following = next_episode(meta, {(entry.season, entry.episode)}, today)
     if current is None or following is None:
         return
     data = {
@@ -538,6 +545,11 @@ def prewarm():
     def task(addon, catalog):
         return lambda: fetch_catalog(client, addon, catalog, with_default_filters(catalog, {}), refresh=True)
 
+    # Streaming Catalogs too: the info page checks them before it opens ("More on Netflix")
+    from stremio.streaming import streaming_addon
+
+    streaming = streaming_addon()
+    catalogs = catalogs + [(streaming, c) for c in streaming.manifest.catalogs]
     _, errors, _ = gather([(f"{a.name} / {c.name}", task(a, c)) for a, c in catalogs])
     state = get_watchstate()
     resume_metas(state.continue_watching())

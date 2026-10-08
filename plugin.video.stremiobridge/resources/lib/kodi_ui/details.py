@@ -1,13 +1,15 @@
 """Item details: show -> seasons -> episodes, and the info dialog."""
 
 import datetime
+import time
 
 import xbmc
 import xbmcgui
 import xbmcplugin
 
-from stremio import StremioError
-from stremio.meta import cinemeta_fallback, fetch_meta
+from stremio import StremioError, showindex
+from stremio.client import resource_url
+from stremio.meta import cinemeta_fallback, fetch_meta_source, meta_candidates
 from stremio.models import CAST, DIRECTOR, WRITER
 from stremio.watchstate import next_episode
 
@@ -20,22 +22,65 @@ from .router import route
 from .views import end_listing, set_content, set_focus
 
 
+def _meta_candidates(type_, id_, registry=None):
+    fallbacks = cinemeta_fallback(type_, id_) if ADDON.getSettingBool("cinemeta_fallback") else []
+    return (registry or get_registry()).addons_for("meta", type_, id_), fallbacks
+
+
+def index_if_long(client, type_, id_, url, raw, meta):
+    """After reading `meta` (`raw` from transport `url`): index a long-running
+    show (stremio.showindex) unless it's indexed already."""
+    if len(meta.videos) < showindex.MIN_VIDEOS or client.cache is None:
+        return
+    key = resource_url(url, "meta", type_, id_)
+    if not showindex.is_current(client.cache, key) and showindex.save(client.cache, key, raw):
+        log(f"Indexed {type_} {id_}: {len(meta.videos)} videos")
+
+
 def load_meta(type_, id_, quiet=False):
     """``Meta`` from the first addon that has it, or None (after telling the user,
     unless `quiet`)."""
-    registry = get_registry()
-    fallbacks = cinemeta_fallback(type_, id_) if ADDON.getSettingBool("cinemeta_fallback") else []
+    addons, fallbacks = _meta_candidates(type_, id_)
+    client = get_client()
     try:
-        source, meta = fetch_meta(
-            get_client(), registry.addons_for("meta", type_, id_), type_, id_, fallbacks
-        )
+        source, url, raw, meta = fetch_meta_source(client, addons, type_, id_, fallbacks)
     except StremioError as exc:
         log(str(exc))
         if not quiet:
             notify(L(30063), icon=xbmcgui.NOTIFICATION_ERROR)
         return None
     log(f"Meta for {type_} {id_} from {source}")
+    index_if_long(client, type_, id_, url, raw, meta)
     return meta
+
+
+def show_index(type_, id_, registry=None, client=None):
+    """The ShowIndex of a long-running show (stremio.showindex), or None: then
+    load_meta (which makes one when the show is long)."""
+    addons, fallbacks = _meta_candidates(type_, id_, registry)
+    candidates = meta_candidates(addons, fallbacks)
+    client = client or get_client()
+    if not candidates or client.cache is None:
+        return None
+    # The first addon's: the one load_meta reads first
+    return showindex.load(client.cache, resource_url(candidates[0][1], "meta", type_, id_), type_, time.time())
+
+
+def load_show(type_, id_, quiet=False, seasons=(), videos=()):
+    """load_meta for the busy paths (the info page, playback). A long-running
+    show comes from its index: every episode's id, numbers and air date, and
+    titles, plots and pictures only for `seasons` (or ``seasons(meta)``, from
+    the index's meta) and the seasons of `videos` (ids). Anything else, or
+    without an index, is load_meta's whole meta."""
+    index = show_index(type_, id_)
+    if index is not None:
+        wanted = set(seasons(index.meta) if callable(seasons) else seasons)
+        if videos:
+            wanted |= {v.season for v in index.meta.videos if v.id in videos}
+        meta = index.with_seasons(get_client().cache, wanted)
+        if meta is not None:
+            return meta
+    return load_meta(type_, id_, quiet)
 
 
 def visible_seasons(meta):
@@ -99,17 +144,19 @@ def info_seasons(plugin, type, id, focus=None, rev=None):
     """Season chips shown inside Arctic Zephyr Stremio's information page;
     season `focus` is selected. `rev` only changes the path, to reload it."""
     handle = plugin.handle
-    meta = load_meta(type, id, quiet=True)
+    meta = load_show(type, id, quiet=True)
     if meta is None:
         xbmcplugin.endOfDirectory(handle, succeeded=False)
+        xbmcgui.Window(10000).setProperty(SEASONS_READY, "1")  # the episodes and Similar wait for it
         return
     seasons = visible_seasons(meta)
     watched = get_watchstate().watched_episodes(meta.id)
     today = datetime.date.today().isoformat()
     items = []
     for season in seasons:
-        item = xbmcgui.ListItem(season_label(season))
+        item = xbmcgui.ListItem(season_label(season), offscreen=True)
         item.setProperty("season", str(season))
+        item.setProperty(PAGE, id)
         aired = {(v.season, v.episode) for v in meta.episodes(season) if v.is_released(today)}
         mark_item_watched(item, bool(aired) and aired <= watched)
         # The season's own path: its context menu (contextmenu.py) is the season's.
@@ -117,8 +164,11 @@ def info_seasons(plugin, type, id, focus=None, rev=None):
     xbmcplugin.addDirectoryItems(handle, items, len(items))
     xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
     positions = [str(s) for s in seasons]
-    if focus in positions:
-        select_when_shown(INFO_SEASONS, positions.index(focus), items[positions.index(focus)][0])
+    if items:
+        position = positions.index(focus) if focus in positions else 0
+        select_when_shown(INFO_SEASONS, position, items[position][0])
+    # The episodes follow the tabs from now on (until now: the page's season; Includes_Stremio.xml)
+    xbmcgui.Window(10000).setProperty(SEASONS_READY, "1")
 
 
 @route("info_episodes")
@@ -127,17 +177,21 @@ def info_episodes(plugin, type, id, season="", focus=None, rev=None):
     (its play_action: autoplay or the stream list, as the settings say); resting
     on one puts it in the page's header. Episode `focus` (a video id) is selected."""
     handle = plugin.handle
-    meta = load_meta(type, id, quiet=True)
+
+    def season_shown(meta):
+        """The season to show: `season`, else the first."""
+        seasons = visible_seasons(meta)
+        try:
+            selected = int(season)
+        except (TypeError, ValueError):
+            selected = None
+        return selected if selected in seasons else (seasons[0] if seasons else None)
+
+    meta = load_show(type, id, quiet=True, seasons=lambda meta: {season_shown(meta)})
     if meta is None:
         xbmcplugin.endOfDirectory(handle, succeeded=False)
         return
-    seasons = visible_seasons(meta)
-    try:
-        selected = int(season)
-    except (TypeError, ValueError):
-        selected = seasons[0] if seasons else None
-    if selected not in seasons:
-        selected = seasons[0] if seasons else None
+    selected = season_shown(meta)
     from .infodialog import page_text  # infodialog imports this module
 
     state = get_watchstate()
@@ -153,13 +207,14 @@ def info_episodes(plugin, type, id, season="", focus=None, rev=None):
         item = episode_listitem(meta, video, released)
         row = rows.get(video.id)
         apply_watch(item, row)
-        apply_info_actions(item, plugin, meta, video, bool(row and row.watched))
+        apply_info_actions(item, plugin, meta, video, bool(row and row.watched), header=False)
         item.setProperty("IsPlayable", "false")
         item.setProperty("stremiobridge.code", episode_code(video))
+        item.setProperty(PAGE, id)
         if video.rating:
             item.setProperty("stremiobridge.rating", f"{video.rating:.1f}")
         # The header takes these over when the card has focus a moment (service.InfoPageFollower)
-        for name, value in page_text(meta, video, state).items():
+        for name, value in page_text(meta, video, state, rows=rows).items():
             item.setProperty(f"stremiobridge.page.{name}", value)
         items.append((plugin.url_for("extended_info", type=type, id=id, video=video.id), item, False))
         shown.append(video.id)
@@ -176,6 +231,11 @@ def info_episodes(plugin, type, id, season="", focus=None, rev=None):
 
 INFO_WINDOW = "movieinformation"
 INFO_SEASONS, INFO_EPISODES = 5060, 5061  # the skin's show browser lists (Includes_Stremio.xml)
+SEASONS_READY = "sbinfo.seasons_ready"
+# On the info page's list items: the page's title. Kodi keeps showing a list's last
+# items until the new listing arrives, so the skin hides a list whose items are
+# another title's (the previous page's).
+PAGE = "stremiobridge.page"
 
 
 def select_when_shown(control, position, path, timeout=5.0):
@@ -190,13 +250,30 @@ def select_when_shown(control, position, path, timeout=5.0):
         if not xbmc.getCondVisibility(f"Window.IsVisible({INFO_WINDOW})"):
             return
         if xbmc.getInfoLabel(f"Container({control}).ListItemAbsolute({position}).FileNameAndPath") == path:
-            current = int(xbmc.getInfoLabel(f"Container({control}).CurrentItem") or 1) - 1
-            if current != position:
-                xbmc.executebuiltin(f"Control.Move({control},{position - current})")
+            _move_to(control, position, monitor)
             return
         if monitor.waitForAbort(0.1):
             return
     log(f"Info page list {control} never showed {path}; not selecting item {position}")
+
+
+def _move_to(control, position, monitor, timeout=2.0):
+    """Move list `control` to item `position` and wait until Kodi has: a new
+    listing first keeps the old one's position, and Kodi can apply a move from
+    that, or late (callers go on to rely on the selection, e.g. the episodes
+    follow the season tabs once they're in place)."""
+    moved_from = None
+    for _ in range(int(timeout / 0.05)):
+        current = int(xbmc.getInfoLabel(f"Container({control}).CurrentItem") or 1) - 1
+        if current == position:
+            return True
+        if current != moved_from:  # no move yet, or Kodi applied the last one from elsewhere
+            xbmc.executebuiltin(f"Control.Move({control},{position - current})")
+            moved_from = current
+        if monitor.waitForAbort(0.05):
+            return False
+    log(f"Info page list {control} didn't move to item {position}")
+    return False
 
 
 @route("people")
@@ -221,7 +298,7 @@ def people(plugin, type, id):
         entry["photo"] = entry["photo"] or person.photo
     items = []
     for name, entry in entries.items():
-        item = xbmcgui.ListItem(name, label2=" · ".join(entry["roles"]))
+        item = xbmcgui.ListItem(name, label2=" · ".join(entry["roles"]), offscreen=True)
         art = entry["photo"] or "DefaultActor.png"
         item.setArt({"thumb": art, "icon": art, "poster": art})
         items.append((plugin.url_for("search_window", query=name, person=1), item, False))

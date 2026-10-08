@@ -21,7 +21,7 @@ from .common import (
     ADDON, ADDON_NAME, L, announce_playback, clock_text, get_client, get_registry, get_watchstate, log, notify,
     run_with_progress,
 )
-from .details import load_meta
+from .details import load_show
 from .listitems import playback_item
 from .streamwindow import choose_stream
 from .router import route
@@ -116,7 +116,7 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
             if cancelled:
                 return cancel()
         if stream is None:
-            stream = choose_stream(candidates, load_meta(type, meta or id, quiet=True), id)
+            stream = choose_stream(candidates, load_show(type, meta or id, quiet=True, videos={id}), id)
     if stream is None:
         return cancel()
 
@@ -126,7 +126,7 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
         notify(L(30175), icon=xbmcgui.NOTIFICATION_ERROR)
         return cancel()
 
-    info = load_meta(type, meta or id, quiet=True)
+    info = load_show(type, meta or id, quiet=True, videos={id})
     item = playback_item(path, info, id, fallback_title=stream.filename or stream.name)
     if use_inputstream:
         _use_inputstream(item, stream)

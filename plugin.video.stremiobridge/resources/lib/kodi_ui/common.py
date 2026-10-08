@@ -76,12 +76,18 @@ def clock_text(seconds):
     return f"{hours}:{rest // 60:02d}:{rest % 60:02d}" if hours else f"{rest // 60}:{rest % 60:02d}"
 
 
+# One connection per process (per settings): listings ask for these per item,
+# and opening sqlite each time is slow on a Fire TV Stick.
+_shared = {}
+
+
 def get_watchstate():
-    return WatchState(
-        os.path.join(profile_dir(), "watch.db"),
-        watched_ratio=(ADDON.getSettingInt("watched_percent") or 90) / 100,
-        min_resume=ADDON.getSettingInt("min_resume_seconds"),
-    )
+    settings = ((ADDON.getSettingInt("watched_percent") or 90) / 100, ADDON.getSettingInt("min_resume_seconds"))
+    path = os.path.join(profile_dir(), "watch.db")
+    key = ("watchstate", path, settings)
+    if key not in _shared:
+        _shared[key] = WatchState(path, watched_ratio=settings[0], min_resume=settings[1])
+    return _shared[key]
 
 
 def get_mdblist():
@@ -160,7 +166,10 @@ def jsonrpc(method, **params):
 
 
 def get_cache():
-    return Cache(os.path.join(profile_dir(), "cache.db"), log=log)
+    path = os.path.join(profile_dir(), "cache.db")
+    if ("cache", path) not in _shared:
+        _shared[("cache", path)] = Cache(path, log=log)
+    return _shared[("cache", path)]
 
 
 # Stream lists are kept briefly, so a retry after a failed stream (and going

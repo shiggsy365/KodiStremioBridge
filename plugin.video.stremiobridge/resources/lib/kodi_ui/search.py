@@ -27,17 +27,17 @@ def search_menu(plugin):
     handle = plugin.handle
     xbmcplugin.setPluginCategory(handle, L(30070))
 
-    item = xbmcgui.ListItem(f"[B]{L(30071)}[/B]")
+    item = xbmcgui.ListItem(f"[B]{L(30071)}[/B]", offscreen=True)
     item.setArt({"icon": "DefaultAddonsSearch.png"})
     xbmcplugin.addDirectoryItem(handle, plugin.url_for("new_search"), item, isFolder=False)
 
-    item = xbmcgui.ListItem(L(30250))
+    item = xbmcgui.ListItem(L(30250), offscreen=True)
     item.setArt({"icon": "DefaultAddonProgram.png"})
     item.setProperty("SpecialSort", "bottom")
     xbmcplugin.addDirectoryItem(handle, plugin.url_for("search_catalogs"), item, isFolder=True)
 
     for query in get_history().all():
-        item = xbmcgui.ListItem(query)
+        item = xbmcgui.ListItem(query, offscreen=True)
         item.setArt({"icon": "DefaultAddonsSearch.png"})
         add_context_menu(item, [
             (L(30076), plugin.run_url("search_history_remove", query=query)),
@@ -118,7 +118,7 @@ def search(plugin, query, type=None):
         for addon, catalog, previews in groups:
             label = (f"{type_label(catalog.type)} · {addon.search_title(catalog)}  "
                      f"[COLOR grey]{addon.name} ({len(previews)})[/COLOR]")
-            item = xbmcgui.ListItem(label)
+            item = xbmcgui.ListItem(label, offscreen=True)
             art = previews[0].poster or addon.manifest.logo
             if art:
                 item.setArt({"icon": art, "thumb": art, "poster": art})
@@ -240,7 +240,7 @@ def search_recent(plugin, q=None):
 
 
 def _query_item(plugin, query, icon, recent=False):
-    item = xbmcgui.ListItem(query)
+    item = xbmcgui.ListItem(query, offscreen=True)
     item.setArt({"icon": icon})
     if recent:
         add_context_menu(item, [
@@ -301,7 +301,7 @@ def search_catalogs(plugin):
         renamed = f"  [COLOR FF999999]({catalog.name})[/COLOR]" if title != catalog.name else ""
         name = f"{position}. {type_label(catalog.type)} · {title}{renamed}"
         label = f"{check}  {name}  [COLOR grey]{addon.name}[/COLOR]"
-        item = xbmcgui.ListItem(label if enabled else f"{check}  [COLOR grey]{name}  {addon.name}[/COLOR]")
+        item = xbmcgui.ListItem(label if enabled else f"{check}  [COLOR grey]{name}  {addon.name}[/COLOR]", offscreen=True)
         if addon.manifest.logo:
             item.setArt({"icon": addon.manifest.logo, "thumb": addon.manifest.logo})
         ref = {"addon": addon.key, "catalog": catalog.key}

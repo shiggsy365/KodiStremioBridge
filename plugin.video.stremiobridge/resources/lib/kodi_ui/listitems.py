@@ -6,7 +6,6 @@ import xbmc
 import xbmcgui
 
 from stremio.models import CAST
-from stremio.watchstate import next_episode
 
 from .common import ADDON, L, add_context_menu, get_mdblist, get_watchstate, select_opens_info, skin_active
 
@@ -201,7 +200,7 @@ def preview_item(plugin, preview, row=None, started=False, progress=None):
     """Returns ``(url, ListItem, is_folder)`` for a catalog entry. `row` is its
     watch state (movies), if any; `started` means some of the show is watched;
     `progress` is ``(watched, aired)`` episodes for a started show."""
-    item = xbmcgui.ListItem(preview.name)
+    item = xbmcgui.ListItem(preview.name, offscreen=True)
     _apply_preview(item, preview)
     apply_watch(item, row)
     if progress:
@@ -226,7 +225,7 @@ def preview_item(plugin, preview, row=None, started=False, progress=None):
 
 def meta_item(meta):
     """A ListItem carrying everything we know about `meta` (for the info dialog)."""
-    item = xbmcgui.ListItem(meta.name)
+    item = xbmcgui.ListItem(meta.name, offscreen=True)
     _apply_meta(item, meta)
     return item
 
@@ -243,7 +242,7 @@ def season_label(season):
 
 
 def season_item(plugin, meta, season, episode_count, watched_count=0):
-    item = xbmcgui.ListItem(season_label(season))
+    item = xbmcgui.ListItem(season_label(season), offscreen=True)
     art = {"poster": meta.poster, "tvshow.poster": meta.poster, "fanart": meta.background,
            "clearlogo": meta.logo}
     item.setArt({k: v for k, v in art.items() if v})
@@ -286,36 +285,35 @@ def _release_date(iso):
         return ""
 
 
-def apply_info_actions(item, plugin, meta, video=None, watched=False, season=None):
+def apply_info_actions(item, plugin, meta, video=None, watched=False, season=None, header=True):
     """Properties Arctic Zephyr Stremio uses for the buttons on Kodi's info
-    panel, for a movie, a show, one `season` of it or one of its episodes."""
+    panel, for a movie, a show, one `season` of it or one of its episodes.
+    Without `header` (the page's own episode cards) only what a card needs."""
     item.setProperty("ReleaseDate", _release_date(video.air_date if video else meta.premiered))
     shown = video.season if video is not None else season  # the season the show browser opens on
     focus = video
     if video is None and meta.videos:
         from .details import visible_seasons  # details imports this module
+        from .infodialog import episode_to_play
 
         seasons = visible_seasons(meta)
-        upcoming = _next_to_watch(meta)
+        # The browser opens on what the Play button plays
+        target = episode_to_play(meta, get_watchstate(), season)
         if shown is None:
-            shown = upcoming.season if upcoming and upcoming.season in seasons else (seasons[0] if seasons else None)
-        focus = upcoming if upcoming and upcoming.season == shown else None
+            shown = target.season if target and target.season in seasons else (seasons[0] if seasons else None)
+        focus = target if target and target.season == shown else None
     apply_title_actions(item, plugin, meta.type, meta.id, watched, video.id if video else None, season,
-                        browse=bool(meta.videos), default_season=shown)
+                        browse=bool(meta.videos), default_season=shown, header=header)
     if focus is not None:
         item.setProperty("stremiobridge.focus_video", focus.id)  # the browser opens on this episode
 
 
-def _next_to_watch(meta):
-    state = get_watchstate()
-    return next_episode(meta, state.watched_episodes(meta.id), datetime.date.today().isoformat())
-
-
 def apply_title_actions(item, plugin, type_, id_, watched, video=None, season=None, browse=None,
-                        default_season=None):
+                        default_season=None, header=True):
     """The info panel's buttons for title `id_` (or its episode `video`, or its
     `season`): Play, Streams, Mark watched, Watchlist and Similar. `browse`
-    (None: unless it's a movie) makes the in-page show browser its default panel."""
+    (None: unless it's a movie) makes the in-page show browser its default panel.
+    Without `header`, Watchlist and Similar are left out (they're the title's)."""
     from .library import LIBRARY_TYPES  # library and watchlist import details, which imports this module
     from .watchlist import on_watchlist
 
@@ -335,6 +333,8 @@ def apply_title_actions(item, plugin, type_, id_, watched, video=None, season=No
         item.setProperty("stremiobridge.browse", "true")
         if default_season is not None:
             item.setProperty("stremiobridge.default_season", str(default_season))
+    if not header:
+        return
     if get_mdblist() is not None:
         item.setProperty("stremiobridge.similar", "true")
     listed = on_watchlist(type_, id_) if type_ in LIBRARY_TYPES else None
@@ -353,7 +353,7 @@ def episode_listitem(meta, video, released=True):
     if not released:
         label = f"[COLOR grey]{label}  ({video.air_date})[/COLOR]"
 
-    item = xbmcgui.ListItem(label)
+    item = xbmcgui.ListItem(label, offscreen=True)
     art = {"thumb": video.thumbnail or meta.background or meta.poster, "poster": meta.poster,
            "tvshow.poster": meta.poster, "fanart": meta.background, "clearlogo": meta.logo}
     item.setArt({k: v for k, v in art.items() if v})
@@ -395,7 +395,7 @@ def playback_item(path, meta, video_id, fallback_title=""):
     elif meta is not None:
         item = meta_item(meta)
     else:
-        item = xbmcgui.ListItem(fallback_title)
+        item = xbmcgui.ListItem(fallback_title, offscreen=True)
         item.getVideoInfoTag().setTitle(fallback_title)
     item.setPath(path)
     return item

@@ -36,7 +36,7 @@ def hub_art(hub, registry=None):
 
 
 def hub_item(plugin, hub, registry=None):
-    item = xbmcgui.ListItem(hub_label(hub, registry))
+    item = xbmcgui.ListItem(hub_label(hub, registry), offscreen=True)
     item.setArt(hub_art(hub, registry))
     return plugin.url_for("hub", hub=hub), item, True
 
@@ -69,11 +69,11 @@ def hub_view(plugin, hub):
 
     search_type = HUB_SEARCH_TYPES.get(hub)
     if search_type and registry.search_catalogs(search_type):
-        item = xbmcgui.ListItem(L(30079, type=hub_label(hub, registry)))
+        item = xbmcgui.ListItem(L(30079, type=hub_label(hub, registry)), offscreen=True)
         item.setArt(tile_art("search.png"))
         xbmcplugin.addDirectoryItem(handle, plugin.url_for("new_search", type=search_type), item, isFolder=False)
     if hub_genres(catalogs):
-        item = xbmcgui.ListItem(L(30351))
+        item = xbmcgui.ListItem(L(30351), offscreen=True)
         item.setArt(tile_art("genres.png"))
         xbmcplugin.addDirectoryItem(handle, plugin.url_for("hub_genres", hub=hub), item, isFolder=True)
 
@@ -91,7 +91,7 @@ def hub_genres_view(plugin, hub):
     xbmcplugin.setPluginCategory(handle, f"{hub_label(hub, registry)} / {L(30351)}" if known else "")
     items = []
     for genre, (addon, catalog) in genres.items():
-        item = xbmcgui.ListItem(genre, label2=addon.display_name(catalog))
+        item = xbmcgui.ListItem(genre, label2=addon.display_name(catalog), offscreen=True)
         item.setArt(tile_art("genre.png"))
         item.getVideoInfoTag().setPlot(addon.display_name(catalog))
         url = plugin.url_for("catalog", addon=addon.key, type=catalog.type, id=catalog.id,
@@ -115,11 +115,11 @@ def organise(plugin):
             continue
         shown = sum(1 for _, _, visible in entries if visible)
         item = xbmcgui.ListItem(f"{hub_label(hub, registry)}  "
-                                f"[COLOR FF999999]{L(30356, shown=shown, hidden=len(entries) - shown)}[/COLOR]")
+                                f"[COLOR FF999999]{L(30356, shown=shown, hidden=len(entries) - shown)}[/COLOR]", offscreen=True)
         item.setArt(hub_art(hub, registry))
         add_context_menu(item, _hub_actions(plugin, registry, hub))
         xbmcplugin.addDirectoryItem(handle, plugin.url_for("organise_hub", hub=hub), item, isFolder=True)
-    item = xbmcgui.ListItem(L(30357))
+    item = xbmcgui.ListItem(L(30357), offscreen=True)
     item.setArt(tile_art("hub_new.png"))
     xbmcplugin.addDirectoryItem(handle, plugin.url_for("hub_create"), item, isFolder=False)
     xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
@@ -195,7 +195,7 @@ def organise_hub(plugin, hub):
             flags.append(L(30350))
         detail = f"{addon.name} · {type_label(catalog.type)}" + "".join(f" · {f}" for f in flags)
         text = f"{position}. {name}  [COLOR FF999999]{detail}[/COLOR]"
-        item = xbmcgui.ListItem(text if shown else f"[COLOR FF777777]{position}. {name}  {detail}[/COLOR]")
+        item = xbmcgui.ListItem(text if shown else f"[COLOR FF777777]{position}. {name}  {detail}[/COLOR]", offscreen=True)
         ref = {"addon": addon.key, "catalog": catalog.key}
         add_context_menu(item, [(label, plugin.run_url("organise_do", do=do, **ref))
                                 for do, label in _actions(addon, catalog)])

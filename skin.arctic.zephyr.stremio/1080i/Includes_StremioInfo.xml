@@ -15,7 +15,14 @@
      writes the text (stremiobridge.play_label, facts, genres, ...: infodialog.page_text). -->
 <includes>
     <expression name="SBInfoHasCast">!String.IsEmpty(Container(50).ListItemAbsolute(0).Label)</expression>
-    <expression name="SBInfoHasSimilar">$EXP[SBInfoSimilar] + Integer.IsGreater(Container(5160).NumItems,0)</expression>
+    <!-- Kodi keeps a list's last items on screen until its new listing arrives, so after
+         another title's page they're that title's. Stremio Bridge marks each item with its
+         page's title (stremiobridge.page); a list holding another's is hidden (faded, so it
+         still loads) and focus doesn't go to it. -->
+    <expression name="SBInfoSeasonsStale">Integer.IsGreater(Container(5060).NumItems,0) + !String.IsEqual(Container(5060).ListItemAbsolute(0).Property(stremiobridge.page),Window(home).Property(sbinfo.id))</expression>
+    <expression name="SBInfoEpisodesStale">Integer.IsGreater(Container(5061).NumItems,0) + !String.IsEqual(Container(5061).ListItemAbsolute(0).Property(stremiobridge.page),Window(home).Property(sbinfo.id))</expression>
+    <expression name="SBInfoSimilarStale">Integer.IsGreater(Container(5160).NumItems,0) + !String.IsEqual(Container(5160).ListItemAbsolute(0).Property(stremiobridge.page),Window(home).Property(sbinfo.id))</expression>
+    <expression name="SBInfoHasSimilar">$EXP[SBInfoSimilar] + Integer.IsGreater(Container(5160).NumItems,0) + !$EXP[SBInfoSimilarStale]</expression>
     <!-- (5160 must be visible to load at all, so its section shows whenever MDBList is on) -->
 
     <variable name="SBInfoSimilarPath">
@@ -36,7 +43,7 @@
 
     <!-- Down from the buttons, up from the cast: the next section that's there -->
     <include name="SBInfoDownFromButtons">
-        <ondown condition="$EXP[SBInfoBrowse]">5060</ondown>
+        <ondown condition="$EXP[SBInfoBrowse] + !$EXP[SBInfoSeasonsStale]">5060</ondown>
         <ondown condition="!$EXP[SBInfoBrowse] + $EXP[SBInfoHasCast]">5150</ondown>
         <ondown condition="!$EXP[SBInfoBrowse] + !$EXP[SBInfoHasCast] + $EXP[SBInfoHasSimilar]">5160</ondown>
     </include>
@@ -362,6 +369,7 @@
                     <width>1920</width>
                     <height>500</height>
                     <visible>$EXP[SBInfoBrowse]</visible>
+                    <animation effect="fade" start="100" end="0" time="0" condition="$EXP[SBInfoSeasonsStale]">Conditional</animation>
                     <include content="SBInfoHeading">
                         <param name="label" value="Seasons"/>
                     </include>
@@ -376,8 +384,8 @@
                         <onup>9610</onup>
                         <!-- the episodes below follow the current tab; Down or OK goes to them
                              (Stremio Bridge selects the next to watch, or a season's first) -->
-                        <ondown>5061</ondown>
-                        <onclick>SetFocus(5061)</onclick>
+                        <ondown condition="!$EXP[SBInfoEpisodesStale]">5061</ondown>
+                        <onclick condition="!$EXP[SBInfoEpisodesStale]">SetFocus(5061)</onclick>
                         <onback>9610</onback>
                         <content target="videos">$VAR[StremioInfoSeasonsPath]</content>
                         <itemlayout width="170" height="60">
@@ -444,6 +452,7 @@
                         <height>330</height>
                         <orientation>horizontal</orientation>
                         <preloaditems>2</preloaditems>
+                        <animation effect="fade" start="100" end="0" time="0" condition="$EXP[SBInfoEpisodesStale]">Conditional</animation>
                         <onleft>5061</onleft>
                         <onright>5061</onright>
                         <onup condition="Integer.IsGreater(Container(5060).NumItems,1)">5060</onup>
@@ -489,8 +498,8 @@
                         <orientation>horizontal</orientation>
                         <onleft>5150</onleft>
                         <onright>5150</onright>
-                        <onup condition="$EXP[SBInfoBrowse]">5061</onup>
-                        <onup condition="!$EXP[SBInfoBrowse]">9610</onup>
+                        <onup condition="$EXP[SBInfoBrowse] + !$EXP[SBInfoEpisodesStale]">5061</onup>
+                        <onup condition="!$EXP[SBInfoBrowse] | $EXP[SBInfoEpisodesStale]">9610</onup>
                         <ondown condition="$EXP[SBInfoHasSimilar]">5160</ondown>
                         <onback>9610</onback>
                         <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_window&amp;query=$INFO[Container(5150).ListItem.Label]&amp;person=1)</onclick>
@@ -518,7 +527,7 @@
                     <height>430</height>
                     <visible>$EXP[SBInfoSimilar]</visible>
                     <control type="group">
-                        <visible>Integer.IsGreater(Container(5160).NumItems,0)</visible>
+                        <visible>$EXP[SBInfoHasSimilar]</visible>
                         <include content="SBInfoHeading">
                             <param name="label" value="Similar"/>
                         </include>
@@ -532,9 +541,10 @@
                         <onleft>5160</onleft>
                         <onright>5160</onright>
                         <onup condition="$EXP[SBInfoHasCast]">5150</onup>
-                        <onup condition="!$EXP[SBInfoHasCast] + $EXP[SBInfoBrowse]">5061</onup>
-                        <onup condition="!$EXP[SBInfoHasCast] + !$EXP[SBInfoBrowse]">9610</onup>
+                        <onup condition="!$EXP[SBInfoHasCast] + $EXP[SBInfoBrowse] + !$EXP[SBInfoEpisodesStale]">5061</onup>
+                        <onup condition="!$EXP[SBInfoHasCast] + [!$EXP[SBInfoBrowse] | $EXP[SBInfoEpisodesStale]]">9610</onup>
                         <onback>9610</onback>
+                        <animation effect="fade" start="100" end="0" time="0" condition="$EXP[SBInfoSimilarStale]">Conditional</animation>
                         <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=extended_info&amp;type=$INFO[Container(5160).ListItem.Property(stremiobridge.type)]&amp;id=$INFO[Container(5160).ListItem.Property(stremiobridge.id)])</onclick>
                         <content target="videos">$VAR[SBInfoSimilarPath]</content>
                         <itemlayout width="226" height="360">

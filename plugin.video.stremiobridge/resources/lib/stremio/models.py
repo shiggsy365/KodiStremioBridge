@@ -2,6 +2,7 @@
 
 import re
 from dataclasses import dataclass, field
+from functools import cached_property
 
 from . import ManifestError
 
@@ -420,10 +421,19 @@ class Meta(MetaPreview):
 
     def episodes(self, season):
         """Videos of one season (None = videos without a season) in episode order."""
-        videos = [v for v in self.videos if v.season == season]
-        if season is None:
-            return videos  # channel videos: keep the addon's order
-        return sorted(videos, key=lambda v: (v.episode is None, v.episode or 0))
+        return list(self._by_season.get(season, ()))
+
+    @cached_property
+    def _by_season(self):
+        """``{season: videos in episode order}``, grouped once: a soap's thousands of
+        episodes were scanned again for each of its seasons."""
+        grouped = {}
+        for video in self.videos:
+            grouped.setdefault(video.season, []).append(video)
+        for season, videos in grouped.items():
+            if season is not None:  # channel videos: keep the addon's order
+                videos.sort(key=lambda v: (v.episode is None, v.episode or 0))
+        return grouped
 
 
 _ID_PREFIXES = {"tt": "imdb", "tmdb:": "tmdb", "tvdb:": "tvdb", "kitsu:": "kitsu", "mal:": "mal"}

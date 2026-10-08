@@ -141,7 +141,7 @@ class ViewPicker(xbmcgui.WindowXMLDialog):
         self.setProperty("no_preview", L(30293))
         items = []
         for label, label2, image in self.options:
-            item = xbmcgui.ListItem(label, label2=label2)
+            item = xbmcgui.ListItem(label, label2=label2, offscreen=True)
             if image:
                 item.setArt({"thumb": image})
             items.append(item)
@@ -230,7 +230,12 @@ def end_listing(handle, **kwargs):
 
 def _wait_for_listing(path, content=None, wait=3.0):
     """Wait until the Videos window shows our listing `path` (not a widget, not
-    the page it was opened from). False if it didn't within `wait` seconds."""
+    the page it was opened from). False if it didn't within `wait` seconds.
+    A listing opened in the Videos window finds it active already; for widgets
+    and the info page's lists it never shows there, so don't wait (each widget
+    spent the whole `wait` polling Kodi)."""
+    if not xbmc.getCondVisibility("Window.IsActive(videos) + !Window.IsVisible(movieinformation)"):
+        return False
     condition = ("Window.IsActive(videos) + !Container.IsUpdating"
                  f" + String.StartsWith(Container.FolderPath,plugin://{ADDON_ID}/)")
     if content:

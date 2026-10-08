@@ -60,12 +60,27 @@ class Cache:
             self._log(f"Cache entry unreadable ({exc}); ignoring it")
             return None
 
+    def expires(self, key):
+        """When `key` expires (a timestamp, past or future), None if it isn't
+        cached. Doesn't read the value."""
+        try:
+            with self._lock:
+                row = self._db.execute("SELECT expires FROM cache WHERE key = ?", (key,)).fetchone()
+        except sqlite3.Error as exc:
+            self._log(f"Cache read failed: {exc}")
+            return None
+        return row[0] if row else None
+
     def set(self, key, value, ttl):
+        self.set_until(key, value, self._clock() + ttl)
+
+    def set_until(self, key, value, expires):
+        """Like set, expiring at the timestamp `expires`."""
         try:
             with self._lock:
                 self._db.execute(
                     "INSERT OR REPLACE INTO cache (key, expires, value) VALUES (?, ?, ?)",
-                    (key, self._clock() + ttl, sqlite3.Binary(zlib.compress(json.dumps(value).encode(), 6))),
+                    (key, expires, sqlite3.Binary(zlib.compress(json.dumps(value).encode(), 6))),
                 )
         except sqlite3.Error as exc:
             self._log(f"Cache write failed: {exc}")
