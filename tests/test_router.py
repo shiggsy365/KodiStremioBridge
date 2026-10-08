@@ -1088,7 +1088,24 @@ def test_upnext_signal(server, settings, monkeypatch):
     assert data["current_episode"]["episodeid"] == "tt5:1:2" and data["next_episode"]["episodeid"] == "tt5:2:1"
     assert set(data["next_episode"]) >= {"tvshowid", "title", "art", "season", "episode", "showtitle", "plot",
                                          "playcount", "rating", "firstaired"}
-    assert data["play_url"] == f"{BASE}?action=play&type=series&id=tt5%3A2%3A1&meta=tt5&binge=grp"
+    # play_info, not play_url: Up Next queues a play_url in Kodi's playlist and skips to it, which
+    # our playback isn't (Kodi: "Can't find a next item to play"). It sends play_info back to us.
+    assert "play_url" not in data
+    assert data["play_info"] == {"type": "series", "id": "tt5:2:1", "meta": "tt5", "binge": "grp"}
+
+    # Up Next's "play it" notification: we start the episode (from where it was left, if started).
+    monkeypatch.setattr(service, "UPNEXT_PLAY", "Other.plugin.video.stremiobridge_play_action")
+    played = []
+    monkeypatch.setattr(service.xbmc, "executebuiltin", lambda cmd, *a: played.append(cmd))
+    notice = jsonlib.dumps([base64.b64encode(jsonlib.dumps(data["play_info"]).encode()).decode()])
+    monitor = service.LibraryMonitor(worker=None)
+    monitor.onNotification("upnextprovider.SIGNAL", "Other.plugin.video.stremiobridge_play_action", notice)
+    common.get_watchstate().record(PlaybackEntry(video_id="tt5:2:1", type="series", meta_id="tt5", season=2,
+                                                 episode=1), 600, 3000)
+    monitor.onNotification("upnextprovider.SIGNAL", "Other.plugin.video.stremiobridge_play_action", notice)
+    monitor.onNotification("someone.SIGNAL", "Other.plugin.video.stremiobridge_play_action", notice)  # not Up Next
+    base = "plugin://plugin.video.stremiobridge/?action=play&type=series&id=tt5%3A2%3A1&meta=tt5&binge=grp"
+    assert played == [f"PlayMedia({base}&resume=0,noresume)", f"PlayMedia({base}&resume=1,noresume)"]
 
     sent.clear()                                              # last aired episode: nothing to offer
     service.signal_upnext(PlaybackEntry(video_id="tt5:2:1", type="series", meta_id="tt5", season=2, episode=1))

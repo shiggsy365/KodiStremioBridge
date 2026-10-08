@@ -433,6 +433,26 @@ class LibraryMonitor(xbmc.Monitor):
             self.worker.submit(on_library_update, payload)
         elif method == "VideoLibrary.OnScanFinished":
             self.worker.submit(sync_library)
+        elif method == UPNEXT_PLAY and sender == "upnextprovider.SIGNAL":
+            play_from_upnext(data)
+
+
+def play_from_upnext(data):
+    """Up Next's UPNEXT_PLAY: `data` is the notification's data, a JSON list
+    holding our play_info, base64-encoded JSON. Starts that episode, where it
+    was left if it was started before."""
+    try:
+        info = json.loads(base64.b64decode(json.loads(data)[0]))
+        type_, id_ = info["type"], info["id"]
+    except (ValueError, TypeError, KeyError, IndexError):
+        log(f"Up Next sent something we can't play: {data!r}", xbmc.LOGWARNING)
+        return
+    row = get_watchstate().get(id_)
+    resume = "1" if row and row.position > 0 and not row.watched else "0"
+    url = plugin_url("play", type=type_, id=id_, meta=info.get("meta") or None, binge=info.get("binge") or None,
+                     resume=resume)
+    log(f"Up Next: playing {id_}")
+    xbmc.executebuiltin(f"PlayMedia({url},noresume)")  # resume says where (the service seeks)
 
 
 def _upnext_episode(meta, video):
@@ -459,9 +479,15 @@ def _upnext_episode(meta, video):
     }
 
 
+UPNEXT_PLAY = f"Other.{ADDON_ID}_play_action"  # Up Next's notification when it's time to play
+
+
 def signal_upnext(entry):
-    """Tell Up Next what follows this episode; it calls our play URL (with the
-    same source group) when the user continues."""
+    """Tell Up Next what follows this episode. When the user continues (or the
+    countdown ends) it sends us `play_info` back (UPNEXT_PLAY) and we start the
+    episode, with the same source group. Not a play_url: Up Next queues that in
+    Kodi's playlist and skips to it, but our playback isn't a playlist's, so Kodi
+    found no next item ("Can't find a next item to play")."""
     from .details import load_show
 
     today = datetime.date.today().isoformat()
@@ -480,8 +506,7 @@ def signal_upnext(entry):
     data = {
         "current_episode": _upnext_episode(meta, current),
         "next_episode": _upnext_episode(meta, following),
-        "play_url": plugin_url("play", type=entry.type, id=following.id, meta=meta.id,
-                               binge=entry.binge_group or None),
+        "play_info": {"type": entry.type, "id": following.id, "meta": meta.id, "binge": entry.binge_group or ""},
     }
     encoded = base64.b64encode(json.dumps(data).encode("utf-8")).decode("ascii")
     xbmc.executeJSONRPC(json.dumps({
