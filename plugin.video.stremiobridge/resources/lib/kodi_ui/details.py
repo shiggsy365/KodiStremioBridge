@@ -13,7 +13,7 @@ from stremio.meta import cinemeta_fallback, fetch_meta_source, meta_candidates
 from stremio.models import CAST, DIRECTOR, WRITER
 from stremio.watchstate import next_episode
 
-from .common import ADDON, L, get_client, get_registry, get_watchstate, log, notify
+from .common import ADDON, L, add_context_menu, get_client, get_registry, get_watchstate, log, notify
 from .listitems import (
     YOUTUBE_PLUGIN, apply_info_actions, apply_watch, episode_code, episode_item, episode_listitem, mark_item_watched,
     season_item, season_label, single_video_item,
@@ -157,6 +157,7 @@ def info_seasons(plugin, type, id, focus=None, rev=None):
         item = xbmcgui.ListItem(season_label(season), offscreen=True)
         item.setProperty("season", str(season))
         item.setProperty(PAGE, id)
+        add_context_menu(item, [])  # the skin's hand-over marker: our menu (Mark as watched)
         aired = {(v.season, v.episode) for v in meta.episodes(season) if v.is_released(today)}
         mark_item_watched(item, bool(aired) and aired <= watched)
         # The season's own path: its context menu (contextmenu.py) is the season's.
@@ -211,9 +212,10 @@ def info_episodes(plugin, type, id, season="", focus=None, rev=None):
         item.setProperty("IsPlayable", "false")
         item.setProperty("stremiobridge.code", episode_code(video))
         item.setProperty(PAGE, id)
+        add_context_menu(item, [])  # the skin's hand-over marker: our menu (Mark as watched)
         if video.rating:
             item.setProperty("stremiobridge.rating", f"{video.rating:.1f}")
-        # The header takes these over when the card has focus a moment (service.InfoPageFollower)
+        # The page's header shows these while the card has focus (Includes_StremioInfo.xml)
         for name, value in page_text(meta, video, state, rows=rows).items():
             item.setProperty(f"stremiobridge.page.{name}", value)
         items.append((plugin.url_for("extended_info", type=type, id=id, video=video.id), item, False))

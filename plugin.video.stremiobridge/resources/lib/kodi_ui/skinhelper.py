@@ -123,6 +123,21 @@ def skin_jump(plugin, letter):
 # filled with this add-on's catalogs of that hub.
 SKIN_HUBS = {"x1112": ("movies", "DefaultMovies.png"), "x1113": ("tvshows", "DefaultTVShows.png")}
 SHORTCUTS_DIR = "special://profile/addon_data/script.skinshortcuts/"
+# Skin Shortcuts keeps its hash (of what the menus were built from) in the master
+# profile's folder, whichever profile is logged in; removing it has the menus rebuilt.
+SHORTCUTS_HASH = f"special://masterprofile/addon_data/script.skinshortcuts/{SKIN_ID}.hash"
+
+
+def rebuild_menus():
+    """Have Skin Shortcuts rebuild the skin's menus (it does on the next skin reload)."""
+    import os
+
+    import xbmcvfs
+
+    try:
+        os.remove(xbmcvfs.translatePath(SHORTCUTS_HASH))
+    except OSError:
+        pass
 
 
 def hub_shortcuts_xml(entries):
@@ -192,10 +207,7 @@ def update_skin_hubs(force=False):
             f.write(xml)
         changed = True
     if changed:
-        try:  # Skin Shortcuts rebuilds the menus when its hash is gone
-            os.remove(os.path.join(folder, f"{SKIN_ID}.hash"))
-        except OSError:
-            pass
+        rebuild_menus()
         log("Skin hubs updated")
     return changed
 

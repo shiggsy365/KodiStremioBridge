@@ -36,7 +36,37 @@
         <value condition="Control.HasFocus(9613)">Add to watchlist</value>
         <value condition="Control.HasFocus(9614)">Play trailer</value>
     </variable>
+    <!-- While the episode row has focus the header is about its card; leaving the row keeps that
+         card (SBInfoTakeEpisode, the row's onunfocus, copies it into the page's sbinfo.* properties,
+         which the buttons act on). The skin does this itself: Stremio Bridge's service no longer watches focus. -->
+    <expression name="SBInfoFollowCard">Control.HasFocus(5061) + Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]</expression>
+    <include name="SBInfoTakeEpisode">
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.video,$INFO[Container(5061).ListItem.Property(stremiobridge.video)],home)</onunfocus>
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.play_action,$INFO[Container(5061).ListItem.Property(stremiobridge.play_action)],home)</onunfocus>
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.streams_action,$INFO[Container(5061).ListItem.Property(stremiobridge.streams_action)],home)</onunfocus>
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.watched_action,$INFO[Container(5061).ListItem.Property(stremiobridge.watched_action)],home)</onunfocus>
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.play_label,$ESCINFO[Container(5061).ListItem.Property(stremiobridge.page.play_label)],home)</onunfocus>
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.facts,$ESCINFO[Container(5061).ListItem.Property(stremiobridge.page.facts)],home)</onunfocus>
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.rating,$ESCINFO[Container(5061).ListItem.Property(stremiobridge.page.rating)],home)</onunfocus>
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.subtitle,$ESCINFO[Container(5061).ListItem.Property(stremiobridge.page.subtitle)],home)</onunfocus>
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.plot,$ESCINFO[Container(5061).ListItem.Plot],home)</onunfocus>
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale] + Integer.IsGreater(Container(5061).ListItem.PlayCount,0)">SetProperty(sbinfo.watched,1,home)</onunfocus>
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale] + !Integer.IsGreater(Container(5061).ListItem.PlayCount,0)">ClearProperty(sbinfo.watched,home)</onunfocus>
+    </include>
+    <variable name="SBInfoSubtitle">
+        <value condition="$EXP[SBInfoFollowCard]">$INFO[Container(5061).ListItem.Property(stremiobridge.page.subtitle)]</value>
+        <value>$INFO[Window(home).Property(sbinfo.subtitle)]</value>
+    </variable>
+    <variable name="SBInfoFacts">
+        <value condition="$EXP[SBInfoFollowCard]">$INFO[Container(5061).ListItem.Property(stremiobridge.page.facts)]</value>
+        <value>$INFO[Window(home).Property(sbinfo.facts)]</value>
+    </variable>
+    <variable name="SBInfoPlot">
+        <value condition="$EXP[SBInfoFollowCard]">$INFO[Container(5061).ListItem.Plot]</value>
+        <value>$INFO[Window(home).Property(sbinfo.plot)]$INFO[Window(home).Property(sbinfo.plotreset)]</value>
+    </variable>
     <variable name="SBInfoPlayLabel">
+        <value condition="$EXP[SBInfoFollowCard] + !String.IsEmpty(Container(5061).ListItem.Property(stremiobridge.page.play_label))">$INFO[Container(5061).ListItem.Property(stremiobridge.page.play_label)]</value>
         <value condition="!String.IsEmpty(Window(home).Property(sbinfo.play_label))">$INFO[Window(home).Property(sbinfo.play_label)]</value>
         <value>$LOCALIZE[208]</value>
     </variable>
@@ -120,6 +150,7 @@
 
     <!-- A pill with text in it (age rating, rating): a disabled button sizes itself to its label -->
     <include name="SBInfoPill">
+        <param name="visible" default="true"/>
         <definition>
             <control type="button">
                 <width>auto</width>
@@ -133,7 +164,7 @@
                 <texturenofocus border="10" colordiffuse="B3FFFFFF">stremio/badge-outline.png</texturenofocus>
                 <texturefocus border="10" colordiffuse="B3FFFFFF">stremio/badge-outline.png</texturefocus>
                 <label>$PARAM[label]</label>
-                <visible>!String.IsEmpty($PARAM[value])</visible>
+                <visible>!String.IsEmpty($PARAM[value]) + $PARAM[visible]</visible>
             </control>
         </definition>
     </include>
@@ -217,8 +248,8 @@
                             <height>40</height>
                             <font>SBInfoFacts</font>
                             <textcolor>FFFFFFFF</textcolor>
-                            <label>$INFO[Window(home).Property(sbinfo.subtitle)]</label>
-                            <visible>!String.IsEmpty(Window(home).Property(sbinfo.subtitle))</visible>
+                            <label>$VAR[SBInfoSubtitle]</label>
+                            <visible>[$EXP[SBInfoFollowCard] + !String.IsEmpty(Container(5061).ListItem.Property(stremiobridge.page.subtitle))] | [!$EXP[SBInfoFollowCard] + !String.IsEmpty(Window(home).Property(sbinfo.subtitle))]</visible>
                         </control>
                         <control type="grouplist">
                             <width>1100</width>
@@ -231,8 +262,8 @@
                                 <aligny>center</aligny>
                                 <font>SBInfoFacts</font>
                                 <textcolor>FFFFFFFF</textcolor>
-                                <label>$INFO[Window(home).Property(sbinfo.facts)]</label>
-                                <visible>!String.IsEmpty(Window(home).Property(sbinfo.facts))</visible>
+                                <label>$VAR[SBInfoFacts]</label>
+                                <visible>[$EXP[SBInfoFollowCard] + !String.IsEmpty(Container(5061).ListItem.Property(stremiobridge.page.facts))] | [!$EXP[SBInfoFollowCard] + !String.IsEmpty(Window(home).Property(sbinfo.facts))]</visible>
                             </control>
                             <include content="SBInfoPill">
                                 <param name="label" value="$INFO[Window(home).Property(sbinfo.certification)]"/>
@@ -241,6 +272,12 @@
                             <include content="SBInfoPill">
                                 <param name="label" value="$INFO[Window(home).Property(sbinfo.rating)]"/>
                                 <param name="value" value="Window(home).Property(sbinfo.rating)"/>
+                                <param name="visible" value="!$EXP[SBInfoFollowCard]"/>
+                            </include>
+                            <include content="SBInfoPill">
+                                <param name="label" value="$INFO[Container(5061).ListItem.Property(stremiobridge.page.rating)]"/>
+                                <param name="value" value="Container(5061).ListItem.Property(stremiobridge.page.rating)"/>
+                                <param name="visible" value="$EXP[SBInfoFollowCard]"/>
                             </include>
                         </control>
                         <control type="label">
@@ -256,7 +293,7 @@
                             <height>112</height>
                             <font>SBInfoBody</font>
                             <textcolor>FFF0F0F0</textcolor>
-                            <label>$INFO[Window(home).Property(sbinfo.plot)]$INFO[Window(home).Property(sbinfo.plotreset)]</label>
+                            <label>$VAR[SBInfoPlot]</label>
                             <autoscroll delay="6000" time="3000" repeat="8000">true</autoscroll>
                         </control>
                     </control>
@@ -455,6 +492,7 @@
                         <animation effect="fade" start="100" end="0" time="0" condition="$EXP[SBInfoEpisodesStale]">Conditional</animation>
                         <onleft>5061</onleft>
                         <onright>5061</onright>
+                        <include>SBInfoTakeEpisode</include>
                         <onup condition="Integer.IsGreater(Container(5060).NumItems,1)">5060</onup>
                         <onup condition="!Integer.IsGreater(Container(5060).NumItems,1)">9610</onup>
                         <ondown condition="$EXP[SBInfoHasCast]">5150</ondown>

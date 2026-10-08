@@ -61,7 +61,7 @@ def new_search(plugin, type=None):
 
 def find_results(query, type_=None, person=False, quiet=False):
     """Search every enabled search catalog (in the user's order), falling back
-    to Cinemeta if none of them finds anything. Returns ``(groups, fallback)``:
+    to Cinemeta if none of them finds anything (setting "Search Cinemeta too"). Returns ``(groups, fallback)``:
     non-empty ``(addon, catalog, previews)`` results, and whether they came
     from the fallback. Tells the user when there's nothing (groups empty).
 
@@ -70,7 +70,7 @@ def find_results(query, type_=None, person=False, quiet=False):
     Cinemeta, whose search matches cast and crew (title searches mostly don't).
     `quiet`: no progress dialog and no notifications (search as you type)."""
     targets = get_registry().search_catalogs(type_)
-    use_cinemeta = ADDON.getSettingBool("cinemeta_fallback")
+    use_cinemeta = ADDON.getSettingBool("cinemeta_search")
     if person:
         people = [(a, c) for a, c in targets if c.is_people_search]
         if people:

@@ -4,6 +4,7 @@ import contextlib
 import dataclasses
 import importlib
 import os
+import time
 from urllib.parse import parse_qsl, urlencode, urlsplit
 
 import pytest
@@ -20,7 +21,7 @@ from kodi_ui import common, router  # noqa: E402
 BASE = "plugin://plugin.video.stremiobridge/"
 
 
-SETTINGS = {"cinemeta_fallback": False, "show_specials": True, "hide_unaired": False,
+SETTINGS = {"cinemeta_fallback": False, "cinemeta_search": False, "show_specials": True, "hide_unaired": False,
             "request_timeout": 5, "cache_catalog_minutes": 0, "cache_meta_hours": 0,
             "autoplay": False, "sort_mode": 0, "max_resolution": 0, "hide_cam": True,
             "exclude_keywords": "", "torrent_mode": 0, "subtitles_enabled": False,
@@ -432,10 +433,10 @@ def test_search_falls_back_to_cinemeta(server, listing, settings, monkeypatch):
         {"id": "tt1520211", "type": "series", "name": "The Walking Dead"}]}
     items, ends = listing
 
-    settings["cinemeta_fallback"] = False
+    settings.update(cinemeta_search=False, cinemeta_fallback=True)      # Cinemeta for metadata only
     call("search", query="frank darabont")
     assert ends == [False]
-    settings["cinemeta_fallback"] = True
+    settings["cinemeta_search"] = True
     call("search", query="frank darabont")
     assert [(p["action"], p["id"]) for p, _ in items] == [("play", "tt0111161"), ("meta", "tt1520211")]
 
@@ -2056,7 +2057,7 @@ def test_person_search_targets(server, settings, monkeypatch):
     server.routes["/manifest.json"] = {**CINEMETA_LIKE, "catalogs": [
         {"type": "movie", "id": "search.movie", "name": "Movies Search", "extra": [{"name": "search", "isRequired": True}]}]}
     call("add_addon", handle=-1, url=server.url)
-    settings["cinemeta_fallback"] = True                       # person searches add Cinemeta only if allowed
+    settings["cinemeta_search"] = True                         # person searches add Cinemeta only if allowed
     monkeypatch.setattr(xbmcgui.DialogProgress, "iscanceled", lambda self: False)
     monkeypatch.setattr(xbmcgui.Dialog, "notification", lambda *a, **k: None)
     fake_cinemeta = [(InstalledAddon(server.url + "/cm/manifest.json", a.manifest), c)
@@ -3213,31 +3214,32 @@ def test_info_mark_reloads_the_browser_in_place(monkeypatch, home_props):
     assert home_props["sbinfo.season_focus"] == "2" and home_props[infodialog.BROWSER_REVISION] >= revision
 
 
-def test_info_page_header_follows_a_settled_episode_card(monkeypatch, home_props):
-    from kodi_ui import service
+def test_handed_over_menu_is_for_the_focused_title(monkeypatch, home_props):
+    """The skin hands Kodi's context menu to context_menu without saying which
+    item it's for: the focused one, read once the menu has closed. Not one of
+    our titles: Kodi's own menu, once (the skin lets it through)."""
+    from kodi_ui import contextmenu
 
-    now = [1000.0]
-    card = {"Property(stremiobridge.video)": "tt5:1:2", "Property(stremiobridge.page.play_label)": "Play S1 E2",
-            "Property(stremiobridge.page.subtitle)": "S1 E2  Two", "Property(stremiobridge.play_action)": "PLAY",
-            "Plot": "Episode two.", "PlayCount": "1"}
-    monkeypatch.setattr(service.time, "time", lambda: now[0])
-    monkeypatch.setattr(xbmc, "getCondVisibility", lambda condition: True)
-    monkeypatch.setattr(xbmc, "getInfoLabel", lambda label: card.get(label.replace("Container(5061).ListItem.", ""), ""))
-    follower = service.InfoPageFollower(xbmcgui.Window(10000))
+    monkeypatch.setattr(contextmenu, "ADDON_ID", "plugin.video.stremiobridge")
+    title = "plugin://plugin.video.stremiobridge/?action=play&type=movie&id=tt1"
+    focused = {"path": title}
+    monkeypatch.setattr(contextmenu, "focused_item", lambda: ("ListItem", focused["path"]))
+    shown, builtins, menus = [], [], []
+    monkeypatch.setattr(contextmenu, "_show_menu", lambda plugin, path, source: shown.append((source, path)))
+    monkeypatch.setattr(contextmenu.xbmc, "executebuiltin", lambda cmd, *a: builtins.append(cmd))
 
-    follower.tick()
-    now[0] += 0.5
-    follower.tick()
-    assert "sbinfo.play_label" not in home_props          # not settled yet
-    now[0] += 0.6
-    follower.tick()
-    assert home_props["sbinfo.play_label"] == "Play S1 E2"
-    assert (home_props["sbinfo.subtitle"], home_props["sbinfo.plot"]) == ("S1 E2  Two", "Episode two.")
-    assert (home_props["sbinfo.play_action"], home_props["sbinfo.video"], home_props["sbinfo.watched"]) == \
-        ("PLAY", "tt5:1:2", "1")
+    call("context_menu", handle=-1)
+    assert shown == [("ListItem", title)] and builtins == []
 
+    focused["path"] = "plugin://plugin.video.stremiobridge/?action=catalog&addon=x&type=movie&id=top"
+    call("context_menu", handle=-1)
+    assert len(shown) == 1 and builtins == ["Action(ContextMenu)"] and home_props.get(common.MENU_NATIVE) == "1"
 
-# ---------------------------------------------------------------- widget and hub rows paged in place
+    # The add-on's own menus are marked while they show, so the skin leaves them alone.
+    monkeypatch.setattr(xbmcgui.Dialog, "contextmenu",
+                        lambda self, options: menus.append(home_props.get(common.MENU_OPEN)) or 1)
+    assert common.choose_from_menu(["a", "b"]) == 1
+    assert menus == ["1"] and not home_props.get(common.MENU_OPEN)
 
 def test_widget_rows_page_in_place(server, listing, settings, monkeypatch, home_props):
     from kodi_ui import browse
@@ -3380,3 +3382,113 @@ def test_kodi_splash_follows_the_skin_setting(monkeypatch, tmp_path):
     assert splash.apply_splash(want=True) and target.read_bytes() == b"stremio splash"
     target.write_bytes(b"an earlier version's splash")
     assert splash.apply_splash(want=False) and not target.exists()
+
+
+def test_service_worker_ends_when_kodi_stops_the_service(monkeypatch):
+    """Kodi waits for every thread of a stopped script: the worker mustn't
+    outlive the service, even when its stop is never called."""
+    from kodi_ui import service
+
+    aborted = []
+    monkeypatch.setattr(service.xbmc.Monitor, "abortRequested", lambda self: bool(aborted), raising=False)
+    worker = service.Worker()
+    done = []
+    worker.submit(done.append, 1)
+    for _ in range(50):
+        if done:
+            break
+        time.sleep(0.02)
+    assert done == [1] and worker._thread.is_alive()
+    aborted.append(True)
+    worker._thread.join(timeout=3)
+    assert not worker._thread.is_alive()
+
+
+def test_a_widget_naming_a_missing_addon_fails_quietly(listing, settings, monkeypatch):
+    """Another profile's widget (until the menus are rebuilt) names an addon this
+    profile doesn't have: no pop-up on the home screen; opened as a folder, it says why."""
+    from kodi_ui import browse
+
+    notices = []
+    monkeypatch.setattr(browse, "notify", lambda message, **kw: notices.append(message))
+    _, ends = listing
+    in_videos = []
+    monkeypatch.setattr(browse.xbmc, "getCondVisibility", lambda cond: bool(in_videos) and "videos" in cond)
+    call("catalog", addon="cc33fe5c93", type="movie", id="top")
+    assert ends == [False] and notices == []
+    in_videos.append(True)
+    call("catalog", addon="cc33fe5c93", type="movie", id="top")
+    assert ends == [False, False] and len(notices) == 1
+
+
+def test_titles_menus_start_with_the_skins_hand_over_marker(monkeypatch):
+    """With Arctic Zephyr Stremio a title's context menu starts with MENU_MARKER
+    (once, also with no other entries): the skin hands Kodi's menu over when it
+    does. Our own menu leaves it out."""
+    from kodi_ui import contextmenu, router
+
+    menus = []
+    monkeypatch.setattr(xbmcgui.ListItem, "addContextMenuItems", lambda self, items: menus.append(items))
+    monkeypatch.setattr(common, "skin_active", lambda: True)
+    item = xbmcgui.ListItem("Title")
+    common.add_context_menu(item, [])
+    common.add_context_menu(item, [("Play trailer", "RunPlugin(trailer)")])
+    assert [cmd for _, cmd in menus[-1]] == [common.MENU_MARKER, "RunPlugin(trailer)"]
+
+    monkeypatch.setattr(common, "skin_active", lambda: False)
+    other = xbmcgui.ListItem("Title")
+    menus.clear()
+    common.add_context_menu(other, [])
+    assert menus == []                                              # other skins: no marker, no menu
+
+    monkeypatch.setattr(contextmenu, "ADDON_ID", "plugin.video.stremiobridge")
+    monkeypatch.setattr(contextmenu.xbmc, "getLocalizedString", lambda n: str(n))
+    plugin = router.Plugin(["plugin://plugin.video.stremiobridge/", "-1", ""])
+    path = "plugin://plugin.video.stremiobridge/?action=play&type=movie&id=tt1"
+    own = [["Stremio Bridge", common.MENU_MARKER], ["Play trailer", "RunPlugin(trailer)"]]
+    entries = contextmenu.menu_entries(plugin, path, own, favourite=False)
+    assert common.MENU_MARKER not in [cmd for _, cmd in entries] and "RunPlugin(trailer)" in [c for _, c in entries]
+
+
+def test_home_widgets_follow_the_profile(monkeypatch, tmp_path, home_props):
+    """Customise Home's choices for Home, Movies and TV Shows move into this
+    profile's own store; the menu's references (sbhome.*) are filled in from it."""
+    import json as json_
+
+    from kodi_ui import homewidgets
+
+    props = tmp_path / "skin.properties"
+    monkeypatch.setattr(homewidgets, "properties_path", lambda: str(props))
+    monkeypatch.setattr(homewidgets, "profile_dir", lambda: str(tmp_path / "profile"))
+    monkeypatch.setattr(homewidgets, "skin_active", lambda: True)
+    ours = homewidgets._OURS  # plugin://<this add-on>/
+    token = "&reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]"
+    rows = [
+        ["mainmenu", "movies", "widgetPath", f"{ours}?action=catalog&addon=cc&type=movie&id=trending{token}"],
+        ["mainmenu", "movies", "widgetName", "Trending"],
+        ["mainmenu", "movies", "widgetEnable.2", "yes"],                       # Skin Shortcuts' own: stays
+        ["mainmenu", "tvshows", "widgetPath.2", homewidgets.reference("tvshows", "widgetPath.2")],
+        ["mainmenu", "podcasts", "widgetPath", "plugin://plugin.audio.podcasts/"],  # not one of ours: stays
+    ]
+    props.write_text(repr(rows))                                               # the older format
+    assert homewidgets.take_over()
+    # Skin Shortcuts builds a customised menu from these rows alone: references take the values' place
+    assert json_.loads(props.read_text()) == [
+        ["mainmenu", "movies", "widgetPath", homewidgets.reference("movies", "widgetPath")],
+        ["mainmenu", "movies", "widgetName", homewidgets.reference("movies", "widgetName")],
+        rows[2], rows[3], rows[4]]
+    assert homewidgets.load_store() == {"movies": {
+        "widgetPath": f"{ours}?action=catalog&addon=cc&type=movie&id=trending", "widgetName": "Trending"}}
+    assert not homewidgets.take_over()                                         # nothing new: no rebuild
+
+    home_props[common.WIDGETS_RELOAD] = "123"
+    homewidgets.publish()
+    assert home_props["sbhome.movies.widgetPath"] == f"{ours}?action=catalog&addon=cc&type=movie&id=trending&reload=123"
+    assert home_props["sbhome.movies.widgetName"] == "Trending"
+    assert home_props["sbhome.movies.widgetName.2"] == "Popular Movies"           # the skin's default
+    assert home_props["sbhome.10000.widgetPath"] == f"{ours}?action=continue&reload=123"
+    assert home_props["sbhome.tvshows.widgetPath.3"] == ""
+
+    # A widget removed in Customise Home (its rows gone) is forgotten here too.
+    props.write_text(json_.dumps([rows[2]]))
+    assert not homewidgets.take_over() and homewidgets.load_store() == {"movies": {}}

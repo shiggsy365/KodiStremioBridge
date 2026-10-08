@@ -11,36 +11,56 @@
     </variable>
 
     <variable name="LabelWidgetShortcutsName">
+        <!-- Arctic Zephyr Stremio: Home, Movies and TV Shows widgets are this profile's (Stremio
+             Bridge fills them in): the menu holds a reference, shown here as its value -->
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),10000) + String.Contains(Container(211).ListItem.Property(widgetName),sbhome.)">$INFO[Window(Home).Property(sbhome.10000.widgetName)]</value>
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),movies) + String.Contains(Container(211).ListItem.Property(widgetName),sbhome.)">$INFO[Window(Home).Property(sbhome.movies.widgetName)]</value>
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),tvshows) + String.Contains(Container(211).ListItem.Property(widgetName),sbhome.)">$INFO[Window(Home).Property(sbhome.tvshows.widgetName)]</value>
         <value condition="!String.IsEmpty(Container(211).ListItem.Property(widgetName))">$INFO[Container(211).ListItem.Property(widgetName)]</value>
         <value condition="!String.IsEmpty(Container(211).ListItem.Property(background))">$LOCALIZE[31110]</value>
         <value>$LOCALIZE[31269]</value>
     </variable>
 
     <variable name="LabelWidgetShortcutsName2">
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),10000) + String.Contains(Container(211).ListItem.Property(widgetName.2),sbhome.)">$INFO[Window(Home).Property(sbhome.10000.widgetName.2)]</value>
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),movies) + String.Contains(Container(211).ListItem.Property(widgetName.2),sbhome.)">$INFO[Window(Home).Property(sbhome.movies.widgetName.2)]</value>
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),tvshows) + String.Contains(Container(211).ListItem.Property(widgetName.2),sbhome.)">$INFO[Window(Home).Property(sbhome.tvshows.widgetName.2)]</value>
         <value condition="!String.IsEmpty(Container(211).ListItem.Property(widgetName.2))">$INFO[Container(211).ListItem.Property(widgetName.2)]</value>
         <value condition="!String.IsEmpty(Container(211).ListItem.Property(background.2))">$LOCALIZE[31110]</value>
         <value>$LOCALIZE[31269]</value>
     </variable>
 
     <variable name="LabelWidgetShortcutsName3">
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),10000) + String.Contains(Container(211).ListItem.Property(widgetName.3),sbhome.)">$INFO[Window(Home).Property(sbhome.10000.widgetName.3)]</value>
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),movies) + String.Contains(Container(211).ListItem.Property(widgetName.3),sbhome.)">$INFO[Window(Home).Property(sbhome.movies.widgetName.3)]</value>
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),tvshows) + String.Contains(Container(211).ListItem.Property(widgetName.3),sbhome.)">$INFO[Window(Home).Property(sbhome.tvshows.widgetName.3)]</value>
         <value condition="!String.IsEmpty(Container(211).ListItem.Property(widgetName.3))">$INFO[Container(211).ListItem.Property(widgetName.3)]</value>
         <value condition="!String.IsEmpty(Container(211).ListItem.Property(background.3))">$LOCALIZE[31110]</value>
         <value>$LOCALIZE[31269]</value>
     </variable>
 
     <variable name="LabelWidgetShortcutsName4">
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),10000) + String.Contains(Container(211).ListItem.Property(widgetName.4),sbhome.)">$INFO[Window(Home).Property(sbhome.10000.widgetName.4)]</value>
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),movies) + String.Contains(Container(211).ListItem.Property(widgetName.4),sbhome.)">$INFO[Window(Home).Property(sbhome.movies.widgetName.4)]</value>
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),tvshows) + String.Contains(Container(211).ListItem.Property(widgetName.4),sbhome.)">$INFO[Window(Home).Property(sbhome.tvshows.widgetName.4)]</value>
         <value condition="!String.IsEmpty(Container(211).ListItem.Property(widgetName.4))">$INFO[Container(211).ListItem.Property(widgetName.4)]</value>
         <value condition="!String.IsEmpty(Container(211).ListItem.Property(background.4))">$LOCALIZE[31110]</value>
         <value>$LOCALIZE[31269]</value>
     </variable>
 
     <variable name="LabelWidgetShortcutsName5">
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),10000) + String.Contains(Container(211).ListItem.Property(widgetName.5),sbhome.)">$INFO[Window(Home).Property(sbhome.10000.widgetName.5)]</value>
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),movies) + String.Contains(Container(211).ListItem.Property(widgetName.5),sbhome.)">$INFO[Window(Home).Property(sbhome.movies.widgetName.5)]</value>
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),tvshows) + String.Contains(Container(211).ListItem.Property(widgetName.5),sbhome.)">$INFO[Window(Home).Property(sbhome.tvshows.widgetName.5)]</value>
         <value condition="!String.IsEmpty(Container(211).ListItem.Property(widgetName.5))">$INFO[Container(211).ListItem.Property(widgetName.5)]</value>
         <value condition="!String.IsEmpty(Container(211).ListItem.Property(background.5))">$LOCALIZE[31110]</value>
         <value>$LOCALIZE[31269]</value>
     </variable>
 
     <variable name="LabelWidgetShortcutsName6">
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),10000) + String.Contains(Container(211).ListItem.Property(widgetName.6),sbhome.)">$INFO[Window(Home).Property(sbhome.10000.widgetName.6)]</value>
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),movies) + String.Contains(Container(211).ListItem.Property(widgetName.6),sbhome.)">$INFO[Window(Home).Property(sbhome.movies.widgetName.6)]</value>
+        <value condition="String.IsEqual(Container(211).ListItem.Property(labelID),tvshows) + String.Contains(Container(211).ListItem.Property(widgetName.6),sbhome.)">$INFO[Window(Home).Property(sbhome.tvshows.widgetName.6)]</value>
         <value condition="!String.IsEmpty(Container(211).ListItem.Property(widgetName.6))">$INFO[Container(211).ListItem.Property(widgetName.6)]</value>
         <value condition="!String.IsEmpty(Container(211).ListItem.Property(background.6))">$LOCALIZE[31110]</value>
         <value>$LOCALIZE[31269]</value>

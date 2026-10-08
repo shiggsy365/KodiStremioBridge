@@ -1545,14 +1545,88 @@
                     <ondown condition="Integer.IsGreater(Container(302).NumItems,0)">SetFocus(302,0)</ondown>
                     <onback condition="Skin.HasSetting(home.onback.go.to.first.widget) + Integer.IsGreater(Container(301).NumItems,0)">SetFocus(301)</onback>
                     <onleft>300</onleft>
+                    <onright condition="$EXP[HomeHasProfilePicker]">9800</onright>
                     <orientation>horizontal</orientation>
                     <scrolltime>200</scrolltime>
                     <include condition="Skin.HasSetting(home.showicons)">HomeContentIcon</include>
                     <include condition="!Skin.HasSetting(home.showicons)">HomeContentNoIcon</include>
                 </control>
+                <include condition="!Skin.HasSetting(home.showicons)">HomeProfilePicker</include>
             </control>
         </control>
         
+    </include>
+
+    <!-- Arctic Zephyr Stremio: with more than one profile, the logged-in profile's picture and
+         name to the left of the clock; selecting it logs off to the profile login screen. Right
+         from the end of the menu (300) reaches it. -->
+    <expression name="HomeHasProfilePicker">Integer.IsGreater(System.ProfileCount,1) + !Skin.HasSetting(home.showicons)</expression>
+    <include name="HomeProfilePicker">
+        <control type="group">
+            <visible>$EXP[HomeHasProfilePicker]</visible>
+            <include>Animation.FadeIn.Delay</include>
+            <include>Animation.FadeOut</include>
+            <!-- ends clear of the clock's date line (the longest: "WEDNESDAY, SEPTEMBER 30, …") -->
+            <left>1290</left>
+            <top>982</top>
+            <width>285</width>
+            <height>56</height>
+            <control type="button" id="9800">
+                <width>285</width>
+                <height>56</height>
+                <texturefocus />
+                <texturenofocus />
+                <onleft>300</onleft>
+                <onup>301</onup>
+                <onback>300</onback>
+                <onclick>System.LogOff</onclick>
+            </control>
+            <control type="label">
+                <right>58</right>
+                <width>227</width>
+                <height>56</height>
+                <align>right</align>
+                <aligny>center</aligny>
+                <font>SBInfoFacts</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[System.ProfileName]</label>
+                <visible>Control.HasFocus(9800)</visible>
+            </control>
+            <control type="label">
+                <right>58</right>
+                <width>227</width>
+                <height>56</height>
+                <align>right</align>
+                <aligny>center</aligny>
+                <font>SBInfoTab</font>
+                <textcolor>FFB4B4B4</textcolor>
+                <label>$INFO[System.ProfileName]</label>
+                <visible>!Control.HasFocus(9800)</visible>
+            </control>
+            <control type="image">
+                <right>4</right>
+                <top>8</top>
+                <width>40</width>
+                <height>40</height>
+                <texture colordiffuse="30FFFFFF">stremio/circle.png</texture>
+            </control>
+            <control type="image">
+                <right>4</right>
+                <top>8</top>
+                <width>40</width>
+                <height>40</height>
+                <aspectratio scalediffuse="false">scale</aspectratio>
+                <texture background="true" diffuse="stremio/circle.png" fallback="DefaultUser.png">$INFO[System.ProfileThumb]</texture>
+            </control>
+            <control type="image">
+                <right>0</right>
+                <top>4</top>
+                <width>48</width>
+                <height>48</height>
+                <texture>stremio/ring.png</texture>
+                <visible>Control.HasFocus(9800)</visible>
+            </control>
+        </control>
     </include>
 
     <include name="HomeSubMenu">

@@ -391,5 +391,11 @@ def _refresh_if_due(registry, installed):
 
 
 def _fail(handle, message):
-    notify(message, icon=xbmcgui.NOTIFICATION_ERROR)
+    """A list that can't be shown. Opened in the Videos window: say so. A widget
+    (e.g. one naming another profile's addon, until the menus are rebuilt for this
+    profile): just log it, rather than a pop-up per widget on the home screen."""
+    if xbmc.getCondVisibility("Window.IsActive(videos)"):
+        notify(message, icon=xbmcgui.NOTIFICATION_ERROR)
+    else:
+        log(f"Widget not shown: {message}")
     xbmcplugin.endOfDirectory(handle, succeeded=False)

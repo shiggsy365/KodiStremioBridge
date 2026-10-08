@@ -1109,9 +1109,10 @@
     </include>
 
     <!-- The hub's row: the clicked chip's list, else the first chip's. Stremio Bridge rows
-         reload (Next Page, filters) when its reload token changes. -->
+         reload (Next Page, filters) when its reload token changes. (Conditions can't use
+         $VAR: they test SBHubList's own sources.) -->
     <variable name="SBHubRowPath">
-        <value condition="String.StartsWith($VAR[SBHubList],plugin://plugin.video.stremiobridge/)">$VAR[SBHubList]&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</value>
+        <value condition="[!String.IsEmpty(Window.Property(sbhub.list)) + String.StartsWith(Window.Property(sbhub.list),plugin://plugin.video.stremiobridge/)] | [String.IsEmpty(Window.Property(sbhub.list)) + String.StartsWith(Container(9501).ListItemAbsolute(0).Property(list),plugin://plugin.video.stremiobridge/)]">$VAR[SBHubList]&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</value>
         <value condition="!String.IsEmpty(Container(9501).ListItemAbsolute(0).Property(list))">$VAR[SBHubList]</value>
         <value>$VAR[DefHubWidget]</value>
     </variable>

@@ -9,11 +9,13 @@ hands the next episode to Up Next. Playback from other add-ons is ignored.
 import base64
 import datetime
 import json
+import os
 import queue
 import threading
 import time
 
 import xbmc
+import xbmcgui
 
 from mdblist import MDBListError, scrobble_payload
 from stremio import StremioError
@@ -23,7 +25,7 @@ from stremio.watchstate import RESUME, WATCHED, next_episode
 
 from .common import (
     ADDON, ADDON_ID, L, get_client, get_mdblist, get_registry, get_watchstate, jsonrpc, log, notify,
-    notify_widgets, plugin_url, refresh_when_idle,
+    notify_widgets, plugin_url, refresh_when_idle, skin_active,
     take_announced_playback, take_announcement,
 )
 
@@ -35,10 +37,15 @@ UPNEXT = "service.upnext"
 
 
 class Worker:
-    """Runs network jobs one at a time off the player thread."""
+    """Runs network jobs one at a time off the player thread. It ends on its own
+    when Kodi stops the service: Kodi waits for every thread of a stopped script,
+    and a worker left waiting for jobs (its stop never called, e.g. after Kodi
+    killed the service at a profile change) kept Kodi from starting the next
+    profile's services."""
 
     def __init__(self):
         self._jobs = queue.Queue()
+        self._monitor = xbmc.Monitor()
         self._thread = threading.Thread(target=self._run, name="stremiobridge-worker", daemon=True)
         self._thread.start()
 
@@ -47,7 +54,12 @@ class Worker:
 
     def _run(self):
         while True:
-            job = self._jobs.get()
+            try:
+                job = self._jobs.get(timeout=1)
+            except queue.Empty:
+                if self._monitor.abortRequested():
+                    return
+                continue
             if job is None:
                 return
             fn, args = job
@@ -60,7 +72,7 @@ class Worker:
 
     def stop(self):
         self._jobs.put(None)
-        self._thread.join(timeout=5)
+        self._thread.join(timeout=2)
 
 
 class Tracker(xbmc.Player):
@@ -313,7 +325,7 @@ class KodiWatchedFollower:
     changes Kodi's copy (its video database). Kodi's count for the focused item
     is kept in step with ours, then compared before and after a context menu; a
     change is recorded here too, so MDBList, Continue Watching and Next Up follow. Checked once a
-    second."""
+    second, with other skins only: with Arctic Zephyr Stremio our titles get our own menu."""
 
     SETTLE = 1.5  # Kodi writes the change shortly after the menu closes
 
@@ -349,98 +361,52 @@ class KodiWatchedFollower:
         self.focused = path
 
 
-class MenuSwap(threading.Thread):
-    """With Arctic Zephyr Stremio: Kodi's context menu on one of our titles is
-    swapped for ours (contextmenu.py), whose entries come in our order. Kodi's
-    menu can't say which item it's for, so the focused item is tracked here.
-    The same loop runs the info page's episode follower (one thread: Kodi's
-    Python can crash when several service threads start importing at once,
-    so everything is imported here, before the thread starts)."""
+class HomeWidgets:
+    """Arctic Zephyr Stremio's home widgets for the logged-in profile
+    (homewidgets.py): published as the service starts, and taken over from
+    Customise Home when it saves (its properties file changes; checked every
+    few seconds, without asking Kodi's GUI anything)."""
 
-    POLL = 0.1
-    SETTLE_AFTER_OURS = 0.6  # seconds: our menu's closing animation
+    CHECK_EVERY = 5
 
-    def __init__(self, monitor):
-        super().__init__(name="stremiobridge-menus", daemon=True)
-        import xbmcgui
+    def __init__(self):
+        from .homewidgets import properties_path
 
-        from .common import skin_active
-        from .contextmenu import CLOSED_PROPERTY, OPEN_PROPERTY, focused_item, item_target
+        self.path = properties_path()
+        self.mtime = None
+        self.checked = 0.0
+        self.check(start=True)
 
-        self.monitor = monitor
-        self.home = xbmcgui.Window(10000)
-        self.skin_active, self.open_property, self.closed_property = skin_active, OPEN_PROPERTY, CLOSED_PROPERTY
-        self.focused_item, self.item_target = focused_item, item_target
-        self.follower = InfoPageFollower(self.home)
-
-    def run(self):
-        home = self.home
-        focused, source, active, checked = None, "ListItem", False, 0.0
-        while not self.monitor.waitForAbort(self.POLL):
-            if time.time() - checked > 5:
-                active, checked = self.skin_active(), time.time()
-            if not active:
-                continue
-            if xbmc.getCondVisibility("Window.IsActive(contextmenu)"):
-                # A menu Kodi opened, for the item focused just before (with a menu open,
-                # Control.HasFocus is about the menu, so `focused` is kept from then).
-                # Not ours: it sets the open property while it shows, and for a moment
-                # after it closes it's still on screen.
-                closed = float(home.getProperty(self.closed_property) or 0)
-                if focused and not home.getProperty(self.open_property) and time.time() - closed > self.SETTLE_AFTER_OURS:
-                    home.setProperty(self.open_property, "1")  # ours is on its way (the route clears it)
-                    xbmc.executebuiltin("Dialog.Close(contextmenu,true)")
-                    xbmc.executebuiltin(f"RunPlugin({plugin_url('context_menu', path=focused, source=source)})")
-                continue
-            if xbmc.getCondVisibility("Window.IsVisible(contextmenu)"):
-                continue  # a menu closing: focus isn't back on the item yet, keep the one we have
-            source, path = self.focused_item()
-            focused = path if self.item_target(path) else None
-            self.follower.tick()
-
-
-class InfoPageFollower:
-    """Arctic Zephyr Stremio's info page: once an episode card has had focus
-    for a moment, the page's header (text, Play, Streams, Watched) is about
-    that episode. The skin reads the header from home-window properties
-    (sbinfo.*); they're copied here from the card's own properties."""
-
-    SETTLE = 1.0   # seconds on one card before the header follows it
-    EPISODES = "Container(5061).ListItem"
-    TEXT = ("play_label", "facts", "rating", "subtitle")
-    ACTIONS = ("play_action", "streams_action", "watched_action")
-
-    def __init__(self, home):
-        self.home = home
-        self.seen, self.since, self.shown = "", 0.0, ""
+    def _mtime(self):
+        try:
+            return os.path.getmtime(self.path)
+        except OSError:
+            return None
 
     def tick(self):
-        if not xbmc.getCondVisibility("Window.IsVisible(movieinformation)"):
-            self.seen = self.shown = ""
+        if time.time() - self.checked >= self.CHECK_EVERY:
+            self.check()
+
+    def check(self, start=False):
+        from .homewidgets import publish, take_over
+        from .skinhelper import rebuild_menus
+
+        self.checked = time.time()
+        mtime = self._mtime()
+        if not start and mtime == self.mtime:
             return
-        if not xbmc.getCondVisibility("Control.HasFocus(5061)"):
-            self.seen = ""
+        if not skin_active():
+            self.mtime = mtime
             return
-        video = xbmc.getInfoLabel(f"{self.EPISODES}.Property(stremiobridge.video)")
-        if video != self.seen:
-            self.seen, self.since = video, time.time()
-        elif video and video != self.shown and time.time() - self.since >= self.SETTLE:
-            self.show(video)
-            self.shown = video
-
-    def show(self, video):
-        home = self.home
-
-        def get(label):
-            return xbmc.getInfoLabel(f"{self.EPISODES}.{label}")
-
-        for name in self.TEXT:
-            home.setProperty(f"sbinfo.{name}", get(f"Property(stremiobridge.page.{name})"))
-        for name in self.ACTIONS:
-            home.setProperty(f"sbinfo.{name}", get(f"Property(stremiobridge.{name})"))
-        home.setProperty("sbinfo.plot", get("Plot"))
-        home.setProperty("sbinfo.video", video)
-        home.setProperty("sbinfo.watched", "1" if (get("PlayCount") or "0") != "0" else "")
+        if xbmcgui.Window(10000).getProperty("skinshortcuts-isrunning"):
+            return  # it's building the menu from the file: next time
+        moved = take_over()
+        self.mtime = self._mtime()  # take_over may have rewritten it
+        publish()
+        if moved:
+            # The menu holds the choice itself: rebuilt (when the home screen next
+            # opens) to hold the references again. Once per change, not per login.
+            rebuild_menus()
 
 
 class LibraryMonitor(xbmc.Monitor):
@@ -572,20 +538,32 @@ def run():
     monitor = LibraryMonitor(worker)
     tracker = Tracker(worker)
     follower = KodiWatchedFollower(worker)
-    MenuSwap(monitor).start()
     from .keymap import apply_keymap
     from .splash import apply_splash
 
     apply_keymap()
     apply_splash()
+    home_widgets = HomeWidgets()  # this profile's, before the home screen shows
+    log("Service started")
+    try:
+        _loop(monitor, worker, tracker, follower, home_widgets)
+    finally:  # also when Kodi kills the service: no thread may be left running
+        worker.stop()
+        log("Service stopped")
+
+
+def _loop(monitor, worker, tracker, follower, home_widgets):
+    from .splash import apply_splash
+
     next_sync = time.time() + 60             # first syncs shortly after Kodi starts
     next_library = time.time() + 120
     next_prewarm = time.time() + 180
     next_skin_hubs = time.time() + 20
-    log("Service started")
     while not monitor.waitForAbort(1):
         tracker.tick()
-        follower.tick()
+        home_widgets.tick()
+        if not skin_active():  # with our skin, titles' menus are ours (contextmenu.py), not Kodi's
+            follower.tick()
         if time.time() >= next_sync:
             next_sync = time.time() + max(1, ADDON.getSettingInt("mdblist_sync_hours")) * 3600
             worker.submit(sync_mdblist)
@@ -599,5 +577,3 @@ def run():
             next_skin_hubs = None  # once per start: the hubs follow the catalogs you have
             worker.submit(refresh_skin_hubs)
             worker.submit(apply_splash)  # again: on a first start the skin sets its default late
-    worker.stop()
-    log("Service stopped")

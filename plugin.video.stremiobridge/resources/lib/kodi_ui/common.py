@@ -218,21 +218,44 @@ CONTEXT_MENU_COLOUR = "FFFF8080"  # light red: marks this add-on's entries among
 
 
 MENU_PROPERTY = "stremiobridge.menu"  # read back by contextmenu.py
+# With Arctic Zephyr Stremio, a context menu opening over one of our titles is handed
+# to contextmenu.py by the skin (DialogContextMenu.xml), except while these are set:
+MENU_OPEN = "stremiobridge.menu_open"      # one of this add-on's own menus is showing
+MENU_NATIVE = "stremiobridge.menu_native"  # Kodi's own menu, asked for by contextmenu.py
+# The first entry of our titles' context menus with that skin. Kodi's menu can't say which item
+# it's for, but lists the item's own entries first: the skin hands it over when it starts with this.
+MENU_MARKER = f"RunPlugin(plugin://{ADDON_ID}/?action=context_menu)"
+
+
+def choose_from_menu(options):
+    """``xbmcgui.Dialog().contextmenu(options)`` for this add-on's own menus
+    (marked, so the skin doesn't hand them over as a title's menu)."""
+    home = xbmcgui.Window(10000)
+    home.setProperty(MENU_OPEN, "1")
+    try:
+        return xbmcgui.Dialog().contextmenu(options)
+    finally:
+        home.clearProperty(MENU_OPEN)
 
 
 def add_context_menu(item, entries):
     """Add our entries (labels coloured) to an item's context menu. Kodi's
     addContextMenuItems writes its entries from the first slot on, so a second
     call would overwrite the first; the item keeps everything added so far
-    and each call writes the whole menu again."""
-    if not entries:
+    and each call writes the whole menu again. With Arctic Zephyr Stremio the
+    menu starts with MENU_MARKER (also with no `entries`: a title the skin
+    should give our menu)."""
+    skin = skin_active()
+    if not entries and not skin:
         return
     try:
         menu = json.loads(item.getProperty(MENU_PROPERTY) or "[]")
     except ValueError:
         menu = []
-    if not skin_active():  # our skin shows our own menu (contextmenu.py): nothing to tell apart
+    if not skin:
         entries = [(f"[COLOR {CONTEXT_MENU_COLOUR}]{label}[/COLOR]", command) for label, command in entries]
+    elif not menu:  # our skin shows our own menu (contextmenu.py) for titles that start with this
+        menu = [[ADDON_NAME, MENU_MARKER]]
     menu += [list(entry) for entry in entries]
     item.setProperty(MENU_PROPERTY, json.dumps(menu))
     item.addContextMenuItems([tuple(entry) for entry in menu])
@@ -244,8 +267,12 @@ WIDGETS_RELOAD = f"{ADDON_ID}.widgets.reload"
 def notify_widgets():
     """Bump the home-window reload token. Skin widgets whose path ends in
     ``&reload=$INFO[Window(Home).Property(<addon id>.widgets.reload)]`` see a new
-    path and reload (Kodi has no direct "reload widgets" command for add-ons)."""
+    path and reload (Kodi has no direct "reload widgets" command for add-ons).
+    Arctic Zephyr Stremio's home widgets get the token from homewidgets.publish."""
     xbmcgui.Window(10000).setProperty(WIDGETS_RELOAD, str(int(time.time() * 1000)))
+    from .homewidgets import publish  # homewidgets imports this module
+
+    publish()
 
 
 def refresh_container():

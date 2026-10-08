@@ -20,8 +20,8 @@ from stremio.watchstate import next_episode
 from mdblist import MDBListError, overall_rating
 
 from .common import (
-    ADDON, L, busy, clock_text, get_client, get_mdblist, get_watchstate, library_enabled, log, notify,
-    refresh_when_idle, skin_active,
+    ADDON, L, add_context_menu, busy, choose_from_menu, clock_text, get_client, get_mdblist, get_watchstate,
+    library_enabled, log, notify, refresh_when_idle, skin_active,
 )
 from .details import INFO_WINDOW, SEASONS_READY, load_show, play_trailer
 from .library import LIBRARY_TYPES, in_library
@@ -244,6 +244,7 @@ def kodi_info(plugin, meta, episode, video_id, state, season=None):
     apply_info_actions(item, plugin, meta, episode, watched, season)
     for name, value in page_text(meta, episode, state, season).items():
         item.setProperty(f"stremiobridge.{name}", value)
+    add_context_menu(item, [])  # the page's own menu is our title menu (the skin hands it over)
     services = _services(meta)
     if services:
         item.setProperty("stremiobridge.service", services[0][0])
@@ -514,7 +515,7 @@ def play_with_resume_choice(plugin, type_, video_id, meta_id=None, pick=False):
     resume = None
     row = get_watchstate().get(video_id)
     if row and row.position > 0:
-        choice = xbmcgui.Dialog().contextmenu([L(30227, time=clock_text(row.position)), L(30228)])
+        choice = choose_from_menu([L(30227, time=clock_text(row.position)), L(30228)])
         if choice < 0:
             return False
         resume = "1" if choice == 0 else "0"

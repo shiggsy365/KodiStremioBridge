@@ -2,12 +2,21 @@
 <!-- Foundation -->
 <window id="106">
     <defaultcontrol always="true">1000</defaultcontrol>
+    <!-- Arctic Zephyr Stremio: a Stremio Bridge title's menu is the add-on's own (SBMenuHandoff),
+         and Kodi's never shows (not even for a frame before its buttons are filled in) -->
+    <onload condition="$EXP[SBMenuHandoff]">RunPlugin(plugin://plugin.video.stremiobridge/?action=context_menu)</onload>
+    <onload condition="$EXP[SBMenuHandoff]">Dialog.Close(contextmenu,true)</onload>
+    <onunload>ClearProperty(stremiobridge.menu_native,home)</onunload>
     <coordinates>
         <origin x="0" y="0"/>
     </coordinates>
     <controls>
-        <include>GlobalOverlay</include>
         <control type="group">
+            <visible>$EXP[SBMenuShown]</visible>
+            <include>GlobalOverlay</include>
+        </control>
+        <control type="group">
+            <visible>$EXP[SBMenuShown]</visible>
             <include>Animation.ZoomIn</include>
             <include>Animation.FadeOut</include>
             <top>208</top>

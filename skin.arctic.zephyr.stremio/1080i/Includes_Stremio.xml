@@ -4,6 +4,12 @@
     <!-- The info page (DialogVideoInfo.xml): is it one of Stremio Bridge's titles, and
          which of its buttons apply. Before the dialog's onload has run these read the
          item; afterwards its frozen sbinfo.* copy (ListItem.* follows focused lists). -->
+    <!-- Kodi's context menu on one of Stremio Bridge's titles: its first entry is the add-on's
+         marker (the item's own entries come first; common.MENU_MARKER), so DialogContextMenu.xml
+         hands it to the add-on, which shows its own menu for the focused item. Not while the
+         add-on's own menus show, nor when it asks for Kodi's menu after all. -->
+    <expression name="SBMenuHandoff">String.IsEqual(Control.GetLabel(1001),System.AddonTitle(plugin.video.stremiobridge)) + String.IsEmpty(Window(home).Property(stremiobridge.menu_open)) + String.IsEmpty(Window(home).Property(stremiobridge.menu_native))</expression>
+    <expression name="SBMenuShown">!String.IsEmpty(Control.GetLabel(1001)) + !$EXP[SBMenuHandoff]</expression>
     <expression name="SBInfoPage">[String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(ListItem.Property(stremiobridge.id))] | !String.IsEmpty(Window(home).Property(sbinfo.id))</expression>
     <expression name="SBInfoBrowse">[String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(ListItem.Property(stremiobridge.browse))] | !String.IsEmpty(Window(home).Property(sbinfo.browse))</expression>
     <expression name="SBInfoSimilar">[String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(ListItem.Property(stremiobridge.similar))] | !String.IsEmpty(Window(home).Property(sbinfo.similar))</expression>

@@ -1236,3 +1236,11 @@ msgstr ""
 msgctxt "#30424"
 msgid "Selecting a movie, show, season or episode in a widget, hub or list. Show its information page: play, streams, trailer, seasons and cast from there. Play it: a movie or episode plays (with autoplay, or the stream list), a show or season opens its episodes."
 msgstr ""
+
+msgctxt "#30425"
+msgid "Search Cinemeta too"
+msgstr ""
+
+msgctxt "#30426"
+msgid "Search Cinemeta (Stremio's own catalog) when none of your search catalogs finds anything, and alongside them for an actor's or director's name when you have no people search. Off: only your addons are searched."
+msgstr ""

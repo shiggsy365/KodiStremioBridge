@@ -3,8 +3,9 @@
 Kodi builds its context menu itself (Play, Information, Queue item, Play next,
 Add to favourites, then add-on entries), and a skin can't reorder or drop
 those (nor can it tell which item the menu is for). So when the menu opens on
-one of our titles, the service closes it and runs this route instead
-(service.MenuSwap), which shows:
+one of our titles, the skin closes it and runs this route instead
+(DialogContextMenu.xml), which finds the focused item once the menu has gone
+and shows:
 
     Play, Information, Mark as watched (or unwatched: one entry, for the movie,
     episode, season or show the item is), Show Playable Streams, Add to
@@ -19,22 +20,20 @@ the plain context menu.
 
 import json
 import re
-import time
 from urllib.parse import parse_qsl, urlsplit
 
 import xbmc
 import xbmcgui
 
-from .common import ADDON_ID, MENU_PROPERTY, L, jsonrpc
+from .common import ADDON_ID, MENU_NATIVE, MENU_PROPERTY, L, choose_from_menu, jsonrpc
 from .listitems import PLAYABLE_TYPES
 from .router import route
 
-OPEN_PROPERTY = "stremiobridge.menu_open"  # set while ours shows (it uses the same window)
-CLOSED_PROPERTY = "stremiobridge.menu_closed"  # when ours last closed (time.time())
 _COLOUR = re.compile(r"\[/?COLOR[^\]]*\]")
 
 # Where the item's own entries go, by what they run; None drops them.
 _RANKS = (
+    ("action=context_menu", None),      # the skin's marker (common.MENU_MARKER)
     ("action=extended_info", None),     # Information covers it
     ("action=library_", None),
     ("action=set_watched", 3),
@@ -163,19 +162,19 @@ def focused_item():
 
 @route("context_menu")
 def context_menu(plugin, path="", source="ListItem"):
-    home = xbmcgui.Window(10000)
-    home.setProperty(OPEN_PROPERTY, "1")
-    try:
-        _show_menu(plugin, path or xbmc.getInfoLabel(f"{source}.FileNameAndPath"), source)
-    finally:
-        # While ours closes it's still "a menu": the service leaves menus alone briefly after this.
-        home.setProperty(CLOSED_PROPERTY, str(time.time()))
-        home.clearProperty(OPEN_PROPERTY)
+    """The skin hands over a context menu with no item: Kodi's menu can't say
+    which it's for, and once it has closed the focused item is the one."""
+    if not path:
+        source, path = focused_item()
+    if item_target(path) is None:
+        # Not one of our titles after all: Kodi's own menu (the skin lets it through this once)
+        xbmcgui.Window(10000).setProperty(MENU_NATIVE, "1")
+        xbmc.executebuiltin("Action(ContextMenu)")
+        return
+    _show_menu(plugin, path, source)
 
 
 def _show_menu(plugin, path, source="ListItem"):
-    if item_target(path) is None:
-        return
     title = xbmc.getInfoLabel(f"{source}.Label")
     thumb = xbmc.getInfoLabel(f"{source}.Art(poster)") or xbmc.getInfoLabel(f"{source}.Art(thumb)")
     folder = xbmc.getCondVisibility(f"{source}.IsFolder")
@@ -188,7 +187,7 @@ def _show_menu(plugin, path, source="ListItem"):
         entries = [browser_entry(plugin, path, watched)]
     else:
         entries = menu_entries(plugin, path, own, is_favourite(path), watched)
-    choice = xbmcgui.Dialog().contextmenu([label for label, _ in entries])
+    choice = choose_from_menu([label for label, _ in entries])
     if choice < 0:
         return
     command = entries[choice][1]

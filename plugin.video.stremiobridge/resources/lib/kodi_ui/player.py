@@ -18,8 +18,8 @@ from stremio.subtitles import download_subtitles, fetch_subtitles, parse_languag
 from stremio.watchstate import PlaybackEntry
 
 from .common import (
-    ADDON, ADDON_NAME, L, announce_playback, clock_text, get_client, get_registry, get_watchstate, log, notify,
-    run_with_progress,
+    ADDON, ADDON_NAME, L, announce_playback, choose_from_menu, clock_text, get_client, get_registry,
+    get_watchstate, log, notify, run_with_progress,
 )
 from .details import load_show
 from .listitems import playback_item
@@ -155,7 +155,7 @@ def _ask_resume(plugin, row):
     plugin.resume; False if the user backed out."""
     if not row or row.position <= 0:
         return True
-    choice = xbmcgui.Dialog().contextmenu([L(30227, time=clock_text(row.position)), L(30228)])
+    choice = choose_from_menu([L(30227, time=clock_text(row.position)), L(30228)])
     if choice < 0:
         return False
     plugin.resume = choice == 0

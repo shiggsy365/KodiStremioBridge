@@ -12,7 +12,7 @@ from .browse import type_label
 from stremio import StremioError
 from stremio.catalog import fetch_catalog, next_page
 
-from .common import ADDON, L, busy, get_client, get_watchstate, log, select_opens_info
+from .common import ADDON, L, busy, choose_from_menu, get_client, get_watchstate, log, select_opens_info
 from .details import play_trailer
 from .infodialog import extended_info, open_folder, play_with_resume_choice
 from .listitems import PLAYABLE_TYPES
@@ -144,7 +144,7 @@ class SearchWindow(xbmcgui.WindowXMLDialog):
         row, position, preview = focused
         watched = preview.id in self.watched
         options = [L(30220), L(30191) if watched else L(30190), L(30067)]
-        pick = xbmcgui.Dialog().contextmenu(options)
+        pick = choose_from_menu(options)
         if pick == 0:
             self._choose("info")
         elif pick == 1 and mark_watched(preview.type, preview.id, not watched):

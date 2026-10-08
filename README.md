@@ -77,7 +77,8 @@ A fork of Arctic: Zephyr - Reloaded, rebuilt around Stremio Bridge (no TMDb Help
 - **Home:** the focused title's artwork, logo, release date, genres and plot over rows of rounded
   posters. Continue Watching and your watchlist out of the box; add any catalog as a row.
   A slim menu bar (Home, Movies, TV Shows, Music, Live TV, Search, Settings) shows icons and opens to
-  the name of the item in focus, with the clock beside it.
+  the name of the item in focus, with the clock beside it. With more than one Kodi profile, the
+  profile's picture and name sit beside the clock; select it to switch profile.
 - **Movies and TV Shows hubs:** your catalogs as chips over one row of posters. Only the chip you
   pick is loaded. Rows page in place (Next and Previous Page) and can be filtered by genre without
   leaving the hub. Stremio Bridge keeps the chips in step with your catalogs.
@@ -254,6 +255,32 @@ Add-ons → Stremio Bridge*.
 Your addons and settings are stored in `special://profile/addon_data/plugin.video.stremiobridge/`.
 Configured addon URLs often contain account tokens, so Stremio Bridge never writes them, or stream
 links, to Kodi's log.
+
+### Several people, several profiles
+
+Give each person a Kodi profile, and each gets their own Stremio Bridge: addons, catalogs,
+settings, MDBList account, watch history, Continue Watching and Next Up. Kodi keeps a separate
+`special://profile/` for each profile, so there's nothing to share or copy.
+
+1. **Add the profiles:** **Settings → Profiles → Add profile…**. Under **Settings → Profiles →
+   General**, turn on *Show login screen on startup* so Kodi asks who's watching.
+2. **Set each one up:** log in as the new profile and add its addons, as in *Getting started*.
+   (With Arctic Zephyr Stremio, the setup wizard runs at the profile's first start; run it again any
+   time from *Settings*.)
+3. **Choose each profile's home widgets:** while logged in as that profile, go to *Settings → Skin →
+   Customise home menu*, pick **Home**, **Movies** or **TV Shows**, and choose a list for each
+   widget, for example from **Add-ons → Stremio Bridge → Widgets**. Do the same in each profile.
+
+With Arctic Zephyr Stremio, switching profiles is quick: select the profile picker beside the clock,
+pick a profile, and the home screen opens once, with that profile's widgets. After you change a
+widget, the home menu is rebuilt once (the home screen reloads), and from then on each profile shows
+its own choice. Two things are shared by all profiles, because Skin Shortcuts keeps one home menu for
+them all: how many widget rows Home, Movies and TV Shows have (and their layout), and the widgets of
+any other menu items you add.
+
+With your own skin, Stremio Bridge's lists are still each profile's own, but whether each profile
+can have different widgets depends on how your skin stores them. Skins using Skin Shortcuts share
+one home menu between profiles.
 
 ## Also in the repository: Dispatcharr Bridge
 

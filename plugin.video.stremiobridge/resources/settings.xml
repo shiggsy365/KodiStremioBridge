@@ -310,6 +310,11 @@
                         <close>true</close>
                     </control>
                 </setting>
+                <setting id="cinemeta_search" type="boolean" label="30425" help="30426">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
             </group>
         </category>
         <category id="library" label="30260">

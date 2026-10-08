@@ -4,40 +4,68 @@
     <!-- Arctic Zephyr Stremio: the skin keeps its own menus (not shared with other skins) -->
     <doNotShareMenu/>
 
-    <!-- Default widgets: Home shows Continue Watching and the MDBList watchlist; Movies and TV Shows show Cinemeta's lists -->
+    <!-- Default widgets: Home shows Continue Watching and the MDBList watchlist; Movies and TV Shows show Cinemeta's lists
+         (their lists and titles: homewidgets.DEFAULTS in Stremio Bridge) -->
+    <!-- Arctic Zephyr Stremio: Home, Movies and TV Shows name their widgets' lists and titles by
+         reference, filled in per Kodi profile by Stremio Bridge (kodi_ui/homewidgets.py), so the
+         menu Skin Shortcuts builds is the same for every profile and needn't be rebuilt at login -->
+    <propertydefault labelID="10000" defaultID="home" property="widgetPath">$INFO[Window(Home).Property(sbhome.10000.widgetPath)]</propertydefault>
+    <propertydefault labelID="10000" defaultID="home" property="widgetName">$INFO[Window(Home).Property(sbhome.10000.widgetName)]</propertydefault>
+    <propertydefault labelID="10000" defaultID="home" property="widgetPath.2">$INFO[Window(Home).Property(sbhome.10000.widgetPath.2)]</propertydefault>
+    <propertydefault labelID="10000" defaultID="home" property="widgetName.2">$INFO[Window(Home).Property(sbhome.10000.widgetName.2)]</propertydefault>
+    <propertydefault labelID="10000" defaultID="home" property="widgetPath.3">$INFO[Window(Home).Property(sbhome.10000.widgetPath.3)]</propertydefault>
+    <propertydefault labelID="10000" defaultID="home" property="widgetName.3">$INFO[Window(Home).Property(sbhome.10000.widgetName.3)]</propertydefault>
+    <propertydefault labelID="10000" defaultID="home" property="widgetPath.4">$INFO[Window(Home).Property(sbhome.10000.widgetPath.4)]</propertydefault>
+    <propertydefault labelID="10000" defaultID="home" property="widgetName.4">$INFO[Window(Home).Property(sbhome.10000.widgetName.4)]</propertydefault>
+    <propertydefault labelID="10000" defaultID="home" property="widgetPath.5">$INFO[Window(Home).Property(sbhome.10000.widgetPath.5)]</propertydefault>
+    <propertydefault labelID="10000" defaultID="home" property="widgetName.5">$INFO[Window(Home).Property(sbhome.10000.widgetName.5)]</propertydefault>
+    <propertydefault labelID="10000" defaultID="home" property="widgetPath.6">$INFO[Window(Home).Property(sbhome.10000.widgetPath.6)]</propertydefault>
+    <propertydefault labelID="10000" defaultID="home" property="widgetName.6">$INFO[Window(Home).Property(sbhome.10000.widgetName.6)]</propertydefault>
+    <propertydefault labelID="movies" defaultID="movies" property="widgetPath">$INFO[Window(Home).Property(sbhome.movies.widgetPath)]</propertydefault>
+    <propertydefault labelID="movies" defaultID="movies" property="widgetName">$INFO[Window(Home).Property(sbhome.movies.widgetName)]</propertydefault>
+    <propertydefault labelID="movies" defaultID="movies" property="widgetPath.2">$INFO[Window(Home).Property(sbhome.movies.widgetPath.2)]</propertydefault>
+    <propertydefault labelID="movies" defaultID="movies" property="widgetName.2">$INFO[Window(Home).Property(sbhome.movies.widgetName.2)]</propertydefault>
+    <propertydefault labelID="movies" defaultID="movies" property="widgetPath.3">$INFO[Window(Home).Property(sbhome.movies.widgetPath.3)]</propertydefault>
+    <propertydefault labelID="movies" defaultID="movies" property="widgetName.3">$INFO[Window(Home).Property(sbhome.movies.widgetName.3)]</propertydefault>
+    <propertydefault labelID="movies" defaultID="movies" property="widgetPath.4">$INFO[Window(Home).Property(sbhome.movies.widgetPath.4)]</propertydefault>
+    <propertydefault labelID="movies" defaultID="movies" property="widgetName.4">$INFO[Window(Home).Property(sbhome.movies.widgetName.4)]</propertydefault>
+    <propertydefault labelID="movies" defaultID="movies" property="widgetPath.5">$INFO[Window(Home).Property(sbhome.movies.widgetPath.5)]</propertydefault>
+    <propertydefault labelID="movies" defaultID="movies" property="widgetName.5">$INFO[Window(Home).Property(sbhome.movies.widgetName.5)]</propertydefault>
+    <propertydefault labelID="movies" defaultID="movies" property="widgetPath.6">$INFO[Window(Home).Property(sbhome.movies.widgetPath.6)]</propertydefault>
+    <propertydefault labelID="movies" defaultID="movies" property="widgetName.6">$INFO[Window(Home).Property(sbhome.movies.widgetName.6)]</propertydefault>
+    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetPath">$INFO[Window(Home).Property(sbhome.tvshows.widgetPath)]</propertydefault>
+    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetName">$INFO[Window(Home).Property(sbhome.tvshows.widgetName)]</propertydefault>
+    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetPath.2">$INFO[Window(Home).Property(sbhome.tvshows.widgetPath.2)]</propertydefault>
+    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetName.2">$INFO[Window(Home).Property(sbhome.tvshows.widgetName.2)]</propertydefault>
+    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetPath.3">$INFO[Window(Home).Property(sbhome.tvshows.widgetPath.3)]</propertydefault>
+    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetName.3">$INFO[Window(Home).Property(sbhome.tvshows.widgetName.3)]</propertydefault>
+    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetPath.4">$INFO[Window(Home).Property(sbhome.tvshows.widgetPath.4)]</propertydefault>
+    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetName.4">$INFO[Window(Home).Property(sbhome.tvshows.widgetName.4)]</propertydefault>
+    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetPath.5">$INFO[Window(Home).Property(sbhome.tvshows.widgetPath.5)]</propertydefault>
+    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetName.5">$INFO[Window(Home).Property(sbhome.tvshows.widgetName.5)]</propertydefault>
+    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetPath.6">$INFO[Window(Home).Property(sbhome.tvshows.widgetPath.6)]</propertydefault>
+    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetName.6">$INFO[Window(Home).Property(sbhome.tvshows.widgetName.6)]</propertydefault>
     <propertydefault labelID="10000" defaultID="home" property="widget">Addon</propertydefault>
-    <propertydefault labelID="10000" defaultID="home" property="widgetName">Continue Watching</propertydefault>
     <propertydefault labelID="10000" defaultID="home" property="widgetType">videos</propertydefault>
     <propertydefault labelID="10000" defaultID="home" property="widgetTarget">videos</propertydefault>
-    <propertydefault labelID="10000" defaultID="home" property="widgetPath">plugin://plugin.video.stremiobridge/?action=continue&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</propertydefault>
     <propertydefault labelID="10000" defaultID="home" property="widgetEnable.2">yes</propertydefault>
     <propertydefault labelID="10000" defaultID="home" property="widget.2">Addon</propertydefault>
-    <propertydefault labelID="10000" defaultID="home" property="widgetName.2">MDBList Watchlist</propertydefault>
     <propertydefault labelID="10000" defaultID="home" property="widgetType.2">videos</propertydefault>
     <propertydefault labelID="10000" defaultID="home" property="widgetTarget.2">videos</propertydefault>
-    <propertydefault labelID="10000" defaultID="home" property="widgetPath.2">plugin://plugin.video.stremiobridge/?action=watchlist&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</propertydefault>
     <propertydefault labelID="movies" defaultID="movies" property="widget">Addon</propertydefault>
-    <propertydefault labelID="movies" defaultID="movies" property="widgetName">Featured Movies</propertydefault>
     <propertydefault labelID="movies" defaultID="movies" property="widgetType">movies</propertydefault>
     <propertydefault labelID="movies" defaultID="movies" property="widgetTarget">videos</propertydefault>
-    <propertydefault labelID="movies" defaultID="movies" property="widgetPath">plugin://plugin.video.stremiobridge/?action=catalog&amp;addon=cinemeta&amp;type=movie&amp;id=imdbRating&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</propertydefault>
     <propertydefault labelID="movies" defaultID="movies" property="widgetEnable.2">yes</propertydefault>
     <propertydefault labelID="movies" defaultID="movies" property="widget.2">Addon</propertydefault>
-    <propertydefault labelID="movies" defaultID="movies" property="widgetName.2">Popular Movies</propertydefault>
     <propertydefault labelID="movies" defaultID="movies" property="widgetType.2">movies</propertydefault>
     <propertydefault labelID="movies" defaultID="movies" property="widgetTarget.2">videos</propertydefault>
-    <propertydefault labelID="movies" defaultID="movies" property="widgetPath.2">plugin://plugin.video.stremiobridge/?action=catalog&amp;addon=cinemeta&amp;type=movie&amp;id=top&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</propertydefault>
     <propertydefault labelID="tvshows" defaultID="tvshows" property="widget">Addon</propertydefault>
-    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetName">Featured Series</propertydefault>
     <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetType">tvshows</propertydefault>
     <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetTarget">videos</propertydefault>
-    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetPath">plugin://plugin.video.stremiobridge/?action=catalog&amp;addon=cinemeta&amp;type=series&amp;id=imdbRating&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</propertydefault>
     <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetEnable.2">yes</propertydefault>
     <propertydefault labelID="tvshows" defaultID="tvshows" property="widget.2">Addon</propertydefault>
-    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetName.2">Popular Series</propertydefault>
     <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetType.2">tvshows</propertydefault>
     <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetTarget.2">videos</propertydefault>
-    <propertydefault labelID="tvshows" defaultID="tvshows" property="widgetPath.2">plugin://plugin.video.stremiobridge/?action=catalog&amp;addon=cinemeta&amp;type=series&amp;id=top&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</propertydefault>
 
     <!-- Playlist -->
     <widgetPlaylists>True</widgetPlaylists>
