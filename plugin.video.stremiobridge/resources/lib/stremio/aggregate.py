@@ -1,7 +1,5 @@
 """Running requests to several addons at once."""
 
-from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
-
 MAX_WORKERS = 8
 
 
@@ -17,6 +15,17 @@ def gather(tasks, on_progress=None, max_workers=MAX_WORKERS):
     values, errors = {}, []
     if not tasks:
         return [], errors, False
+    if total == 1:  # nothing to run alongside: no threads (nor importing them, slow on a Fire TV Stick)
+        label, fn = tasks[0]
+        try:
+            values[0] = (0, fn())
+        except Exception as exc:  # noqa: BLE001 - reported to the caller
+            errors.append((label, exc))
+        if on_progress:
+            on_progress(1, 1, label)
+        return list(values.values()), errors, False
+
+    from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 
     pool = ThreadPoolExecutor(max_workers=min(max_workers, total))
     futures = {pool.submit(fn): (i, label) for i, (label, fn) in enumerate(tasks)}

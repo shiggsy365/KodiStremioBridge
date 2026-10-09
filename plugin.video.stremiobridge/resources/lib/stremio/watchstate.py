@@ -11,7 +11,8 @@ import os
 import sqlite3
 import threading
 import time
-from dataclasses import asdict, dataclass, field
+
+from .record import asdict, dataclass, field
 
 WATCHED_RATIO = 0.9
 MIN_RESUME_SECONDS = 120
@@ -54,7 +55,7 @@ class PlaybackEntry:
     @classmethod
     def from_json(cls, text):
         data = json.loads(text)
-        return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
+        return cls(**{k: v for k, v in data.items() if k in cls.__record_fields__})
 
 
 @dataclass

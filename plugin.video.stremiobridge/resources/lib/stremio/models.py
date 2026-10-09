@@ -1,10 +1,11 @@
 """Typed views over the JSON that Stremio addons return."""
 
 import re
-from dataclasses import dataclass, field
 from functools import cached_property
 
 from . import ManifestError
+from .artwork import sized
+from .record import dataclass, field
 
 
 def _str_tuple(value):
@@ -216,10 +217,10 @@ def _preview_fields(data, default_type):
         id=id_,
         type=type_,
         name=name,
-        poster=data.get("poster") or "",
+        poster=sized(data.get("poster") or "", "poster"),
         poster_shape=_poster_shape(data.get("posterShape")),
-        background=data.get("background") or "",
-        logo=data.get("logo") or "",
+        background=sized(data.get("background") or "", "background"),
+        logo=sized(data.get("logo") or "", "logo"),
         description=data.get("description") or "",
         release_info=str(release_info),
         imdb_rating=rating,
@@ -341,7 +342,7 @@ class Video:
             season=_int_or_none(data.get("season")),
             episode=_int_or_none(data.get("episode", data.get("number"))),
             released=str(data.get("released") or ""),
-            thumbnail=data.get("thumbnail") or "",
+            thumbnail=sized(data.get("thumbnail") or "", "thumbnail"),
             overview=data.get("overview") or data.get("description") or "",
             rating=_rating(data.get("imdbRating") or data.get("rating")),
         )

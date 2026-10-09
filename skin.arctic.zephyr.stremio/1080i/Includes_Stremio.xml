@@ -271,7 +271,7 @@
          sbinfo.seasons_ready), the episodes are the page's season's: following the tabs
          straight away loaded season 1 first, then the right season again. -->
     <variable name="StremioInfoSeasonsPath">
-        <value condition="!String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(Window(home).Property(sbinfo.browse))">plugin://plugin.video.stremiobridge/?action=info_seasons&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;focus=$INFO[Window(home).Property(sbinfo.season_focus)]&amp;rev=$INFO[Window(home).Property(sbinfo.browser_rev)]</value>
+        <value condition="!String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(Window(home).Property(sbinfo.browse)) + !String.IsEqual(Window(home).Property(sbinfo.season_count),1)">plugin://plugin.video.stremiobridge/?action=info_seasons&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;focus=$INFO[Window(home).Property(sbinfo.season_focus)]&amp;rev=$INFO[Window(home).Property(sbinfo.browser_rev)]</value>
     </variable>
     <variable name="StremioInfoEpisodesPath">
         <value condition="!String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(Window(home).Property(sbinfo.browse)) + String.IsEmpty(Window(home).Property(sbinfo.seasons_ready))">plugin://plugin.video.stremiobridge/?action=info_episodes&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;season=$INFO[Window(home).Property(sbinfo.season_focus)]&amp;focus=$INFO[Window(home).Property(sbinfo.focus_video)]&amp;rev=$INFO[Window(home).Property(sbinfo.browser_rev)]</value>
@@ -289,7 +289,7 @@
     </variable>
     <variable name="StremioSearchListPath">
         <value condition="String.IsEmpty(Window(home).Property(sbsearch.query))">plugin://plugin.video.stremiobridge/?action=search_recent&amp;q=$INFO[Window(home).Property(sbsearch.rev)]</value>
-        <value>plugin://plugin.video.stremiobridge/?action=search_suggest&amp;q=$INFO[Window(home).Property(sbsearch.query)]&amp;n=$INFO[Container(401).NumItems]-$INFO[Container(402).NumItems]-$INFO[Window(home).Property(sbsearch.rev)]</value>
+        <value>plugin://plugin.video.stremiobridge/?action=search_suggest&amp;s=1&amp;q=$INFO[Window(home).Property(sbsearch.settled)]&amp;n=$INFO[Container(401).NumItems]-$INFO[Container(402).NumItems]-$INFO[Window(home).Property(sbsearch.rev)]</value>
     </variable>
     <variable name="StremioSearchKeysToggleLabel">
         <value condition="String.IsEmpty(Window.Property(sbsearch.keys))">123 / #</value>

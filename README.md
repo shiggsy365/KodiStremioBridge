@@ -65,6 +65,10 @@ Everything in the first column is also in the second: the skin uses Stremio Brid
   Followed shows pick up new episodes daily.
 - **Fits your skin.** Pick a default view for movie, show, season and episode lists from the views
   your skin offers, with previews.
+- **Back up and restore Kodi** (*Settings → Backup*, or the skin's settings): every profile, add-on
+  and setting in one file, saved to this device, a USB drive or a network share, without caches.
+  Restore it on another device, even another kind (Android, Linux, Windows): add-ons built for one
+  platform (such as inputstream.adaptive) are reinstalled from that device's repositories.
 - **Back stops playback** (setting, on by default): Back in full-screen video stops it, as the Stop
   button does, instead of leaving it playing behind the menus.
 
@@ -76,9 +80,11 @@ A fork of Arctic: Zephyr - Reloaded, rebuilt around Stremio Bridge (no TMDb Help
   again any time from *Settings*.
 - **Home:** the focused title's artwork, logo, release date, genres and plot over rows of rounded
   posters. Continue Watching and your watchlist out of the box; add any catalog as a row.
-  A slim menu bar (Home, Movies, TV Shows, Music, Live TV, Search, Settings) shows icons and opens to
-  the name of the item in focus, with the clock beside it. With more than one Kodi profile, the
-  profile's picture and name sit beside the clock; select it to switch profile.
+  The menu runs along the top (Home, Movies, TV Shows, Live TV, Settings, ...), the section in focus
+  in a white tab, with the date and time at the right; it slides away as you move down into the
+  rows. Press Up on a section with a small arrow over it for its sub-menu. With more than one Kodi
+  profile, the profile's picture and name sit beside the clock: select it, pick a profile, and it
+  loads straight away.
 - **Movies and TV Shows hubs:** your catalogs as chips over one row of posters. Only the chip you
   pick is loaded. Rows page in place (Next and Previous Page) and can be filtered by genre without
   leaving the hub. Stremio Bridge keeps the chips in step with your catalogs.
@@ -272,7 +278,7 @@ settings, MDBList account, watch history, Continue Watching and Next Up. Kodi ke
    widget, for example from **Add-ons → Stremio Bridge → Widgets**. Do the same in each profile.
 
 With Arctic Zephyr Stremio, switching profiles is quick: select the profile picker beside the clock,
-pick a profile, and the home screen opens once, with that profile's widgets. After you change a
+pick a profile (no login screen), and the home screen opens once, with that profile's widgets. After you change a
 widget, the home menu is rebuilt once (the home screen reloads), and from then on each profile shows
 its own choice. Two things are shared by all profiles, because Skin Shortcuts keeps one home menu for
 them all: how many widget rows Home, Movies and TV Shows have (and their layout), and the widgets of

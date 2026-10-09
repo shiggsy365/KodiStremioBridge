@@ -21,6 +21,7 @@
     <onload>SetProperty(sbinfo.season_focus,$INFO[ListItem.Property(stremiobridge.default_season)],home)</onload>
     <onload>ClearProperty(sbinfo.browser_rev,home)</onload>
     <onload>ClearProperty(sbinfo.seasons_ready,home)</onload>
+    <onload>SetProperty(sbinfo.season_count,$INFO[ListItem.Property(stremiobridge.season_count)],home)</onload>
     <onload>SetProperty(sbinfo.trailer,$INFO[ListItem.Trailer],home)</onload>
     <onload>SetProperty(sbinfo.play_label,$ESCINFO[ListItem.Property(stremiobridge.play_label)],home)</onload>
     <onload>SetProperty(sbinfo.facts,$ESCINFO[ListItem.Property(stremiobridge.facts)],home)</onload>
@@ -62,6 +63,7 @@
     <onunload>ClearProperty(sbinfo.season_focus,home)</onunload>
     <onunload>ClearProperty(sbinfo.browser_rev,home)</onunload>
     <onunload>ClearProperty(sbinfo.seasons_ready,home)</onunload>
+    <onunload>ClearProperty(sbinfo.season_count,home)</onunload>
     <onunload>ClearProperty(sbinfo.trailer,home)</onunload>
     <onunload>ClearProperty(sbinfo.fanart,home)</onunload>
     <onunload>ClearProperty(sbinfo.clearlogo,home)</onunload>

@@ -18,11 +18,12 @@ from stremio.subtitles import download_subtitles, fetch_subtitles, parse_languag
 from stremio.watchstate import PlaybackEntry
 
 from .common import (
-    ADDON, ADDON_NAME, L, announce_playback, choose_from_menu, clock_text, get_client, get_registry,
-    get_watchstate, log, notify, run_with_progress,
+    ADDON, L, announce_playback, choose_from_menu, clock_text, get_client, get_registry,
+    get_watchstate, log, notify,
 )
 from .details import load_show
-from .listitems import playback_item
+from .listitems import episode_code, playback_item
+from .statusbar import playback_status
 from .streamwindow import choose_stream
 from .router import route
 
@@ -73,7 +74,8 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
         return cancel()
 
     client = get_client()
-    streams, errors, cancelled = _fetch_with_progress(client, addons, type, id)
+    info = load_show(type, meta or id, quiet=True, videos={id})
+    streams, errors, cancelled = with_status(info, id, lambda status: _fetch_streams(client, addons, type, id, status))
     for label, exc in errors:
         log(f"Streams from {label} failed: {exc}")
     if cancelled:
@@ -100,7 +102,7 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
         # Try streams in order until one actually serves video.
         order = fallback_order(candidates, preferred)
         skip = int(start or 0)
-        stream, cancelled = first_working(client, order[skip:])
+        stream, cancelled = with_status(info, id, lambda status: first_working(client, order[skip:], status))
         if cancelled:
             return cancel()
         if stream is None:
@@ -112,11 +114,11 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
     else:
         stream = None
         if preferred is not None and not pick:
-            stream, cancelled = first_working(client, [preferred])
+            stream, cancelled = with_status(info, id, lambda status: first_working(client, [preferred], status))
             if cancelled:
                 return cancel()
         if stream is None:
-            stream = choose_stream(candidates, load_show(type, meta or id, quiet=True, videos={id}), id)
+            stream = choose_stream(candidates, info, id)
     if stream is None:
         return cancel()
 
@@ -126,7 +128,6 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
         notify(L(30175), icon=xbmcgui.NOTIFICATION_ERROR)
         return cancel()
 
-    info = load_show(type, meta or id, quiet=True, videos={id})
     item = playback_item(path, info, id, fallback_title=stream.filename or stream.name)
     if use_inputstream:
         _use_inputstream(item, stream)
@@ -162,39 +163,49 @@ def _ask_resume(plugin, row):
     return True
 
 
-def first_working(client, ordered):
-    """The first stream in `ordered` whose link works (see streams.probe), with
-    a cancellable "Trying stream 3 of 25" dialog. Returns ``(stream, cancelled)``;
-    stream is None if none worked."""
-    dialog = xbmcgui.DialogProgress()
-    dialog.create(ADDON_NAME, L(30177, number=1, total=len(ordered)))
+def with_status(info, video_id, work):
+    """``work(status)`` behind the status bar (statusbar.py), about the title playing."""
+    title, subtitle, poster = "", "", ""
+    if info is not None:
+        title, poster = info.name, info.poster
+        video = next((v for v in info.videos if v.id == video_id), None)
+        if video is not None:
+            subtitle = "  ".join(part for part in (episode_code(video), video.title) if part)
+    status = playback_status(title, subtitle, poster)
     try:
-        for number, stream in enumerate(ordered, 1):
-            headline = describe(stream)[0] or stream.name or stream.kind
-            dialog.update(int((number - 1) * 100 / len(ordered)),
-                          f"{L(30177, number=number, total=len(ordered))}[CR]{stream.addon} · {headline}")
-            result = _probe_cancellable(client, stream, dialog)
-            if result is None:
-                return None, True
-            ok, reason = result
-            if ok:
-                return stream, False
-            log(f"Stream {number}/{len(ordered)} from {stream.addon} failed: {reason}")
-        return None, False
+        return status.run(work)
     finally:
-        dialog.close()
+        status.close()
 
 
-def _probe_cancellable(client, stream, dialog):
+def first_working(client, ordered, status):
+    """The first stream in `ordered` whose link works (see streams.probe),
+    reporting "Trying stream 3 of 25" through `status` (statusbar.py).
+    Returns ``(stream, cancelled)``; stream is None if none worked."""
+    for number, stream in enumerate(ordered, 1):
+        headline = describe(stream)[0] or stream.name or stream.kind
+        status.update((number - 1) * 100 / len(ordered),
+                      f"{L(30177, number=number, total=len(ordered))}  ·  {stream.addon}  ·  {headline}")
+        result = _probe_cancellable(client, stream, status)
+        if result is None:
+            return None, True
+        ok, reason = result
+        if ok:
+            return stream, False
+        log(f"Stream {number}/{len(ordered)} from {stream.addon} failed: {reason}")
+    return None, False
+
+
+def _probe_cancellable(client, stream, status):
     """Probe in the background so Cancel works straight away; None if cancelled."""
     result = {}
     worker = threading.Thread(target=lambda: result.setdefault("r", probe(client.session, stream)), daemon=True)
     worker.start()
     while worker.is_alive():
-        if dialog.iscanceled():
+        if status.cancelled:
             return None
         worker.join(0.2)
-    if dialog.iscanceled():
+    if status.cancelled:
         return None
     return result.get("r", (False, "probe crashed"))
 
@@ -225,10 +236,15 @@ def playback_entry(type_, id_, meta_id, info, stream):
     return entry
 
 
-def _fetch_with_progress(client, addons, type_, id_):
-    return run_with_progress(
-        L(30170), 30171, lambda progress: fetch_streams(client, addons, type_, id_, progress)
-    )
+def _fetch_streams(client, addons, type_, id_, status):
+    """fetch_streams, reporting "3 of 5 addons answered" through `status`."""
+    status.update(0, L(30170))
+
+    def progress(done, total, label):
+        status.update(done * 100 / total, f"{L(30170)}  ·  {L(30171, done=done, total=total)}")
+        return not status.cancelled
+
+    return fetch_streams(client, addons, type_, id_, progress)
 
 
 def _use_inputstream(item, stream):

@@ -557,6 +557,30 @@
                 </setting>
             </group>
         </category>
+        <category id="backup" label="30427">
+            <group id="1">
+                <setting id="backup_kodi" type="action" label="30428" help="30429">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=backup)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="restore_kodi" type="action" label="30430" help="30431">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=restore)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+        </category>
         <category id="advanced" label="30110">
             <group id="1">
                 <setting id="debug_logging" type="boolean" label="30111" help="30112">

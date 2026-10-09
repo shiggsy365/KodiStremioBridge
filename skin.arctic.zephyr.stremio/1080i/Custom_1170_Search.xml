@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Arctic Zephyr Stremio: Stremio Bridge's search, as you type.
 
-     The on-screen keyboard types into the home property sbsearch.query (letters by
-     the skin itself; Space, Delete and Clear by the plugin's search_key, as the skin
-     can't trim a property or keep a trailing space). The lists ask the plugin
-     (search.py: search_live, search_suggest, search_recent), which reads the query
-     from that property and waits for typing to settle before searching. Their `q`,
-     `n` and `rev` parameters only make Kodi reload them when something changes.
-     Open with ActivateWindow(1170). -->
+     The on-screen keyboard types into the home property sbsearch.query: letters, digits,
+     Space (a no-break space: Kodi trims a plain one off the end of a command) and Clear by
+     the skin itself, straight away; Delete and the symbols by Stremio Bridge's little
+     searchkey.py script (the skin can't shorten a property, and commas and brackets would
+     break its command), which is given the query as shown so a quick next key stays after
+     the edit. Each key restarts a one-second alarm that changes sbsearch.settled: the
+     result lists reload only then, once typing pauses, not on every key. They ask the
+     plugin (search.py: search_live, search_suggest, search_recent), which reads the query
+     from sbsearch.query. Their `q`, `n` and `rev` parameters only make Kodi reload them
+     when something changes. Open with ActivateWindow(1170). -->
 <window type="window" id="1170">
     <defaultcontrol always="true">301</defaultcontrol>
     <onload>ClearProperty(sbsearch.query,home)</onload>
     <onload>ClearProperty(sbsearch.keys)</onload>
+    <onload>ClearProperty(sbsearch.settled,home)</onload>
     <onunload>ClearProperty(sbsearch.query,home)</onunload>
+    <onunload>ClearProperty(sbsearch.settled,home)</onunload>
+    <onunload>CancelAlarm(sbsearch,true)</onunload>
     <controls>
         <include>GlobalBackground</include>
 
@@ -79,7 +85,7 @@
                     <texturenofocus colordiffuse="33FFFFFF" border="14">stremio/tab.png</texturenofocus>
                     <texturefocus colordiffuse="FFFFFFFF" border="14">stremio/tab.png</texturefocus>
                     <label>Delete</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=delete)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,delete,"$INFO[Window(home).Property(sbsearch.query)]")</onclick>
                 </control>
                 <control type="button" id="312">
                     <width>153</width>
@@ -92,7 +98,9 @@
                     <texturenofocus colordiffuse="33FFFFFF" border="14">stremio/tab.png</texturenofocus>
                     <texturefocus colordiffuse="FFFFFFFF" border="14">stremio/tab.png</texturefocus>
                     <label>Clear</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=clear)</onclick>
+                    <onclick>ClearProperty(sbsearch.query,home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                 </control>
                 <control type="button" id="313">
                     <width>153</width>
@@ -296,305 +304,385 @@
                 <item>
                     <label>A</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]a",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>B</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]b",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>C</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]c",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>D</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]d",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>E</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]e",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>F</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]f",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>G</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]g",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>H</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]h",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>I</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]i",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>J</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]j",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>K</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]k",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>L</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]l",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>M</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]m",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>N</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]n",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>O</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]o",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>P</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]p",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>Q</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]q",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>R</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]r",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>S</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]s",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>T</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]t",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>U</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]u",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>V</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]v",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>W</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]w",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>X</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]x",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>Y</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]y",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>Z</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]z",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>Space</label>
                     <property name="spacebar">a</property>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=space)</onclick>
+                    <onclick condition="!String.IsEmpty(Window(home).Property(sbsearch.query)) + !String.EndsWith(Window(home).Property(sbsearch.query),&#160;)">SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]&#160;",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>Space</label>
                     <property name="spacebar">b</property>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=space)</onclick>
+                    <onclick condition="!String.IsEmpty(Window(home).Property(sbsearch.query)) + !String.EndsWith(Window(home).Property(sbsearch.query),&#160;)">SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]&#160;",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>Space</label>
                     <property name="spacebar">c</property>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=space)</onclick>
+                    <onclick condition="!String.IsEmpty(Window(home).Property(sbsearch.query)) + !String.EndsWith(Window(home).Property(sbsearch.query),&#160;)">SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]&#160;",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>Space</label>
                     <property name="spacebar">d</property>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=space)</onclick>
+                    <onclick condition="!String.IsEmpty(Window(home).Property(sbsearch.query)) + !String.EndsWith(Window(home).Property(sbsearch.query),&#160;)">SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]&#160;",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>$NUMBER[0]</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]0",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>$NUMBER[1]</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]1",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>$NUMBER[2]</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]2",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>$NUMBER[3]</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]3",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>$NUMBER[4]</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]4",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>$NUMBER[5]</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]5",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>$NUMBER[6]</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]6",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>$NUMBER[7]</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]7",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>$NUMBER[8]</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]8",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>$NUMBER[9]</label>
                     <onclick>SetProperty(sbsearch.query,"$INFO[Window(home).Property(sbsearch.query)]9",home)</onclick>
+                    <onclick>CancelAlarm(sbsearch,true)</onclick>
+                    <onclick>AlarmClock(sbsearch,SetProperty(sbsearch.settled,$INFO[System.Time(hh:mm:ss)],home),00:01,silent)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>&amp;</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%26)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%26)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>'</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%27)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%27)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>-</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=-)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",-)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>:</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%3A)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%3A)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>!</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%21)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%21)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>?</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%3F)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%3F)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>.</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=.)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",.)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>,</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%2C)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%2C)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>(</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%28)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%28)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>)</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%29)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%29)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>/</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%2F)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%2F)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>+</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%2B)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%2B)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>#</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%23)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%23)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>@</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%40)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%40)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>*</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%2A)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%2A)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>;</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%3B)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%3B)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>=</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%3D)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%3D)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>_</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=_)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",_)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>%</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%25)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%25)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
                 <item>
                     <label>$</label>
-                    <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_key&amp;key=type&amp;char=%24)</onclick>
+                    <onclick>RunScript(special://home/addons/plugin.video.stremiobridge/resources/lib/searchkey.py,type,"$INFO[Window(home).Property(sbsearch.query)]",%24)</onclick>
                     <visible>!String.IsEmpty(Window.Property(sbsearch.keys))</visible>
                 </item>
             </content>
@@ -684,7 +772,7 @@
                 <ondown>402</ondown>
                 <onback>301</onback>
                 <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_open&amp;type=$INFO[Container(401).ListItem.Property(stremiobridge.type)]&amp;id=$INFO[Container(401).ListItem.Property(stremiobridge.id)])</onclick>
-                <content target="videos">plugin://plugin.video.stremiobridge/?action=search_live&amp;type=movie&amp;q=$INFO[Window(home).Property(sbsearch.query)]</content>
+                <content target="videos">plugin://plugin.video.stremiobridge/?action=search_live&amp;type=movie&amp;s=1&amp;q=$INFO[Window(home).Property(sbsearch.settled)]</content>
                 <itemlayout width="200" height="400">
                     <control type="image">
                         <left>10</left>
@@ -804,7 +892,7 @@
                 <ondown>402</ondown>
                 <onback>301</onback>
                 <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=search_open&amp;type=$INFO[Container(402).ListItem.Property(stremiobridge.type)]&amp;id=$INFO[Container(402).ListItem.Property(stremiobridge.id)])</onclick>
-                <content target="videos">plugin://plugin.video.stremiobridge/?action=search_live&amp;type=series&amp;q=$INFO[Window(home).Property(sbsearch.query)]</content>
+                <content target="videos">plugin://plugin.video.stremiobridge/?action=search_live&amp;type=series&amp;s=1&amp;q=$INFO[Window(home).Property(sbsearch.settled)]</content>
                 <itemlayout width="200" height="400">
                     <control type="image">
                         <left>10</left>

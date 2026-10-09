@@ -520,6 +520,7 @@ def signal_upnext(entry):
 
 LIBRARY_UPDATE_EVERY = 24 * 3600
 PREWARM_EVERY = 30 * 60
+PREFETCH_RESUMED = 20  # Continue Watching titles whose info pages are read ahead (the most recent)
 
 
 def prewarm():
@@ -527,8 +528,9 @@ def prewarm():
     Continue Watching, Next Up, the watchlist) in the background, so they open instantly."""
     if not ADDON.getSettingBool("prewarm") or xbmc.Player().isPlaying():
         return
+    from .details import prefetch_pages
     from .watching import next_up, resume_metas  # these import the UI modules; only needed here
-    from .watchlist import watchlist_items
+    from .watchlist import watchlist_items, watchlist_metas
 
     client = get_client()
     catalogs = get_registry().home_catalogs()
@@ -543,11 +545,22 @@ def prewarm():
     catalogs = catalogs + [(streaming, c) for c in streaming.manifest.catalogs]
     _, errors, _ = gather([(f"{a.name} / {c.name}", task(a, c)) for a, c in catalogs])
     state = get_watchstate()
-    resume_metas(state.continue_watching())
-    next_up(state)
+    rows = state.continue_watching()
+    resume_metas(rows)
+    upcoming = next_up(state)
     if get_mdblist() is not None:
-        watchlist_items(refresh=True)
-    log(f"Pre-warmed {len(catalogs) - len(errors)} catalogs, Continue Watching, Next Up and the watchlist")
+        listed = watchlist_items(refresh=True)
+        if listed:
+            watchlist_metas(listed)  # their details (kept a few hours), so the list opens at once
+    # Their info pages too (the lists keep only slim copies): the title, and a show's season to watch
+    titles = {}
+    for row in rows[:PREFETCH_RESUMED]:
+        titles.setdefault((row.type, row.meta_id or row.video_id), row.video_id if row.meta_id else None)
+    for meta, video in upcoming:
+        titles.setdefault((meta.type, meta.id), video.id)
+    pages = prefetch_pages(titles, lambda: xbmc.Monitor().abortRequested() or xbmc.Player().isPlaying())
+    log(f"Pre-warmed {len(catalogs) - len(errors)} catalogs, Continue Watching, Next Up, the watchlist "
+        f"and {pages} information pages")
 
 
 def refresh_skin_hubs():
@@ -578,6 +591,7 @@ def run():
 
 
 def _loop(monitor, worker, tracker, follower, home_widgets):
+    from .backup import install_after_restore
     from .splash import apply_splash
 
     next_sync = time.time() + 60             # first syncs shortly after Kodi starts
@@ -602,3 +616,4 @@ def _loop(monitor, worker, tracker, follower, home_widgets):
             next_skin_hubs = None  # once per start: the hubs follow the catalogs you have
             worker.submit(refresh_skin_hubs)
             worker.submit(apply_splash)  # again: on a first start the skin sets its default late
+            worker.submit(install_after_restore)  # the first start after a restore (backup.py)

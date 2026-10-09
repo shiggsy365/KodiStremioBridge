@@ -169,6 +169,17 @@
         </definition>
     </include>
 
+    <!-- A show with one season has no season tabs (Stremio Bridge doesn't list them): its
+         episodes go up into their row, under "Episodes" -->
+    <expression name="SBInfoOneSeason">String.IsEqual(Window(home).Property(sbinfo.season_count),1)</expression>
+    <variable name="SBInfoSeasonsHeading">
+        <value condition="$EXP[SBInfoOneSeason]">$LOCALIZE[20360]</value>
+        <value>$LOCALIZE[33054]</value>
+    </variable>
+    <include name="SBInfoOneSeasonSlide">
+        <animation effect="slide" start="0,0" end="0,-80" time="0" condition="$EXP[SBInfoOneSeason]">Conditional</animation>
+    </include>
+
     <include name="SBInfoHeading">
         <definition>
             <control type="label">
@@ -406,11 +417,20 @@
                     <width>1920</width>
                     <height>500</height>
                     <visible>$EXP[SBInfoBrowse]</visible>
-                    <animation effect="fade" start="100" end="0" time="0" condition="$EXP[SBInfoSeasonsStale]">Conditional</animation>
                     <include content="SBInfoHeading">
-                        <param name="label" value="Seasons"/>
+                        <param name="label" value="$VAR[SBInfoSeasonsHeading]"/>
                     </include>
+                    <include content="SBInfoSeasonsLoading">
+                        <param name="visible" value="Container(5060).IsUpdating | $EXP[SBInfoSeasonsStale]"/>
+                    </include>
+                    <control type="group">
+                        <include>SBInfoOneSeasonSlide</include>
+                        <include content="SBInfoEpisodesLoading">
+                            <param name="visible" value="Container(5061).IsUpdating | $EXP[SBInfoEpisodesStale]"/>
+                        </include>
+                    </control>
                     <control type="list" id="5060">
+                        <animation effect="fade" start="100" end="0" time="0" condition="$EXP[SBInfoSeasonsStale]">Conditional</animation>
                         <left>70</left>
                         <top>70</top>
                         <width>1840</width>
@@ -483,6 +503,7 @@
                         </focusedlayout>
                     </control>
                     <control type="list" id="5061">
+                        <include>SBInfoOneSeasonSlide</include>
                         <left>80</left>
                         <top>150</top>
                         <width>1840</width>
@@ -565,11 +586,14 @@
                     <height>430</height>
                     <visible>$EXP[SBInfoSimilar]</visible>
                     <control type="group">
-                        <visible>$EXP[SBInfoHasSimilar]</visible>
+                        <visible>$EXP[SBInfoHasSimilar] | Container(5160).IsUpdating</visible>
                         <include content="SBInfoHeading">
                             <param name="label" value="Similar"/>
                         </include>
                     </control>
+                    <include content="SBInfoSimilarLoading">
+                        <param name="visible" value="Container(5160).IsUpdating | $EXP[SBInfoSimilarStale]"/>
+                    </include>
                     <control type="list" id="5160">
                         <left>68</left>
                         <top>70</top>
@@ -625,10 +649,163 @@
         <value>FFA0A0A0</value>
     </variable>
 
-    <!-- An episode card: the thumbnail with its code, title, plot, rating and air date on it -->
+    <!-- While one of the page's lists loads (or still holds the last page's items, hidden):
+         dim outlines in its place, pulsing gently, where its items will be -->
+    <!-- season tabs (5060) -->
+    <include name="SBInfoSeasonsLoading">
+        <control type="group">
+            <visible>$PARAM[visible]</visible>
+            <animation effect="fade" start="0" end="100" time="200" delay="150">Visible</animation>
+            <animation effect="fade" start="100" end="45" time="900" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
+            <control type="image">
+                <left>76</left>
+                <top>74</top>
+                <width>158</width>
+                <height>52</height>
+                <texture border="14" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>246</left>
+                <top>74</top>
+                <width>158</width>
+                <height>52</height>
+                <texture border="14" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>416</left>
+                <top>74</top>
+                <width>158</width>
+                <height>52</height>
+                <texture border="14" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>586</left>
+                <top>74</top>
+                <width>158</width>
+                <height>52</height>
+                <texture border="14" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+        </control>
+    </include>
+    <!-- episode cards (5061) -->
+    <include name="SBInfoEpisodesLoading">
+        <control type="group">
+            <visible>$PARAM[visible]</visible>
+            <animation effect="fade" start="0" end="100" time="200" delay="150">Visible</animation>
+            <animation effect="fade" start="100" end="45" time="900" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
+            <control type="image">
+                <left>80</left>
+                <top>160</top>
+                <width>494</width>
+                <height>300</height>
+                <texture border="16" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>596</left>
+                <top>160</top>
+                <width>494</width>
+                <height>300</height>
+                <texture border="16" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>1112</left>
+                <top>160</top>
+                <width>494</width>
+                <height>300</height>
+                <texture border="16" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>1628</left>
+                <top>160</top>
+                <width>494</width>
+                <height>300</height>
+                <texture border="16" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+        </control>
+    </include>
+    <!-- Similar's posters (5160) -->
+    <include name="SBInfoSimilarLoading">
+        <control type="group">
+            <visible>$PARAM[visible]</visible>
+            <animation effect="fade" start="0" end="100" time="200" delay="150">Visible</animation>
+            <animation effect="fade" start="100" end="45" time="900" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
+            <control type="image">
+                <left>80</left>
+                <top>74</top>
+                <width>200</width>
+                <height>300</height>
+                <texture border="16" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>306</left>
+                <top>74</top>
+                <width>200</width>
+                <height>300</height>
+                <texture border="16" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>532</left>
+                <top>74</top>
+                <width>200</width>
+                <height>300</height>
+                <texture border="16" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>758</left>
+                <top>74</top>
+                <width>200</width>
+                <height>300</height>
+                <texture border="16" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>984</left>
+                <top>74</top>
+                <width>200</width>
+                <height>300</height>
+                <texture border="16" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>1210</left>
+                <top>74</top>
+                <width>200</width>
+                <height>300</height>
+                <texture border="16" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>1436</left>
+                <top>74</top>
+                <width>200</width>
+                <height>300</height>
+                <texture border="16" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>1662</left>
+                <top>74</top>
+                <width>200</width>
+                <height>300</height>
+                <texture border="16" colordiffuse="17FFFFFF">stremio/tab.png</texture>
+            </control>
+        </control>
+    </include>
+
+    <!-- An episode card: the thumbnail with its code, title, plot, rating and air date on it,
+         and under it, when it's part-watched, how far -->
     <include name="SBInfoEpisodeCard">
         <param name="scroll">false</param>
         <definition>
+        <control type="progress">
+            <left>6</left>
+            <top>317</top>
+            <width>482</width>
+            <height>6</height>
+            <texturebg colordiffuse="40FFFFFF">common/white.png</texturebg>
+            <lefttexture />
+                <midtexture colordiffuse="$VAR[ColorHighlight]">common/white.png</midtexture>
+                <righttexture />
+                <overlaytexture />
+            <info>ListItem.PercentPlayed</info>
+            <visible>Integer.IsGreater(ListItem.PercentPlayed,0) + !Integer.IsGreater(ListItem.PlayCount,0)</visible>
+        </control>
         <control type="image">
             <left>0</left>
             <top>10</top>

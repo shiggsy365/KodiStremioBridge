@@ -12,8 +12,8 @@ where present.
 
 import re
 import unicodedata
-from dataclasses import dataclass
 
+from .record import dataclass
 from .streams import TORRENT, format_size
 
 # ------------------------------------------------------------------ text

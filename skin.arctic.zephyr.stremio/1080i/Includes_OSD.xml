@@ -34,9 +34,10 @@
     </include>
     
     <include name="DefControlsHomeUpDown">
-        <onup condition="Skin.HasSetting(home.extended.nowplaying.tracklist) + Integer.IsGreater(Container(778).NumItems,0) + Player.HasAudio">778</onup>
-        <onup>301</onup>
-        <ondown>300</ondown>
+        <!-- Arctic Zephyr Stremio: the menu is above them, the rows below -->
+        <onup>300</onup>
+        <ondown condition="Skin.HasSetting(home.extended.nowplaying.tracklist) + Integer.IsGreater(Container(778).NumItems,0) + Player.HasAudio">778</ondown>
+        <ondown>301</ondown>
         <onback>300</onback>
         <onfocus>SetProperty(controlsvisible,1,home)</onfocus>
         <onup>ClearProperty(controlsvisible,home)</onup>

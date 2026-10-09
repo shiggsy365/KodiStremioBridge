@@ -242,6 +242,10 @@ def kodi_info(plugin, meta, episode, video_id, state, season=None):
         watched = bool(aired) and aired <= state.watched_episodes(meta.id)
         mark_item_watched(item, watched)
     apply_info_actions(item, plugin, meta, episode, watched, season)
+    if meta.videos:
+        from .details import visible_seasons
+
+        item.setProperty("stremiobridge.season_count", str(len(visible_seasons(meta))))
     for name, value in page_text(meta, episode, state, season).items():
         item.setProperty(f"stremiobridge.{name}", value)
     add_context_menu(item, [])  # the page's own menu is our title menu (the skin hands it over)
@@ -274,6 +278,11 @@ def page_text(meta, episode, state, season=None, rows=None):
         play = L(30409 if resume else 30408, season=target.season, episode=target.episode)
     else:
         play = L(30407) if resume else L(30221)
+    if resume:
+        from .watching import time_left  # watching imports this module
+
+        left = time_left(row)
+        play = f"{play} · {left}" if left else play  # "Resume S2 E5 · 12 min left"
 
     facts = []
     year = int(episode.air_date[:4]) if episode is not None and episode.air_date else meta.year

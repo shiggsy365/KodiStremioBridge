@@ -66,6 +66,15 @@ def watchlist_menu(plugin, type_, id_):
     return [(label, plugin.run_url(action, type=type_, id=id_))]
 
 
+def watchlist_metas(items):
+    """The watchlist's titles with their details from the meta addon (backgrounds,
+    logos, genres, ratings: MDBList gives only the title, year and poster)."""
+    from .watching import preferred_previews  # watching imports more than the menus here need
+
+    previews = [p for p in (MetaPreview.from_dict(e) for e in watchlist_previews(items)) if p]
+    return preferred_previews(previews, always=True)
+
+
 @route("watchlist")
 def watchlist_view(plugin):
     handle = plugin.handle
@@ -74,7 +83,7 @@ def watchlist_view(plugin):
         notify(L(30212), icon=xbmcgui.NOTIFICATION_WARNING)
         xbmcplugin.endOfDirectory(handle, succeeded=False)
         return
-    previews = [p for p in (MetaPreview.from_dict(e) for e in watchlist_previews(items)) if p]
+    previews = watchlist_metas(items)
     xbmcplugin.setPluginCategory(handle, L(30300))
     listed = preview_items(plugin, previews, get_watchstate())
     xbmcplugin.addDirectoryItems(handle, listed, len(listed))

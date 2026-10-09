@@ -184,7 +184,7 @@
         <!-- Next Recording -->
         <control type="group">
             <right>72</right>
-            <posy>70</posy>
+            <posy>110</posy> <!-- Arctic Zephyr Stremio: below the menu -->
             <width>660</width>
             <height>100</height>
             <include>Animation.FadeIn.Slide</include>
@@ -263,7 +263,7 @@
         <!-- Next Recording -->
         <control type="group">
             <right>72</right>
-            <posy>70</posy>
+            <posy>110</posy> <!-- Arctic Zephyr Stremio: below the menu -->
             <width>660</width>
             <height>100</height>
             <include>Animation.FadeIn.Slide</include>
@@ -1392,198 +1392,92 @@
         </control>
     </include>
 
+    <!-- Arctic Zephyr Stremio: the home menu along the top, in the style of the info page's season
+         tabs (the focused section in a white tab), with the profile and the clock at the right.
+         It shows while it has focus and slides away up while the rows below have it. Down goes
+         to the rows (or the now-playing controls); Up swaps it for the focused section's
+         sub-menu (302, HomeSubMenu2), which a small arrow above the section offers. -->
+    <expression name="HomeTopBarFocused">Control.HasFocus(300) | Control.HasFocus(302) | Control.HasFocus(9800) | Control.HasFocus(9801)</expression>
     <include name="HomeRow">
-
-        <!-- Home Row -->
         <control type="group">
-            <animation effect="slide" start="0" end="0,163" time="150" condition="!Control.HasFocus(300) + !Control.HasFocus(302) + Skin.HasSetting(homemenu.clean.flix) + !Skin.HasSetting(homemenu.clean.flix.no.slide)">Conditional</animation>
-            <animation effect="slide" start="0" end="0,53" time="150" condition="!Control.HasFocus(300) + !Control.HasFocus(302) + Skin.HasSetting(homemenu.clean.flix) + !Skin.HasSetting(homemenu.clean.flix.no.slide) + [Skin.HasSetting(home.oldmenuheight) | Skin.HasSetting(submenu.compatibility)]">Conditional</animation>
-            <animation effect="slide" start="0" end="0,-24" time="0" condition="Skin.HasSetting(home.modernwidgets) + Skin.HasSetting(home.vertical.widgets) + Skin.HasSetting(home.oldmenuheight)">Conditional</animation>
-            <animation effect="slide" start="0" end="0,30" time="0" condition="Skin.HasSetting(home.modernwidgets)">Conditional</animation>
-            <animation effect="slide" start="0" end="0,-27" time="0" condition="$EXP[HomeIsModernMultiWidgets] + Skin.HasSetting(submenu.compatibility) + !Skin.HasSetting(home.oldmenuheight)">Conditional</animation>
-            <animation effect="slide" start="0" end="0,250" time="150" condition="!Skin.HasSetting(home.modernwidgets) + !Skin.HasSetting(home.classicwidgets) + Control.HasFocus(301)">Conditional</animation>
-            <animation effect="slide" start="0" end="0,160" time="400" tween="back" reversible="false" easing="out" condition="Skin.HasSetting(home.modernwidgets) + !Skin.HasSetting(home.classicwidgets) + Control.HasFocus(301)">Conditional</animation>
-            <animation effect="slide" end="0" start="0,160" time="150" reversible="false" condition="Skin.HasSetting(home.modernwidgets) +  ![Skin.HasSetting(home.modernwidgets) + Skin.HasSetting(home.vertical.widgets)] + !Skin.HasSetting(home.classicwidgets) + !Control.HasFocus(301)">Conditional</animation>
-            <animation effect="slide" end="0" start="0,160" time="150" condition="$EXP[HomeIsModernMultiWidgets] + !Skin.HasSetting(submenu.compatibility) + !Skin.HasSetting(home.oldmenuheight)">WindowOpen</animation>            <animation effect="slide" start="0" end="0,160" time="150" condition="$EXP[HomeIsModernMultiWidgets] + !Skin.HasSetting(submenu.compatibility) + !Skin.HasSetting(home.oldmenuheight)">WindowClose</animation>
-            <animation effect="slide" end="0" start="0,220" time="150" condition="$EXP[HomeIsModernMultiWidgets] + [Skin.HasSetting(submenu.compatibility) | Skin.HasSetting(home.oldmenuheight)]">WindowOpen</animation>
-            <animation effect="slide" start="0" end="0,220" time="150" condition="$EXP[HomeIsModernMultiWidgets] + [Skin.HasSetting(submenu.compatibility) | Skin.HasSetting(home.oldmenuheight)]">WindowClose</animation>
-            <animation effect="slide" end="0" start="0,250" time="150" condition="!$EXP[HomeIsModernMultiWidgets]">WindowOpen</animation>
-            <animation effect="slide" start="0" end="0,250" time="150" condition="!$EXP[HomeIsModernMultiWidgets]">WindowClose</animation>
-            <animation effect="slide" start="0" end="0,163" time="150" condition="!Control.HasFocus(300) + !Control.HasFocus(302) + Skin.HasSetting(homemenu.slide) + Skin.HasSetting(disable.only.hide.menu.items) + $EXP[HomeIsModernMultiWidgets] + !Skin.HasSetting(homemenu.clean.flix)">Conditional</animation>
-            <control type="group">
-                <visible>[!Skin.HasSetting(home.oldmenuheight) | Skin.HasSetting(home.modernwidgets)] + ![Skin.HasSetting(home.modernwidgets) + Skin.HasSetting(home.vertical.widgets) + Skin.HasSetting(home.oldmenuheight)]</visible>
-                <control type="group">
-                    <visible>![Skin.HasSetting(homemenu.hide.lines) + $EXP[HomeIsModernMultiWidgets]]</visible>
-                    <control type="image" description="BottomBG">
-                        <width>100%</width>
-                        <height>15</height>
-                        <bottom>101</bottom>
-                        <texture colordiffuse="Background">common/shadow-50.png</texture>
-                    </control>
-                    <control type="image" description="BottomBG">
-                        <width>100%</width>
-                        <height>15</height>
-                        <bottom>24</bottom>
-                        <visible>false</visible>
-                        <texture flipy="true" colordiffuse="Background">common/shadow-50.png</texture>
-                    </control>
-                </control>
-                <control type="image" description="FanartOverlay">
-                    <width>100%</width>
-                    <height>80</height>
-                    <bottom>30</bottom>
-                    <aspectratio aligny="bottom">scale</aspectratio>
-                    <texture colordiffuse="Background">common/white.png</texture>
-                    <animation effect="fade" start="100" end="95" time="0" condition="true">Conditional</animation>
-                    <animation effect="fade" start="100" end="10" time="0" condition="!Skin.HasSetting(no.homemenu.clear) + $EXP[HomeIsModernMultiWidgets]">Conditional</animation>
-                </control>
-                <control type="group">
-                    <visible>![Skin.HasSetting(homemenu.hide.lines) + $EXP[HomeIsModernMultiWidgets]]</visible>
-                    <animation effect="fade" end="100" start="0" time="100" delay="100">WindowOpen</animation>
-                    <animation effect="fade" start="100" end="0" time="50">WindowClose</animation>
-                    <control type="image" description="Shadow">
-                        <width>100%</width>
-                        <height>1</height>
-                        <bottom>110</bottom>
-                        <texture flipy="true" colordiffuse="BoxHomerow">common/sch2.png</texture>
-                        <animation effect="fade" start="100" end="25" time="0" condition="!Skin.HasSetting(no.homemenu.clear) + $EXP[HomeIsModernMultiWidgets]">Conditional</animation>
-                    </control>
-                    <control type="image" description="Shadow">
-                        <width>100%</width>
-                        <height>1</height>
-                        <bottom>29</bottom>
-                        <visible>false</visible>
-                        <texture flipy="true" colordiffuse="BoxHomerow">common/sch2.png</texture>
-                        <visible>!Skin.HasSetting(thumbnails.white)</visible>
-                        <animation effect="fade" start="100" end="25" time="0" condition="!Skin.HasSetting(no.homemenu.clear) + $EXP[HomeIsModernMultiWidgets]">Conditional</animation>
-                    </control>
-                </control>
+            <animation effect="fade" start="0" end="100" time="350" tween="sine" easing="out">WindowOpen</animation>
+            <animation effect="fade" start="100" end="0" time="250">WindowClose</animation>
+            <animation type="Conditional" condition="!$EXP[HomeTopBarFocused]">
+                <effect type="slide" start="0,0" end="0,-150" time="300" tween="cubic" easing="out"/>
+                <effect type="fade" start="100" end="0" time="200"/>
+            </animation>
+            <control type="image" description="shade behind the bar">
+                <left>0</left>
+                <top>0</top>
+                <width>1920</width>
+                <height>230</height>
+                <texture flipy="true" colordiffuse="C8FFFFFF">stremio/card-shade.png</texture>
             </control>
-            <control type="group">
-                <visible>Skin.HasSetting(home.oldmenuheight) + !Skin.HasSetting(home.modernwidgets) | [Skin.HasSetting(home.modernwidgets) + Skin.HasSetting(home.vertical.widgets) + Skin.HasSetting(home.oldmenuheight)]</visible>
-                <control type="image" description="BottomBG">
-                    <visible>![Skin.HasSetting(homemenu.hide.lines) + $EXP[HomeIsModernMultiWidgets]]</visible>
-                    <width>100%</width>
-                    <height>15</height>
-                    <bottom>211</bottom>
-                    <texture colordiffuse="Background">common/shadow-50.png</texture>
-                </control>
-                <control type="image" description="BottomBG">
-                    <width>100%</width>
-                    <height>220</height>
-                    <bottom>0</bottom>
-                    <aspectratio aligny="bottom">scale</aspectratio>
-                    <texture colordiffuse="Background">common/white.png</texture>
-                    <animation effect="fade" start="100" end="95" time="0" condition="true">Conditional</animation>
-                    <animation effect="fade" start="100" end="10" time="0" condition="!Skin.HasSetting(no.homemenu.clear) + $EXP[HomeIsModernMultiWidgets]">Conditional</animation>
-                </control>
-                <control type="group">
-                    <visible>![Skin.HasSetting(homemenu.hide.lines) + $EXP[HomeIsModernMultiWidgets]]</visible>
-                    <control type="image" description="Shadow">
-                        <width>100%</width>
-                        <height>16</height>
-                        <bottom>220</bottom>
-                        <texture flipy="true">common/shadow16B.png</texture>
-                        <animation effect="fade" start="100" end="25" time="0" condition="!Skin.HasSetting(no.homemenu.clear) + $EXP[HomeIsModernMultiWidgets]">Conditional</animation>
-                    </control>
-                    <control type="image" description="Shadow">
-                        <width>100%</width>
-                        <height>1</height>
-                        <bottom>220</bottom>
-                        <texture flipy="true" colordiffuse="BoxHomerow">common/sch2.png</texture>
-                        <animation effect="fade" start="100" end="25" time="0" condition="!Skin.HasSetting(no.homemenu.clear) + $EXP[HomeIsModernMultiWidgets]">Conditional</animation>
-                        <visible>!Skin.HasSetting(thumbnails.white)</visible>
-                    </control>
-                </control>
+            <control type="list" id="300">
+                <description>Home menu</description>
+                <left>SidePad</left>
+                <right>760</right>
+                <onfocus>ClearProperty(ContainerPosition,home)</onfocus>
+                <onfocus>ClearProperty(listitem.trailer,home)</onfocus>
+                <onfocus>ClearProperty(controlsvisible,home)</onfocus>
+                <onfocus>ClearProperty(SetUserRating,home)</onfocus>
+                <onfocus>ClearProperty(nowplayingautoshowtimer,home)</onfocus>
+                <onup condition="Integer.IsGreater(Container(302).NumItems,0)">SetFocus(302,0)</onup>
+                <ondown condition="$EXP[ExtendedNowPlayingIsVisible] + !Skin.HasSetting(hide.home.nowplaying.controls)">777</ondown>
+                <ondown>301</ondown>
+                <onback condition="Skin.HasSetting(home.onback.go.to.first.widget) + Integer.IsGreater(Container(301).NumItems,0)">SetFocus(301)</onback>
+                <onleft>300</onleft>
+                <onright condition="$EXP[HomeHasProfilePicker]">9800</onright>
+                <onright condition="!$EXP[HomeHasProfilePicker]">9801</onright>
+                <orientation>horizontal</orientation>
+                <scrolltime>200</scrolltime>
+                <include>HomeContentNoIcon</include>
             </control>
-            <!-- the clock at 60%, to fit the lower bar -->
-            <control type="group">
-                <animation effect="zoom" end="60" center="1880,1080" time="0" condition="true">Conditional</animation>
-                <include>Furniture_Clock</include>
-            </control>
-            <control type="group">
-                <animation effect="slide" start="0" end="0,163" time="150" condition="!Control.HasFocus(300) + !Control.HasFocus(302) + Skin.HasSetting(homemenu.slide) + !Skin.HasSetting(disable.only.hide.menu.items) + $EXP[HomeIsModernMultiWidgets] + !Skin.HasSetting(homemenu.clean.flix)">Conditional</animation>
-                <control type="image">
-                    <visible>false</visible> <!-- Arctic Zephyr Stremio: the icon menu fits; no scroll arrows -->
-                    <top>1012</top>
-                    <left>52</left>
-                    <include>arrowdimensions</include>
-                    <texture colordiffuse="Dark2" flipx="true">common/arrow-small-right.png</texture>
-                </control>
-                <control type="image">
-                    <visible>false</visible> <!-- Arctic Zephyr Stremio: the icon menu fits; no scroll arrows -->
-                    <visible>!Skin.HasSetting(furniture.clock)</visible>
-                    <top>1012</top>
-                    <right>480</right>
-                    <include>arrowdimensions</include>
-                    <texture colordiffuse="Dark2" flipx="false">common/arrow-small-right.png</texture>
-                </control>
-                <control type="image">
-                    <visible>false</visible> <!-- Arctic Zephyr Stremio: the icon menu fits; no scroll arrows -->
-                    <visible>Skin.HasSetting(furniture.clock)</visible>
-                    <top>1012</top>
-                    <right>42</right>
-                    <include>arrowdimensions</include>
-                    <texture colordiffuse="Dark2" flipx="false">common/arrow-small-right.png</texture>
-                </control>
-                <control type="list" id="300">
-                    <include>Animation.FadeIn.Delay</include>
-                    <include>Animation.FadeOut</include>
-                    <description>Home Wraplist</description>
-                    <left>SidePad</left>
-                    <onfocus>ClearProperty(ContainerPosition,home)</onfocus>
-                    <onfocus>ClearProperty(listitem.trailer,home)</onfocus>
-                    <onfocus>ClearProperty(controlsvisible,home)</onfocus>
-                    <onfocus>ClearProperty(SetUserRating,home)</onfocus>
-                    <onfocus>ClearProperty(nowplayingautoshowtimer,home)</onfocus>
-                    <include condition="!Skin.HasSetting(furniture.clock)">DefHomeRight520</include>
-                    <include condition="Skin.HasSetting(furniture.clock)">DefHomeRightSidePad</include>
-                    <onup condition="$EXP[ExtendedNowPlayingIsVisible] + Skin.HasSetting(hide.home.nowplaying.controls) + [$EXP[HomeIsModernMultiWidgets] | $EXP[HomeIsVerticalMultiWidgets]] + Skin.HasSetting(home.extended.nowplaying.tracklist) + Integer.IsGreater(Container(778).NumItems,0) + Player.HasAudio">778</onup>
-                    <onup condition="$EXP[ExtendedNowPlayingIsVisible] + !Skin.HasSetting(hide.home.nowplaying.controls) + [$EXP[HomeIsModernMultiWidgets] | $EXP[HomeIsVerticalMultiWidgets]]">777</onup>
-                    <onup condition="!Player.HasVideo | !Skin.HasSetting(global.showvideo)">301</onup>
-                    <onup>301</onup>
-                    <ondown condition="Integer.IsGreater(Container(302).NumItems,0)">SetFocus(302,0)</ondown>
-                    <onback condition="Skin.HasSetting(home.onback.go.to.first.widget) + Integer.IsGreater(Container(301).NumItems,0)">SetFocus(301)</onback>
-                    <onleft>300</onleft>
-                    <onright condition="$EXP[HomeHasProfilePicker]">9800</onright>
-                    <orientation>horizontal</orientation>
-                    <scrolltime>200</scrolltime>
-                    <include condition="Skin.HasSetting(home.showicons)">HomeContentIcon</include>
-                    <include condition="!Skin.HasSetting(home.showicons)">HomeContentNoIcon</include>
-                </control>
-                <include condition="!Skin.HasSetting(home.showicons)">HomeProfilePicker</include>
+            <include>HomeProfilePicker</include>
+            <include>HomeSearchButton</include>
+            <control type="label" description="date and time">
+                <right>SidePad</right>
+                <top>30</top>
+                <width>400</width>
+                <height>56</height>
+                <align>right</align>
+                <aligny>center</aligny>
+                <font>SBInfoFacts</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>[COLOR FFB4B4B4]$INFO[System.Date(ddd d mmm)][/COLOR]   $INFO[System.Time]</label>
             </control>
         </control>
-        
     </include>
 
     <!-- Arctic Zephyr Stremio: with more than one profile, the logged-in profile's picture and
-         name to the left of the clock; selecting it logs off to the profile login screen. Right
-         from the end of the menu (300) reaches it. -->
-    <expression name="HomeHasProfilePicker">Integer.IsGreater(System.ProfileCount,1) + !Skin.HasSetting(home.showicons)</expression>
+         name to the left of the clock; selecting it lists the profiles (Stremio Bridge's
+         switch_profile), and the one chosen loads straight away. Right from the end of the menu
+         (300) reaches it. -->
+    <expression name="HomeHasProfilePicker">Integer.IsGreater(System.ProfileCount,1)</expression>
     <include name="HomeProfilePicker">
         <control type="group">
-            <visible>$EXP[HomeHasProfilePicker]</visible>
+            <visible>$EXP[HomeHasProfilePicker] + !Control.HasFocus(302)</visible>
             <include>Animation.FadeIn.Delay</include>
             <include>Animation.FadeOut</include>
-            <!-- ends clear of the clock's date line (the longest: "WEDNESDAY, SEPTEMBER 30, …") -->
-            <left>1290</left>
-            <top>982</top>
-            <width>285</width>
+            <!-- ends clear of the search button (HomeSearchButton) -->
+            <right>500</right>
+            <top>30</top>
+            <width>300</width>
             <height>56</height>
             <control type="button" id="9800">
-                <width>285</width>
+                <width>300</width>
                 <height>56</height>
                 <texturefocus />
                 <texturenofocus />
                 <onleft>300</onleft>
-                <onup>301</onup>
+                <onright>9801</onright>
+                <ondown>301</ondown>
                 <onback>300</onback>
-                <onclick>System.LogOff</onclick>
+                <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=switch_profile)</onclick>
             </control>
             <control type="label">
                 <right>58</right>
-                <width>227</width>
+                <width>242</width>
                 <height>56</height>
                 <align>right</align>
                 <aligny>center</aligny>
@@ -1594,7 +1488,7 @@
             </control>
             <control type="label">
                 <right>58</right>
-                <width>227</width>
+                <width>242</width>
                 <height>56</height>
                 <align>right</align>
                 <aligny>center</aligny>
@@ -1625,6 +1519,55 @@
                 <height>48</height>
                 <texture>stremio/ring.png</texture>
                 <visible>Control.HasFocus(9800)</visible>
+            </control>
+        </control>
+    </include>
+
+    <!-- Arctic Zephyr Stremio: search, between the profile picker and the date and time (which it
+         ends clear of; the longest is "Wed 30 Sep   12:59 PM"); it opens the search page -->
+    <include name="HomeSearchButton">
+        <control type="group">
+            <visible>!Control.HasFocus(302)</visible>
+            <include>Animation.FadeIn.Delay</include>
+            <include>Animation.FadeOut</include>
+            <right>420</right>
+            <top>30</top>
+            <width>56</width>
+            <height>56</height>
+            <control type="button" id="9801">
+                <width>56</width>
+                <height>56</height>
+                <texturefocus />
+                <texturenofocus />
+                <onleft condition="$EXP[HomeHasProfilePicker]">9800</onleft>
+                <onleft condition="!$EXP[HomeHasProfilePicker]">300</onleft>
+                <ondown>301</ondown>
+                <onback>300</onback>
+                <onclick>ActivateWindow(1170)</onclick>
+            </control>
+            <control type="image">
+                <left>4</left>
+                <top>4</top>
+                <width>48</width>
+                <height>48</height>
+                <texture colordiffuse="FFFFFFFF">stremio/circle.png</texture>
+                <visible>Control.HasFocus(9801)</visible>
+            </control>
+            <control type="image">
+                <left>15</left>
+                <top>15</top>
+                <width>26</width>
+                <height>26</height>
+                <texture colordiffuse="FF101010">globalsearch-search.png</texture>
+                <visible>Control.HasFocus(9801)</visible>
+            </control>
+            <control type="image">
+                <left>15</left>
+                <top>15</top>
+                <width>26</width>
+                <height>26</height>
+                <texture colordiffuse="FFB4B4B4">globalsearch-search.png</texture>
+                <visible>!Control.HasFocus(9801)</visible>
             </control>
         </control>
     </include>
@@ -1757,58 +1700,63 @@
         </control>
     </include>
 
+    <!-- Arctic Zephyr Stremio: a section's sub-menu, in the top bar's place (HomeRow): Up from the
+         menu drops it in from above, Down or Back goes back to the menu -->
     <include name="HomeSubMenu2">
         <control type="group">
             <animation type="Conditional" condition="Control.HasFocus(302)" reversible="false">
-                <effect type="fade" start="0" end="100" time="150" tween="sine" easing="in" delay="150" />
-                <effect type="slide" start="0,30" end="0,0" time="200" tween="sine" easing="out" delay="150" />
+                <effect type="fade" start="0" end="100" time="150" tween="sine" easing="in" delay="100" />
+                <effect type="slide" start="0,-30" end="0,0" time="200" tween="sine" easing="out" delay="100" />
             </animation>
             <animation type="Conditional" condition="!Control.HasFocus(302)" reversible="false">
                 <effect type="fade" start="100" end="0" time="100" tween="sine" easing="out" />
-                <effect type="slide" start="0,0" end="0,30" time="150" tween="sine" easing="out" />
+                <effect type="slide" start="0,0" end="0,-30" time="150" tween="sine" easing="out" />
             </animation>
             <animation type="WindowClose" reversible="false">
                 <effect type="fade" start="100" end="0" time="150" />
-                <effect type="slide" start="0" end="0,250" time="150" />
-            </animation>
-            <animation type="WindowOpen" reversible="false">
-                <effect type="fade" start="0" end="100" time="450" delay="50" tween="sine" easing="in"/>
             </animation>
             <control type="list" id="302">
-                <description>Home Wraplist</description>
+                <description>Home sub-menu</description>
                 <left>SidePad</left>
-                <include condition="!Skin.HasSetting(furniture.clock)">DefHomeRight520</include>
-                <include condition="Skin.HasSetting(furniture.clock)">DefHomeRightSidePad</include>
-                <onup>300</onup>
+                <right>520</right>
+                <top>30</top>
+                <height>56</height>
+                <onup>302</onup>
                 <ondown>300</ondown>
+                <onback>300</onback>
                 <onleft>302</onleft>
                 <onright>302</onright>
                 <orientation>horizontal</orientation>
                 <scrolltime>200</scrolltime>
-                <!-- Arctic Zephyr Stremio: in the half-height bar, like the main menu (HomeContentNoIcon) -->
-                <top>1012</top>
-                <animation effect="slide" start="0" end="0,-30" time="0" condition="[$EXP[HomeIsClassic] | $EXP[HomeIsSpotlight]]">Conditional</animation>
-                <animation effect="slide" start="0" end="0,-24" time="0" condition="Skin.HasSetting(home.modernwidgets) + Skin.HasSetting(home.vertical.widgets) + Skin.HasSetting(home.oldmenuheight)">Conditional</animation>
-                <animation effect="slide" start="0" end="0,-27" time="0" condition="$EXP[HomeIsModernMultiWidgets] + Skin.HasSetting(submenu.compatibility) + !Skin.HasSetting(home.oldmenuheight)">Conditional</animation>
-                <itemlayout width="200" height="56">
+                <itemlayout width="230" height="56">
                     <control type="label">
-                        <left>20</left>
-                        <width>180</width>
+                        <left>16</left>
+                        <width>198</width>
                         <height>56</height>
+                        <align>center</align>
                         <aligny>center</aligny>
                         <font>SBInfoTab</font>
-                        <textcolor>FFA0A0A0</textcolor>
+                        <textcolor>FFB4B4B4</textcolor>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                 </itemlayout>
-                <focusedlayout width="200" height="56">
+                <focusedlayout width="230" height="56">
+                    <control type="image">
+                        <left>6</left>
+                        <top>2</top>
+                        <width>218</width>
+                        <height>52</height>
+                        <texture border="14" colordiffuse="FFFFFFFF">stremio/tab.png</texture>
+                    </control>
                     <control type="label">
-                        <left>20</left>
-                        <width>180</width>
+                        <left>16</left>
+                        <width>198</width>
                         <height>56</height>
+                        <align>center</align>
                         <aligny>center</aligny>
-                        <font>SBInfoFacts</font>
-                        <textcolor>FFFFFFFF</textcolor>
+                        <font>SBInfoTab</font>
+                        <textcolor>FF101010</textcolor>
+                        <scroll>true</scroll>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                 </focusedlayout>
@@ -2380,54 +2328,84 @@
     </include>
 
     <include name="HomeContentNoIcon">
-        <!-- Arctic Zephyr Stremio: a bar half the original height, in the info page's font -->
-        <top>982</top>
-        <animation type="Conditional" condition="!Control.HasFocus(302) + Skin.HasSetting(home.submenu2)" reversible="false">
-            <effect type="fade" start="0" end="100" time="150" tween="sine" easing="in" delay="150" />
-            <effect type="slide" start="0,30" end="0,0" time="200" tween="sine" easing="out" delay="150" />
+        <!-- Arctic Zephyr Stremio: the top bar's sections (HomeRow), as the info page's season
+             tabs: the focused one in a white tab, an arrow above it when it has a sub-menu -->
+        <top>12</top>
+        <height>74</height>
+        <animation type="Conditional" condition="!Control.HasFocus(302)" reversible="false">
+            <effect type="fade" start="0" end="100" time="150" tween="sine" easing="in" delay="100" />
+            <effect type="slide" start="0,30" end="0,0" time="200" tween="sine" easing="out" delay="100" />
         </animation>
-        <animation type="Conditional" condition="Control.HasFocus(302) + Skin.HasSetting(home.submenu2)" reversible="false">
+        <animation type="Conditional" condition="Control.HasFocus(302)" reversible="false">
             <effect type="fade" start="100" end="0" time="100" tween="sine" easing="out" />
             <effect type="slide" start="0,0" end="0,30" time="150" tween="sine" easing="out" />
         </animation>
-        <!-- Arctic Zephyr Stremio: icons only, packed to the left; the focused item opens out to its name -->
-        <itemlayout width="76" height="56">
-            <control type="image">
-                <left>20</left>
-                <top>10</top>
-                <width>36</width>
-                <height>36</height>
-                <aspectratio>keep</aspectratio>
-                <texture colordiffuse="FF9A9A9A">$INFO[ListItem.Icon]</texture>
-            </control>
-        </itemlayout>
-        <focusedlayout width="190" height="56">
+        <itemlayout width="170" height="74">
             <control type="label">
-                <left>20</left>
-                <top>0</top>
-                <width>170</width>
+                <left>6</left>
+                <top>18</top>
+                <width>158</width>
                 <height>56</height>
-                <aligny>center</aligny>
-                <font>SBInfoFacts</font>
-                <textcolor>FFFFFFFF</textcolor>
-                <label>$INFO[ListItem.Label]</label>
-                <visible>Control.HasFocus(300) | Control.HasFocus(302)</visible>
-            </control>
-            <control type="label">
-                <left>20</left>
-                <top>0</top>
-                <width>170</width>
-                <height>56</height>
+                <align>center</align>
                 <aligny>center</aligny>
                 <font>SBInfoTab</font>
                 <textcolor>FFB4B4B4</textcolor>
                 <label>$INFO[ListItem.Label]</label>
-                <visible>!Control.HasFocus(300) + !Control.HasFocus(302)</visible>
+            </control>
+        </itemlayout>
+        <focusedlayout width="170" height="74">
+            <control type="image">
+                <left>77</left>
+                <top>3</top>
+                <width>16</width>
+                <height>12</height>
+                <aspectratio>keep</aspectratio>
+                <texture flipy="true" colordiffuse="FFFFFFFF">common/arrow-small.png</texture>
+                <visible>Control.HasFocus(300) + String.IsEqual(ListItem.Property(hasSubmenu),True)</visible>
+            </control>
+            <control type="image">
+                <left>6</left>
+                <top>20</top>
+                <width>158</width>
+                <height>52</height>
+                <texture border="14" colordiffuse="FFFFFFFF">stremio/tab.png</texture>
+                <visible>Control.HasFocus(300)</visible>
+            </control>
+            <control type="image">
+                <left>6</left>
+                <top>20</top>
+                <width>158</width>
+                <height>52</height>
+                <texture border="14" colordiffuse="40FFFFFF">stremio/tab.png</texture>
+                <visible>!Control.HasFocus(300)</visible>
+            </control>
+            <control type="label">
+                <left>6</left>
+                <top>18</top>
+                <width>158</width>
+                <height>56</height>
+                <align>center</align>
+                <aligny>center</aligny>
+                <font>SBInfoTab</font>
+                <textcolor>FF101010</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>Control.HasFocus(300)</visible>
+            </control>
+            <control type="label">
+                <left>6</left>
+                <top>18</top>
+                <width>158</width>
+                <height>56</height>
+                <align>center</align>
+                <aligny>center</aligny>
+                <font>SBInfoTab</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>!Control.HasFocus(300)</visible>
             </control>
 
             <!-- Set TMDbHelper WidgetContainer -->
             <include condition="$EXP[HomeIsModernMultiWidgets] | $EXP[HomeIsVerticalMultiWidgets]">SetWidgetContainerForTMDB</include>
-            <include condition="$EXP[HasHomemenuAutoSlideOutAnimation]">SlideOutItemsButton</include>
         </focusedlayout>
         <content>
             <include>skinshortcuts-mainmenu</include>
@@ -3850,6 +3828,9 @@
         <include>WidgetsItemsCount</include>
         <control type="group">
             <left>0</left>
+            <!-- Arctic Zephyr Stremio: lower, into the space of the old menu bar (the menu is at the top);
+                 by animation, as a top would shrink the group and cancel out the rows' bottom -->
+            <animation effect="slide" start="0,0" end="0,40" time="0" condition="true">Conditional</animation>
             <animation effect="slide" start="0" end="0,-27" time="150" condition="Skin.HasSetting(home.modernwidgets) + Skin.HasSetting(home.vertical.widgets) + Skin.HasSetting(home.oldmenuheight)">Conditional</animation>
             <include condition="Skin.HasSetting(homemenu.clean.flix) + !Skin.HasSetting(homemenu.clean.flix.no.slide)">Animation.Home.Clean</include>
 
@@ -3879,8 +3860,7 @@
                     <param name="bottom" value="80" />
                 </include>
                 <width>1920</width>
-                <onup condition="!Skin.HasSetting(disable.widgets.onup.go.back.to.last.item)">SetFocus(8888)</onup>
-                <onup condition="Skin.HasSetting(disable.widgets.onup.go.back.to.last.item)">300</onup>
+                <onup>300</onup> <!-- Arctic Zephyr Stremio: the menu, at the top -->
                 <ondown condition="Skin.HasSetting(disable.widgets.ondown.go.back.to.position.0)">300</ondown>
                 <ondown condition="!Skin.HasSetting(disable.widgets.ondown.go.back.to.position.0)">4567</ondown>
                 <include>ScrolltimeWidgetsContainer</include>
@@ -4054,10 +4034,11 @@
                 <animation effect="fade" start="100" end="0" time="150" condition="!ControlGroup(301).HasFocus() + Skin.HasSetting(home.hide.netflix.plot)">Conditional</animation>
                 <include condition="!Skin.HasSetting(widgets.fade)">Animation.Vertical.Widgets.Label</include>
                 <!-- each row has a 1000 px slot (DefMultiWidgetContainer's top + height): its
-                     header starts 60 px down the screen, the next row's stays out of sight -->
+                     header starts 130 px down the screen (the rows are 40 lower: HomeWidgetInfoWidgets),
+                     below the menu, and the next row's stays out of sight -->
                 <include content="SBItemHeader">
                     <param name="id" value="$PARAM[id]"/>
-                    <param name="top" value="-940"/>
+                    <param name="top" value="-910"/>
                     <param name="labelisvisible" value="$PARAM[labelisvisible]"/>
                 </include>
             </control>
@@ -4560,6 +4541,7 @@
 
     <include name="WidgetsNavigationArrows">
         <control type="group">
+            <animation effect="slide" start="0,0" end="0,40" time="0" condition="true">Conditional</animation> <!-- Arctic Zephyr Stremio: with the rows (HomeWidgetInfoWidgets) -->
             <include>Animation.DelayFadeIn600</include>
             <include>Animation.FadeOut</include>
             <include condition="!Skin.HasSetting(widgets.fade)">Animation.Vertical.Widgets.Label</include>

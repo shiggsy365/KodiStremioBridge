@@ -2,11 +2,11 @@
 
 import re
 import time
-from dataclasses import dataclass, field
 from urllib.parse import quote, urlsplit
 
 from .aggregate import gather
 from .models import Subtitle
+from .record import dataclass, field
 
 YOUTUBE_PLAY = "plugin://plugin.video.youtube/play/?video_id={}"
 ELEMENTUM_PLAY = "plugin://plugin.video.elementum/play?uri={}"

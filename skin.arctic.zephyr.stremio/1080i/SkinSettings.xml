@@ -245,6 +245,21 @@
                             <onfocus>ClearProperty(custommenu,Home)</onfocus>
                             <onfocus>ClearProperty(skinshortcuts-Widget,Home)</onfocus>
                         </control>
+                        <!-- Arctic Zephyr Stremio: Stremio Bridge's backup of the whole Kodi (every profile) -->
+                        <control type="button" id="9805" description="Back up this Kodi">
+                            <width>1360</width>
+                            <visible>ControlGroup(9100).HasFocus(9101) + System.HasAddon(plugin.video.stremiobridge)</visible>
+                            <include>DefSettingsButtonGradientSkinSettings</include>
+                            <label>$ADDON[plugin.video.stremiobridge 30428]</label>
+                            <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=backup)</onclick>
+                        </control>
+                        <control type="button" id="9806" description="Restore a backup">
+                            <width>1360</width>
+                            <visible>ControlGroup(9100).HasFocus(9101) + System.HasAddon(plugin.video.stremiobridge)</visible>
+                            <include>DefSettingsButtonGradientSkinSettings</include>
+                            <label>$ADDON[plugin.video.stremiobridge 30430]</label>
+                            <onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=restore)</onclick>
+                        </control>
                         <control type="grouplist" id="98032">
                             <orientation>horizontal</orientation>
                             <enable>false</enable>

@@ -14,9 +14,9 @@ used only while that response is the one in the cache: when it's refreshed
 (or missing, or expired), callers read the full meta, which makes them again.
 """
 
-import dataclasses
 
 from .models import Meta, Video
+from .record import dataclass, replace
 
 # Shows with fewer videos are read whole: their meta is small enough.
 MIN_VIDEOS = 300
@@ -57,7 +57,7 @@ def save(cache, url, raw):
     return True
 
 
-@dataclasses.dataclass
+@dataclass
 class ShowIndex:
     url: str
     summary: dict  # the addon's meta dict, without videos
@@ -82,7 +82,7 @@ class ShowIndex:
             detailed.update((v.id, v) for v in (Video.from_dict(d) for d in videos) if v)
         if not detailed:
             return self.meta
-        return dataclasses.replace(self.meta, videos=tuple(detailed.get(v.id, v) for v in self.meta.videos))
+        return replace(self.meta, videos=tuple(detailed.get(v.id, v) for v in self.meta.videos))
 
 
 def load(cache, url, type_, now):
@@ -100,4 +100,4 @@ def load(cache, url, type_, now):
         return None
     videos = tuple(Video(id_, season=season, episode=episode, released=released)
                    for id_, season, episode, released in index)
-    return ShowIndex(url, summary, dataclasses.replace(meta, videos=videos))
+    return ShowIndex(url, summary, replace(meta, videos=videos))

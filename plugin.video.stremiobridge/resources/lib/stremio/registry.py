@@ -9,11 +9,11 @@ import json
 import os
 import re
 import time
-from dataclasses import dataclass, field
 
 from . import StremioError
 from .client import base_url
 from .models import Manifest
+from .record import dataclass, field
 
 SCHEMA_VERSION = 1
 

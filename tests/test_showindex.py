@@ -1,4 +1,4 @@
-import dataclasses
+from stremio.record import replace
 
 from stremio import showindex
 from stremio.cache import Cache
@@ -43,7 +43,7 @@ def test_index_has_every_video_and_seasons_in_full(tmp_path):
     index = showindex.load(cache, URL, "series", clock.now)
     assert index.url == URL and "videos" not in index.summary
     light = index.meta
-    assert dataclasses.replace(light, videos=()) == dataclasses.replace(full, videos=())
+    assert replace(light, videos=()) == replace(full, videos=())
     assert [(v.id, v.season, v.episode, v.released) for v in light.videos] == \
         [(v.id, v.season, v.episode, v.released) for v in full.videos]
     assert light.seasons == full.seasons and not any(v.title for v in light.videos)

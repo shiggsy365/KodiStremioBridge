@@ -1,12 +1,15 @@
 """Maps ``plugin://plugin.video.stremiobridge/?action=…`` URLs to handlers."""
 
 import importlib
-import inspect
 from urllib.parse import parse_qsl, urlencode
 
 import xbmc
 
 ROUTES = {}
+CO_VARKEYWORDS = 0x08  # a code object's flag: the function takes **kwargs
+# Parameters that only make Kodi reload a list (common.notify_widgets' token on
+# widget paths): dropped without a word where a route doesn't take them
+QUIET_PARAMETERS = {"reload"}
 
 
 def route(action):
@@ -45,6 +48,7 @@ class Plugin:
 # Stick, and the info page alone makes three calls at once. Kept in step with the
 # @route decorators by tests/test_router.py.
 HANDLERS = {
+    "backup": ("backup", "restore"),
     "browse": ("catalog", "choose_filter", "row_page", "type"),
     "contextmenu": ("context_menu",),
     "details": ("info_episodes", "info_seasons", "meta", "people", "play_trailer", "season"),
@@ -56,6 +60,7 @@ HANDLERS = {
                "refresh_addon", "remove_addon", "set_catalog_pref", "toggle_addon"),
     "menus": ("clear_cache", "open", "root", "settings", "toggle_parent_items", "widgets"),
     "player": ("play",),
+    "profiles": ("switch_profile",),
     "search": ("move_search_catalog", "new_search", "rename_search_catalog", "search", "search_catalog_actions",
                "search_catalogs", "search_history_clear", "search_history_remove", "search_key", "search_live",
                "search_menu", "search_open", "search_pick", "search_recent", "search_suggest",
@@ -97,11 +102,13 @@ def run(argv):
         log(f"Unknown action '{action}'", xbmc.LOGERROR)
         return
     # Drop parameters the handler doesn't take (e.g. from old widget/favourite
-    # links made by an earlier version), unless it accepts **kwargs.
-    signature = inspect.signature(handler)
-    if not any(p.kind == p.VAR_KEYWORD for p in signature.parameters.values()):
-        unknown = set(params) - set(signature.parameters)
-        if unknown:
+    # links made by an earlier version), unless it accepts **kwargs. Read from
+    # its code: importing inspect for this is slow on a Fire TV Stick.
+    code = handler.__code__
+    if not code.co_flags & CO_VARKEYWORDS:
+        accepted = code.co_varnames[:code.co_argcount + code.co_kwonlyargcount]
+        unknown = set(params) - set(accepted)
+        if unknown - QUIET_PARAMETERS:
             log(f"Ignoring unknown parameters for '{action}': {sorted(unknown)}")
-            params = {k: v for k, v in params.items() if k not in unknown}
+        params = {k: v for k, v in params.items() if k not in unknown}
     handler(plugin, **params)

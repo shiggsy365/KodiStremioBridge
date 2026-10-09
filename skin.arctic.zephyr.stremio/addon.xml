@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="skin.arctic.zephyr.stremio" version="1.2.7" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
+<addon id="skin.arctic.zephyr.stremio" version="1.3.0" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
     <requires>
         <import addon="xbmc.gui" version="5.17.0"/>
-        <import addon="plugin.video.stremiobridge" version="0.14.1"/>
+        <import addon="plugin.video.stremiobridge" version="0.15.0"/>
         <import addon="script.skinshortcuts" version="0.4.0"/>
         <import addon="plugin.video.youtube" version="7.0.0"/>
         <import addon="service.upnext" version="1.1.9"/>
@@ -30,13 +30,11 @@
             <screenshot>resources/screenshot-09.jpg</screenshot>
             <screenshot>resources/screenshot-10.jpg</screenshot>
         </assets>
-        <news>v1.2.7 - With several Kodi profiles: a profile picker beside the clock, and home widgets per profile. Context menus open without Kodi's showing first. The info page hides the last title's lists while it loads; hub rows refresh in place again.
+        <news>v1.3.0 - The home menu moves to the top and slides away as you browse; Up opens a section's sub-menu. Search: typing is quicker and spaces land in the right place. Info page: placeholders while it loads, progress on part-watched episodes, one-season shows list their episodes straight away. A status bar while streams are found. Search beside the clock. Pick a profile from a list. Back up and restore buttons in the skin settings.
+v1.2.7 - With several Kodi profiles: a profile picker beside the clock, and home widgets per profile. Context menus open without Kodi's showing first. The info page hides the last title's lists while it loads; hub rows refresh in place again.
 v1.2.6 - Information page: the episodes load once, on the next to watch; a previous title's seasons and episodes no longer show while the page loads. New splash.
 v1.2.5 - New Kodi Stremio Bridge splash on the startup screen, and in place of Kodi's own splash (Settings > Background).
-v1.2.4 - A show's seasons list previews each season's episodes without opening its information page.
-v1.2.3 - The info page's plot always starts from the top (it could open already scrolled).
-v1.2.2 - Hubs load only the list you pick: the row shows the first catalog, and changes when you click another chip (moving across the chips no longer loads each one).
-v1.2.1 - Installs YouTube (trailers) and Up Next (next episode) with the skin.</news>
+v1.2.4 - A show's seasons list previews each season's episodes without opening its information page.</news>
         <summary lang="en_GB">Arctic: Zephyr - Reloaded, made for Stremio Bridge.</summary>
         <description lang="en_GB">A fork of Arctic: Zephyr - Reloaded by beatmasterRS, itself based on Arctic: Zephyr by jurialmunkey, made to work with Stremio Bridge and Dispatcharr Bridge. Clean, minimal and light, with the layout of Reloaded. Licensed under CC BY-NC-SA 3.0, like the original.</description>
     </extension>

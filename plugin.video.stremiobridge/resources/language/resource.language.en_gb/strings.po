@@ -1244,3 +1244,87 @@ msgstr ""
 msgctxt "#30426"
 msgid "Search Cinemeta (Stremio's own catalog) when none of your search catalogs finds anything, and alongside them for an actor's or director's name when you have no people search. Off: only your addons are searched."
 msgstr ""
+
+msgctxt "#30427"
+msgid "Backup"
+msgstr ""
+
+msgctxt "#30428"
+msgid "Back up this Kodi…"
+msgstr ""
+
+msgctxt "#30429"
+msgid "Saves this Kodi to one file in a folder you choose (on this device, a USB drive or a network share): every profile, its add-ons and settings, Stremio Bridge's addons and watch history. Thumbnails and other caches are left out."
+msgstr ""
+
+msgctxt "#30430"
+msgid "Restore a backup…"
+msgstr ""
+
+msgctxt "#30431"
+msgid "Replaces everything on this device (profiles, add-ons and settings) with a backup, from this or another device. Kodi closes when it's done: start it again. Add-ons built for a particular kind of device (such as inputstream.adaptive) are then installed for this one."
+msgstr ""
+
+msgctxt "#30432"
+msgid "Choose where to save the backup"
+msgstr ""
+
+msgctxt "#30433"
+msgid "Backing up this Kodi…"
+msgstr ""
+
+msgctxt "#30434"
+msgid "{done} of {total} files"
+msgstr ""
+
+msgctxt "#30435"
+msgid "Backup saved: {name} ({size})."
+msgstr ""
+
+msgctxt "#30436"
+msgid "The backup failed: {reason}"
+msgstr ""
+
+msgctxt "#30437"
+msgid "Choose a backup to restore"
+msgstr ""
+
+msgctxt "#30438"
+msgid "Restore the backup of {device} made {date}?[CR]Profiles: {profiles}[CR][CR]Everything on this device is replaced: profiles, add-ons and settings. Kodi closes when it's done."
+msgstr ""
+
+msgctxt "#30439"
+msgid "Restoring…"
+msgstr ""
+
+msgctxt "#30440"
+msgid "Restored. Kodi closes now: start it again. It will then install {count} add-on(s) built for this kind of device, asking you to confirm each."
+msgstr ""
+
+msgctxt "#30441"
+msgid "Restored. Kodi closes now: start it again."
+msgstr ""
+
+msgctxt "#30442"
+msgid "Installing the add-ons a restore needs for this device"
+msgstr ""
+
+msgctxt "#30443"
+msgid "These add-ons from the restored backup couldn't be installed: {names}. Install them from Kodi's add-on repositories."
+msgstr ""
+
+msgctxt "#30444"
+msgid "The restore failed: {reason}"
+msgstr ""
+
+msgctxt "#30445"
+msgid "Copying the backup…"
+msgstr ""
+
+msgctxt "#30446"
+msgid "Switch profile"
+msgstr ""
+
+msgctxt "#30447"
+msgid "Watching now"
+msgstr ""

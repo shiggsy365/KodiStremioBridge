@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Arctic Zephyr Stremio: Stremio Bridge's status bar while it finds a title's streams and tries
+     them (kodi_ui/statusbar.py; in place of Kodi's progress dialogs). Its properties: title,
+     subtitle (an episode's code and title), poster, status (the step); 100 is the progress line.
+     Back cancels. -->
+<window type="dialog">
+    <controls>
+        <control type="group">
+            <left>300</left>
+            <top>866</top>
+            <width>1320</width>
+            <height>150</height>
+            <animation type="WindowOpen" reversible="false">
+                <effect type="fade" start="0" end="100" time="200"/>
+                <effect type="slide" start="0,40" end="0,0" time="250" tween="cubic" easing="out"/>
+            </animation>
+            <animation type="WindowClose" reversible="false">
+                <effect type="fade" start="100" end="0" time="150"/>
+            </animation>
+            <control type="image">
+                <width>1320</width>
+                <height>150</height>
+                <texture border="14" colordiffuse="F0141414">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <width>1320</width>
+                <height>150</height>
+                <texture border="14" colordiffuse="F0141414">stremio/tab.png</texture>
+            </control>
+            <control type="image">
+                <left>20</left>
+                <top>15</top>
+                <width>80</width>
+                <height>120</height>
+                <aspectratio scalediffuse="false">scale</aspectratio>
+                <texture background="true" diffuse="stremio/poster-mask.png" fallback="DefaultVideo.png">$INFO[Window.Property(poster)]</texture>
+            </control>
+            <control type="grouplist">
+                <left>124</left>
+                <top>20</top>
+                <width>880</width>
+                <height>44</height>
+                <orientation>horizontal</orientation>
+                <itemgap>20</itemgap>
+                <control type="label">
+                    <width max="560">auto</width>
+                    <height>44</height>
+                    <aligny>center</aligny>
+                    <font>SBInfoFacts</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[Window.Property(title)]</label>
+                </control>
+                <control type="label">
+                    <width max="420">auto</width>
+                    <height>44</height>
+                    <aligny>center</aligny>
+                    <font>SBInfoBody</font>
+                    <textcolor>FFB4B4B4</textcolor>
+                    <label>$INFO[Window.Property(subtitle)]</label>
+                </control>
+            </control>
+            <control type="label">
+                <left>124</left>
+                <top>66</top>
+                <width>1170</width>
+                <height>40</height>
+                <aligny>center</aligny>
+                <font>SBInfoBody</font>
+                <textcolor>FFE6E6E6</textcolor>
+                <label>$INFO[Window.Property(status)]</label>
+            </control>
+            <control type="progress" id="100">
+                <left>124</left>
+                <top>118</top>
+                <width>1170</width>
+                <height>6</height>
+                <texturebg colordiffuse="30FFFFFF">common/white.png</texturebg>
+                <lefttexture />
+                <midtexture colordiffuse="$VAR[ColorHighlight]">common/white.png</midtexture>
+                <righttexture />
+                <overlaytexture />
+            </control>
+            <control type="label">
+                <right>24</right>
+                <top>20</top>
+                <width>280</width>
+                <height>44</height>
+                <align>right</align>
+                <aligny>center</aligny>
+                <font>SBInfoSmall</font>
+                <textcolor>FF909090</textcolor>
+                <label>Back to cancel</label>
+            </control>
+        </control>
+    </controls>
+</window>

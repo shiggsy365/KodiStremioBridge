@@ -153,25 +153,35 @@ def _search(client, targets, query, type_, quiet=False):
 # home window property; its lists call the routes below. They read the query
 # from the property, not their URL (the skin can't URL-encode it); the `q` and
 # `n` parameters only make Kodi reload a list when the query or results change.
+# Since skin 1.3.0 the lists reload only once typing pauses (SEARCH_SETTLED;
+# `s=1`); for an older skin, which reloads them on every key, a route first
+# waits a moment for the next key.
 
 SEARCH_QUERY = "sbsearch.query"
-SETTLE_SECONDS = 0.45   # search as you type: wait this long for the next key
+SEARCH_SETTLED = "sbsearch.settled"
+SETTLE_SECONDS = 0.45   # search as you type, older skin: wait this long for the next key
 MIN_LENGTH = 2
 RECENT_SEARCHES = 5
 SUGGESTIONS = 8
 
 
 def page_query():
-    return xbmcgui.Window(10000).getProperty(SEARCH_QUERY)
+    """What's typed; the skin types a space as a no-break space."""
+    return xbmcgui.Window(10000).getProperty(SEARCH_QUERY).replace("\u00a0", " ")
 
 
 def set_page_query(query):
-    xbmcgui.Window(10000).setProperty(SEARCH_QUERY, query)
+    home = xbmcgui.Window(10000)
+    home.setProperty(SEARCH_QUERY, query)
+    home.setProperty(SEARCH_SETTLED, f"{time.time():.3f}")  # the lists reload now
 
 
-def _settled(query):
+def _settled(query, skin_waited=False):
     """True if `query` is still what's typed after a short wait (else the
-    user typed on, and a newer listing is on its way)."""
+    user typed on, and a newer listing is on its way). The skin waited
+    already when it says so (`s=1`)."""
+    if skin_waited:
+        return True
     if xbmc.Monitor().waitForAbort(SETTLE_SECONDS):
         return False
     return page_query().strip() == query
@@ -190,11 +200,11 @@ def live_previews(query, type_):
 
 
 @route("search_live")
-def search_live(plugin, type=None, q=None):
+def search_live(plugin, type=None, q=None, s=None):
     """One results row of the search page (movies or shows) for what's typed."""
     handle = plugin.handle
     query = page_query().strip()
-    if len(query) >= MIN_LENGTH and _settled(query):
+    if len(query) >= MIN_LENGTH and _settled(query, s == "1"):
         items = preview_items(plugin, live_previews(query, type), get_watchstate())
         xbmcplugin.addDirectoryItems(handle, items, len(items))
         set_content(handle, content_for(type or ""))
@@ -202,14 +212,14 @@ def search_live(plugin, type=None, q=None):
 
 
 @route("search_suggest")
-def search_suggest(plugin, q=None, n=None):
+def search_suggest(plugin, q=None, n=None, s=None):
     """Autofill for what's typed: your past searches that match, then titles
     from the results (once the result rows have loaded, `n` changes and Kodi
     asks again; the catalog responses are cached by then)."""
     handle = plugin.handle
     query = page_query().strip()
     suggestions = []
-    if query and _settled(query):
+    if query and _settled(query, s == "1"):
         lowered = query.lower()
         past = [h for h in get_history().all() if lowered in h.lower() and h.lower() != lowered]
         suggestions = sorted(past, key=lambda h: not h.lower().startswith(lowered))
@@ -260,10 +270,11 @@ def search_pick(plugin, query):
 
 @route("search_key")
 def search_key(plugin, key, char=""):
-    """The search page's Space, Delete and Clear keys (the skin can't trim or
-    add a trailing space to a property itself), and its symbol keys
-    (key=type: `char` is added; in a skin command, commas and brackets would
-    be taken as part of it)."""
+    """An older skin's search page keys (since skin 1.3.0: searchkey.py and
+    the skin itself): Space, Delete and Clear (the skin can't trim or add a
+    trailing space to a property itself), and its symbol keys (key=type:
+    `char` is added; in a skin command, commas and brackets would be taken as
+    part of it)."""
     query = page_query()
     if key == "type":
         query += char

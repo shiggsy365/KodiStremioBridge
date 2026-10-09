@@ -83,6 +83,20 @@ def load_show(type_, id_, quiet=False, seasons=(), videos=()):
     return load_meta(type_, id_, quiet)
 
 
+def prefetch_pages(titles, should_stop=lambda: False):
+    """Read ahead the details the info pages of `titles` need (``{(type, id):
+    episode id or None}``): the title's meta, and for a long-running show its
+    index and the season of that episode, so the pages open at once. One at a
+    time: it runs in the background. Returns how many were read."""
+    done = 0
+    for (type_, id_), video in titles.items():
+        if should_stop():
+            break
+        if load_show(type_, id_, quiet=True, videos={video} if video else ()) is not None:
+            done += 1
+    return done
+
+
 def visible_seasons(meta):
     seasons = meta.seasons
     if not ADDON.getSettingBool("show_specials") and len(seasons) > 1:

@@ -1,6 +1,5 @@
 """Watch state in the UI: Continue Watching, Next Up, mark watched, MDBList."""
 
-import dataclasses
 import datetime
 import json
 import os
@@ -14,6 +13,7 @@ from stremio import StremioError
 from stremio.aggregate import gather
 from stremio.meta import CINEMETA_URL, cinemeta_fallback, fetch_meta_source, slim_meta
 from stremio.models import Meta, MetaPreview, external_ids
+from stremio.record import replace
 from stremio.watchstate import PlaybackEntry, next_episode
 
 from .common import (
@@ -124,17 +124,19 @@ def resume_metas(rows):
     return metas
 
 
-def preferred_previews(previews):
+def preferred_previews(previews, always=False):
     """Cinemeta's lists come with Cinemeta's own, thinner details (no cast
     photos, for one). With another meta addon first in line for a type (e.g.
     AIOMetadata), its details replace them, as everywhere else. Each title's
-    details are cached (slimmed); titles it can't describe stay as they were."""
+    details are cached (slimmed); titles it can't describe stay as they were.
+    `always`: for lists with hardly any details of their own (the MDBList
+    watchlist: a title, year and poster), from whichever meta addon is first."""
     registry, cache = get_registry(), get_cache()
     preferred = {}
     for type_ in {p.type for p in previews}:
         addons = registry.addons_for("meta", type_, "tt0000001")
-        preferred[type_] = bool(addons) and addons[0].transport_url != CINEMETA_URL
-    wanted = [p for p in previews if preferred.get(p.type) and p.id.startswith("tt")]
+        preferred[type_] = always or (bool(addons) and addons[0].transport_url != CINEMETA_URL)
+    wanted = [p for p in previews if preferred.get(p.type) and (always or p.id.startswith("tt"))]
     if not wanted:
         return previews
     metas, missing = {}, []
@@ -153,8 +155,10 @@ def preferred_previews(previews):
             meta = Meta.from_dict(slim, types[show_id])
             if meta is not None:
                 metas[show_id] = meta
-    # The richer meta, keeping the list's own id and type (what its links use).
-    return [dataclasses.replace(metas[p.id], id=p.id, type=p.type) if p.id in metas else p for p in previews]
+    # The richer meta, keeping the list's own id and type (what its links use), and its poster
+    # when the meta has none
+    return [replace(metas[p.id], id=p.id, type=p.type, poster=metas[p.id].poster or p.poster)
+            if p.id in metas else p for p in previews]
 
 
 def _resume_item(plugin, row, meta=None):

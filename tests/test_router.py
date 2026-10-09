@@ -1,7 +1,6 @@
 """Smoke tests for the Kodi layer, run against Kodistubs (no real Kodi needed)."""
 
 import contextlib
-import dataclasses
 import importlib
 import os
 import time
@@ -17,6 +16,7 @@ import xbmcplugin  # noqa: E402
 
 from conftest import CINEMETA_LIKE  # noqa: E402
 from kodi_ui import common, router  # noqa: E402
+from stremio.record import replace  # noqa: E402
 
 BASE = "plugin://plugin.video.stremiobridge/"
 
@@ -717,9 +717,39 @@ def test_search_page_types_and_searches_as_you_type(server, listing, searchable,
 
     # Typed on during the wait: that listing comes back empty (a newer one follows).
     items.clear()
-    monkeypatch.setattr(search_module, "_settled", lambda query: False)
+    monkeypatch.setattr(search_module, "_settled", lambda query, skin_waited=False: False)
     call("search_live", type="movie", q="sta")
     assert items == [] and ends[-1] is True
+
+
+def test_search_page_from_skin_1_3(server, listing, searchable, window, monkeypatch):
+    """The skin waits for typing to pause (s=1) and types a space as a no-break space;
+    Delete and symbols come from searchkey.py, given the query as it was shown."""
+    import searchkey
+
+    def no_wait(self, timeout=None):
+        raise AssertionError("the skin waited already")
+
+    monkeypatch.setattr(xbmc.Monitor, "waitForAbort", no_wait)
+    server.routes["/catalog/movie/top/search=star%20wars.json"] = {"metas": [
+        {"id": "tt1", "type": "movie", "name": "Star Wars"}]}
+    home = xbmcgui.Window(10000)
+    items, _ = listing
+    home.setProperty("sbsearch.query", "star\u00a0wars")
+    call("search_live", type="movie", s="1", q="15:40:01")
+    assert [p["id"] for p, _ in items] == ["tt1"]
+
+    call("search_pick", handle=-1, query="Star Trek")             # a suggestion: the lists reload now
+    assert home.getProperty("sbsearch.settled")
+
+    # A key pressed on "star" while "s" was already typed after it: the edit stays in its place
+    assert searchkey.edit("delete", "star", "stars") == "stas"
+    assert searchkey.edit("type", "star", "stars", ":") == "star:s"
+    assert searchkey.edit("delete", "", "") == ""
+    assert searchkey.edit("delete", "gone", "new") == "ne"         # changed meanwhile: edits what's there
+    home.setProperty("sbsearch.query", "alien,")
+    searchkey.main(["searchkey.py", "type", "alien,", "%28"])
+    assert home.getProperty("sbsearch.query") == "alien,("
 
 
 def test_search_page_suggestions_recent_and_history(server, listing, searchable, window, monkeypatch):
@@ -1458,7 +1488,7 @@ def test_autoplay_falls_back_until_a_stream_works(server, playback, settings, mo
     assert playback["probed"] == ["https://cdn/a.mkv", "https://cdn/b.mkv", "https://cdn/c.mkv"]
     assert resolved_path(playback)[:2] == (True, "https://cdn/c.mkv")
     trying = [m for m in playback["progress"] if m.startswith("#30177")]
-    assert trying[0] == "#30177 {'number': 1, 'total': 3}[CR]Example Streams · 4K"
+    assert trying[0] == "#30177 {'number': 1, 'total': 3}  ·  Example Streams  ·  4K"
     assert trying[-1].startswith("#30177 {'number': 3, 'total': 3}")
 
 
@@ -1953,6 +1983,23 @@ def test_watchlist_menu_list_and_changes(server, listing, settings, monkeypatch)
     assert items == [] and fake.calls[-1][0] == "remove"
 
 
+def test_watchlist_titles_come_with_their_details(server, settings):
+    """MDBList gives a title, year and poster: the rest (the home rows' header) is the meta addon's."""
+    from kodi_ui import watchlist
+
+    install(server)
+    server.routes["/meta/movie/tt1.json"] = {"meta": {
+        "id": "tt1", "type": "movie", "name": "Alien", "background": "https://img/bg.jpg",
+        "logo": "https://img/logo.png", "genres": ["Horror"], "imdbRating": "8.5"}}
+    items = [{"type": "movie", "id": "tt1", "title": "Alien", "year": 1979, "poster": "https://mdblist/p.jpg"},
+             {"type": "movie", "id": "tt404", "title": "Unknown", "poster": "https://mdblist/u.jpg"}]
+    alien, unknown = watchlist.watchlist_metas(items)
+    assert (alien.background, alien.logo, alien.genres, alien.imdb_rating) == \
+        ("https://img/bg.jpg", "https://img/logo.png", ("Horror",), 8.5)
+    assert alien.poster == "https://mdblist/p.jpg"            # the meta has none: MDBList's stays
+    assert (unknown.name, unknown.poster) == ("Unknown", "https://mdblist/u.jpg")   # no details: as it was
+
+
 def test_watchlist_without_mdblist(server, listing, settings, monkeypatch):
     from kodi_ui import watchlist
 
@@ -2217,6 +2264,26 @@ def test_prewarm_refreshes_cached_catalogs(server, settings, monkeypatch):
     monkeypatch.setattr(service.xbmc.Player, "isPlaying", lambda self: True)
     service.prewarm()                                                  # never while something plays
     assert server.requests.count("/catalog/movie/top.json") == 2
+
+
+def test_prewarm_reads_ahead_info_pages(server, settings, monkeypatch):
+    from kodi_ui import details, service
+
+    install(server)
+    settings.update(prewarm=True)
+    server.routes["/meta/series/tt5.json"] = SHOW
+    server.routes["/meta/movie/tt1.json"] = {"meta": {"id": "tt1", "type": "movie", "name": "M"}}
+    state = common.get_watchstate()
+    state.record(PlaybackEntry(video_id="tt1", type="movie", title="Movie"), 1200, 6000)
+    state.set_watched([PlaybackEntry(video_id=f"tt5:1:{e}", type="series", meta_id="tt5", season=1, episode=e)
+                       for e in (1, 2)], True)
+    monkeypatch.setattr(service.xbmc.Player, "isPlaying", lambda self: False)
+    monkeypatch.setattr(service.xbmc.Monitor, "abortRequested", lambda self: False)
+    read, load_show = [], details.load_show
+    monkeypatch.setattr(details, "load_show", lambda type_, id_, quiet=False, seasons=(), videos=():
+                        read.append((type_, id_, set(videos))) or load_show(type_, id_, quiet, seasons, videos))
+    service.prewarm()
+    assert read == [("movie", "tt1", set()), ("series", "tt5", {"tt5:2:1"})]   # resumed, then Next Up's episode
 
 
 def test_open_on_next_episode(server, listing, settings, monkeypatch):
@@ -2675,7 +2742,7 @@ def test_long_running_shows_are_read_from_their_index(server, listing, settings,
     assert lists() == whole
 
     shown = details.load_show("series", "tt5", seasons={2}, videos={"tt5:0:1"})
-    assert dataclasses.replace(shown, videos=()) == dataclasses.replace(full, videos=())
+    assert replace(shown, videos=()) == replace(full, videos=())
     assert shown.episodes(2) == full.episodes(2) and shown.episodes(0) == full.episodes(0)
     assert [v.title for v in shown.episodes(1)] == ["", ""]    # numbers and dates only
 
@@ -3115,7 +3182,7 @@ def test_context_menu_in_the_info_page_show_browser_is_the_episodes(monkeypatch)
 
 PAGE_STRINGS = {30221: "Play", 30407: "Resume", 30408: "Play S{season} E{episode}",
                 30409: "Resume S{season} E{episode}", 30410: "{count} Seasons", 30411: "1 Season",
-                30412: "S{season} E{episode}"}
+                30412: "S{season} E{episode}", 30320: "{time} left"}
 
 RATED_SHOW = {"meta": {
     "id": "tt6", "type": "series", "name": "Rated Show", "releaseInfo": "2011-2019", "runtime": "57min",
@@ -3155,7 +3222,7 @@ def test_page_text_for_a_show_an_episode_and_a_movie(server, settings, page_stri
     state.set_watched([PlaybackEntry(video_id="tt6:1:1", type="series", meta_id="tt6", season=1, episode=1)], True)
     second = PlaybackEntry(video_id="tt6:1:2", type="series", meta_id="tt6", season=1, episode=2)
     state.record(second, 600, 3400)
-    assert infodialog.page_text(show, None, state)["play_label"] == "Resume S1 E2"
+    assert infodialog.page_text(show, None, state)["play_label"] == "Resume S1 E2 · 47 min left"
 
     pilot = show.videos[0]
     text = infodialog.page_text(show, pilot, state)
@@ -3509,3 +3576,103 @@ def test_home_widgets_follow_the_profile(monkeypatch, tmp_path, home_props):
     # A widget removed in Customise Home (its rows gone) is forgotten here too.
     props.write_text(json_.dumps([rows[2]]))
     assert not homewidgets.take_over() and homewidgets.load_store() == {"movies": {}}
+
+
+def test_backup_and_restore_routes(monkeypatch, tmp_path):
+    """Back up to a chosen folder; restore it (Kodi closes at once, listing the
+    binary add-ons to install); the next start installs them."""
+    import xbmcvfs
+
+    from kodi_ui import backup as backup_module
+
+    source, device, folder = tmp_path / "source", tmp_path / "device", tmp_path / "usb"
+    folder.mkdir()
+    for home in (source, device):
+        (home / "userdata").mkdir(parents=True)
+        (home / "temp").mkdir()
+    (source / "userdata" / "profiles.xml").write_text("<profiles><profile><name>Vincent</name></profile></profiles>")
+    (source / "userdata" / "guisettings.xml").write_text("<from-source/>")
+    adaptive = source / "addons" / "inputstream.adaptive"
+    adaptive.mkdir(parents=True)
+    (adaptive / "addon.xml").write_text('<addon id="inputstream.adaptive" version="21.5.25"><extension '
+                                        'point="kodi.inputstream" library_android="lib.so"/></addon>')
+    (device / "userdata" / "guisettings.xml").write_text("<device/>")
+    home = {"now": source}
+    paths = {"special://home/": lambda: str(home["now"]) + "/", "special://temp/": lambda: str(home["now"] / "temp") + "/",
+             backup_module.PENDING: lambda: str(home["now"] / "userdata/addon_data/plugin.video.stremiobridge/"
+                                                "restore_pending.json")}
+    monkeypatch.setattr(xbmcvfs, "translatePath", lambda p: paths[p]() if p in paths else p)
+    monkeypatch.setattr(backup_module.xbmc, "getInfoLabel", lambda label: {"System.FriendlyName": "Stick"}.get(label, ""))
+    monkeypatch.setattr(xbmcgui.DialogProgress, "iscanceled", lambda self: False)
+    said = []
+    monkeypatch.setattr(xbmcgui.Dialog, "ok", lambda self, heading, text: said.append(text) or True)
+
+    monkeypatch.setattr(xbmcgui.Dialog, "browse", lambda self, *a, **k: str(folder) + "/")
+    call("backup", handle=-1)
+    (made,) = list(folder.glob("kodi-backup-Stick-*.zip"))
+    assert len(said) == 1                                   # the confirmation (its text is the add-on's string)
+
+    class Closed(Exception):
+        pass
+
+    def kodi_closes(code):
+        raise Closed()
+
+    home["now"] = device
+    monkeypatch.setattr(xbmcgui.Dialog, "browse", lambda self, *a, **k: str(made))
+    monkeypatch.setattr(xbmcgui.Dialog, "yesno", lambda self, *a, **k: True)
+    monkeypatch.setattr(backup_module.os, "_exit", kodi_closes)
+    with pytest.raises(Closed):
+        call("restore", handle=-1)
+    assert (device / "userdata" / "guisettings.xml").read_text() == "<from-source/>"
+    pending = device / "userdata/addon_data/plugin.video.stremiobridge/restore_pending.json"
+    assert jsonlib.loads(pending.read_text()) == {"install": ["inputstream.adaptive"], "tries": 0}
+
+    installed, builtins = set(), []
+    monkeypatch.setattr(backup_module.xbmc, "getCondVisibility",
+                        lambda cond: cond.startswith("System.HasAddon(") and cond[16:-1] in installed)
+
+    def builtin(cmd, *a):
+        builtins.append(cmd)
+        if cmd.startswith("InstallAddon("):
+            installed.add(cmd[13:-1])
+
+    monkeypatch.setattr(backup_module.xbmc, "executebuiltin", builtin)
+    monkeypatch.setattr(backup_module, "notify", lambda *a, **k: None)
+    monkeypatch.setattr(backup_module, "jsonrpc", lambda *a, **k: {})
+
+    class Monitor:
+        def waitForAbort(self, seconds):
+            return False
+
+    backup_module.install_after_restore(Monitor())
+    assert builtins == ["UpdateAddonRepos", "InstallAddon(inputstream.adaptive)"] and not pending.exists()
+
+
+def test_switch_profile_loads_the_chosen_one(monkeypatch):
+    from kodi_ui import profiles
+
+    monkeypatch.setattr(profiles, "jsonrpc", lambda method, **params: {"profiles": [
+        {"label": "Nuala & Jon", "thumbnail": "", "lockmode": 0},
+        {"label": "Vincent", "thumbnail": "special://vincent.png", "lockmode": 1}]})
+    monkeypatch.setattr(profiles.xbmc, "getInfoLabel", lambda label: "Nuala & Jon")
+    monkeypatch.setattr(profiles.xbmc, "getLocalizedString", lambda i: {20166: "Locked"}[i])
+    monkeypatch.setattr(common.ADDON, "getLocalizedString", lambda i: {30446: "Switch profile", 30447: "Watching now"}[i])
+    ran, shown = [], {}
+    monkeypatch.setattr(profiles.xbmc, "executebuiltin", lambda command, wait=False: ran.append(command))
+
+    def select(self, heading, items, autoclose=0, preselect=-1, useDetails=False):
+        shown.update(heading=heading, preselect=preselect, details=useDetails)
+        return 1
+
+    monkeypatch.setattr(xbmcgui.Dialog, "select", select)
+    assert profiles.profile_choices([{"label": "Nuala & Jon"}, {"label": "Vincent", "lockmode": 1}], "Nuala & Jon") \
+        == [("Nuala & Jon", "Watching now", "DefaultUser.png"), ("Vincent", "Locked", "DefaultUser.png")]
+    call("switch_profile", handle=-1)
+    assert shown == {"heading": "Switch profile", "preselect": 0, "details": True}
+    assert ran == ['LoadProfile("Vincent",prompt)']
+
+    ran.clear()
+    monkeypatch.setattr(profiles, "jsonrpc", lambda method, **params: {"profiles": [{"label": "Nuala & Jon"}]})
+    call("switch_profile", handle=-1)                     # one profile: Kodi's own login screen
+    assert ran == ["System.LogOff"]

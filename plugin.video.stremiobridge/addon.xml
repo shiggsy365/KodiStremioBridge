@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.14.2"
+       version="0.15.0"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -22,10 +22,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.14.2 - Up Next: Watch now (or the countdown) starts the next episode itself; Kodi no longer says it can't find a next item to play.
-v0.14.1 - Kodi profiles: each profile's home widgets are its own, and switching profile no longer loads the home screen twice or holds up the next profile's services. With Arctic Zephyr Stremio, menus are handed over by the skin (nothing polls in the background). New setting Search > Search Cinemeta too.
-v0.14.0 - Faster information pages, most of all for long-running shows (read a season at a time). Play starts the next episode to watch and the episodes open on it; resuming asks once, not twice; selecting a title opens its page sooner; widgets load faster. New splash.
-v0.13.3 - With Arctic Zephyr Stremio, Kodi's own splash at start-up can be the Kodi Stremio Bridge splash (skin setting, on by default).
-v0.13.2 - New Playback setting "When a title is selected": show its information page (default) or play it. Seasons follow it too.</news>
+        <news>v0.15.0 - Back up and restore Kodi (every profile, add-on and setting) in Settings > Backup. Faster start for every list (about half the start-up). Smaller artwork downloads. Info pages of Continue Watching and Next Up are read ahead. Play says how much is left. The watchlist shows each title's full details. With Arctic Zephyr Stremio: switch profile from a list, a status bar while streams are found, quicker search typing.
+v0.14.2 - Up Next: Watch now (or the countdown) starts the next episode itself; Kodi no longer says it can't find a next item to play.
+v0.14.1 - Kodi profiles: each profile's home widgets are its own, and switching profile no longer loads the home screen twice or holds up the next profile's services. With Arctic Zephyr Stremio, menus are handed over by the skin (nothing polls in the background). New setting Search > Search Cinemeta too.</news>
     </extension>
 </addon>
