@@ -88,3 +88,22 @@ def test_client_does_not_import_requests(server):
     server.routes["/manifest.json"] = CINEMETA_LIKE
     StremioClient(timeout=5).fetch_manifest(server.url)
     assert "requests" not in sys.modules
+
+
+def test_certifi_only_without_a_certificate_store(monkeypatch):
+    import ssl
+    from types import SimpleNamespace
+
+    made = []
+    monkeypatch.setattr(ssl, "create_default_context", lambda cafile=None: made.append(cafile) or object())
+    monkeypatch.setattr(ssl, "get_default_verify_paths", lambda: SimpleNamespace(cafile=__file__, capath=None))
+    sys.modules.pop("certifi", None)
+    net._ssl_context()
+    assert made == [None] and "certifi" not in sys.modules       # Kodi's / the system's store: no certifi
+
+    monkeypatch.setattr(ssl, "get_default_verify_paths",
+                        lambda: SimpleNamespace(cafile="/nonexistent/cert.pem", capath=None))
+    made.clear()
+    net._ssl_context()
+    import certifi
+    assert made == [certifi.where()]

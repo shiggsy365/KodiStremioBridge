@@ -15,6 +15,7 @@ anyway), cookies and retries.
 
 import gzip
 import json as _json
+import os
 import socket
 import ssl
 import urllib.error
@@ -41,15 +42,25 @@ class HTTPError(RequestException):
         self.response = response
 
 
-def _ssl_context():
-    """Kodi's bundled certifi when there is one (some Android builds have no
-    system certificates for Python), else Python's defaults."""
-    try:
-        import certifi
+def _has_default_certificates():
+    """Whether Python has a certificate store to check servers against: Kodi
+    points SSL_CERT_FILE at its own bundle, other systems have one of their own.
+    Only file checks: importing certifi to find out costs ~40 ms a call."""
+    paths = ssl.get_default_verify_paths()
+    return any(path and os.path.exists(path) for path in (paths.cafile, paths.capath))
 
-        return ssl.create_default_context(cafile=certifi.where())
-    except Exception:  # not installed, or its file is missing
-        return ssl.create_default_context()
+
+def _ssl_context():
+    """Python's own certificates; certifi (script.module.certifi) only where
+    there are none, as on some Android builds."""
+    if not _has_default_certificates():
+        try:
+            import certifi
+
+            return ssl.create_default_context(cafile=certifi.where())
+        except Exception:  # not installed, or its file is missing
+            pass
+    return ssl.create_default_context()
 
 
 _CONTEXT = None
