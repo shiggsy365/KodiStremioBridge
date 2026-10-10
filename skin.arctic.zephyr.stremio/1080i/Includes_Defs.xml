@@ -1131,7 +1131,7 @@
         <value condition="Window.IsVisible(1117) + !String.IsEmpty(Skin.String(Widget.1117))">$INFO[Skin.String(Widget.1117)]</value>
         <value condition="Window.IsVisible(1118) + !String.IsEmpty(Skin.String(Widget.1118))">$INFO[Skin.String(Widget.1118)]</value>
         <value condition="Window.IsVisible(1119) + !String.IsEmpty(Skin.String(Widget.1119))">$INFO[Skin.String(Widget.1119)]</value>
-        <value condition="Window.IsVisible(1111)">plugin://plugin.video.stremiobridge/?action=continue&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</value>
+        <value condition="Window.IsVisible(1111)">plugin://plugin.video.stremiobridge/?action=continue&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload.watch),.]</value>
         <value condition="Window.IsVisible(1112)">plugin://plugin.video.stremiobridge/?action=catalog&amp;addon=cinemeta&amp;type=movie&amp;id=imdbRating&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</value>
         <value condition="Window.IsVisible(1113)">plugin://plugin.video.stremiobridge/?action=catalog&amp;addon=cinemeta&amp;type=series&amp;id=imdbRating&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</value>
         <value>special://skin/extras/playlists/RandomMovies.xsp</value>

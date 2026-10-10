@@ -115,7 +115,7 @@ def change_watchlist(type_, id_, add):
             _follow_in_library(type_, id_, add, meta)
     name = meta.name if meta else id_
     notify(L(30303 if add else 30304, name=name))
-    notify_widgets()
+    notify_widgets(watch_only=True)
     return True
 
 

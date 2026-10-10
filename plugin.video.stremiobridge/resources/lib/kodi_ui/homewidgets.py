@@ -19,11 +19,12 @@ import ast
 import json
 import os
 import re
+from urllib.parse import parse_qsl, urlsplit
 
 import xbmcgui
 import xbmcvfs
 
-from .common import ADDON_ID, SKIN_ID, WIDGETS_RELOAD, log, profile_dir, skin_active
+from .common import ADDON_ID, SKIN_ID, WATCH_RELOAD, WATCH_ROWS, WIDGETS_RELOAD, log, profile_dir, skin_active
 
 ITEMS = ("10000", "movies", "tvshows")  # labelIDs of the home menu's Home, Movies and TV Shows
 SLOTS = range(1, 7)
@@ -146,17 +147,28 @@ def take_over():
     return True
 
 
+def with_reload(path, token, watch_token):
+    """`path` with the reload token(s) it follows (common.notify_widgets): every
+    row has the main one; Continue Watching, Next Up and the watchlist also the
+    watch token, so they alone can be reloaded."""
+    action = dict(parse_qsl(urlsplit(path).query)).get("action")
+    parts = [token] + ([watch_token] if action in WATCH_ROWS else [])
+    stamp = ".".join(p for p in parts if p)
+    return f"{path}&reload={stamp}" if stamp else path
+
+
 def publish():
     """Fill in the menu's sbhome.* properties for the logged-in profile."""
     if not skin_active():
         return
     home = xbmcgui.Window(10000)
     token = home.getProperty(WIDGETS_RELOAD)
+    watch_token = home.getProperty(WATCH_RELOAD)
     store = load_store()
     for item in ITEMS:
         chosen = store.get(item, {})
         for name in sorted(FIELD_NAMES):
             value = chosen.get(name, default(item, name))
-            if name.startswith("widgetPath") and value.startswith(_OURS) and token:
-                value = f"{value}&reload={token}"  # widgets reload when it changes (common.notify_widgets)
+            if name.startswith("widgetPath") and value.startswith(_OURS):
+                value = with_reload(value, token, watch_token)
             home.setProperty(home_property(item, name), value)

@@ -3731,3 +3731,35 @@ def test_videos_window_still_waits_for_an_expired_catalog(server, listing, setti
     items.clear()
     call("catalog", addon=key, type="movie", id="top")
     assert [p["id"] for p, _ in items if "id" in p] == ["tt2"]
+
+
+def test_watch_only_reload_spares_catalog_rows(monkeypatch, tmp_path, home_props):
+    """After a part-watched stop only Continue Watching / Next Up / Watchlist get a new
+    path (and so reload); catalog rows keep theirs. Other skins: everything reloads."""
+    from kodi_ui import homewidgets, service
+
+    monkeypatch.setattr(homewidgets, "properties_path", lambda: str(tmp_path / "skin.properties"))
+    monkeypatch.setattr(homewidgets, "profile_dir", lambda: str(tmp_path / "profile"))
+    monkeypatch.setattr(homewidgets, "skin_active", lambda: True)
+    monkeypatch.setattr(common, "skin_active", lambda: True)
+    monkeypatch.setattr(service, "refresh_when_idle", lambda: None)
+
+    def paths():
+        return home_props["sbhome.10000.widgetPath"], home_props["sbhome.movies.widgetPath"]
+
+    common.notify_widgets()
+    continue_before, catalog_before = paths()
+    time.sleep(0.002)
+    service.after_playback(service.RESUME)                         # stopped part-way
+    continue_after, catalog_after = paths()
+    assert continue_after != continue_before and catalog_after == catalog_before
+
+    time.sleep(0.002)
+    service.after_playback(service.WATCHED)                        # finished: ticks change everywhere
+    assert paths()[1] != catalog_after and paths()[0] != continue_after
+
+    monkeypatch.setattr(common, "skin_active", lambda: False)      # another skin: one token for all
+    before = home_props[common.WIDGETS_RELOAD]
+    time.sleep(0.002)
+    common.notify_widgets(watch_only=True)
+    assert home_props[common.WIDGETS_RELOAD] != before

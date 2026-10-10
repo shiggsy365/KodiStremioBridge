@@ -309,14 +309,25 @@ def add_context_menu(item, entries):
 
 
 WIDGETS_RELOAD = f"{ADDON_ID}.widgets.reload"
+# Arctic Zephyr Stremio only: a second token, for the rows that show watch state as
+# their content (WATCH_ROWS). Bumped alone when only those change, so the catalog rows
+# aren't all fetched again (a process each) after every stop.
+WATCH_RELOAD = f"{ADDON_ID}.widgets.reload.watch"
+WATCH_ROWS = ("continue", "next_up", "watchlist")
 
 
-def notify_widgets():
+def notify_widgets(watch_only=False):
     """Bump the home-window reload token. Skin widgets whose path ends in
     ``&reload=$INFO[Window(Home).Property(<addon id>.widgets.reload)]`` see a new
     path and reload (Kodi has no direct "reload widgets" command for add-ons).
-    Arctic Zephyr Stremio's home widgets get the token from homewidgets.publish."""
-    xbmcgui.Window(10000).setProperty(WIDGETS_RELOAD, str(int(time.time() * 1000)))
+    Arctic Zephyr Stremio's home widgets get the token from homewidgets.publish.
+
+    `watch_only`: only Continue Watching, Next Up and the watchlist changed (a resume
+    point, a dismissed show, the watchlist), not what catalog rows show; with our
+    skin those rows alone reload. Other skins have one token, so everything does."""
+    stamp = str(int(time.time() * 1000))
+    home = xbmcgui.Window(10000)
+    home.setProperty(WATCH_RELOAD if watch_only and skin_active() else WIDGETS_RELOAD, stamp)
     from .homewidgets import publish  # homewidgets imports this module
 
     publish()

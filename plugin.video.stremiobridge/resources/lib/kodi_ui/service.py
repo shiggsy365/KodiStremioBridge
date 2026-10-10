@@ -220,7 +220,9 @@ def after_playback(status):
     """`status` is what the final save did: WATCHED, RESUME or None."""
     if status not in (WATCHED, RESUME):
         return  # nothing changed (e.g. stopped after a few seconds): leave Kodi alone
-    notify_widgets()
+    # Finished: catalog rows' ticks change too, so everything reloads. Stopped part-way:
+    # Continue Watching and Next Up (catalog rows' resume bars catch up when they next load).
+    notify_widgets(watch_only=status == RESUME)
     # Update ticks and resume bars in our listing, once Kodi has finished
     # returning from playback (see refresh_when_idle for why it must wait).
     refresh_when_idle()

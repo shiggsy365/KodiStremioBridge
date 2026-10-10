@@ -463,7 +463,7 @@ def _push_to_mdblist(state, entries, watched):
 @route("clear_resume")
 def clear_resume(plugin, id):
     get_watchstate().clear_resume(id)  # an episode also takes its show out of Next Up
-    notify_widgets()
+    notify_widgets(watch_only=True)
     refresh_container()
 
 
@@ -472,7 +472,7 @@ def dismiss_show(plugin, id):
     """Remove a show from Next Up (and the combined Continue Watching) until
     you watch more of it."""
     get_watchstate().dismiss_show(id)
-    notify_widgets()
+    notify_widgets(watch_only=True)
     refresh_container()
 
 
