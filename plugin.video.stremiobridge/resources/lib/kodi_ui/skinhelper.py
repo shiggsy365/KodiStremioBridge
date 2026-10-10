@@ -126,18 +126,22 @@ SHORTCUTS_DIR = "special://profile/addon_data/script.skinshortcuts/"
 # Skin Shortcuts keeps its hash (of what the menus were built from) in the master
 # profile's folder, whichever profile is logged in; removing it has the menus rebuilt.
 SHORTCUTS_HASH = f"special://masterprofile/addon_data/script.skinshortcuts/{SKIN_ID}.hash"
+MENUS_BUILT = "stremio.menus_built"  # home property: Home.xml has had Skin Shortcuts build the menus
 
 
 def rebuild_menus():
     """Have Skin Shortcuts rebuild the skin's menus (it does on the next skin reload)."""
     import os
 
+    import xbmcgui
     import xbmcvfs
 
     try:
         os.remove(xbmcvfs.translatePath(SHORTCUTS_HASH))
     except OSError:
         pass
+    # The skin only runs Skin Shortcuts' build once per session (Home.xml): ask for it again
+    xbmcgui.Window(10000).clearProperty(MENUS_BUILT)
 
 
 def hub_shortcuts_xml(entries):

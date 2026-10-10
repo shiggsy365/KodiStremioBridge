@@ -2,6 +2,7 @@
     <defaultcontrol>30</defaultcontrol>
     <defaultcontrol always="true">9101</defaultcontrol>
     <onunload>ClearProperty(DialogBusy,Home)</onunload>
+    <onunload>ClearProperty(stremio.menus_built,home)</onunload><!-- the menus use some settings: check them on the way Home -->
     <onunload>ClearProperty(BusyloaderSettings,Home)</onunload>
     <onunload condition="System.AddonIsEnabled(script.wikipedia)">Skin.SetString(Wikipedia.Format.Link,[COLOR=Dark2]{}[/COLOR])</onunload>
     <onload condition="String.IsEmpty(Skin.String(colorpalette))">Skin.SetString(colorpalette,rainbow)</onload>

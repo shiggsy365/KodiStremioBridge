@@ -36,6 +36,7 @@
                     <texturefocus colordiffuse="$VAR[ColorHighlight]" border="5">common/box.png</texturefocus>
                     <texturenofocus colordiffuse="Black12" border="5">common/box.png</texturenofocus>
                     <onclick>Skin.ResetSettings</onclick>
+                    <onclick>ClearProperty(stremio.menus_built,home)</onclick>
                     <onclick>RunScript(script.skinshortcuts,type=resetall)</onclick>
                     <onclick>close</onclick>
                 </control>

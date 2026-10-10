@@ -3,7 +3,11 @@
 <window id="0">
     <include condition="![Skin.HasSetting(home.vertical) + Skin.HasSetting(home.vertical.widgets)] + ![Skin.HasSetting(home.modernwidgets) + Skin.HasSetting(home.vertical.widgets)]">defaultcontroltrue</include>
     <include condition="[Skin.HasSetting(home.vertical) + Skin.HasSetting(home.vertical.widgets)] | [Skin.HasSetting(home.modernwidgets) + Skin.HasSetting(home.vertical.widgets)]">defaultcontrolfalse</include>
-    <onload>RunScript(script.skinshortcuts,type=buildxml&amp;mainmenuID=300&amp;group=mainmenu|x1111|x1112|x1113|x1114|x1115|x1116|x1117|x1118|x1119|powermenu&amp;levels=6)</onload>
+    <!-- Skin Shortcuts' menus: checked once per session (and profile), not on every return to Home, as
+         that starts its Python each time. Rebuilt when they can change: its editor's onunload,
+         leaving Skin Settings, a reset, or Stremio Bridge changing the hubs (each clears the property). -->
+    <onload condition="!String.IsEqual(Window(home).Property(stremio.menus_built),System.ProfileName)">RunScript(script.skinshortcuts,type=buildxml&amp;mainmenuID=300&amp;group=mainmenu|x1111|x1112|x1113|x1114|x1115|x1116|x1117|x1118|x1119|powermenu&amp;levels=6)</onload>
+    <onload>SetProperty(stremio.menus_built,$INFO[System.ProfileName],home)</onload>
     <!-- Arctic Zephyr Stremio: first run, Stremio Bridge's setup wizard (it sets stremio.setup_done) -->
     <onload condition="!Skin.HasSetting(stremio.setup_done) + System.HasAddon(plugin.video.stremiobridge)">RunPlugin(plugin://plugin.video.stremiobridge/?action=setup_wizard&amp;auto=1)</onload>
     <onload condition="!String.IsEqual(Window(home).Property(ClearArtAnimation),Container(300).ListItem.Label)">SetProperty(ClearArtAnimation,$INFO[Container(300).ListItem.Label],home)</onload>
