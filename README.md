@@ -33,7 +33,7 @@ Stremio addons you install. Both need **Kodi 21 Omega or later**.
 | | Stremio Bridge in your skin | Arctic Zephyr Stremio |
 |---|---|---|
 | **For** | Keeping the skin you have, or adding Stremio addons alongside your library and other add-ons | A Kodi set up for streaming from Stremio addons and little else |
-| **Installs** | Stremio Bridge | The skin, with Stremio Bridge, YouTube (trailers) and Up Next (next episode) |
+| **Installs** | Stremio Bridge | The skin, with Stremio Bridge; its setup wizard offers YouTube (trailers) and Up Next (next episode) |
 | **Browsing** | Stremio Bridge's front page and hubs in Videos → Add-ons, plus widgets you add to your skin | Home rows and Movies and TV Shows hubs, ready filled with your catalogs |
 | **Info, streams, search, player** | Stremio Bridge's own windows, and your skin's player | The skin's pages, in one style throughout |
 | **Setup** | Settings → Addons | A setup wizard on first start |
@@ -221,8 +221,9 @@ Install from the repository, so updates arrive automatically:
      add-ons → Stremio Bridge**. For the pop-up between episodes, also install **Up Next** from the
      official Kodi repository.
    - **Arctic Zephyr Stremio:** **Add-ons → Install from repository → shiggsy365 Repository → Look
-     and feel → Skin → Arctic Zephyr Stremio**, then switch to it when Kodi asks. Stremio Bridge,
-     YouTube and Up Next are installed with it.
+     and feel → Skin → Arctic Zephyr Stremio**, then switch to it when Kodi asks. Stremio Bridge
+     is installed with it; at the end of its setup wizard, tick YouTube (for trailers) and Up Next
+     (for the pop-up between episodes) to install them too, or leave them out for a lighter Kodi.
 
 ## Getting started
 

@@ -3763,3 +3763,30 @@ def test_watch_only_reload_spares_catalog_rows(monkeypatch, tmp_path, home_props
     time.sleep(0.002)
     common.notify_widgets(watch_only=True)
     assert home_props[common.WIDGETS_RELOAD] != before
+
+
+def test_setup_wizard_offers_missing_optional_extras(monkeypatch):
+    """With the skin, a finished wizard offers YouTube and Up Next (optional in its
+    addon.xml) when they're missing; ticked ones are installed."""
+    from kodi_ui import wizard
+
+    installed = {"plugin.video.youtube"}
+    monkeypatch.setattr(wizard.xbmc, "getCondVisibility",
+                        lambda cond: any(f"({a})" in cond for a in installed))
+    run = []
+    monkeypatch.setattr(wizard.xbmc, "executebuiltin", lambda cmd, wait=False: run.append(cmd))
+    offered = []
+
+    def multiselect(self, heading, options, preselect=None, **kw):
+        offered.append((options, preselect))
+        return [0]
+
+    monkeypatch.setattr(xbmcgui.Dialog, "multiselect", multiselect)
+    wizard._offer_extras()
+    assert offered == [([common.L(30450)], [0])]                 # only Up Next: YouTube is there
+    assert run == ["InstallAddon(service.upnext)"]
+
+    installed.add("service.upnext")
+    offered.clear()
+    wizard._offer_extras()
+    assert offered == []                                         # nothing missing: nothing asked

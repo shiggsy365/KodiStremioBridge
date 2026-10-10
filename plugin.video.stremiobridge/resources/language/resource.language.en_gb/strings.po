@@ -1328,3 +1328,15 @@ msgstr ""
 msgctxt "#30447"
 msgid "Watching now"
 msgstr ""
+
+msgctxt "#30448"
+msgid "Optional extras: tick what to install"
+msgstr ""
+
+msgctxt "#30449"
+msgid "YouTube: plays trailers"
+msgstr ""
+
+msgctxt "#30450"
+msgid "Up Next: a countdown to the next episode"
+msgstr ""

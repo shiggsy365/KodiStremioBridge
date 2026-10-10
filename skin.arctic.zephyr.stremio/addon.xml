@@ -4,10 +4,12 @@
         <import addon="xbmc.gui" version="5.17.0"/>
         <import addon="plugin.video.stremiobridge" version="0.15.0"/>
         <import addon="script.skinshortcuts" version="0.4.0"/>
-        <import addon="plugin.video.youtube" version="7.0.0"/>
-        <import addon="service.upnext" version="1.1.9"/>
+        <!-- Optional, so a lean install doesn't carry them (Up Next is a service, always running).
+             The setup wizard offers them (Stremio Bridge's wizard.py: OPTIONAL_EXTRAS). -->
+        <import addon="plugin.video.youtube" version="7.0.0" optional="true"/>
+        <import addon="service.upnext" version="1.1.9" optional="true"/>
         <import addon="script.image.resource.select" version="0.0.5"/>
-        <import addon="resource.images.weathericons.white" version="0.0.6"/>
+        <import addon="resource.images.weathericons.white" version="0.0.6" optional="true"/>
     </requires>
     <extension point="xbmc.gui.skin" defaultthemename="Textures.xbt" debugging="false" effectslowdown="1">
         <res width="1920" height="1080" aspect="16:9" default="true" folder="1080i" />

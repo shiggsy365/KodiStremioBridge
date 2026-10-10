@@ -6,6 +6,8 @@ skin's Settings menu or Stremio Bridge's settings.
     1. an MDBList API key              Skip / Enter / Cancel setup
     2. a Stremio addon manifest        Enter / Cancel setup
     3. another addon manifest          Skip / Enter / Cancel setup, until Skip
+    4. with Arctic Zephyr Stremio: optional extras it can use (YouTube for
+       trailers, Up Next's countdown), if they aren't installed
 
 Cancel setup (or Back) stops there; anything already added stays.
 """
@@ -23,6 +25,9 @@ from .router import route
 DONE_SETTING = "stremio.setup_done"  # the skin's: the wizard has been offered
 STREAM, META = "stream", "meta"
 SKIP, ENTER, CANCEL = "skip", "enter", "cancel"
+# Add-ons the skin uses when they're there, offered rather than required (the
+# skin's addon.xml lists them as optional): (id, string id of what it's for)
+OPTIONAL_EXTRAS = (("plugin.video.youtube", 30449), ("service.upnext", 30450))
 
 
 def providers(resource):
@@ -73,6 +78,8 @@ def setup_wizard(plugin, auto=""):
                 break
             added += _ask_addon(L(30390), None)
 
+    if finished and skin_active():
+        _offer_extras()
     if added and skin_active():
         from .skinhelper import update_skin_hubs
 
@@ -111,6 +118,22 @@ def _ask_addon(heading, resource):
             return 0
         dialog.notification(L(30380), L(30030, name=manifest.name), ADDON.getAddonInfo("icon"), 3000)
         return 1
+
+
+def missing_extras():
+    return [(addon_id, label) for addon_id, label in OPTIONAL_EXTRAS
+            if not xbmc.getCondVisibility(f"System.HasAddon({addon_id})")]
+
+
+def _offer_extras():
+    """Optional add-ons the skin can use, ticked to install (Kodi asks to confirm each)."""
+    missing = missing_extras()
+    if not missing:
+        return
+    picked = xbmcgui.Dialog().multiselect(L(30448), [L(label) for _, label in missing],
+                                          preselect=list(range(len(missing))))
+    for index in picked or []:
+        xbmc.executebuiltin(f"InstallAddon({missing[index][0]})", True)
 
 
 def _mdblist_step():
