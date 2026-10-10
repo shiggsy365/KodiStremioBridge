@@ -73,7 +73,10 @@
 
     <!-- Down from the buttons, up from the cast: the next section that's there -->
     <include name="SBInfoDownFromButtons">
-        <ondown condition="$EXP[SBInfoBrowse] + !$EXP[SBInfoSeasonsStale]">5060</ondown>
+        <!-- the season tabs when there are some; else (a show with one season has none, and
+             Kodi can't focus an empty list) straight to the episodes -->
+        <ondown condition="$EXP[SBInfoBrowse] + !$EXP[SBInfoSeasonsStale] + !$EXP[SBInfoOneSeason] + Integer.IsGreater(Container(5060).NumItems,0)">5060</ondown>
+        <ondown condition="$EXP[SBInfoBrowse] + [$EXP[SBInfoOneSeason] | !Integer.IsGreater(Container(5060).NumItems,0)] + !$EXP[SBInfoEpisodesStale]">5061</ondown>
         <ondown condition="!$EXP[SBInfoBrowse] + $EXP[SBInfoHasCast]">5150</ondown>
         <ondown condition="!$EXP[SBInfoBrowse] + !$EXP[SBInfoHasCast] + $EXP[SBInfoHasSimilar]">5160</ondown>
     </include>
