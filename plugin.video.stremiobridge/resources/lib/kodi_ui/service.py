@@ -25,8 +25,8 @@ from stremio.watchstate import RESUME, WATCHED, next_episode
 
 from .common import (
     ADDON, ADDON_ID, L, get_client, get_mdblist, get_registry, get_watchstate, jsonrpc, log, notify,
-    notify_widgets, plugin_url, refresh_when_idle, skin_active,
-    take_announced_playback, take_announcement,
+    notify_widgets, plugin_url, refresh_when_idle, skin_active, stale_queue_path,
+    take_announced_playback, take_announcement, take_stale,
 )
 
 SAVE_EVERY = 15            # seconds between progress saves while playing
@@ -563,6 +563,40 @@ def prewarm():
         f"and {pages} information pages")
 
 
+STALE_SETTLE = 2  # seconds without new entries before the queue is taken: one reload for a whole home screen
+_stale_submitted = threading.Event()
+
+
+def refresh_stale():
+    """Fetch again what widgets and hub rows showed from an expired cache
+    (common.queue_stale), then reload them once if anything came back new."""
+    _stale_submitted.clear()
+    entries = take_stale()
+    if not entries:
+        return
+    client = get_client()
+
+    def task(entry):
+        transport_url, resource, type_, id_, extra = entry
+        return lambda: client.get_resource(transport_url, resource, type_, id_, extra, refresh=True)
+
+    _, errors, _ = gather([(f"{e[1]} {e[2]}/{e[3]}", task(e)) for e in entries])
+    log(f"Refreshed {len(entries) - len(errors)} of {len(entries)} lists shown from an expired cache")
+    if len(errors) < len(entries) and not xbmc.Player().isPlaying():
+        notify_widgets()
+
+
+def stale_queued(now=None):
+    """True once lists are queued for refresh and the widgets have stopped adding to it."""
+    if _stale_submitted.is_set():
+        return False
+    try:
+        changed = os.path.getmtime(stale_queue_path())
+    except OSError:
+        return False
+    return (now or time.time()) - changed >= STALE_SETTLE
+
+
 def refresh_skin_hubs():
     """Arctic Zephyr Stremio: keep its Movies/Series hubs in step with the catalogs."""
     from .skinhelper import update_skin_hubs
@@ -609,6 +643,9 @@ def _loop(monitor, worker, tracker, follower, home_widgets):
         if time.time() >= next_library:
             next_library = time.time() + LIBRARY_UPDATE_EVERY
             worker.submit(update_library)
+        if stale_queued():  # widgets showed expired lists: refresh just those, now
+            _stale_submitted.set()
+            worker.submit(refresh_stale)
         if time.time() >= next_prewarm:
             next_prewarm = time.time() + PREWARM_EVERY
             worker.submit(prewarm)

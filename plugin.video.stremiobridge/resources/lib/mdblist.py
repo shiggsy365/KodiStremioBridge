@@ -271,19 +271,19 @@ class MDBListClient:
     @property
     def session(self):
         if self._session is None:
-            import requests
+            from stremio.net import Session
 
-            self._session = requests.Session()
+            self._session = Session()
         return self._session
 
     def _request(self, method, path, params=None, body=None):
-        import requests
+        from stremio.net import RequestException
 
         query = {"apikey": self.api_key, **{k: v for k, v in (params or {}).items() if v not in (None, "")}}
         try:
             response = self.session.request(method, self.base_url + path, params=query, json=body,
                                             timeout=self.timeout)
-        except requests.RequestException as exc:
+        except RequestException as exc:
             raise MDBListError(f"MDBList request failed: {exc}") from exc
         if response.status_code in (401, 403):
             raise MDBListAuthError("MDBList rejected the API key")

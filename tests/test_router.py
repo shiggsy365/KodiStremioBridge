@@ -3676,3 +3676,58 @@ def test_switch_profile_loads_the_chosen_one(monkeypatch):
     monkeypatch.setattr(profiles, "jsonrpc", lambda method, **params: {"profiles": [{"label": "Nuala & Jon"}]})
     call("switch_profile", handle=-1)                     # one profile: Kodi's own login screen
     assert ran == ["System.LogOff"]
+
+
+def test_widgets_show_expired_catalogs_at_once_and_the_service_refreshes_them(server, listing, settings,
+                                                                             monkeypatch):
+    from kodi_ui import browse, service
+
+    settings["cache_catalog_minutes"] = 60
+    install(server)
+    key = common.get_registry().all()[0].key
+    server.routes["/catalog/movie/top.json"] = metas("tt1")
+    monkeypatch.setattr(browse, "browsing_in_videos_window", lambda: False)   # a home widget
+    monkeypatch.setattr(browse, "browsing_in_hub", lambda: False)
+    items, _ = listing
+    call("catalog", addon=key, type="movie", id="top")
+    assert server.requests.count("/catalog/movie/top.json") == 1
+
+    later = time.time() + 2 * 3600                                 # Kodi was off for two hours
+    monkeypatch.setattr(common.get_cache(), "_clock", lambda: later)
+    server.routes["/catalog/movie/top.json"] = metas("tt2")
+    items.clear()
+    call("catalog", addon=key, type="movie", id="top")
+    assert [p["id"] for p, _ in items] == ["tt1"]                  # the old row, without waiting
+    assert server.requests.count("/catalog/movie/top.json") == 1
+    assert not service.stale_queued(now=time.time())               # still settling (widgets may add more)
+    assert service.stale_queued(now=time.time() + service.STALE_SETTLE)
+
+    reloads = []
+    monkeypatch.setattr(service, "notify_widgets", lambda: reloads.append(1))
+    monkeypatch.setattr(service.xbmc.Player, "isPlaying", lambda self: False)
+    service.refresh_stale()
+    assert server.requests.count("/catalog/movie/top.json") == 2 and reloads == [1]
+    assert not service.stale_queued(now=time.time() + 60)          # queue emptied
+
+    items.clear()
+    call("catalog", addon=key, type="movie", id="top")              # the reload: the new row, from the cache
+    assert [p["id"] for p, _ in items] == ["tt2"]
+    assert server.requests.count("/catalog/movie/top.json") == 2
+
+
+def test_videos_window_still_waits_for_an_expired_catalog(server, listing, settings, monkeypatch):
+    from kodi_ui import browse
+
+    settings["cache_catalog_minutes"] = 60
+    install(server)
+    key = common.get_registry().all()[0].key
+    server.routes["/catalog/movie/top.json"] = metas("tt1")
+    monkeypatch.setattr(browse, "browsing_in_videos_window", lambda: True)
+    call("catalog", addon=key, type="movie", id="top")
+    later = time.time() + 2 * 3600
+    monkeypatch.setattr(common.get_cache(), "_clock", lambda: later)
+    server.routes["/catalog/movie/top.json"] = metas("tt2")
+    items, _ = listing
+    items.clear()
+    call("catalog", addon=key, type="movie", id="top")
+    assert [p["id"] for p, _ in items if "id" in p] == ["tt2"]

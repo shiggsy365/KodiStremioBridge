@@ -140,7 +140,7 @@ def test_invisible_characters_are_stripped():
 
 
 def test_probe(server):
-    import requests
+    from stremio.net import Session
     from stremio.streams import fallback_order, probe
 
     video = {"Content-Type": "video/x-matroska", "Content-Range": "bytes 0-1/20000000000"}
@@ -148,7 +148,7 @@ def test_probe(server):
     server.routes["/html.mkv"] = (200, {"Content-Type": "text/html"}, b"<html>")
     server.routes["/tiny.mp4"] = (206, {"Content-Type": "video/mp4", "Content-Range": "bytes 0-1/900000"}, b"xx")
     server.routes["/live.m3u8"] = (200, {"Content-Type": "application/vnd.apple.mpegurl"}, b"#EXTM3U")
-    session = requests.Session()
+    session = Session()
     big = {"name": "2160p", "title": "💾 20 GB"}
 
     assert probe(session, s(url=server.url + "/ok.mkv", **big)) == (True, "")
@@ -166,7 +166,7 @@ def test_probe(server):
 
 
 def test_probe_retries_transient_errors(server):
-    import requests
+    from stremio.net import Session
     from stremio.streams import probe
 
     answers = iter([(400, {}, b"not ready"), (400, {}, b"not ready"),
@@ -174,10 +174,10 @@ def test_probe_retries_transient_errors(server):
     server.routes["/fresh.mp4"] = lambda: next(answers)
     naps = []
     stream = s(url=server.url + "/fresh.mp4", name="2160p")
-    assert probe(requests.Session(), stream, sleep=naps.append) == (True, "")
+    assert probe(Session(), stream, sleep=naps.append) == (True, "")
     assert naps == [2.0, 2.0]
 
     server.routes["/dead.mp4"] = (503, {}, b"")
     naps.clear()
-    assert probe(requests.Session(), s(url=server.url + "/dead.mp4"), sleep=naps.append) == (False, "HTTP 503")
+    assert probe(Session(), s(url=server.url + "/dead.mp4"), sleep=naps.append) == (False, "HTTP 503")
     assert len(naps) == 2                                      # gave up after two retries

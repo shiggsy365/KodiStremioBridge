@@ -77,24 +77,27 @@ class StremioClient:
         self.cache = cache
         self.ttls = ttls or {}
         self._log = log or (lambda msg: None)
+        # get_resource calls answered from an expired cache entry (`stale_ok`), as
+        # ``(transport_url, resource, type, id, extra)``: for a later refresh
+        self.served_stale = []
 
     @property
     def session(self):
         # Imported lazily: Kodi starts a fresh interpreter per plugin call and
         # many routes never touch the network.
         if self._session is None:
-            import requests
+            from .net import Session
 
-            self._session = requests.Session()
+            self._session = Session()
             self._session.headers["User-Agent"] = USER_AGENT
         return self._session
 
     def get_json(self, url):
-        import requests
+        from .net import RequestException
 
         try:
             response = self.session.get(url, timeout=self.timeout)
-        except requests.RequestException as exc:
+        except RequestException as exc:
             raise AddonRequestError(f"Request failed: {exc}") from exc
         if response.status_code != 200:
             raise AddonRequestError(f"HTTP {response.status_code} from {url}")
@@ -112,15 +115,19 @@ class StremioClient:
             raise ManifestError(str(exc)) from exc
         return transport_url, Manifest.from_dict(data)
 
-    def get_resource(self, transport_url, resource, type_, id_, extra=None, refresh=False):
-        """`refresh`: fetch even if a fresh cached copy exists (and cache the new one)."""
+    def get_resource(self, transport_url, resource, type_, id_, extra=None, refresh=False, stale_ok=False):
+        """`refresh`: fetch even if a fresh cached copy exists (and cache the new one).
+        `stale_ok`: answer from an expired cached copy rather than wait for the
+        addon, noting it in `served_stale` so it can be refreshed afterwards."""
         url = resource_url(transport_url, resource, type_, id_, extra)
         ttl = self.ttls.get(resource, 0)
         if self.cache is None or ttl <= 0:
             return self.get_json(url)
 
         cached = self.cache.get(url, allow_stale=True)
-        if cached and cached[1] and not refresh:
+        if cached and not refresh and (cached[1] or stale_ok):
+            if not cached[1]:
+                self.served_stale.append((transport_url, resource, type_, id_, list(extra or [])))
             return cached[0]
         try:
             data = self.get_json(url)

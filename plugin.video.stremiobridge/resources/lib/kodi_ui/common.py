@@ -192,6 +192,53 @@ def get_client():
     )
 
 
+STALE_QUEUE = "stale.jsonl"  # in the profile: requests answered from an expired cache, to refresh
+
+
+def stale_queue_path():
+    return os.path.join(profile_dir(), STALE_QUEUE)
+
+
+def queue_stale(client):
+    """Note the requests `client` answered from an expired cache, for the
+    service to refresh (service.refresh_stale). One line per request, appended:
+    widget calls run at the same time in separate processes, and small appends
+    don't interleave."""
+    if not client.served_stale:
+        return
+    lines = "".join(json.dumps(entry) + "\n" for entry in client.served_stale)
+    try:
+        with open(stale_queue_path(), "a", encoding="utf-8") as f:
+            f.write(lines)
+    except OSError as exc:
+        log(f"Couldn't queue a refresh: {exc}")
+    client.served_stale = []
+
+
+def take_stale():
+    """The queued requests (de-duplicated, oldest first), emptying the queue."""
+    path = stale_queue_path()
+    if not os.path.exists(path):
+        return []
+    taken = path + ".taking"
+    try:
+        os.replace(path, taken)  # new lines go to a fresh file meanwhile
+        with open(taken, encoding="utf-8") as f:
+            lines = f.read().splitlines()
+        os.remove(taken)
+    except OSError as exc:
+        log(f"Couldn't read the refresh queue: {exc}")
+        return []
+    entries = {}
+    for line in lines:
+        try:
+            transport_url, resource, type_, id_, extra = json.loads(line)
+        except (ValueError, TypeError):
+            continue
+        entries.setdefault(line, (transport_url, resource, type_, id_, [tuple(e) for e in extra]))
+    return list(entries.values())
+
+
 def notify(message, icon=xbmcgui.NOTIFICATION_INFO, time=3000):
     xbmcgui.Dialog().notification(ADDON_NAME, message, icon, time)
 

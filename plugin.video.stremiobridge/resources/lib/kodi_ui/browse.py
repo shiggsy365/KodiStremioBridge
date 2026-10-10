@@ -21,7 +21,7 @@ from stremio.meta import CINEMETA_KEY, CINEMETA_URL, cinemeta_addon
 from stremio.refresh import refresh_manifests
 from stremio.streaming import STREAMING_KEY, STREAMING_URL, streaming_addon
 
-from .common import ADDON, L, get_client, get_registry, get_watchstate, log, notify, notify_widgets
+from .common import ADDON, L, get_client, get_registry, get_watchstate, log, notify, notify_widgets, queue_stale
 from .listitems import content_for, preview_items
 from .router import route
 from .views import end_listing, set_content
@@ -138,7 +138,9 @@ def catalog_view(plugin, addon, type, id, skip="0", ps=None, only=None, slot=Non
     effective = with_default_filters(catalog, filters)
     client = get_client()
     try:
-        previews = fetch_catalog(client, installed, catalog, effective, skip)
+        # Widgets and hub rows (`key`) show an expired copy straight away rather than
+        # wait for the addon; the service refreshes it and reloads them (STALE_QUEUE).
+        previews = fetch_catalog(client, installed, catalog, effective, skip, stale_ok=key is not None)
         # An empty numbered catalog may have rotated away since the manifest was
         # fetched (addons answer old ids with nothing): refresh and look again.
         if not previews and skip == 0 and catalog_family(catalog.id):
@@ -153,6 +155,7 @@ def catalog_view(plugin, addon, type, id, skip="0", ps=None, only=None, slot=Non
     except StremioError as exc:
         log(f"Catalog {installed.name} {catalog.key} failed: {exc}")
         return _fail(handle, L(30052, name=f"{installed.name} / {catalog.name}"))
+    queue_stale(client)
 
     # Optional filter (e.g. genre) when browsing in the Videos window or a hub
     # row; never on home-screen widgets, which always show the catalog as it is.

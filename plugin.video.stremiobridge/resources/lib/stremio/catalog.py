@@ -83,10 +83,11 @@ def ordered_extra(catalog, filters, skip=0):
     return ordered + list(values.items())
 
 
-def fetch_catalog(client, addon, catalog, filters=None, skip=0, refresh=False):
+def fetch_catalog(client, addon, catalog, filters=None, skip=0, refresh=False, stale_ok=False):
+    """`stale_ok`: see StremioClient.get_resource."""
     data = client.get_resource(
         addon.transport_url, "catalog", catalog.type, catalog.id,
-        ordered_extra(catalog, filters or {}, skip), refresh=refresh,
+        ordered_extra(catalog, filters or {}, skip), refresh=refresh, stale_ok=stale_ok,
     )
     metas = data.get("metas") if isinstance(data, dict) else None
     if not isinstance(metas, list):

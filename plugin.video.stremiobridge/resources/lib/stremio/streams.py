@@ -281,16 +281,16 @@ def probe(session, stream, timeout=PROBE_TIMEOUT, retries=PROBE_RETRIES, retry_d
 
 def _probe_once(session, stream, timeout):
     """``(ok, reason, worth_retrying)``."""
-    import requests
+    from .net import ConnectionError, RequestException
 
     headers = dict(stream.headers)
     if not stream.is_adaptive:
         headers["Range"] = "bytes=0-1"
     try:
         response = session.get(stream.url, headers=headers, timeout=timeout, stream=True, allow_redirects=True)
-    except requests.ConnectionError as exc:
+    except ConnectionError as exc:
         return False, type(exc).__name__, True
-    except requests.RequestException as exc:  # timeouts etc.: already waited long enough
+    except RequestException as exc:  # timeouts etc.: already waited long enough
         return False, type(exc).__name__, False
     try:
         if response.status_code >= 400:

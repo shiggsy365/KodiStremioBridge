@@ -98,3 +98,28 @@ def test_resource_url_keeps_manifest_query(server):
     assert resource_url("https://a.com/manifest.json", "meta", "movie", "tt1") == "https://a.com/meta/movie/tt1.json"
     server.routes["/meta/movie/tt1.json?v=2"] = {"meta": {"id": "tt1"}}
     assert StremioClient().get_resource(server.url + "/manifest.json?v=2", "meta", "movie", "tt1") == {"meta": {"id": "tt1"}}
+
+
+def test_stale_ok_answers_from_an_expired_copy(server, tmp_path):
+    """Widgets: an expired copy straight away, noted for a refresh; nothing fetched."""
+    from stremio.cache import Cache
+
+    clock = [1000.0]
+    client = StremioClient(cache=Cache(str(tmp_path / "c.db"), clock=lambda: clock[0]), ttls={"catalog": 60})
+    transport = server.url + "/manifest.json"
+    server.routes["/catalog/movie/top/genre=Action.json"] = {"metas": [{"id": "old"}]}
+    extra = [("genre", "Action")]
+    client.get_resource(transport, "catalog", "movie", "top", extra)
+    server.routes["/catalog/movie/top/genre=Action.json"] = {"metas": [{"id": "new"}]}
+    clock[0] += 61
+
+    assert client.get_resource(transport, "catalog", "movie", "top", extra, stale_ok=True) == {"metas": [{"id": "old"}]}
+    assert server.requests.count("/catalog/movie/top/genre=Action.json") == 1
+    assert client.served_stale == [(transport, "catalog", "movie", "top", extra)]
+
+    # without stale_ok it waits for the addon, as before
+    assert client.get_resource(transport, "catalog", "movie", "top", extra) == {"metas": [{"id": "new"}]}
+    # and a fresh copy isn't noted
+    client.served_stale = []
+    client.get_resource(transport, "catalog", "movie", "top", extra, stale_ok=True)
+    assert client.served_stale == []
