@@ -110,10 +110,13 @@ def plugin_url(action, **params):
 NOW_PLAYING = f"{ADDON_ID}.now_playing"
 
 
-def announce_playback(entry, offset=0.0, retry=None):
-    """`retry` describes how to try the next stream if this one fails to play."""
+def announce_playback(entry, offset=0.0, retry=None, subtitles=None):
+    """`retry` describes how to try the next stream if this one fails to play;
+    `subtitles`, what to ask the subtitle addons again once it plays (they
+    had none for it yet)."""
     xbmcgui.Window(10000).setProperty(NOW_PLAYING, json.dumps(
-        {"entry": entry.to_json(), "offset": offset, "retry": retry, "time": time.time()}))
+        {"entry": entry.to_json(), "offset": offset, "retry": retry, "subtitles": subtitles,
+         "time": time.time()}))
 
 
 def take_announcement(max_age=120):
@@ -130,9 +133,13 @@ def take_announcement(max_age=120):
 
 def take_announced_playback(max_age=120):
     """``(PlaybackEntry, offset)`` announced within `max_age` seconds, else None."""
+    return parse_announcement(take_announcement(max_age))
+
+
+def parse_announcement(data):
+    """``(PlaybackEntry, offset)`` from a raw announcement, else None."""
     from stremio.watchstate import PlaybackEntry
 
-    data = take_announcement(max_age)
     try:
         return PlaybackEntry.from_json(data["entry"]), float(data.get("offset") or 0)
     except (TypeError, KeyError, ValueError):

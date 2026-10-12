@@ -25,14 +25,15 @@ from stremio.watchstate import RESUME, WATCHED, next_episode
 
 from .common import (
     ADDON, ADDON_ID, L, get_client, get_mdblist, get_registry, get_watchstate, jsonrpc, log, notify,
-    notify_widgets, plugin_url, refresh_when_idle, skin_active, stale_queue_path,
-    take_announced_playback, take_announcement, take_stale,
+    notify_widgets, parse_announcement, plugin_url, refresh_when_idle, skin_active, stale_queue_path,
+    take_announcement, take_stale,
 )
 
 SAVE_EVERY = 15            # seconds between progress saves while playing
 SCROBBLE_EVERY = 600       # seconds between "still watching" scrobbles
 SEEK_DELAY = 1.5           # let playback settle before seeking to the resume point
 SEEK_TOLERANCE = 30        # Kodi already resumed if we're within this many seconds
+LATE_SUBTITLES_AFTER = (5, 20)  # seconds into the video to ask the subtitle addons again
 UPNEXT = "service.upnext"
 
 
@@ -90,11 +91,16 @@ class Tracker(xbmc.Player):
     # ------------------------------------------------------------ Kodi callbacks
 
     def onAVStarted(self):
-        announced = take_announced_playback()
+        data = take_announcement()
+        announced = parse_announcement(data)
         if announced is None:
             self.entry = None  # something else is playing
             return
         self.entry, self.pending_seek = announced
+        if data.get("subtitles"):
+            entry = self.entry
+            threading.Thread(target=late_subtitles, args=(data["subtitles"], lambda: self.entry is entry),
+                             name="stremiobridge-subtitles", daemon=True).start()
         now = time.time()
         self.started = self.last_save = self.last_scrobble = now
         self.position, self.duration = 0.0, self._total_time()
@@ -192,6 +198,44 @@ class Tracker(xbmc.Player):
 
 
 # ---------------------------------------------------------------- jobs
+
+def late_subtitles(request, still_playing):
+    """The subtitle addons had nothing when playback started: ask again a
+    little later and add what they have to the video that's playing
+    (`still_playing()` says it's still the same one). Its own thread, not the
+    worker's: it waits, and the worker's jobs shouldn't."""
+    from .player import subtitle_files
+
+    monitor = xbmc.Monitor()
+    waited = 0
+    for after in LATE_SUBTITLES_AFTER:
+        if monitor.waitForAbort(after - waited) or not still_playing():
+            return
+        waited = after
+        try:
+            paths, _, _ = subtitle_files(get_client(), get_registry(), request["type"], request["id"],
+                                         request.get("extra"), folder="subtitles-late")
+        except (StremioError, OSError) as exc:
+            log(f"Subtitles for {request['id']} failed: {exc}", xbmc.LOGWARNING)
+            continue
+        if paths and still_playing():
+            add_subtitles(paths)
+            return
+    log(f"Still no subtitles for {request['id']}")
+
+
+def add_subtitles(paths):
+    """Add downloaded subtitles to the playing video, the first one shown.
+    Kodi shows each one it's given, so they go in last-first. Subtitles stay
+    off if they were off (the video had some, and none was being shown)."""
+    player = xbmc.Player()
+    hidden = bool(player.getAvailableSubtitleStreams()) and \
+        not xbmc.getCondVisibility("VideoPlayer.SubtitlesEnabled")
+    for path in reversed(paths):
+        player.setSubtitles(path)
+    if hidden:
+        player.showSubtitles(False)
+
 
 MAX_STREAM_RETRIES = 5
 

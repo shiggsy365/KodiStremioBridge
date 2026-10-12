@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.16.1"
+       version="0.16.2"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,9 +23,9 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.16.1 - Fixes MDBList saying the API key was rejected after 0.16.0: requests now identify themselves, so they aren't blocked, and a blocked request is no longer reported as a bad key.
-v0.16.0 - Lighter and quicker: no longer needs the requests module, so lists that fetch from an addon start sooner. Home rows and hub rows show their last list at once when it has expired and refresh it in the background. With Arctic Zephyr Stremio: after an episode or film is stopped part-way, only Continue Watching, Next Up and the watchlist reload, and the setup wizard offers YouTube and Up Next when they're missing.
-v0.15.0 - Back up and restore Kodi (every profile, add-on and setting) in Settings > Backup. Faster start for every list (about half the start-up). Smaller artwork downloads. Info pages of Continue Watching and Next Up are read ahead. Play says how much is left. The watchlist shows each title's full details. With Arctic Zephyr Stremio: switch profile from a list, a status bar while streams are found, quicker search typing.</news>
+        <news>v0.16.2 - Subtitles: when the subtitle addons have none as a video starts (AIOStreams can answer empty when it's slow), they're asked again a few seconds in and added to the video, so a film whose own subtitles are pictures (Blu-ray PGS, which ignore Kodi's font and colour) gets text subtitles in your style.
+v0.16.1 - Fixes MDBList saying the API key was rejected after 0.16.0: requests now identify themselves, so they aren't blocked, and a blocked request is no longer reported as a bad key.
+v0.16.0 - Lighter and quicker: no longer needs the requests module, so lists that fetch from an addon start sooner. Home rows and hub rows show their last list at once when it has expired and refresh it in the background. With Arctic Zephyr Stremio: after an episode or film is stopped part-way, only Continue Watching, Next Up and the watchlist reload, and the setup wizard offers YouTube and Up Next when they're missing.</news>
     </extension>
 </addon>
 <addon id="plugin.audio.shiggsy365.podcasts"

@@ -607,6 +607,62 @@ def test_play_subtitles(server, playback, settings):
     assert [os.path.basename(p) for p in item.subtitles] == ["00.eng.srt", "01.eng.srt"]
 
 
+def test_play_asks_for_subtitles_again_when_addons_had_none(server, playback, settings, window):
+    settings.update(autoplay=True, subtitles_enabled=True, subtitle_languages="eng")
+    server.routes["/subs/manifest.json"] = {**STREAM_ADDON, "id": "subs", "name": "Subs",
+                                            "resources": ["subtitles"], "catalogs": []}
+    call("add_addon", handle=-1, url=server.url + "/subs")
+    server.routes["/s/stream/movie/tt1.json"] = streams({"url": "https://cdn/a.mkv",
+                                                         "behaviorHints": {"filename": "a.mkv"}})
+    server.routes["/subs/subtitles/movie/tt1/filename=a.mkv.json"] = {"subtitles": []}
+
+    call("play", type="movie", id="tt1")
+    assert not getattr(resolved_path(playback)[2], "subtitles", None)
+    assert common.take_announcement()["subtitles"] == {"type": "movie", "id": "tt1",
+                                                       "extra": {"filename": "a.mkv"}}
+
+    server.routes["/subs/subtitles/movie/tt1/filename=a.mkv.json"] = {"subtitles": [
+        {"url": server.url + "/f/fr.srt", "lang": "fre"}]}                # some, none in our languages
+    server.routes["/f/fr.srt"] = b"1\n"
+    call("play", type="movie", id="tt1")
+    assert common.take_announcement()["subtitles"] is None
+
+
+def test_late_subtitles_added_to_playing_video(server, settings, monkeypatch, tmp_path):
+    from kodi_ui import player, service
+
+    settings.update(subtitle_languages="eng")
+    server.routes["/subs/manifest.json"] = {**STREAM_ADDON, "id": "subs", "name": "Subs",
+                                            "resources": ["subtitles"], "catalogs": []}
+    call("add_addon", handle=-1, url=server.url + "/subs")
+    answers = [{"subtitles": []}, {"subtitles": [{"url": server.url + "/f/a.srt", "lang": "eng"},
+                                                 {"url": server.url + "/f/b.srt", "lang": "eng"}]}]
+    server.routes["/subs/subtitles/movie/tt1/filename=a.mkv.json"] = lambda *_: answers.pop(0)
+    server.routes["/f/a.srt"] = server.routes["/f/b.srt"] = b"1\n"
+    waits, added, shown = [], [], []
+    monkeypatch.setattr(player.xbmcvfs, "translatePath", lambda path: str(tmp_path / "kodi-temp"))
+    monkeypatch.setattr(service.xbmc.Monitor, "waitForAbort", lambda self, t: waits.append(t) or False)
+    monkeypatch.setattr(service.xbmc.Player, "setSubtitles", lambda self, path: added.append(os.path.basename(path)))
+    monkeypatch.setattr(service.xbmc.Player, "showSubtitles", lambda self, on: shown.append(on))
+    monkeypatch.setattr(service.xbmc.Player, "getAvailableSubtitleStreams", lambda self: ["eng"])
+    monkeypatch.setattr(service.xbmc, "getCondVisibility", lambda cond: cond == "VideoPlayer.SubtitlesEnabled")
+
+    service.late_subtitles({"type": "movie", "id": "tt1", "extra": {"filename": "a.mkv"}}, lambda: True)
+    assert waits == [5, 15]                                   # asked at 5 s (none yet), then at 20 s
+    assert added == ["01.eng.srt", "00.eng.srt"] and shown == []  # first choice added last: it's shown
+
+    added.clear()
+    monkeypatch.setattr(service.xbmc, "getCondVisibility", lambda cond: False)   # subtitles were off
+    answers.append({"subtitles": [{"url": server.url + "/f/a.srt", "lang": "eng"}]})
+    service.late_subtitles({"type": "movie", "id": "tt1", "extra": {"filename": "a.mkv"}}, lambda: True)
+    assert added == ["00.eng.srt"] and shown == [False]
+
+    answers.append({"subtitles": [{"url": server.url + "/f/a.srt", "lang": "eng"}]})
+    added.clear()
+    service.late_subtitles({"type": "movie", "id": "tt1", "extra": {"filename": "a.mkv"}}, lambda: False)
+    assert added == [] and len(answers) == 1                  # stopped playing: not even asked
+
+
 def test_play_episode_uses_show_meta(server, playback, settings):
     settings["autoplay"] = True
     server.routes["/meta/series/tt5.json"] = SHOW

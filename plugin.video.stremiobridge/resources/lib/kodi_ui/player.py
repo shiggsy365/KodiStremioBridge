@@ -131,8 +131,9 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
     item = playback_item(path, info, id, fallback_title=stream.filename or stream.name)
     if use_inputstream:
         _use_inputstream(item, stream)
+    late_subtitles = None
     if stream.kind != TORRENT and ADDON.getSettingBool("subtitles_enabled"):
-        _attach_subtitles(item, client, registry, type, id, stream)
+        late_subtitles = _attach_subtitles(item, client, registry, type, id, stream)
 
     # Tell the playback service what this is, and where to resume if Kodi's
     # "Resume from…" was chosen (plugin.resume is None when Kodi didn't ask).
@@ -140,7 +141,7 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
     offset = row.position if plugin.resume and row else 0.0
     if retry is not None:
         retry["resume"] = bool(offset)
-    announce_playback(playback_entry(type, id, meta, info, stream), offset, retry)
+    announce_playback(playback_entry(type, id, meta, info, stream), offset, retry, late_subtitles)
 
     # Never log the path: debrid links and configured addons carry tokens.
     log(f"Playing {type} {id} from {stream.addon}: {describe(stream)[0] or stream.kind}")
@@ -258,20 +259,39 @@ def _use_inputstream(item, stream):
 
 
 def _attach_subtitles(item, client, registry, type_, id_, stream):
-    subtitles = list(stream.subtitles)
+    """Subtitles for `item`. Returns what the playback service needs to ask
+    again once the video has started (None if nothing's to be asked): a
+    subtitle addon can answer with none at all, e.g. AIOStreams when the
+    service behind it was slow."""
+    extra = stream.subtitle_extra()
+    paths, found, answered = subtitle_files(client, registry, type_, id_, extra, stream.subtitles, "subtitles")
+    if paths:
+        item.setSubtitles(paths)
+        return None
+    if found or not answered:
+        return None
+    log("No subtitles from the subtitle addons; asking again once the video plays")
+    return {"type": type_, "id": id_, "extra": extra}
+
+
+def subtitle_files(client, registry, type_, id_, extra, embedded=(), folder="subtitles"):
+    """Fetch, choose (preferred languages) and download subtitles into
+    special://temp/stremiobridge/<folder>. Returns ``(paths, found, asked)``:
+    the files, how many subtitles there were, and whether any subtitle addon
+    was asked."""
+    subtitles = list(embedded)
     addons = registry.addons_for("subtitles", type_, id_)
     if addons:
-        fetched, errors = fetch_subtitles(client, addons, type_, id_, stream.subtitle_extra())
+        fetched, errors = fetch_subtitles(client, addons, type_, id_, extra)
         subtitles += fetched
         for label, exc in errors:
             log(f"Subtitles from {label} failed: {exc}")
 
     chosen = select_subtitles(subtitles, parse_languages(ADDON.getSettingString("subtitle_languages")))
     if not chosen:
-        return
-    dest = os.path.join(xbmcvfs.translatePath("special://temp"), "stremiobridge", "subtitles")
+        return [], len(subtitles), bool(addons)
+    dest = os.path.join(xbmcvfs.translatePath("special://temp"), "stremiobridge", folder)
     shutil.rmtree(dest, ignore_errors=True)
     paths = download_subtitles(client, chosen, dest)
     log(f"{len(paths)} of {len(subtitles)} subtitles attached")
-    if paths:
-        item.setSubtitles(paths)
+    return paths, len(subtitles), bool(addons)
