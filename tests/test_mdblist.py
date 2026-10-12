@@ -46,8 +46,9 @@ def test_parse_watched():
 
 
 class FakeResponse:
-    def __init__(self, status, body):
+    def __init__(self, status, body, content_type="application/json"):
         self.status_code, self._body = status, body
+        self.headers = {"Content-Type": content_type}
         self.content = json.dumps(body).encode()
         self.text = self.content.decode()
 
@@ -267,3 +268,22 @@ def test_watchlist_add_remove():
         ("remove", {"shows": [{"ids": {"imdb": "tt5"}}]})]
     with pytest.raises(MDBListError):
         client.watchlist_add("movie", {})
+
+
+def test_a_blocked_request_is_not_called_a_bad_key():
+    """A 403 page from in front of MDBList (Cloudflare) isn't MDBList saying the key is wrong."""
+    blocked = FakeSession([FakeResponse(403, "<html>Just a moment...</html>", "text/html")])
+    with pytest.raises(MDBListError) as caught:
+        MDBListClient("GOOD", session=blocked).last_activities()
+    assert not isinstance(caught.value, MDBListAuthError) and "403" in str(caught.value)
+
+    with pytest.raises(MDBListAuthError):                  # MDBList's own JSON answer: the key
+        MDBListClient("BAD", session=FakeSession([FakeResponse(403, {"error": "Invalid API key"})])).last_activities()
+
+
+def test_requests_carry_a_user_agent():
+    """urllib's own ("Python-urllib/3.x") is often blocked by Cloudflare."""
+    from stremio.net import Session
+
+    assert "Python-urllib" not in Session().headers["User-Agent"]
+    assert "KodiStremioBridge" in MDBListClient("K").session.headers["User-Agent"]

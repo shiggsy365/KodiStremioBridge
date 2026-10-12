@@ -135,11 +135,16 @@ def _with_params(url, params):
     return urlunsplit(parts._replace(query=f"{parts.query}&{query}" if parts.query else query))
 
 
+# Sent unless a caller sets its own. Without one urllib sends "Python-urllib/3.x",
+# which Cloudflare (in front of MDBList and many addons) often answers with 403.
+USER_AGENT = "Mozilla/5.0 (compatible; KodiStremioBridge; +https://github.com/shiggsy365/KodiStremioBridge)"
+
+
 class Session:
     """``requests.Session``'s interface, for the calls the add-on makes."""
 
     def __init__(self):
-        self.headers = {}
+        self.headers = {"User-Agent": USER_AGENT}
 
     def request(self, method, url, params=None, headers=None, json=None, data=None, timeout=None,
                 stream=False, allow_redirects=True):

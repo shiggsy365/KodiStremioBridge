@@ -259,6 +259,10 @@ def watchlist_previews(items):
 
 # ---------------------------------------------------------------- client
 
+def _is_json(response):
+    return "json" in (response.headers.get("Content-Type") or "").lower()
+
+
 class MDBListClient:
     def __init__(self, api_key, session=None, timeout=TIMEOUT, base_url=BASE_URL, cache=None):
         """`cache` (a stremio.cache.Cache) keeps title lookups for ITEM_TTL."""
@@ -285,8 +289,10 @@ class MDBListClient:
                                             timeout=self.timeout)
         except RequestException as exc:
             raise MDBListError(f"MDBList request failed: {exc}") from exc
-        if response.status_code in (401, 403):
-            raise MDBListAuthError("MDBList rejected the API key")
+        if response.status_code in (401, 403) and _is_json(response):
+            raise MDBListAuthError("MDBList rejected the API key")  # its own answer, about the key
+        if response.status_code == 403:  # an HTML page: something in front of MDBList blocked the request
+            raise MDBListError(f"MDBList {path}: blocked (HTTP 403, not about the API key)")
         if response.status_code >= 400:
             raise MDBListError(f"MDBList {path}: HTTP {response.status_code} {response.text[:200]}")
         try:
