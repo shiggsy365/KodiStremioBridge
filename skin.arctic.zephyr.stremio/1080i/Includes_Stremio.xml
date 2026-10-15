@@ -278,6 +278,15 @@
         <value condition="!String.IsEmpty(Window(home).Property(sbinfo.id)) + !String.IsEmpty(Window(home).Property(sbinfo.browse))">plugin://plugin.video.stremiobridge/?action=info_episodes&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)]&amp;season=$INFO[Container(5060).ListItem.Property(season)]&amp;focus=$INFO[Window(home).Property(sbinfo.focus_video)]&amp;rev=$INFO[Window(home).Property(sbinfo.browser_rev)]</value>
     </variable>
 
+    <!-- Rows whose titles open Stremio Bridge's information page (its "When a title is
+         selected: Show information" setting). Kodi 21 gives a selected video item its own
+         select action first (Default select action), and for a part-watched one that resumes
+         it, so the page never opened. A list's onclick whose condition is met replaces Kodi's
+         handling: the link runs straight away. -->
+    <include name="SBInfoLinkClick">
+        <onclick condition="String.Contains(ListItem.FileNameAndPath,plugin.video.stremiobridge/?action=extended_info)">RunPlugin($ESCINFO[ListItem.FileNameAndPath])</onclick>
+    </include>
+
     <!-- The search page (Custom_1170_Search.xml) -->
     <variable name="SBSearchOnPill301">
         <value condition="Control.HasFocus(301)">FF101010</value>

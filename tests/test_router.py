@@ -2506,12 +2506,14 @@ def test_continue_watching_has_descriptions(server, listing, settings, monkeypat
                                                       "description": "A movie plot.", "logo": "http://logo"}}
     server.routes["/meta/series/tt5.json"] = {"meta": {
         "id": "tt5", "type": "series", "name": "Show", "description": "The show.", "videos": [
-            {"id": "tt5:1:1", "season": 1, "episode": 1, "title": "One", "overview": "Episode one plot."},
             {"id": "tt5:1:2", "season": 1, "episode": 2, "title": "Two"}]}}
+    server.routes["/meta/series/tt6.json"] = {"meta": {
+        "id": "tt6", "type": "series", "name": "Other", "description": "The other show.", "videos": [
+            {"id": "tt6:1:1", "season": 1, "episode": 1, "title": "One", "overview": "Episode one plot."}]}}
     state = common.get_watchstate()
     state.record(PlaybackEntry(video_id="tt1", type="movie", title="Movie"), 1200, 6000)
-    state.record(PlaybackEntry(video_id="tt5:1:1", type="series", meta_id="tt5", season=1, episode=1,
-                               title="One", show_title="Show"), 600, 3000)
+    state.record(PlaybackEntry(video_id="tt6:1:1", type="series", meta_id="tt6", season=1, episode=1,
+                               title="One", show_title="Other"), 600, 3000)
     state.record(PlaybackEntry(video_id="tt5:1:2", type="series", meta_id="tt5", season=1, episode=2,
                                title="Two", show_title="Show"), 600, 3000)
     plots, arts = [], []

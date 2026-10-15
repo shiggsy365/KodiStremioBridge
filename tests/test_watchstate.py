@@ -167,3 +167,27 @@ def test_signature_follows_what_next_up_depends_on(state, clock):
     before_movie = state.signature()
     state.record(MOVIE, 600, 6000)                                                # movies don't affect Next Up
     assert state.signature() == before_movie
+
+
+def test_continue_watching_lists_one_episode_per_show(state, clock):
+    """Two part-watched episodes of a show: only the one played last is listed;
+    the other keeps its resume point."""
+    state.record(ep(1, 3), 900, 2400)
+    clock.now += 5
+    state.record(MOVIE, 1200, 6000)
+    clock.now += 5
+    state.record(ep(1, 1), 600, 2400)
+    assert [r.video_id for r in state.continue_watching()] == ["tt5:1:1", "tt1"]
+    assert state.lookup(["tt5:1:3"])["tt5:1:3"].position == 900
+    assert len(state.continue_watching(1)) == 1
+
+    clock.now += 5
+    state.record(ep(1, 3), 1000, 2400)                         # back to episode 3: it's listed instead
+    assert [r.video_id for r in state.continue_watching()] == ["tt5:1:3", "tt1"]
+    state.clear_resume("tt5:1:3")
+    assert [r.video_id for r in state.continue_watching()] == ["tt1"]  # removing the show doesn't bring 1x01 back
+    assert state.lookup(["tt5:1:1"])["tt5:1:1"].position == 600      # (it keeps its resume point)
+
+    clock.now += 5
+    state.record(ep(1, 1), 700, 2400)                          # played again: the show is back
+    assert [r.video_id for r in state.continue_watching()] == ["tt5:1:1", "tt1"]

@@ -35,6 +35,7 @@
                 <height>297</height>
                 <onup>300</onup>
                 <onclick condition="$SKINSHORTCUTS[IsGTO]">RunPlugin(plugin://script.service.gto?action=info&amp;item=$INFO[ListItem.Property(Item)])</onclick>
+                <include>SBInfoLinkClick</include>
                 <ondown>300</ondown>
                 <onback>300</onback>
                 <onleft>301</onleft>
@@ -153,6 +154,7 @@
                 <height>1</height>
                 <onup>300</onup>
                 <onclick condition="$SKINSHORTCUTS[IsGTO]">RunPlugin(plugin://script.service.gto?action=info&amp;item=$INFO[ListItem.Property(Item)])</onclick>
+                <include>SBInfoLinkClick</include>
                 <ondown>300</ondown>
                 <onback>300</onback>
                 <onleft>301</onleft>
@@ -288,6 +290,7 @@
                 <skinshortcuts>visibility</skinshortcuts>
                 <visible>Integer.IsGreater(Container(301$SKINSHORTCUTS[id]1).NumItems,0) | Container(301$SKINSHORTCUTS[id]1).IsUpdating | String.IsEqual(Container(300).ListItem.Property(widget),mysubmenu) | String.IsEqual(Container(300).ListItem.Property(widget),custom) | String.Contains(Container(300).ListItem.Property(widget),weather)</visible>
                 <onclick condition="$SKINSHORTCUTS[IsGTO]">RunPlugin(plugin://script.service.gto?action=info&amp;item=$INFO[ListItem.Property(Item)])</onclick>
+                <include>SBInfoLinkClick</include>
                 <include content="DefMultiWidgetContainer">
                     <param name="id" value="301$SKINSHORTCUTS[id]1"/>
                     <param name="height" value="$SKINSHORTCUTS[layoutheight]"/>
@@ -471,6 +474,7 @@
                 <skinshortcuts>visibility</skinshortcuts>
                 <visible>Integer.IsGreater(Container(301$SKINSHORTCUTS[id]2).NumItems,0) | Container(301$SKINSHORTCUTS[id]2).IsUpdating | String.IsEqual(Container(300).ListItem.Property(widget.2),custom)</visible>
                 <onclick condition="$SKINSHORTCUTS[IsGTO]">RunPlugin(plugin://script.service.gto?action=info&amp;item=$INFO[ListItem.Property(Item)])</onclick>
+                <include>SBInfoLinkClick</include>
                 <include content="DefMultiWidgetContainer">
                     <param name="id" value="301$SKINSHORTCUTS[id]2"/>
                     <param name="height" value="$SKINSHORTCUTS[layoutheight]"/>
@@ -639,6 +643,7 @@
                 <skinshortcuts>visibility</skinshortcuts>
                 <visible>Integer.IsGreater(Container(301$SKINSHORTCUTS[id]3).NumItems,0) | Container(301$SKINSHORTCUTS[id]3).IsUpdating | String.IsEqual(Container(300).ListItem.Property(widget.3),custom)</visible>
                 <onclick condition="$SKINSHORTCUTS[IsGTO]">RunPlugin(plugin://script.service.gto?action=info&amp;item=$INFO[ListItem.Property(Item)])</onclick>
+                <include>SBInfoLinkClick</include>
                 <include content="DefMultiWidgetContainer">
                     <param name="id" value="301$SKINSHORTCUTS[id]3"/>
                     <param name="backid" value="301$SKINSHORTCUTS[id]1"/>
@@ -807,6 +812,7 @@
                 <skinshortcuts>visibility</skinshortcuts>
                 <visible>Integer.IsGreater(Container(301$SKINSHORTCUTS[id]4).NumItems,0) | Container(301$SKINSHORTCUTS[id]4).IsUpdating | String.IsEqual(Container(300).ListItem.Property(widget.4),custom)</visible>
                 <onclick condition="$SKINSHORTCUTS[IsGTO]">RunPlugin(plugin://script.service.gto?action=info&amp;item=$INFO[ListItem.Property(Item)])</onclick>
+                <include>SBInfoLinkClick</include>
                 <include content="DefMultiWidgetContainer">
                     <param name="id" value="301$SKINSHORTCUTS[id]4"/>
                     <param name="height" value="$SKINSHORTCUTS[layoutheight]"/>
@@ -975,6 +981,7 @@
                 <skinshortcuts>visibility</skinshortcuts>
                 <visible>Integer.IsGreater(Container(301$SKINSHORTCUTS[id]5).NumItems,0) | Container(301$SKINSHORTCUTS[id]5).IsUpdating | String.IsEqual(Container(300).ListItem.Property(widget.5),custom)</visible>
                 <onclick condition="$SKINSHORTCUTS[IsGTO]">RunPlugin(plugin://script.service.gto?action=info&amp;item=$INFO[ListItem.Property(Item)])</onclick>
+                <include>SBInfoLinkClick</include>
                 <include content="DefMultiWidgetContainer">
                     <param name="id" value="301$SKINSHORTCUTS[id]5"/>
                     <param name="height" value="$SKINSHORTCUTS[layoutheight]"/>
@@ -1143,6 +1150,7 @@
                 <skinshortcuts>visibility</skinshortcuts>
                 <visible>Integer.IsGreater(Container(301$SKINSHORTCUTS[id]6).NumItems,0) | Container(301$SKINSHORTCUTS[id]6).IsUpdating | String.IsEqual(Container(300).ListItem.Property(widget.6),custom)</visible>
                 <onclick condition="$SKINSHORTCUTS[IsGTO]">RunPlugin(plugin://script.service.gto?action=info&amp;item=$INFO[ListItem.Property(Item)])</onclick>
+                <include>SBInfoLinkClick</include>
                 <include content="DefMultiWidgetContainer">
                     <param name="id" value="301$SKINSHORTCUTS[id]6"/>
                     <param name="height" value="$SKINSHORTCUTS[layoutheight]"/>
@@ -1276,6 +1284,7 @@
                 <onup>300</onup>
                 <ondown>300</ondown>
                 <onclick condition="$SKINSHORTCUTS[IsGTO]">RunPlugin(plugin://script.service.gto?action=info&amp;item=$INFO[ListItem.Property(Item)])</onclick>
+                <include>SBInfoLinkClick</include>
                 <focusposition>0</focusposition>
                 <preloaditems>2</preloaditems>
                 <orientation>horizontal</orientation>

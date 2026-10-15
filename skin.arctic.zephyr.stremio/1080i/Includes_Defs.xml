@@ -966,6 +966,7 @@
                 <height>360</height>
                 <orientation>horizontal</orientation>
                 <onup>9501</onup>
+                <include>SBInfoLinkClick</include>
                 <ondown>noop</ondown>
                 <onleft>9500</onleft>
                 <onright>9500</onright>

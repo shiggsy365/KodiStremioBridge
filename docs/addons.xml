@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.16.2"
+       version="0.16.3"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,9 +23,9 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.16.2 - Subtitles: when the subtitle addons have none as a video starts (AIOStreams can answer empty when it's slow), they're asked again a few seconds in and added to the video, so a film whose own subtitles are pictures (Blu-ray PGS, which ignore Kodi's font and colour) gets text subtitles in your style.
-v0.16.1 - Fixes MDBList saying the API key was rejected after 0.16.0: requests now identify themselves, so they aren't blocked, and a blocked request is no longer reported as a bad key.
-v0.16.0 - Lighter and quicker: no longer needs the requests module, so lists that fetch from an addon start sooner. Home rows and hub rows show their last list at once when it has expired and refresh it in the background. With Arctic Zephyr Stremio: after an episode or film is stopped part-way, only Continue Watching, Next Up and the watchlist reload, and the setup wizard offers YouTube and Up Next when they're missing.</news>
+        <news>v0.16.3 - Continue Watching lists one episode per show, the one you played last (the others keep their place). A show you remove from it stays off until you play one of its episodes again.
+v0.16.2 - Subtitles: when the subtitle addons have none as a video starts (AIOStreams can answer empty when it's slow), they're asked again a few seconds in and added to the video, so a film whose own subtitles are pictures (Blu-ray PGS, which ignore Kodi's font and colour) gets text subtitles in your style.
+v0.16.1 - Fixes MDBList saying the API key was rejected after 0.16.0: requests now identify themselves, so they aren't blocked, and a blocked request is no longer reported as a bad key.</news>
     </extension>
 </addon>
 <addon id="plugin.audio.shiggsy365.podcasts"
@@ -113,7 +113,7 @@ v1.0.0 - First release.</news>
         </assets>
     </extension>
 </addon>
-<addon id="skin.arctic.zephyr.stremio" version="1.4.0" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
+<addon id="skin.arctic.zephyr.stremio" version="1.4.1" name="Arctic Zephyr Stremio" provider-name="shiggsy365 (based on Arctic: Zephyr - Reloaded by jurialmunkey, beatmasterRS)">
     <requires>
         <import addon="xbmc.gui" version="5.17.0"/>
         <import addon="plugin.video.stremiobridge" version="0.16.0"/>
@@ -146,9 +146,9 @@ v1.0.0 - First release.</news>
             <screenshot>resources/screenshot-09.jpg</screenshot>
             <screenshot>resources/screenshot-10.jpg</screenshot>
         </assets>
-        <news>v1.4.0 - Lighter: the menus are checked once a session instead of every time Home opens, 36 fewer fonts load with the skin, and the lyrics screen is gone. YouTube (trailers) and Up Next are no longer required; the setup wizard offers them. Info page: Down now reaches the episodes of a show with only one season.
-v1.3.0 - The home menu moves to the top and slides away as you browse; Up opens a section's sub-menu. Search: typing is quicker and spaces land in the right place. Info page: placeholders while it loads, progress on part-watched episodes, one-season shows list their episodes straight away. A status bar while streams are found. Search beside the clock. Pick a profile from a list. Back up and restore buttons in the skin settings.
-v1.2.7 - With several Kodi profiles: a profile picker beside the clock, and home widgets per profile. Context menus open without Kodi's showing first. The info page hides the last title's lists while it loads; hub rows refresh in place again.</news>
+        <news>v1.4.1 - With Stremio Bridge set to show the information page when a title is selected, a part-watched title on the home screen or in a hub now opens its page instead of resuming straight away.
+v1.4.0 - Lighter: the menus are checked once a session instead of every time Home opens, 36 fewer fonts load with the skin, and the lyrics screen is gone. YouTube (trailers) and Up Next are no longer required; the setup wizard offers them. Info page: Down now reaches the episodes of a show with only one season.
+v1.3.0 - The home menu moves to the top and slides away as you browse; Up opens a section's sub-menu. Search: typing is quicker and spaces land in the right place. Info page: placeholders while it loads, progress on part-watched episodes, one-season shows list their episodes straight away. A status bar while streams are found. Search beside the clock. Pick a profile from a list. Back up and restore buttons in the skin settings.</news>
         <summary lang="en_GB">Arctic: Zephyr - Reloaded, made for Stremio Bridge.</summary>
         <description lang="en_GB">A fork of Arctic: Zephyr - Reloaded by beatmasterRS, itself based on Arctic: Zephyr by jurialmunkey, made to work with Stremio Bridge and Dispatcharr Bridge. Clean, minimal and light, with the layout of Reloaded. Licensed under CC BY-NC-SA 3.0, like the original.</description>
     </extension>

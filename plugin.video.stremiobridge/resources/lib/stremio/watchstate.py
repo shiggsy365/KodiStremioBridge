@@ -148,7 +148,22 @@ class WatchState:
         return found
 
     def continue_watching(self, limit=50):
-        return self._rows("WHERE position > 0 ORDER BY updated_at DESC LIMIT ?", (limit,))
+        """Part-watched movies and episodes, most recently played first, with one
+        episode per show: the one played last (the others keep their resume points).
+        A show removed from the list (clear_resume dismisses it) stays off until
+        one of its episodes is played again."""
+        with self._lock:
+            dismissed = dict(self._db.execute("SELECT meta_id, dismissed_at FROM dismissed").fetchall())
+        rows, shows = [], set()
+        for row in self._rows("WHERE position > 0 ORDER BY updated_at DESC"):
+            if row.meta_id and row.season is not None:
+                if row.meta_id in shows or row.updated_at <= dismissed.get(row.meta_id, 0):
+                    continue
+                shows.add(row.meta_id)
+            rows.append(row)
+            if len(rows) >= limit:
+                break
+        return rows
 
     def recent_shows(self, limit=50, with_time=False):
         """``(show_id, type)`` for shows with watched episodes, most recently
