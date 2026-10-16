@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.16.3"
+       version="0.16.4"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -22,8 +22,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.16.3 - Continue Watching lists one episode per show, the one you played last (the others keep their place). A show you remove from it stays off until you play one of its episodes again.
-v0.16.2 - Subtitles: when the subtitle addons have none as a video starts (AIOStreams can answer empty when it's slow), they're asked again a few seconds in and added to the video, so a film whose own subtitles are pictures (Blu-ray PGS, which ignore Kodi's font and colour) gets text subtitles in your style.
-v0.16.1 - Fixes MDBList saying the API key was rejected after 0.16.0: requests now identify themselves, so they aren't blocked, and a blocked request is no longer reported as a bad key.</news>
+        <news>v0.16.4 - Ready for Kodi 22's faster add-on start-up (the interpreter kept between calls, which BingeTV turns on): the library export follows a profile switch, and the watchlist's Add/Remove in menus catches up with changes made elsewhere within a minute. Nothing changes on Kodi 21.
+v0.16.3 - Continue Watching lists one episode per show, the one you played last (the others keep their place). A show you remove from it stays off until you play one of its episodes again.
+v0.16.2 - Subtitles: when the subtitle addons have none as a video starts (AIOStreams can answer empty when it's slow), they're asked again a few seconds in and added to the video, so a film whose own subtitles are pictures (Blu-ray PGS, which ignore Kodi's font and colour) gets text subtitles in your style.</news>
     </extension>
 </addon>
