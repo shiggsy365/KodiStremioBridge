@@ -41,6 +41,10 @@
 		<value condition="!String.IsEmpty(ListItem.Art(clearlogo))">$INFO[ListItem.Art(clearlogo)]</value>
 		<value condition="!String.IsEmpty(ListItem.Art(tvshow.clearlogo))">$INFO[ListItem.Art(tvshow.clearlogo)]</value>
 	</variable>
+	<variable name="BTVTitle">
+		<value condition="!String.IsEmpty(ListItem.TVShowTitle)">$INFO[ListItem.TVShowTitle]</value>
+		<value>$INFO[ListItem.Title]</value>
+	</variable>
 	<variable name="BTVLine1">
 		<value condition="!String.IsEmpty(ListItem.Episode)">S$INFO[ListItem.Season]$INFO[ListItem.Episode, E,  ]$INFO[ListItem.Title]</value>
 		<value>$INFO[ListItem.Property(ReleaseDate)]$INFO[ListItem.Duration(h:mm), · ,]</value>
@@ -56,103 +60,126 @@
 	<include name="BTVTitleInfo">
 		<control type="group">
 			<left>80</left>
-			<top>50</top>
+			<top>110</top>
 			<control type="image">
-				<width>420</width>
-				<height>160</height>
+				<width>360</width>
+				<height>130</height>
 				<aspectratio align="left" aligny="center">keep</aspectratio>
 				<fadetime>300</fadetime>
 				<texture background="true">$VAR[BTVLogo]</texture>
 			</control>
 			<control type="label">
-				<top>70</top>
+				<top>50</top>
 				<width>1300</width>
-				<height>90</height>
-				<font>font60</font>
+				<height>70</height>
+				<font>font52_title</font>
 				<textcolor>FFFFFFFF</textcolor>
-				<label>$INFO[ListItem.TVShowTitle]</label>
-				<visible>!String.IsEmpty(ListItem.TVShowTitle) + String.IsEmpty(ListItem.Art(clearlogo)) + String.IsEmpty(ListItem.Art(tvshow.clearlogo))</visible>
+				<label>$VAR[BTVTitle]</label>
+				<visible>String.IsEmpty(ListItem.Art(clearlogo)) + String.IsEmpty(ListItem.Art(tvshow.clearlogo))</visible>
 			</control>
 			<control type="label">
-				<top>70</top>
-				<width>1300</width>
-				<height>90</height>
-				<font>font60</font>
-				<textcolor>FFFFFFFF</textcolor>
-				<label>$INFO[ListItem.Title]</label>
-				<visible>String.IsEmpty(ListItem.TVShowTitle) + String.IsEmpty(ListItem.Art(clearlogo)) + String.IsEmpty(ListItem.Art(tvshow.clearlogo))</visible>
-			</control>
-			<control type="label">
-				<top>172</top>
-				<width>1500</width>
-				<height>50</height>
-				<font>font36_title</font>
+				<top>145</top>
+				<width>1400</width>
+				<height>40</height>
+				<font>btv_line</font>
 				<textcolor>FFFFFFFF</textcolor>
 				<label>$VAR[BTVLine1]</label>
 			</control>
 			<control type="label">
-				<top>225</top>
-				<width>1500</width>
-				<height>50</height>
-				<font>font36_title</font>
+				<top>186</top>
+				<width>1400</width>
+				<height>40</height>
+				<font>btv_line</font>
 				<textcolor>FFFFFFFF</textcolor>
 				<label>$VAR[BTVLine2]</label>
 			</control>
 			<control type="label">
-				<top>278</top>
-				<width>1500</width>
-				<height>50</height>
-				<font>font32</font>
+				<top>227</top>
+				<width>1400</width>
+				<height>40</height>
+				<font>btv_text</font>
 				<textcolor>FFB4B4B4</textcolor>
 				<label>$VAR[BTVGenres]</label>
 			</control>
+			<!-- Fills the space down to the rows; a longer plot scrolls slowly. -->
 			<control type="textbox">
-				<top>326</top>
-				<width>1100</width>
-				<height>90</height>
-				<font>font32</font>
+				<top>270</top>
+				<width>1050</width>
+				<height>152</height>
+				<font>btv_text</font>
 				<textcolor>FFEEEEEE</textcolor>
+				<autoscroll delay="6000" time="3000" repeat="8000">true</autoscroll>
 				<label>$INFO[ListItem.Plot]</label>
 			</control>
 		</control>
 	</include>
 
-	<!-- A row of posters. `id`: the list; `item`: the menu item (10000 Home, movies, tvshows);
-	     `slot`: "" for the first row, ".2" to ".6" for the others (Stremio Bridge's sbhome.* properties). -->
-	<include name="BTVPosterRow">
-		<param name="id" />
+	<!-- Home's rows: Stremio Bridge's sbhome.<item>.widgetPath / widgetName (".2" to ".6" for
+	     rows 2-6), one shown at a time. Up/Down move between rows that have a list (row 1's
+	     Up goes to the menu); the rows slide so the current one stays in place. -->
+	<include name="BTVHomeRows">
 		<param name="item">10000</param>
-		<param name="slot" />
 		<definition>
 			<control type="group">
-				<height>400</height>
+				<top>560</top>
+				<animation effect="slide" end="0,-400" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window(Home).Property(btv.row),2)">Conditional</animation>
+				<animation effect="slide" end="0,-800" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window(Home).Property(btv.row),3)">Conditional</animation>
+				<animation effect="slide" end="0,-1200" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window(Home).Property(btv.row),4)">Conditional</animation>
+				<animation effect="slide" end="0,-1600" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window(Home).Property(btv.row),5)">Conditional</animation>
+				<animation effect="slide" end="0,-2000" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window(Home).Property(btv.row),6)">Conditional</animation>
+				<include content="BTVPosterRow"><param name="n">1</param><param name="prev">9200</param><param name="later">false</param><param name="next">9102</param><param name="top">0</param><param name="item">$PARAM[item]</param><param name="slot" value="" /><param name="nextslot">.2</param></include>
+				<include content="BTVPosterRow"><param name="n">2</param><param name="prev">9101</param><param name="next">9103</param><param name="top">400</param><param name="item">$PARAM[item]</param><param name="slot">.2</param><param name="nextslot">.3</param></include>
+				<include content="BTVPosterRow"><param name="n">3</param><param name="prev">9102</param><param name="next">9104</param><param name="top">800</param><param name="item">$PARAM[item]</param><param name="slot">.3</param><param name="nextslot">.4</param></include>
+				<include content="BTVPosterRow"><param name="n">4</param><param name="prev">9103</param><param name="next">9105</param><param name="top">1200</param><param name="item">$PARAM[item]</param><param name="slot">.4</param><param name="nextslot">.5</param></include>
+				<include content="BTVPosterRow"><param name="n">5</param><param name="prev">9104</param><param name="next">9106</param><param name="top">1600</param><param name="item">$PARAM[item]</param><param name="slot">.5</param><param name="nextslot">.6</param></include>
+				<include content="BTVPosterRow"><param name="n">6</param><param name="prev">9105</param><param name="next">9106</param><param name="top">2000</param><param name="item">$PARAM[item]</param><param name="slot">.6</param><param name="nextslot">.7</param></include>
+			</control>
+		</definition>
+	</include>
+	<include name="BTVPosterRow">
+		<param name="n" />
+		<param name="top" />
+		<param name="item" />
+		<param name="slot" />
+		<param name="nextslot" />
+		<param name="prev" />
+		<param name="next" />
+		<param name="later">true</param>
+		<definition>
+			<control type="group">
+				<top>$PARAM[top]</top>
+				<!-- Only the current row shows (row 1 until another has had focus). -->
+				<animation effect="fade" start="100" end="0" time="200" condition="!String.IsEmpty(Window(Home).Property(btv.row)) + !String.IsEqual(Window(Home).Property(btv.row),$PARAM[n])">Conditional</animation>
+				<animation effect="fade" start="100" end="0" time="0" condition="String.IsEmpty(Window(Home).Property(btv.row)) + $PARAM[later]">Conditional</animation>
 				<visible>!String.IsEmpty(Window(Home).Property(sbhome.$PARAM[item].widgetPath$PARAM[slot]))</visible>
 				<control type="label">
 					<left>80</left>
 					<width>1400</width>
-					<height>50</height>
-					<font>font36_title</font>
+					<height>44</height>
+					<font>btv_row</font>
 					<textcolor>FFDDDDDD</textcolor>
 					<label>$INFO[Window(Home).Property(sbhome.$PARAM[item].widgetName$PARAM[slot])]</label>
 				</control>
-				<control type="list" id="$PARAM[id]">
+				<control type="list" id="910$PARAM[n]">
 					<left>66</left>
 					<top>53</top>
 					<width>1854</width>
 					<height>330</height>
 					<orientation>horizontal</orientation>
 					<scrolltime tween="cubic" easing="out">260</scrolltime>
+					<onfocus>SetProperty(btv.row,$PARAM[n],home)</onfocus>
+					<onup>SetFocus($PARAM[prev])</onup>
+					<ondown condition="!String.IsEmpty(Window(Home).Property(sbhome.$PARAM[item].widgetPath$PARAM[nextslot]))">SetFocus($PARAM[next])</ondown>
 					<onclick condition="String.Contains(ListItem.FileNameAndPath,plugin.video.stremiobridge/?action=extended_info)">RunPlugin($ESCINFO[ListItem.FileNameAndPath])</onclick>
 					<itemlayout width="222" height="330">
 						<include>BTVPoster</include>
 					</itemlayout>
 					<focusedlayout width="222" height="330">
 						<control type="image">
-							<left>0</left>
 							<width>216</width>
 							<height>319</height>
 							<texture colordiffuse="btv_accent">bingetv/poster_focus.png</texture>
-							<visible>Control.HasFocus($PARAM[id])</visible>
+							<visible>Control.HasFocus(910$PARAM[n])</visible>
 						</control>
 						<include>BTVPoster</include>
 					</focusedlayout>
@@ -179,67 +206,79 @@
 			<visible>ListItem.IsResumable</visible>
 		</control>
 	</include>
+	<variable name="BTVHomeFanart">
+		<value condition="String.IsEqual(Window(Home).Property(btv.row),2)">$INFO[Container(9102).ListItem.Art(fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.row),3)">$INFO[Container(9103).ListItem.Art(fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.row),4)">$INFO[Container(9104).ListItem.Art(fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.row),5)">$INFO[Container(9105).ListItem.Art(fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.row),6)">$INFO[Container(9106).ListItem.Art(fanart)]</value>
+		<value>$INFO[Container(9101).ListItem.Art(fanart)]</value>
+	</variable>
 
-	<!-- The bar along the bottom: where you are, the menu, and the time. -->
-	<include name="BTVBottomBar">
+	<!-- The menu along the top: where you are, the sections, and the time. Down returns to
+	     the row you were on. -->
+	<include name="BTVTopBar">
 		<param name="id">9200</param>
 		<param name="title">$LOCALIZE[10000]</param>
 		<definition>
 			<control type="group">
-				<top>1000</top>
 				<control type="image">
 					<width>1920</width>
-					<height>80</height>
-					<texture colordiffuse="CC0E0F12">bingetv/white.png</texture>
+					<height>140</height>
+					<texture colordiffuse="CC000000" flipy="true">bingetv/fade_down.png</texture>
 				</control>
 				<control type="label">
-					<left>100</left>
+					<left>80</left>
+					<top>18</top>
 					<width>180</width>
-					<height>80</height>
-					<font>font37</font>
+					<height>60</height>
+					<font>btv_menu</font>
 					<textcolor>FFDDDDDD</textcolor>
 					<label>$PARAM[title]</label>
 					<visible>!Control.HasFocus($PARAM[id])</visible>
 				</control>
 				<control type="label">
-					<left>100</left>
+					<left>80</left>
+					<top>18</top>
 					<width>180</width>
-					<height>80</height>
-					<font>font37</font>
+					<height>60</height>
+					<font>btv_menu</font>
 					<textcolor>FFFFFFFF</textcolor>
 					<label>$INFO[Container($PARAM[id]).ListItem.Label]</label>
 					<visible>Control.HasFocus($PARAM[id])</visible>
 				</control>
 				<control type="list" id="$PARAM[id]">
-					<onup>9100</onup>
-					<left>280</left>
+					<left>250</left>
+					<top>18</top>
 					<width>700</width>
-					<height>80</height>
+					<height>60</height>
 					<orientation>horizontal</orientation>
-					<itemlayout width="76" height="80">
+					<ondown condition="String.IsEmpty(Window(Home).Property(btv.row))">SetFocus(9101)</ondown>
+					<ondown condition="!String.IsEmpty(Window(Home).Property(btv.row))">SetFocus(910$INFO[Window(Home).Property(btv.row)])</ondown>
+					<itemlayout width="64" height="60">
 						<control type="image">
-							<left>22</left>
-							<top>24</top>
-							<width>32</width>
-							<height>32</height>
+							<left>17</left>
+							<top>15</top>
+							<width>30</width>
+							<height>30</height>
 							<aspectratio>keep</aspectratio>
 							<texture colordiffuse="FFB4B4B4">$INFO[ListItem.Icon]</texture>
 						</control>
 					</itemlayout>
-					<focusedlayout width="76" height="80">
+					<focusedlayout width="64" height="60">
 						<control type="image">
-							<left>8</left>
-							<top>10</top>
-							<width>60</width>
-							<height>60</height>
+							<left>4</left>
+							<top>2</top>
+							<width>56</width>
+							<height>56</height>
 							<texture colordiffuse="btv_accent">bingetv/pill.png</texture>
 							<visible>Control.HasFocus($PARAM[id])</visible>
 						</control>
 						<control type="image">
-							<left>22</left>
-							<top>24</top>
-							<width>32</width>
-							<height>32</height>
+							<left>17</left>
+							<top>15</top>
+							<width>30</width>
+							<height>30</height>
 							<aspectratio>keep</aspectratio>
 							<texture colordiffuse="FFFFFFFF">$INFO[ListItem.Icon]</texture>
 						</control>
@@ -285,29 +324,25 @@
 				</control>
 				<control type="label">
 					<right>64</right>
-					<top>8</top>
+					<top>14</top>
 					<width>500</width>
-					<height>50</height>
+					<height>44</height>
 					<align>right</align>
-					<font>font45</font>
+					<font>btv_clock</font>
 					<textcolor>btv_accent</textcolor>
-					<label>$INFO[System.Time(hh:mm)][COLOR FF8A8A8A][LIGHT]$INFO[System.Time(xx), ][/LIGHT][/COLOR]</label>
+					<label>$INFO[System.Time(hh:mm)][COLOR FF8A8A8A]$INFO[System.Time(xx), ][/COLOR]</label>
 				</control>
 				<control type="label">
 					<right>64</right>
-					<top>50</top>
+					<top>58</top>
 					<width>500</width>
 					<height>24</height>
 					<align>right</align>
-					<font>font12</font>
+					<font>btv_small</font>
 					<textcolor>FFB4B4B4</textcolor>
 					<label>[UPPERCASE]$INFO[System.Date(DDDD)], $INFO[System.Date(mmmm d)], $INFO[System.Date(yyyy)][/UPPERCASE]</label>
 				</control>
 			</control>
 		</definition>
 	</include>
-	<variable name="BTVHomeFanart">
-		<value condition="ControlGroup(9100).HasFocus">$INFO[ListItem.Art(fanart)]</value>
-		<value>$INFO[Container(9101).ListItem.Art(fanart)]</value>
-	</variable>
 </includes>

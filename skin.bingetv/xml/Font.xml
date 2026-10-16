@@ -155,6 +155,41 @@
 			<filename>NotoMono-Regular.ttf</filename>
 			<size>26</size>
 		</font>
+			<!-- BingeTV (Includes_BingeTV.xml): sized to match Arctic Zephyr Stremio -->
+		<font>
+			<name>btv_line</name>
+			<filename>NotoSans-Regular.ttf</filename>
+			<size>27</size>
+			<style>bold</style>
+		</font>
+		<font>
+			<name>btv_text</name>
+			<filename>NotoSans-Regular.ttf</filename>
+			<size>27</size>
+			<style>lighten</style>
+		</font>
+		<font>
+			<name>btv_row</name>
+			<filename>NotoSans-Regular.ttf</filename>
+			<size>28</size>
+			<style>bold</style>
+		</font>
+		<font>
+			<name>btv_menu</name>
+			<filename>NotoSans-Regular.ttf</filename>
+			<size>30</size>
+			<style>lighten</style>
+		</font>
+		<font>
+			<name>btv_clock</name>
+			<filename>NotoSans-Regular.ttf</filename>
+			<size>38</size>
+		</font>
+		<font>
+			<name>btv_small</name>
+			<filename>NotoSans-Regular.ttf</filename>
+			<size>18</size>
+		</font>
 	</fontset>
 	<fontset id="Arial" idloc="31053">
 		<!-- Arial Font better for non English -->
@@ -300,6 +335,41 @@
 			<name>Mono26</name>
 			<filename>arial.ttf</filename>
 			<size>26</size>
+		</font>
+			<!-- BingeTV (Includes_BingeTV.xml): sized to match Arctic Zephyr Stremio -->
+		<font>
+			<name>btv_line</name>
+			<filename>arial.ttf</filename>
+			<size>27</size>
+			<style>bold</style>
+		</font>
+		<font>
+			<name>btv_text</name>
+			<filename>arial.ttf</filename>
+			<size>27</size>
+			<style>lighten</style>
+		</font>
+		<font>
+			<name>btv_row</name>
+			<filename>arial.ttf</filename>
+			<size>28</size>
+			<style>bold</style>
+		</font>
+		<font>
+			<name>btv_menu</name>
+			<filename>arial.ttf</filename>
+			<size>30</size>
+			<style>lighten</style>
+		</font>
+		<font>
+			<name>btv_clock</name>
+			<filename>arial.ttf</filename>
+			<size>38</size>
+		</font>
+		<font>
+			<name>btv_small</name>
+			<filename>arial.ttf</filename>
+			<size>18</size>
 		</font>
 	</fontset>
 </fonts>

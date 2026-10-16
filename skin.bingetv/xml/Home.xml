@@ -1,38 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- BingeTV Home: the focused title at the top, Stremio Bridge's rows (sbhome.10000.*) below,
-     one at a time, and the menu bar along the bottom. Up/Down moves between rows. -->
+     one at a time, and the menu along the top. Up/Down moves between rows. -->
 <window>
 	<defaultcontrol always="true">9101</defaultcontrol>
 	<onload condition="!Skin.HasSetting(stremio.setup_done) + System.HasAddon(plugin.video.stremiobridge)">RunPlugin(plugin://plugin.video.stremiobridge/?action=setup_wizard&amp;auto=1)</onload>
-	<!-- The rows fill in after the window opens: give the first one focus once it has. -->
-	<onload>AlarmClock(btvhomefocus,SetFocus(9101),00:01,silent)</onload>
+	<!-- The rows fill in after the window opens (a list without items can't take focus): give
+	     focus to the row you were on (the first at start) once it has them. -->
+	<onload condition="String.IsEmpty(Window(Home).Property(btv.row))">AlarmClock(btvfocus1,SetFocus(9101),00:02,silent)</onload>
+	<onload condition="!String.IsEmpty(Window(Home).Property(btv.row))">AlarmClock(btvfocus1,SetFocus(910$INFO[Window(Home).Property(btv.row)]),00:02,silent)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(btv.row))">AlarmClock(btvfocus2,SetFocus(9101),00:05,silent)</onload>
+	<onload condition="!String.IsEmpty(Window(Home).Property(btv.row))">AlarmClock(btvfocus2,SetFocus(910$INFO[Window(Home).Property(btv.row)]),00:05,silent)</onload>
 	<controls>
 		<include content="BTVBackground">
 			<param name="fanart">$VAR[BTVHomeFanart]</param>
 		</include>
 		<control type="group">
-			<visible>ControlGroup(9100).HasFocus</visible>
+			<visible>!Control.HasFocus(9200)</visible>
 			<include>Visible_Fade</include>
 			<include>BTVTitleInfo</include>
 		</control>
-		<control type="grouplist" id="9100">
-			<top>585</top>
-			<width>1920</width>
-			<height>400</height>
-			<orientation>vertical</orientation>
-			<itemgap>0</itemgap>
-			<scrolltime tween="cubic" easing="out">300</scrolltime>
-			<ondown>9200</ondown>
-			<include content="BTVPosterRow"><param name="id">9101</param><param name="slot" value="" /></include>
-			<include content="BTVPosterRow"><param name="id">9102</param><param name="slot">.2</param></include>
-			<include content="BTVPosterRow"><param name="id">9103</param><param name="slot">.3</param></include>
-			<include content="BTVPosterRow"><param name="id">9104</param><param name="slot">.4</param></include>
-			<include content="BTVPosterRow"><param name="id">9105</param><param name="slot">.5</param></include>
-			<include content="BTVPosterRow"><param name="id">9106</param><param name="slot">.6</param></include>
-		</control>
-		<include content="BTVBottomBar">
+		<include>BTVHomeRows</include>
+		<include content="BTVTopBar">
 			<param name="id">9200</param>
 		</include>
 	</controls>
-	<!-- The bar's Up goes back to the rows -->
 </window>
