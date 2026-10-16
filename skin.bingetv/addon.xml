@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="skin.bingetv" version="0.1.0" name="BingeTV" provider-name="shiggsy365 (based on Estuary by phil65, Ichabod Fletchman)">
+	<requires>
+		<import addon="xbmc.gui" version="5.18.0"/>
+	</requires>
+	<extension point="xbmc.gui.skin" debugging="false">
+		<res width="1920" height="1440" aspect="4:3" default="false" folder="xml" />
+		<res width="1920" height="1280" aspect="3:2" default="false" folder="xml" />
+		<res width="1920" height="1200" aspect="16:10" default="false" folder="xml" />
+		<res width="2040" height="1080" aspect="17:9" default="false" folder="xml" />
+		<res width="1920" height="1080" aspect="16:9" default="true" folder="xml" />
+		<res width="2560" height="1080" aspect="21:9" default="false" folder="xml" />
+		<res width="2338" height="1080" aspect="19.5:9" default="false" folder="xml" />
+		<res width="2160" height="1080" aspect="18:9" default="false" folder="xml" />
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<platform>all</platform>
+		<license>CC BY-SA 4.0, GNU GENERAL PUBLIC LICENSE Version 2.0</license>
+		<forum>https://github.com/shiggsy365/KodiStremioBridge/issues</forum>
+		<source>https://github.com/shiggsy365/KodiStremioBridge</source>
+		<assets>
+			<icon>resources/icon.png</icon>
+			<fanart>resources/fanart.jpg</fanart>
+		</assets>
+		<summary lang="en_GB">BingeTV's skin for Kodi 22, built around Stremio Bridge</summary>
+		<description lang="en_GB">The home screen, hubs, info pages, search and player of Arctic Zephyr Stremio, rebuilt for Kodi 22 (Piers). Everything else is based on Estuary, Kodi's own skin. Made for BingeTV, and works in Kodi 22 with Stremio Bridge.</description>
+		<disclaimer lang="en_GB">Not made or supported by Team Kodi. Based on Estuary by phil65 and Ichabod Fletchman (CC BY-SA 4.0, GPL-2.0).</disclaimer>
+	</extension>
+</addon>

@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- BingeTV: the screens rebuilt from Arctic Zephyr Stremio's layout (the rest is Estuary). -->
+<includes>
+	<!-- A title's background: the focused item's fanart, dimmed, darker towards the left and bottom. -->
+	<include name="BTVBackground">
+		<param name="fanart">$INFO[ListItem.Art(fanart)]</param>
+		<definition>
+			<control type="image">
+				<width>1920</width>
+				<height>1080</height>
+				<texture colordiffuse="FF0E0F12">bingetv/white.png</texture>
+			</control>
+			<control type="image">
+				<width>1920</width>
+				<height>1080</height>
+				<aspectratio>scale</aspectratio>
+				<fadetime>400</fadetime>
+				<texture background="true">$PARAM[fanart]</texture>
+			</control>
+			<control type="image">
+				<width>1920</width>
+				<height>1080</height>
+				<texture colordiffuse="99000000">bingetv/white.png</texture>
+			</control>
+			<control type="image">
+				<width>1300</width>
+				<height>1080</height>
+				<texture colordiffuse="E6000000">bingetv/fade_right.png</texture>
+			</control>
+			<control type="image">
+				<top>480</top>
+				<width>1920</width>
+				<height>600</height>
+				<texture colordiffuse="F2000000">bingetv/fade_down.png</texture>
+			</control>
+		</definition>
+	</include>
+
+	<!-- The focused title: clearlogo (or its name), two bold lines, genres and plot. -->
+	<variable name="BTVLogo">
+		<value condition="!String.IsEmpty(ListItem.Art(clearlogo))">$INFO[ListItem.Art(clearlogo)]</value>
+		<value condition="!String.IsEmpty(ListItem.Art(tvshow.clearlogo))">$INFO[ListItem.Art(tvshow.clearlogo)]</value>
+	</variable>
+	<variable name="BTVLine1">
+		<value condition="!String.IsEmpty(ListItem.Episode)">S$INFO[ListItem.Season]$INFO[ListItem.Episode, E,  ]$INFO[ListItem.Title]</value>
+		<value>$INFO[ListItem.Property(ReleaseDate)]$INFO[ListItem.Duration(h:mm), · ,]</value>
+	</variable>
+	<variable name="BTVLine2">
+		<value condition="!String.IsEmpty(ListItem.Episode)">$INFO[ListItem.Property(ReleaseDate)]</value>
+		<value condition="!String.IsEmpty(ListItem.Rating)">★ $INFO[ListItem.Rating]$INFO[ListItem.MPAA,  ·  ,]</value>
+	</variable>
+	<variable name="BTVGenres">
+		<value condition="!String.IsEmpty(ListItem.Property(stremiobridge.genres))">$INFO[ListItem.Property(stremiobridge.genres)]</value>
+		<value>$INFO[ListItem.Genre]</value>
+	</variable>
+	<include name="BTVTitleInfo">
+		<control type="group">
+			<left>80</left>
+			<top>50</top>
+			<control type="image">
+				<width>420</width>
+				<height>160</height>
+				<aspectratio align="left" aligny="center">keep</aspectratio>
+				<fadetime>300</fadetime>
+				<texture background="true">$VAR[BTVLogo]</texture>
+			</control>
+			<control type="label">
+				<top>70</top>
+				<width>1300</width>
+				<height>90</height>
+				<font>font60</font>
+				<textcolor>FFFFFFFF</textcolor>
+				<label>$INFO[ListItem.TVShowTitle]</label>
+				<visible>!String.IsEmpty(ListItem.TVShowTitle) + String.IsEmpty(ListItem.Art(clearlogo)) + String.IsEmpty(ListItem.Art(tvshow.clearlogo))</visible>
+			</control>
+			<control type="label">
+				<top>70</top>
+				<width>1300</width>
+				<height>90</height>
+				<font>font60</font>
+				<textcolor>FFFFFFFF</textcolor>
+				<label>$INFO[ListItem.Title]</label>
+				<visible>String.IsEmpty(ListItem.TVShowTitle) + String.IsEmpty(ListItem.Art(clearlogo)) + String.IsEmpty(ListItem.Art(tvshow.clearlogo))</visible>
+			</control>
+			<control type="label">
+				<top>172</top>
+				<width>1500</width>
+				<height>50</height>
+				<font>font36_title</font>
+				<textcolor>FFFFFFFF</textcolor>
+				<label>$VAR[BTVLine1]</label>
+			</control>
+			<control type="label">
+				<top>225</top>
+				<width>1500</width>
+				<height>50</height>
+				<font>font36_title</font>
+				<textcolor>FFFFFFFF</textcolor>
+				<label>$VAR[BTVLine2]</label>
+			</control>
+			<control type="label">
+				<top>278</top>
+				<width>1500</width>
+				<height>50</height>
+				<font>font32</font>
+				<textcolor>FFB4B4B4</textcolor>
+				<label>$VAR[BTVGenres]</label>
+			</control>
+			<control type="textbox">
+				<top>326</top>
+				<width>1100</width>
+				<height>90</height>
+				<font>font32</font>
+				<textcolor>FFEEEEEE</textcolor>
+				<label>$INFO[ListItem.Plot]</label>
+			</control>
+		</control>
+	</include>
+
+	<!-- A row of posters. `id`: the list; `item`: the menu item (10000 Home, movies, tvshows);
+	     `slot`: "" for the first row, ".2" to ".6" for the others (Stremio Bridge's sbhome.* properties). -->
+	<include name="BTVPosterRow">
+		<param name="id" />
+		<param name="item">10000</param>
+		<param name="slot" />
+		<definition>
+			<control type="group">
+				<height>400</height>
+				<visible>!String.IsEmpty(Window(Home).Property(sbhome.$PARAM[item].widgetPath$PARAM[slot]))</visible>
+				<control type="label">
+					<left>80</left>
+					<width>1400</width>
+					<height>50</height>
+					<font>font36_title</font>
+					<textcolor>FFDDDDDD</textcolor>
+					<label>$INFO[Window(Home).Property(sbhome.$PARAM[item].widgetName$PARAM[slot])]</label>
+				</control>
+				<control type="list" id="$PARAM[id]">
+					<left>66</left>
+					<top>53</top>
+					<width>1854</width>
+					<height>330</height>
+					<orientation>horizontal</orientation>
+					<scrolltime tween="cubic" easing="out">260</scrolltime>
+					<onclick condition="String.Contains(ListItem.FileNameAndPath,plugin.video.stremiobridge/?action=extended_info)">RunPlugin($ESCINFO[ListItem.FileNameAndPath])</onclick>
+					<itemlayout width="222" height="330">
+						<include>BTVPoster</include>
+					</itemlayout>
+					<focusedlayout width="222" height="330">
+						<control type="image">
+							<left>0</left>
+							<width>216</width>
+							<height>319</height>
+							<texture colordiffuse="btv_accent">bingetv/poster_focus.png</texture>
+							<visible>Control.HasFocus($PARAM[id])</visible>
+						</control>
+						<include>BTVPoster</include>
+					</focusedlayout>
+					<content target="videos">$INFO[Window(Home).Property(sbhome.$PARAM[item].widgetPath$PARAM[slot])]</content>
+				</control>
+			</control>
+		</definition>
+	</include>
+	<include name="BTVPoster">
+		<control type="image">
+			<left>7</left>
+			<top>7</top>
+			<width>202</width>
+			<height>305</height>
+			<aspectratio>scale</aspectratio>
+			<texture background="true" diffuse="bingetv/poster_mask.png" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
+		</control>
+		<control type="image">
+			<left>89</left>
+			<top>7</top>
+			<width>120</width>
+			<height>120</height>
+			<texture>bingetv/paused_corner.png</texture>
+			<visible>ListItem.IsResumable</visible>
+		</control>
+	</include>
+
+	<!-- The bar along the bottom: where you are, the menu, and the time. -->
+	<include name="BTVBottomBar">
+		<param name="id">9200</param>
+		<param name="title">$LOCALIZE[10000]</param>
+		<definition>
+			<control type="group">
+				<top>1000</top>
+				<control type="image">
+					<width>1920</width>
+					<height>80</height>
+					<texture colordiffuse="CC0E0F12">bingetv/white.png</texture>
+				</control>
+				<control type="label">
+					<left>100</left>
+					<width>180</width>
+					<height>80</height>
+					<font>font37</font>
+					<textcolor>FFDDDDDD</textcolor>
+					<label>$PARAM[title]</label>
+					<visible>!Control.HasFocus($PARAM[id])</visible>
+				</control>
+				<control type="label">
+					<left>100</left>
+					<width>180</width>
+					<height>80</height>
+					<font>font37</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<label>$INFO[Container($PARAM[id]).ListItem.Label]</label>
+					<visible>Control.HasFocus($PARAM[id])</visible>
+				</control>
+				<control type="list" id="$PARAM[id]">
+					<onup>9100</onup>
+					<left>280</left>
+					<width>700</width>
+					<height>80</height>
+					<orientation>horizontal</orientation>
+					<itemlayout width="76" height="80">
+						<control type="image">
+							<left>22</left>
+							<top>24</top>
+							<width>32</width>
+							<height>32</height>
+							<aspectratio>keep</aspectratio>
+							<texture colordiffuse="FFB4B4B4">$INFO[ListItem.Icon]</texture>
+						</control>
+					</itemlayout>
+					<focusedlayout width="76" height="80">
+						<control type="image">
+							<left>8</left>
+							<top>10</top>
+							<width>60</width>
+							<height>60</height>
+							<texture colordiffuse="btv_accent">bingetv/pill.png</texture>
+							<visible>Control.HasFocus($PARAM[id])</visible>
+						</control>
+						<control type="image">
+							<left>22</left>
+							<top>24</top>
+							<width>32</width>
+							<height>32</height>
+							<aspectratio>keep</aspectratio>
+							<texture colordiffuse="FFFFFFFF">$INFO[ListItem.Icon]</texture>
+						</control>
+					</focusedlayout>
+					<content>
+						<item>
+							<label>$LOCALIZE[342]</label>
+							<icon>bingetv/bar/movies.png</icon>
+							<onclick>ActivateWindow(Videos,plugin://plugin.video.stremiobridge/?action=hub&amp;hub=movies,return)</onclick>
+						</item>
+						<item>
+							<label>$LOCALIZE[20343]</label>
+							<icon>bingetv/bar/tv.png</icon>
+							<onclick>ActivateWindow(Videos,plugin://plugin.video.stremiobridge/?action=hub&amp;hub=tvshows,return)</onclick>
+						</item>
+						<item>
+							<label>$LOCALIZE[2]</label>
+							<icon>bingetv/bar/music.png</icon>
+							<onclick>ActivateWindow(Music,root)</onclick>
+						</item>
+						<item>
+							<label>$LOCALIZE[19020]</label>
+							<icon>bingetv/bar/livetv.png</icon>
+							<onclick>ActivateWindow(TVChannels)</onclick>
+							<visible>System.HasPVRAddon</visible>
+						</item>
+						<item>
+							<label>$LOCALIZE[137]</label>
+							<icon>bingetv/bar/search.png</icon>
+							<onclick>ActivateWindow(Videos,plugin://plugin.video.stremiobridge/?action=search_menu,return)</onclick>
+						</item>
+						<item>
+							<label>$LOCALIZE[5]</label>
+							<icon>bingetv/bar/settings.png</icon>
+							<onclick>ActivateWindow(Settings)</onclick>
+						</item>
+						<item>
+							<label>$LOCALIZE[33060]</label>
+							<icon>bingetv/bar/power.png</icon>
+							<onclick>ActivateWindow(ShutdownMenu)</onclick>
+						</item>
+					</content>
+				</control>
+				<control type="label">
+					<right>64</right>
+					<top>8</top>
+					<width>500</width>
+					<height>50</height>
+					<align>right</align>
+					<font>font45</font>
+					<textcolor>btv_accent</textcolor>
+					<label>$INFO[System.Time(hh:mm)][COLOR FF8A8A8A][LIGHT]$INFO[System.Time(xx), ][/LIGHT][/COLOR]</label>
+				</control>
+				<control type="label">
+					<right>64</right>
+					<top>50</top>
+					<width>500</width>
+					<height>24</height>
+					<align>right</align>
+					<font>font12</font>
+					<textcolor>FFB4B4B4</textcolor>
+					<label>[UPPERCASE]$INFO[System.Date(DDDD)], $INFO[System.Date(mmmm d)], $INFO[System.Date(yyyy)][/UPPERCASE]</label>
+				</control>
+			</control>
+		</definition>
+	</include>
+	<variable name="BTVHomeFanart">
+		<value condition="ControlGroup(9100).HasFocus">$INFO[ListItem.Art(fanart)]</value>
+		<value>$INFO[Container(9101).ListItem.Art(fanart)]</value>
+	</variable>
+</includes>

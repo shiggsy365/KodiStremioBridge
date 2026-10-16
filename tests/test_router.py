@@ -3878,3 +3878,9 @@ def test_watchlist_membership_refreshes(monkeypatch):
     assert watchlist.on_watchlist("movie", "tt1") is True    # remembered for a minute
     clock["now"] += 31
     assert watchlist.on_watchlist("movie", "tt1") is False
+
+
+def test_both_our_skins_count_as_ours(monkeypatch):
+    for skin, ours in (("skin.arctic.zephyr.stremio", True), ("skin.bingetv", True), ("skin.estuary", False)):
+        monkeypatch.setattr(common.xbmc, "getSkinDir", lambda skin=skin: skin)
+        assert common.skin_active() is ours

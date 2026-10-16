@@ -41,11 +41,14 @@ def debug(msg):
 
 # Our own skin: Kodi's info page replaces Extended info, and it has no use for
 # the library export (its menus and widgets come from the add-on directly).
-SKIN_ID = "skin.arctic.zephyr.stremio"
+SKIN_ID = "skin.arctic.zephyr.stremio"  # Kodi 21; its menus come from Skin Shortcuts (skinhelper.py)
+BINGETV_SKIN_ID = "skin.bingetv"        # Kodi 22 (BingeTV); its menus read the sbhome.* properties
+OUR_SKINS = (SKIN_ID, BINGETV_SKIN_ID)
 
 
 def skin_active():
-    return xbmc.getSkinDir() == SKIN_ID
+    """One of our skins: it shows our windows (info page, streams, status bar) and menus."""
+    return xbmc.getSkinDir() in OUR_SKINS
 
 
 def select_opens_info():
