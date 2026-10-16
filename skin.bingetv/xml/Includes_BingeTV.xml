@@ -105,7 +105,7 @@
 			<control type="textbox">
 				<top>270</top>
 				<width>1050</width>
-				<height>152</height>
+				<height>227</height>
 				<font>btv_text</font>
 				<textcolor>FFEEEEEE</textcolor>
 				<autoscroll delay="6000" time="3000" repeat="8000">true</autoscroll>
@@ -121,7 +121,7 @@
 		<param name="item">10000</param>
 		<definition>
 			<control type="group">
-				<top>560</top>
+				<top>635</top>
 				<animation effect="slide" end="0,-400" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window(Home).Property(btv.row),2)">Conditional</animation>
 				<animation effect="slide" end="0,-800" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window(Home).Property(btv.row),3)">Conditional</animation>
 				<animation effect="slide" end="0,-1200" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window(Home).Property(btv.row),4)">Conditional</animation>
@@ -215,134 +215,161 @@
 		<value>$INFO[Container(9101).ListItem.Art(fanart)]</value>
 	</variable>
 
-	<!-- The menu along the top: where you are, the sections, and the time. Down returns to
-	     the row you were on. -->
+	<!-- The menu along the top: where you are and the sections on the left; search, settings,
+	     (power) and the time on the right. Down returns to the row you were on. -->
+	<expression name="BTVMenuFocused">ControlGroup(9200).HasFocus | ControlGroup(9210).HasFocus</expression>
 	<include name="BTVTopBar">
-		<param name="id">9200</param>
-		<param name="title">$LOCALIZE[10000]</param>
-		<definition>
-			<control type="group">
-				<control type="image">
-					<width>1920</width>
-					<height>140</height>
-					<texture colordiffuse="CC000000" flipy="true">bingetv/fade_down.png</texture>
-				</control>
-				<control type="label">
-					<left>80</left>
-					<top>18</top>
-					<width>180</width>
-					<height>60</height>
-					<font>btv_menu</font>
-					<textcolor>FFDDDDDD</textcolor>
-					<label>$PARAM[title]</label>
-					<visible>!Control.HasFocus($PARAM[id])</visible>
-				</control>
-				<control type="label">
-					<left>80</left>
-					<top>18</top>
-					<width>180</width>
-					<height>60</height>
-					<font>btv_menu</font>
-					<textcolor>FFFFFFFF</textcolor>
-					<label>$INFO[Container($PARAM[id]).ListItem.Label]</label>
-					<visible>Control.HasFocus($PARAM[id])</visible>
-				</control>
-				<control type="list" id="$PARAM[id]">
-					<left>250</left>
-					<top>18</top>
-					<width>700</width>
-					<height>60</height>
-					<orientation>horizontal</orientation>
+		<control type="group">
+			<control type="image">
+				<width>1920</width>
+				<height>140</height>
+				<texture colordiffuse="CC000000" flipy="true">bingetv/fade_down.png</texture>
+			</control>
+			<control type="label">
+				<left>80</left>
+				<top>18</top>
+				<width>170</width>
+				<height>60</height>
+				<font>btv_menu</font>
+				<textcolor>FFDDDDDD</textcolor>
+				<label>$LOCALIZE[10000]</label>
+				<visible>!$EXP[BTVMenuFocused]</visible>
+			</control>
+			<control type="label">
+				<left>80</left>
+				<top>18</top>
+				<width>170</width>
+				<height>60</height>
+				<font>btv_menu</font>
+				<textcolor>FFFFFFFF</textcolor>
+				<label>$INFO[System.CurrentControl]</label>
+				<visible>$EXP[BTVMenuFocused]</visible>
+			</control>
+			<control type="grouplist" id="9200">
+				<left>250</left>
+				<top>18</top>
+				<width>700</width>
+				<height>60</height>
+				<orientation>horizontal</orientation>
+				<itemgap>0</itemgap>
+				<onright>9210</onright>
 					<ondown condition="String.IsEmpty(Window(Home).Property(btv.row))">SetFocus(9101)</ondown>
 					<ondown condition="!String.IsEmpty(Window(Home).Property(btv.row))">SetFocus(910$INFO[Window(Home).Property(btv.row)])</ondown>
-					<itemlayout width="64" height="60">
-						<control type="image">
-							<left>17</left>
-							<top>15</top>
-							<width>30</width>
-							<height>30</height>
-							<aspectratio>keep</aspectratio>
-							<texture colordiffuse="FFB4B4B4">$INFO[ListItem.Icon]</texture>
-						</control>
-					</itemlayout>
-					<focusedlayout width="64" height="60">
-						<control type="image">
-							<left>4</left>
-							<top>2</top>
-							<width>56</width>
-							<height>56</height>
-							<texture colordiffuse="btv_accent">bingetv/pill.png</texture>
-							<visible>Control.HasFocus($PARAM[id])</visible>
-						</control>
-						<control type="image">
-							<left>17</left>
-							<top>15</top>
-							<width>30</width>
-							<height>30</height>
-							<aspectratio>keep</aspectratio>
-							<texture colordiffuse="FFFFFFFF">$INFO[ListItem.Icon]</texture>
-						</control>
-					</focusedlayout>
-					<content>
-						<item>
-							<label>$LOCALIZE[342]</label>
-							<icon>bingetv/bar/movies.png</icon>
-							<onclick>ActivateWindow(Videos,plugin://plugin.video.stremiobridge/?action=hub&amp;hub=movies,return)</onclick>
-						</item>
-						<item>
-							<label>$LOCALIZE[20343]</label>
-							<icon>bingetv/bar/tv.png</icon>
-							<onclick>ActivateWindow(Videos,plugin://plugin.video.stremiobridge/?action=hub&amp;hub=tvshows,return)</onclick>
-						</item>
-						<item>
-							<label>$LOCALIZE[2]</label>
-							<icon>bingetv/bar/music.png</icon>
-							<onclick>ActivateWindow(Music,root)</onclick>
-						</item>
-						<item>
-							<label>$LOCALIZE[19020]</label>
-							<icon>bingetv/bar/livetv.png</icon>
-							<onclick>ActivateWindow(TVChannels)</onclick>
-							<visible>System.HasPVRAddon</visible>
-						</item>
-						<item>
-							<label>$LOCALIZE[137]</label>
-							<icon>bingetv/bar/search.png</icon>
-							<onclick>ActivateWindow(Videos,plugin://plugin.video.stremiobridge/?action=search_menu,return)</onclick>
-						</item>
-						<item>
-							<label>$LOCALIZE[5]</label>
-							<icon>bingetv/bar/settings.png</icon>
-							<onclick>ActivateWindow(Settings)</onclick>
-						</item>
-						<item>
-							<label>$LOCALIZE[33060]</label>
-							<icon>bingetv/bar/power.png</icon>
-							<onclick>ActivateWindow(ShutdownMenu)</onclick>
-						</item>
-					</content>
-				</control>
-				<control type="label">
-					<right>64</right>
-					<top>14</top>
-					<width>500</width>
-					<height>44</height>
-					<align>right</align>
-					<font>btv_clock</font>
-					<textcolor>btv_accent</textcolor>
-					<label>$INFO[System.Time(hh:mm)][COLOR FF8A8A8A]$INFO[System.Time(xx), ][/COLOR]</label>
-				</control>
-				<control type="label">
-					<right>64</right>
-					<top>58</top>
-					<width>500</width>
-					<height>24</height>
-					<align>right</align>
-					<font>btv_small</font>
-					<textcolor>FFB4B4B4</textcolor>
-					<label>[UPPERCASE]$INFO[System.Date(DDDD)], $INFO[System.Date(mmmm d)], $INFO[System.Date(yyyy)][/UPPERCASE]</label>
-				</control>
+					<control type="button" id="9201">
+						<width>64</width>
+						<height>60</height>
+						<label>$LOCALIZE[10000]</label>
+						<textcolor>00FFFFFF</textcolor>
+						<focusedcolor>00FFFFFF</focusedcolor>
+						<texturenofocus>bingetv/bar/home_nf.png</texturenofocus>
+						<texturefocus>bingetv/bar/home_fo.png</texturefocus>
+						<onclick>SetFocus(9101)</onclick>
+					</control>
+					<control type="button" id="9202">
+						<width>64</width>
+						<height>60</height>
+						<label>$LOCALIZE[342]</label>
+						<textcolor>00FFFFFF</textcolor>
+						<focusedcolor>00FFFFFF</focusedcolor>
+						<texturenofocus>bingetv/bar/movies_nf.png</texturenofocus>
+						<texturefocus>bingetv/bar/movies_fo.png</texturefocus>
+						<onclick>ActivateWindow(Videos,plugin://plugin.video.stremiobridge/?action=hub&amp;hub=movies,return)</onclick>
+					</control>
+					<control type="button" id="9203">
+						<width>64</width>
+						<height>60</height>
+						<label>$LOCALIZE[20343]</label>
+						<textcolor>00FFFFFF</textcolor>
+						<focusedcolor>00FFFFFF</focusedcolor>
+						<texturenofocus>bingetv/bar/tv_nf.png</texturenofocus>
+						<texturefocus>bingetv/bar/tv_fo.png</texturefocus>
+						<onclick>ActivateWindow(Videos,plugin://plugin.video.stremiobridge/?action=hub&amp;hub=tvshows,return)</onclick>
+					</control>
+					<control type="button" id="9204">
+						<width>64</width>
+						<height>60</height>
+						<label>$LOCALIZE[2]</label>
+						<textcolor>00FFFFFF</textcolor>
+						<focusedcolor>00FFFFFF</focusedcolor>
+						<texturenofocus>bingetv/bar/music_nf.png</texturenofocus>
+						<texturefocus>bingetv/bar/music_fo.png</texturefocus>
+						<onclick>ActivateWindow(Music,root)</onclick>
+					</control>
+					<control type="button" id="9205">
+						<width>64</width>
+						<height>60</height>
+						<label>Live TV</label>
+						<textcolor>00FFFFFF</textcolor>
+						<focusedcolor>00FFFFFF</focusedcolor>
+						<texturenofocus>bingetv/bar/livetv_nf.png</texturenofocus>
+						<texturefocus>bingetv/bar/livetv_fo.png</texturefocus>
+						<onclick>ActivateWindow(TVChannels)</onclick>
+						<visible>System.HasPVRAddon</visible>
+					</control>
 			</control>
-		</definition>
+			<control type="grouplist" id="9210">
+				<right>290</right>
+				<top>18</top>
+				<width>400</width>
+				<height>60</height>
+				<orientation>horizontal</orientation>
+				<align>right</align>
+				<itemgap>0</itemgap>
+				<onleft>9200</onleft>
+					<ondown condition="String.IsEmpty(Window(Home).Property(btv.row))">SetFocus(9101)</ondown>
+					<ondown condition="!String.IsEmpty(Window(Home).Property(btv.row))">SetFocus(910$INFO[Window(Home).Property(btv.row)])</ondown>
+					<control type="button" id="9211">
+						<width>64</width>
+						<height>60</height>
+						<label>$LOCALIZE[137]</label>
+						<textcolor>00FFFFFF</textcolor>
+						<focusedcolor>00FFFFFF</focusedcolor>
+						<texturenofocus>bingetv/bar/search_nf.png</texturenofocus>
+						<texturefocus>bingetv/bar/search_fo.png</texturefocus>
+						<onclick>ActivateWindow(Videos,plugin://plugin.video.stremiobridge/?action=search_menu,return)</onclick>
+					</control>
+					<control type="button" id="9212">
+						<width>64</width>
+						<height>60</height>
+						<label>$LOCALIZE[5]</label>
+						<textcolor>00FFFFFF</textcolor>
+						<focusedcolor>00FFFFFF</focusedcolor>
+						<texturenofocus>bingetv/bar/settings_nf.png</texturenofocus>
+						<texturefocus>bingetv/bar/settings_fo.png</texturefocus>
+						<onclick>ActivateWindow(Settings)</onclick>
+					</control>
+					<control type="button" id="9213">
+						<width>64</width>
+						<height>60</height>
+						<label>$LOCALIZE[33060]</label>
+						<textcolor>00FFFFFF</textcolor>
+						<focusedcolor>00FFFFFF</focusedcolor>
+						<texturenofocus>bingetv/bar/power_nf.png</texturenofocus>
+						<texturefocus>bingetv/bar/power_fo.png</texturefocus>
+						<onclick>ActivateWindow(ShutdownMenu)</onclick>
+						<visible>Skin.HasSetting(btv.showpower)</visible>
+					</control>
+			</control>
+			<control type="label">
+				<right>64</right>
+				<top>14</top>
+				<width>220</width>
+				<height>44</height>
+				<align>right</align>
+				<font>btv_clock</font>
+				<textcolor>btv_accent</textcolor>
+				<label>$INFO[System.Time(hh:mm)][COLOR FF8A8A8A]$INFO[System.Time(xx), ][/COLOR]</label>
+			</control>
+			<control type="label">
+				<right>64</right>
+				<top>58</top>
+				<width>400</width>
+				<height>24</height>
+				<align>right</align>
+				<font>btv_small</font>
+				<textcolor>FFB4B4B4</textcolor>
+				<label>[UPPERCASE]$INFO[System.Date(DDDD)], $INFO[System.Date(mmmm d)], $INFO[System.Date(yyyy)][/UPPERCASE]</label>
+			</control>
+		</control>
 	</include>
 </includes>

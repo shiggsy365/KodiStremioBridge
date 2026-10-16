@@ -15,13 +15,11 @@
 			<param name="fanart">$VAR[BTVHomeFanart]</param>
 		</include>
 		<control type="group">
-			<visible>!Control.HasFocus(9200)</visible>
+			<visible>!$EXP[BTVMenuFocused]</visible>
 			<include>Visible_Fade</include>
 			<include>BTVTitleInfo</include>
 		</control>
 		<include>BTVHomeRows</include>
-		<include content="BTVTopBar">
-			<param name="id">9200</param>
-		</include>
+		<include>BTVTopBar</include>
 	</controls>
 </window>
