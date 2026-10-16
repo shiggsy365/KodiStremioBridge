@@ -76,8 +76,9 @@ def clock_text(seconds):
     return f"{hours}:{rest // 60:02d}:{rest % 60:02d}" if hours else f"{rest // 60}:{rest % 60:02d}"
 
 
-# One connection per process (per settings): listings ask for these per item,
-# and opening sqlite each time is slow on a Fire TV Stick.
+# One per process, keyed by profile and settings: listings ask for these per item,
+# and opening sqlite each time is slow on a Fire TV Stick. A process can be a
+# plugin call, the service, or (reuselanguageinvoker) many plugin calls in turn.
 _shared = {}
 
 
@@ -146,18 +147,16 @@ def parse_announcement(data):
         return None
 
 
-_library = None
-
-
 def get_library():
-    """The "My Library" export (one instance per plugin call/service)."""
-    global _library
-    if _library is None:
+    """The "My Library" export: one per profile for the life of the process
+    (a reused interpreter outlives a profile switch)."""
+    root = os.path.join(profile_dir(), "Library")
+    key = ("library", root)
+    if key not in _shared:
         from stremio.library import Library
 
-        _library = Library(os.path.join(profile_dir(), "Library"),
-                           lambda type_, id_, meta=None: plugin_url("play", type=type_, id=id_, meta=meta))
-    return _library
+        _shared[key] = Library(root, lambda type_, id_, meta=None: plugin_url("play", type=type_, id=id_, meta=meta))
+    return _shared[key]
 
 
 def jsonrpc(method, **params):

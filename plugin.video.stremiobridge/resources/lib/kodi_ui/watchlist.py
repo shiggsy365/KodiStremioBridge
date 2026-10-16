@@ -2,6 +2,8 @@
 Add to / Remove from watchlist, and, with "Add my MDBList watchlist to the
 library", the matching library change straight away."""
 
+import time
+
 import xbmcgui
 import xbmcplugin
 
@@ -44,13 +46,15 @@ def watchlist_items(client=None, refresh=False):
 
 
 _membership = {}
+MEMBERSHIP_SECONDS = 60  # a reused interpreter keeps it: changes made elsewhere show within this
 
 
 def on_watchlist(type_, id_):
     """For menus: is this title on the watchlist? None if MDBList isn't set up."""
-    if "keys" not in _membership:
+    if time.time() - _membership.get("time", 0) > MEMBERSHIP_SECONDS:
         items = watchlist_items() if get_mdblist() is not None else None
         _membership["keys"] = None if items is None else {(i["type"], i["id"]) for i in items}
+        _membership["time"] = time.time()
     keys = _membership["keys"]
     return None if keys is None else (("movie" if type_ == "movie" else "series"), id_) in keys
 

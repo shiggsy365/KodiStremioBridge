@@ -1825,7 +1825,7 @@ def kodi_library(tmp_path, monkeypatch):
                         lambda key: "plugin.video.stremiobridge" if key == "id" else "")
     monkeypatch.setattr(library.xbmc, "executebuiltin",
                         lambda cmd, *a: "busydialog" in cmd or state["builtins"].append(cmd))
-    monkeypatch.setattr(common, "_library", None)
+    monkeypatch.setattr(common, "_shared", {})
     monkeypatch.setattr(common, "ADDON_ID", "plugin.video.stremiobridge")
     state["sources"] = special["special://profile/sources.xml"]
     return state
@@ -3848,3 +3848,33 @@ def test_setup_wizard_offers_missing_optional_extras(monkeypatch):
     offered.clear()
     wizard._offer_extras()
     assert offered == []                                         # nothing missing: nothing asked
+
+
+def test_library_is_per_profile(monkeypatch, tmp_path):
+    """A reused interpreter (reuselanguageinvoker) outlives a profile switch."""
+    monkeypatch.setattr(common, "_shared", {})
+    profile = {"dir": str(tmp_path / "a")}
+    monkeypatch.setattr(common, "profile_dir", lambda: profile["dir"])
+    first = common.get_library()
+    assert common.get_library() is first
+    profile["dir"] = str(tmp_path / "b")
+    assert common.get_library() is not first
+
+
+def test_watchlist_membership_refreshes(monkeypatch):
+    """Watchlist changes made elsewhere (service sync, other devices) reach menus
+    within a minute even when the interpreter is reused."""
+    from kodi_ui import watchlist
+
+    monkeypatch.setattr(watchlist, "_membership", {})
+    monkeypatch.setattr(watchlist, "get_mdblist", lambda: object())
+    items = [{"type": "movie", "id": "tt1"}]
+    monkeypatch.setattr(watchlist, "watchlist_items", lambda: list(items))
+    clock = {"now": 1000.0}
+    monkeypatch.setattr(watchlist.time, "time", lambda: clock["now"])
+    assert watchlist.on_watchlist("movie", "tt1") is True
+    items.clear()
+    clock["now"] += 30
+    assert watchlist.on_watchlist("movie", "tt1") is True    # remembered for a minute
+    clock["now"] += 31
+    assert watchlist.on_watchlist("movie", "tt1") is False
