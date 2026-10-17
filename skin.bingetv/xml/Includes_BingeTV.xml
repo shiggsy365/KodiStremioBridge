@@ -47,17 +47,23 @@
 	</variable>
 	<variable name="BTVLine1">
 		<value condition="!String.IsEmpty(ListItem.Episode)">S$INFO[ListItem.Season]$INFO[ListItem.Episode, E,  ]$INFO[ListItem.Title]</value>
-		<value>$INFO[ListItem.Property(ReleaseDate)]$INFO[ListItem.Duration(h:mm), · ,]</value>
+		<value>$INFO[ListItem.Property(ReleaseDate)]$VAR[BTVDuration,   ,]$INFO[ListItem.Rating,   ★ ,]</value>
+	</variable>
+	<!-- "1h 46m" (Kodi's own Duration is "01:46:00") -->
+	<variable name="BTVDuration">
+		<value condition="Integer.IsGreater(ListItem.Duration(h),0)">$INFO[ListItem.Duration(h)]h $INFO[ListItem.Duration(mm)]m</value>
+		<value condition="!String.IsEmpty(ListItem.Duration)">$INFO[ListItem.Duration(mm)]m</value>
 	</variable>
 	<variable name="BTVLine2">
 		<value condition="!String.IsEmpty(ListItem.Episode)">$INFO[ListItem.Property(ReleaseDate)]</value>
-		<value condition="!String.IsEmpty(ListItem.Rating)">★ $INFO[ListItem.Rating]$INFO[ListItem.MPAA,  ·  ,]</value>
 	</variable>
 	<variable name="BTVGenres">
 		<value condition="!String.IsEmpty(ListItem.Property(stremiobridge.genres))">$INFO[ListItem.Property(stremiobridge.genres)]</value>
 		<value>$INFO[ListItem.Genre]</value>
 	</variable>
 	<include name="BTVTitleInfo">
+		<param name="plot">242</param>
+		<definition>
 		<control type="group">
 			<left>80</left>
 			<top>110</top>
@@ -77,41 +83,46 @@
 				<label>$VAR[BTVTitle]</label>
 				<visible>String.IsEmpty(ListItem.Art(clearlogo)) + String.IsEmpty(ListItem.Art(tvshow.clearlogo))</visible>
 			</control>
-			<control type="label">
+			<control type="grouplist">
 				<top>145</top>
 				<width>1400</width>
-				<height>40</height>
-				<font>btv_line</font>
-				<textcolor>FFFFFFFF</textcolor>
-				<label>$VAR[BTVLine1]</label>
-			</control>
-			<control type="label">
-				<top>186</top>
-				<width>1400</width>
-				<height>40</height>
-				<font>btv_line</font>
-				<textcolor>FFFFFFFF</textcolor>
-				<label>$VAR[BTVLine2]</label>
-			</control>
-			<control type="label">
-				<top>227</top>
-				<width>1400</width>
-				<height>40</height>
-				<font>btv_text</font>
-				<textcolor>FFB4B4B4</textcolor>
-				<label>$VAR[BTVGenres]</label>
-			</control>
-			<!-- Fills the space down to the rows; a longer plot scrolls slowly. -->
-			<control type="textbox">
-				<top>270</top>
-				<width>1050</width>
-				<height>227</height>
-				<font>btv_text</font>
-				<textcolor>FFEEEEEE</textcolor>
-				<autoscroll delay="6000" time="3000" repeat="8000">true</autoscroll>
-				<label>$INFO[ListItem.Plot]</label>
+				<height>370</height>
+				<orientation>vertical</orientation>
+				<itemgap>1</itemgap>
+				<usecontrolcoords>true</usecontrolcoords>
+				<control type="label">
+					<width>1400</width>
+					<height>40</height>
+					<font>btv_line</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<label>$VAR[BTVLine1]</label>
+				</control>
+				<control type="label">
+					<width>1400</width>
+					<height>40</height>
+					<font>btv_line</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<label>$VAR[BTVLine2]</label>
+					<visible>!String.IsEmpty(ListItem.Episode)</visible>
+				</control>
+				<control type="label">
+					<width>1400</width>
+					<height>40</height>
+					<font>btv_text</font>
+					<textcolor>FFB4B4B4</textcolor>
+					<label>$VAR[BTVGenres]</label>
+				</control>
+				<control type="textbox">
+					<width>1050</width>
+					<height>$PARAM[plot]</height>
+					<font>btv_text</font>
+					<textcolor>FFEEEEEE</textcolor>
+					<autoscroll delay="6000" time="3000" repeat="8000">true</autoscroll>
+					<label>$INFO[ListItem.Plot]</label>
+				</control>
 			</control>
 		</control>
+		</definition>
 	</include>
 
 	<!-- Home's rows: Stremio Bridge's sbhome.<item>.widgetPath / widgetName (".2" to ".6" for
@@ -206,6 +217,18 @@
 			<visible>ListItem.IsResumable</visible>
 		</control>
 	</include>
+	<!-- A poster's name underneath it (hub pages). -->
+	<include name="BTVPosterName">
+		<control type="label">
+			<left>7</left>
+			<top>320</top>
+			<width>202</width>
+			<height>34</height>
+			<font>font12</font>
+			<textcolor>FFDDDDDD</textcolor>
+			<label>$INFO[ListItem.Label]</label>
+		</control>
+	</include>
 	<variable name="BTVHomeFanart">
 		<value condition="String.IsEqual(Window(Home).Property(btv.row),2)">$INFO[Container(9102).ListItem.Art(fanart)]</value>
 		<value condition="String.IsEqual(Window(Home).Property(btv.row),3)">$INFO[Container(9103).ListItem.Art(fanart)]</value>
@@ -219,6 +242,10 @@
 	     (power) and the time on the right. Down returns to the row you were on. -->
 	<expression name="BTVMenuFocused">ControlGroup(9200).HasFocus | ControlGroup(9210).HasFocus</expression>
 	<include name="BTVTopBar">
+		<param name="title">$LOCALIZE[10000]</param>
+		<param name="down">910$INFO[Window(Home).Property(btv.row)]</param>
+		<param name="home">SetFocus(9101)</param>
+		<definition>
 		<control type="group">
 			<control type="image">
 				<width>1920</width>
@@ -232,7 +259,7 @@
 				<height>60</height>
 				<font>btv_menu</font>
 				<textcolor>FFDDDDDD</textcolor>
-				<label>$LOCALIZE[10000]</label>
+				<label>$PARAM[title]</label>
 				<visible>!$EXP[BTVMenuFocused]</visible>
 			</control>
 			<control type="label">
@@ -253,8 +280,7 @@
 				<orientation>horizontal</orientation>
 				<itemgap>0</itemgap>
 				<onright>9210</onright>
-					<ondown condition="String.IsEmpty(Window(Home).Property(btv.row))">SetFocus(9101)</ondown>
-					<ondown condition="!String.IsEmpty(Window(Home).Property(btv.row))">SetFocus(910$INFO[Window(Home).Property(btv.row)])</ondown>
+					<ondown>SetFocus($PARAM[down])</ondown>
 					<control type="button" id="9201">
 						<width>64</width>
 						<height>60</height>
@@ -263,7 +289,7 @@
 						<focusedcolor>00FFFFFF</focusedcolor>
 						<texturenofocus>bingetv/bar/home_nf.png</texturenofocus>
 						<texturefocus>bingetv/bar/home_fo.png</texturefocus>
-						<onclick>SetFocus(9101)</onclick>
+						<onclick>$PARAM[home]</onclick>
 					</control>
 					<control type="button" id="9202">
 						<width>64</width>
@@ -273,7 +299,10 @@
 						<focusedcolor>00FFFFFF</focusedcolor>
 						<texturenofocus>bingetv/bar/movies_nf.png</texturenofocus>
 						<texturefocus>bingetv/bar/movies_fo.png</texturefocus>
-						<onclick>ActivateWindow(Videos,plugin://plugin.video.stremiobridge/?action=hub&amp;hub=movies,return)</onclick>
+						<onclick>SetProperty(btv.hub,movies,home)</onclick>
+						<onclick>SetProperty(btv.hubname,$LOCALIZE[342],home)</onclick>
+						<onclick condition="!Window.IsActive(1150)">ActivateWindow(1150)</onclick>
+						<onclick condition="Window.IsActive(1150)">SetFocus(300)</onclick>
 					</control>
 					<control type="button" id="9203">
 						<width>64</width>
@@ -283,7 +312,10 @@
 						<focusedcolor>00FFFFFF</focusedcolor>
 						<texturenofocus>bingetv/bar/tv_nf.png</texturenofocus>
 						<texturefocus>bingetv/bar/tv_fo.png</texturefocus>
-						<onclick>ActivateWindow(Videos,plugin://plugin.video.stremiobridge/?action=hub&amp;hub=tvshows,return)</onclick>
+						<onclick>SetProperty(btv.hub,tvshows,home)</onclick>
+						<onclick>SetProperty(btv.hubname,$LOCALIZE[20343],home)</onclick>
+						<onclick condition="!Window.IsActive(1150)">ActivateWindow(1150)</onclick>
+						<onclick condition="Window.IsActive(1150)">SetFocus(300)</onclick>
 					</control>
 					<control type="button" id="9204">
 						<width>64</width>
@@ -316,8 +348,7 @@
 				<align>right</align>
 				<itemgap>0</itemgap>
 				<onleft>9200</onleft>
-					<ondown condition="String.IsEmpty(Window(Home).Property(btv.row))">SetFocus(9101)</ondown>
-					<ondown condition="!String.IsEmpty(Window(Home).Property(btv.row))">SetFocus(910$INFO[Window(Home).Property(btv.row)])</ondown>
+					<ondown>SetFocus($PARAM[down])</ondown>
 					<control type="button" id="9211">
 						<width>64</width>
 						<height>60</height>
@@ -371,5 +402,6 @@
 				<label>[UPPERCASE]$INFO[System.Date(DDDD)], $INFO[System.Date(mmmm d)], $INFO[System.Date(yyyy)][/UPPERCASE]</label>
 			</control>
 		</control>
+		</definition>
 	</include>
 </includes>

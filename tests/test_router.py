@@ -2405,6 +2405,15 @@ def test_hub_view_and_genres(server, listing, settings):
     assert all(p["addon"] == key for p, _ in items)
 
 
+def test_hub_tabs_for_skins(server, listing, settings):
+    """A skin's hub page asks for just the catalogs, under their plain names."""
+    server.routes["/manifest.json"] = HUB_ADDON
+    call("add_addon", handle=-1, url=server.url)
+    items, _ = listing
+    call("hub", hub="movies", tabs="1")
+    assert [(p["action"], p["id"]) for p, _ in items] == [("catalog", "trending"), ("catalog", "popular")]
+
+
 def test_organise_catalogs(server, listing, settings, monkeypatch):
     from kodi_ui import hubs
 

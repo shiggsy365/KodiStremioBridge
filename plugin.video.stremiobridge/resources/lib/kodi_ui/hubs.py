@@ -12,7 +12,7 @@ import xbmcplugin
 
 from stremio import StremioError
 from .browse import FILTER_PREFIX, catalog_item, slot_params, tile_art, type_label
-from .common import L, add_context_menu, get_registry, refresh_container
+from .common import ADDON, L, add_context_menu, get_registry, refresh_container
 from .router import route
 
 HUB_LABELS = {"movies": 30040, "tvshows": 30341, "anime": 30342, "more": 30343}
@@ -58,7 +58,9 @@ def hub_genres(hub_catalogs):
 
 
 @route("hub")
-def hub_view(plugin, hub):
+def hub_view(plugin, hub, tabs=None):
+    """`tabs=1`: just the catalogs, under their names, for a skin's hub page
+    (its tabs; each catalog's own list has Filter by Genre)."""
     handle = plugin.handle
     registry = get_registry()
     if hub not in registry.hubs():
@@ -66,6 +68,17 @@ def hub_view(plugin, hub):
         return
     catalogs = registry.hub_catalogs(hub)
     xbmcplugin.setPluginCategory(handle, hub_label(hub, registry))
+    if tabs == "1":
+        tidy = ADDON.getSettingBool("tidy_names")
+        items = []
+        for addon, catalog in catalogs:
+            url, item, folder = catalog_item(plugin, addon, catalog)
+            item.setLabel(addon.display_name(catalog, tidy=tidy))
+            item.setLabel2(addon.name)
+            items.append((url, item, folder))
+        xbmcplugin.addDirectoryItems(handle, items, len(items))
+        xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
+        return
 
     search_type = HUB_SEARCH_TYPES.get(hub)
     if search_type and registry.search_catalogs(search_type):

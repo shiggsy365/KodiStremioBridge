@@ -10,6 +10,7 @@
 	<onload condition="!String.IsEmpty(Window(Home).Property(btv.row))">AlarmClock(btvfocus1,SetFocus(910$INFO[Window(Home).Property(btv.row)]),00:02,silent)</onload>
 	<onload condition="String.IsEmpty(Window(Home).Property(btv.row))">AlarmClock(btvfocus2,SetFocus(9101),00:05,silent)</onload>
 	<onload condition="!String.IsEmpty(Window(Home).Property(btv.row))">AlarmClock(btvfocus2,SetFocus(910$INFO[Window(Home).Property(btv.row)]),00:05,silent)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(btv.row))">SetProperty(btv.row,1,home)</onload>
 	<controls>
 		<include content="BTVBackground">
 			<param name="fanart">$VAR[BTVHomeFanart]</param>

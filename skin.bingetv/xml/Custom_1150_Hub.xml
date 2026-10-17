@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- BingeTV hub (Movies, TV Shows, ...): the focused title at the top, the hub's catalogs as tabs,
+     and the current tab's titles. Which hub: Window(Home).Property(btv.hub), set by the menu.
+     The tabs come from Stremio Bridge (?action=hub&tabs=1: just the catalogs, plain names). -->
+<window type="window" id="1150">
+	<defaultcontrol always="true">400</defaultcontrol>
+	<!-- The lists fill in after the window opens: focus the titles once they have items. -->
+	<onload>AlarmClock(btvhubfocus1,SetFocus(400),00:02,silent)</onload>
+	<onload>AlarmClock(btvhubfocus2,SetFocus(400),00:05,silent)</onload>
+	<controls>
+		<include content="BTVBackground">
+			<param name="fanart">$INFO[Container(400).ListItem.Art(fanart)]</param>
+		</include>
+		<control type="group">
+			<visible>Control.HasFocus(400)</visible>
+			<include>Visible_Fade</include>
+			<include content="BTVTitleInfo"><param name="plot">180</param></include>
+		</control>
+
+		<!-- Tabs: the hub's catalogs. The current one sits on a pill (red while the tabs have focus). -->
+		<control type="list" id="300">
+			<left>66</left>
+			<top>575</top>
+			<width>1854</width>
+			<height>56</height>
+			<orientation>horizontal</orientation>
+			<scrolltime tween="cubic" easing="out">220</scrolltime>
+			<onup>9200</onup>
+			<ondown>400</ondown>
+			<itemlayout width="300" height="56">
+				<control type="label">
+					<left>14</left>
+					<width>272</width>
+					<height>56</height>
+					<align>center</align>
+					<font>btv_menu</font>
+					<textcolor>FFB4B4B4</textcolor>
+					<label>$INFO[ListItem.Label]</label>
+				</control>
+			</itemlayout>
+			<focusedlayout width="300" height="56">
+				<control type="image">
+					<left>14</left>
+					<width>272</width>
+					<height>56</height>
+					<texture colordiffuse="btv_accent" border="20">bingetv/pill.png</texture>
+					<visible>Control.HasFocus(300)</visible>
+				</control>
+				<control type="image">
+					<left>14</left>
+					<width>272</width>
+					<height>56</height>
+					<texture colordiffuse="40FFFFFF" border="20">bingetv/pill.png</texture>
+					<visible>!Control.HasFocus(300)</visible>
+				</control>
+				<control type="label">
+					<left>14</left>
+					<width>272</width>
+					<height>56</height>
+					<align>center</align>
+					<font>btv_line</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<label>$INFO[ListItem.Label]</label>
+				</control>
+			</focusedlayout>
+			<content target="videos">plugin://plugin.video.stremiobridge/?action=hub&amp;hub=$INFO[Window(Home).Property(btv.hub)]&amp;tabs=1</content>
+		</control>
+
+		<!-- The current tab's titles, with their names underneath. -->
+		<control type="list" id="400">
+			<left>66</left>
+			<top>648</top>
+			<width>1854</width>
+			<height>360</height>
+			<orientation>horizontal</orientation>
+			<scrolltime tween="cubic" easing="out">260</scrolltime>
+			<onup>300</onup>
+			<onclick condition="String.Contains(ListItem.FileNameAndPath,plugin.video.stremiobridge/?action=extended_info)">RunPlugin($ESCINFO[ListItem.FileNameAndPath])</onclick>
+			<itemlayout width="222" height="360">
+				<include>BTVPoster</include>
+				<include>BTVPosterName</include>
+			</itemlayout>
+			<focusedlayout width="222" height="360">
+				<control type="image">
+					<width>216</width>
+					<height>319</height>
+					<texture colordiffuse="btv_accent">bingetv/poster_focus.png</texture>
+					<visible>Control.HasFocus(400)</visible>
+				</control>
+				<include>BTVPoster</include>
+				<include>BTVPosterName</include>
+			</focusedlayout>
+			<content target="videos">$INFO[Container(300).ListItem.FolderPath]</content>
+		</control>
+
+		<include content="BTVTopBar">
+			<param name="title">$INFO[Window(Home).Property(btv.hubname)]</param>
+			<param name="down">400</param>
+			<param name="home">ActivateWindow(Home)</param>
+		</include>
+	</controls>
+</window>
