@@ -19,6 +19,8 @@
 
 		<!-- Tabs: the hub's catalogs. The current one sits on a pill (red while the tabs have focus). -->
 		<control type="list" id="300">
+			<onfocus>CancelAlarm(btvhubfocus1,true)</onfocus>
+			<onfocus>CancelAlarm(btvhubfocus2,true)</onfocus>
 			<left>66</left>
 			<top>575</top>
 			<width>1854</width>
@@ -72,6 +74,8 @@
 
 		<!-- The current tab's titles, with their names underneath. -->
 		<control type="list" id="400">
+			<onfocus>CancelAlarm(btvhubfocus1,true)</onfocus>
+			<onfocus>CancelAlarm(btvhubfocus2,true)</onfocus>
 			<left>66</left>
 			<top>648</top>
 			<width>1854</width>
