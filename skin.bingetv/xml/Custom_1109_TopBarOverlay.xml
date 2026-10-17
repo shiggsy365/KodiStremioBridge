@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <window type="dialog" id="1109">
 	<onload>Skin.TimerStart(1109_topbaroverlay)</onload>
-	<visible>Window.IsActive(fullscreenvideo) | Window.IsActive(visualisation)</visible>
+	<!-- BingeTV: during video, DialogSeekBar.xml's banner and bar do this -->
+	<visible>Window.IsActive(visualisation)</visible>
 	<visible>Window.IsActive(seekbar) | Window.IsActive(pvrosdchannels) | Window.IsActive(pvrchannelguide)</visible>
 	<depth>DepthOSD</depth>
 	<include>Animation_TopSlide</include>

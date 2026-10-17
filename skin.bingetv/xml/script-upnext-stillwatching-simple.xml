@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- BingeTV: Up Next's "are you still watching?" card (Includes_BingeTV.xml, BTVUpNext). -->
+<window>
+	<defaultcontrol always="true">3012</defaultcontrol>
+	<zorder>20</zorder>
+	<controls>
+		<control type="label" id="4000"><visible>false</visible></control>
+		<include content="BTVUpNext">
+			<param name="heading">$ADDON[service.upnext 30024]</param>
+		</include>
+	</controls>
+</window>

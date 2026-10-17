@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- BingeTV: Up Next's "next episode" card (Includes_BingeTV.xml, BTVUpNext). -->
+<window>
+	<defaultcontrol always="true">3012</defaultcontrol>
+	<zorder>10</zorder>
+	<controls>
+		<control type="label" id="3000"><visible>false</visible></control>
+		<control type="label" id="3002"><visible>false</visible></control>
+		<include content="BTVUpNext">
+			<param name="heading">$ADDON[service.upnext 30008]</param>
+		</include>
+	</controls>
+</window>

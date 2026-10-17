@@ -576,4 +576,333 @@
 			<animation effect="fade" start="100" end="35" time="900" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
 		</control>
 	</include>
+	<!-- ============================================================ playback (OSD)
+	     DialogSeekBar.xml: a banner along the top (logo or title, the episode, facts, genres, plot,
+	     the clock) and the bar along the bottom (status, time, progress, finish time).
+	     VideoOSD.xml: round buttons on that bar. -->
+	<expression name="BTVOSDBanner">Window.IsVisible(videoosd) | Player.Paused | Player.ShowInfo | Window.IsVisible(fullscreeninfo)</expression>
+	<variable name="BTVOSDLogo">
+		<value condition="!String.IsEmpty(Player.Art(clearlogo))">$INFO[Player.Art(clearlogo)]</value>
+		<value condition="!String.IsEmpty(Player.Art(tvshow.clearlogo))">$INFO[Player.Art(tvshow.clearlogo)]</value>
+	</variable>
+	<variable name="BTVOSDTitle">
+		<value condition="!String.IsEmpty(VideoPlayer.TVShowTitle)">$INFO[VideoPlayer.TVShowTitle]</value>
+		<value condition="VideoPlayer.Content(LiveTV)">$INFO[VideoPlayer.ChannelName]</value>
+		<value>$INFO[VideoPlayer.Title]</value>
+	</variable>
+	<variable name="BTVOSDLine">
+		<value condition="!String.IsEmpty(VideoPlayer.Episode)">S$INFO[VideoPlayer.Season]$INFO[VideoPlayer.Episode, E,  ]$INFO[VideoPlayer.Title]</value>
+		<value condition="VideoPlayer.Content(LiveTV)">$INFO[VideoPlayer.Title]</value>
+		<value>$INFO[VideoPlayer.Year]$INFO[VideoPlayer.Duration(h),   ,h ]$INFO[VideoPlayer.Duration(mm),,m]$INFO[VideoPlayer.Rating,   ★ ,]</value>
+	</variable>
+	<variable name="BTVOSDStatus">
+		<value condition="Player.Caching">Buffering  $INFO[Player.CacheLevel]%</value>
+		<value condition="Player.Paused">Paused</value>
+		<value condition="Player.Forwarding">Fast forward  $INFO[Player.PlaySpeed,,x]</value>
+		<value condition="Player.Rewinding">Rewind  $INFO[Player.PlaySpeed,,x]</value>
+		<value>Playing</value>
+	</variable>
+	<variable name="BTVOSDTime">
+		<value condition="VideoPlayer.Content(LiveTV)">$INFO[PVR.EpgEventElapsedTime]$INFO[PVR.EpgEventDuration,  /  ]</value>
+		<value condition="!String.IsEmpty(Player.SeekNumeric)">$INFO[Player.SeekNumeric(hh:mm:ss)]$INFO[Player.Duration(hh:mm:ss),  /  ]</value>
+		<value>$INFO[Player.Time(hh:mm:ss)]$INFO[Player.Duration(hh:mm:ss),  /  ]</value>
+	</variable>
+	<variable name="BTVOSDFinish">
+		<value condition="VideoPlayer.Content(LiveTV)">$INFO[PVR.EpgEventFinishTime,Ends at ]</value>
+		<value>$INFO[Player.FinishTime,Ends at ]</value>
+	</variable>
+	<include name="BTVOSDBanner">
+		<control type="group">
+			<height>330</height>
+			<visible>$EXP[BTVOSDBanner]</visible>
+			<animation effect="fade" start="0" end="100" time="200">Visible</animation>
+			<animation effect="fade" start="100" end="0" time="200">Hidden</animation>
+			<control type="image">
+				<width>1920</width>
+				<height>340</height>
+				<texture colordiffuse="A6000000">bingetv/white.png</texture>
+			</control>
+			<control type="image">
+				<top>340</top>
+				<width>1920</width>
+				<height>160</height>
+				<texture colordiffuse="A6000000" flipy="true">bingetv/fade_down.png</texture>
+			</control>
+			<control type="image">
+				<left>80</left>
+				<top>40</top>
+				<width>360</width>
+				<height>120</height>
+				<aspectratio align="left" aligny="center">keep</aspectratio>
+				<texture background="true">$VAR[BTVOSDLogo]</texture>
+			</control>
+			<control type="label">
+				<left>80</left>
+				<top>60</top>
+				<width>1300</width>
+				<height>80</height>
+				<font>font52_title</font>
+				<textcolor>FFFFFFFF</textcolor>
+				<shadowcolor>CC000000</shadowcolor>
+				<label>$VAR[BTVOSDTitle]</label>
+				<visible>String.IsEmpty(Player.Art(clearlogo)) + String.IsEmpty(Player.Art(tvshow.clearlogo))</visible>
+			</control>
+			<control type="label">
+				<left>80</left>
+				<top>172</top>
+				<width>1300</width>
+				<height>40</height>
+				<font>btv_line</font>
+				<textcolor>FFFFFFFF</textcolor>
+				<shadowcolor>CC000000</shadowcolor>
+				<label>$VAR[BTVOSDLine]</label>
+			</control>
+			<control type="label">
+				<left>80</left>
+				<top>212</top>
+				<width>1300</width>
+				<height>40</height>
+				<font>btv_text</font>
+				<textcolor>FFB4B4B4</textcolor>
+				<shadowcolor>CC000000</shadowcolor>
+				<label>$INFO[VideoPlayer.Genre]</label>
+			</control>
+			<control type="textbox">
+				<left>80</left>
+				<top>252</top>
+				<width>1050</width>
+				<height>76</height>
+				<font>btv_text</font>
+				<textcolor>FFEEEEEE</textcolor>
+				<shadowcolor>CC000000</shadowcolor>
+				<label>$INFO[VideoPlayer.Plot]</label>
+			</control>
+			<control type="label">
+				<right>64</right>
+				<top>36</top>
+				<width>400</width>
+				<height>50</height>
+				<align>right</align>
+				<font>btv_clock</font>
+				<textcolor>btv_accent</textcolor>
+				<shadowcolor>CC000000</shadowcolor>
+				<label>$INFO[System.Time(hh:mm)][COLOR FF8A8A8A]$INFO[System.Time(xx), ][/COLOR]</label>
+			</control>
+		</control>
+	</include>
+	<include name="BTVOSDBar">
+		<control type="group">
+			<top>820</top>
+			<animation effect="slide" start="0,260" end="0,0" time="200" tween="cubic" easing="out">WindowOpen</animation>
+			<animation effect="slide" start="0,0" end="0,260" time="200" tween="cubic" easing="in">WindowClose</animation>
+			<control type="image">
+				<top>-160</top>
+				<width>1920</width>
+				<height>160</height>
+				<texture colordiffuse="A6000000">bingetv/fade_down.png</texture>
+			</control>
+			<control type="image">
+				<width>1920</width>
+				<height>260</height>
+				<texture colordiffuse="A6000000">bingetv/white.png</texture>
+			</control>
+			<control type="label">
+				<left>80</left>
+				<top>40</top>
+				<width>800</width>
+				<height>40</height>
+				<font>btv_text</font>
+				<textcolor>FFE6E6E6</textcolor>
+				<shadowcolor>CC000000</shadowcolor>
+				<label>$VAR[BTVOSDStatus]</label>
+			</control>
+			<control type="label">
+				<right>80</right>
+				<top>40</top>
+				<width>800</width>
+				<height>40</height>
+				<align>right</align>
+				<font>btv_text</font>
+				<textcolor>FFE6E6E6</textcolor>
+				<shadowcolor>CC000000</shadowcolor>
+				<label>$VAR[BTVOSDTime]</label>
+			</control>
+			<!-- buffered (grey) under played (red) -->
+			<control type="progress">
+				<left>80</left>
+				<top>86</top>
+				<width>1760</width>
+				<height>8</height>
+				<texturebg colordiffuse="33FFFFFF">bingetv/white.png</texturebg>
+				<lefttexture />
+				<midtexture colordiffuse="66FFFFFF">bingetv/white.png</midtexture>
+				<righttexture />
+				<info>Player.ProgressCache</info>
+			</control>
+			<control type="progress">
+				<left>80</left>
+				<top>86</top>
+				<width>1760</width>
+				<height>8</height>
+				<texturebg />
+				<lefttexture />
+				<midtexture colordiffuse="btv_accent">bingetv/white.png</midtexture>
+				<righttexture />
+				<info>Player.Progress</info>
+			</control>
+			<control type="label">
+				<right>80</right>
+				<top>128</top>
+				<width>600</width>
+				<height>66</height>
+				<align>right</align>
+				<aligny>center</aligny>
+				<font>btv_line</font>
+				<textcolor>FFFFFFFF</textcolor>
+				<shadowcolor>CC000000</shadowcolor>
+				<label>$VAR[BTVOSDFinish]</label>
+			</control>
+		</control>
+	</include>
+	<!-- A round OSD button (as the info page's): grey, red when focused, with a white icon. A
+	     radiobutton, so the icon can sit on the button inside a grouplist. -->
+	<include name="BTVOSDButton">
+		<param name="icon_on" />
+		<param name="selected">false</param>
+		<definition>
+			<selected>$PARAM[selected]</selected>
+			<width>66</width>
+			<height>66</height>
+			<label />
+			<font />
+			<texturefocus colordiffuse="btv_accent">stremio/circle.png</texturefocus>
+			<texturenofocus colordiffuse="40FFFFFF">stremio/circle.png</texturenofocus>
+			<radioposx>15</radioposx>
+			<radioposy>15</radioposy>
+			<radiowidth>36</radiowidth>
+			<radioheight>36</radioheight>
+			<textureradioonfocus colordiffuse="FFFFFFFF">$PARAM[icon_on]</textureradioonfocus>
+			<textureradioonnofocus colordiffuse="FFFFFFFF">$PARAM[icon_on]</textureradioonnofocus>
+			<textureradioofffocus colordiffuse="FFFFFFFF">$PARAM[icon]</textureradioofffocus>
+			<textureradiooffnofocus colordiffuse="FFFFFFFF">$PARAM[icon]</textureradiooffnofocus>
+		</definition>
+	</include>
+	<!-- ============================================================ Up Next (service.upnext)
+	     A card at the bottom right: the next episode's still, its code and title, a countdown,
+	     and round Play / Close buttons (3012, 3013). `heading`: what the card asks. -->
+	<variable name="BTVUpNextImage">
+		<value condition="!String.IsEmpty(Window.Property(thumb))">$INFO[Window.Property(thumb)]</value>
+		<value>$INFO[Window.Property(fanart)]</value>
+	</variable>
+	<include name="BTVUpNext">
+		<definition>
+			<control type="group">
+				<right>64</right>
+				<bottom>64</bottom>
+				<width>480</width>
+				<height>270</height>
+				<animation type="WindowOpen" reversible="false">
+					<effect type="fade" start="0" end="100" time="300" />
+					<effect type="slide" start="120,0" end="0,0" time="300" tween="cubic" easing="out" />
+				</animation>
+				<animation effect="fade" start="100" end="0" time="200">WindowClose</animation>
+				<control type="label">
+					<top>-56</top>
+					<width>480</width>
+					<height>50</height>
+					<aligny>center</aligny>
+					<font>btv_line</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<shadowcolor>BF000000</shadowcolor>
+					<label>$PARAM[heading]</label>
+				</control>
+				<control type="image">
+					<width>480</width>
+					<height>270</height>
+					<texture colordiffuse="FF000000" diffuse="stremio/card-mask.png">bingetv/white.png</texture>
+				</control>
+				<control type="image">
+					<width>480</width>
+					<height>270</height>
+					<fadetime>300</fadetime>
+					<aspectratio scalediffuse="false">scale</aspectratio>
+					<texture background="true" diffuse="stremio/card-mask.png">$VAR[BTVUpNextImage]</texture>
+				</control>
+				<control type="image">
+					<width>480</width>
+					<height>270</height>
+					<texture diffuse="stremio/card-mask.png">stremio/card-shade.png</texture>
+				</control>
+				<!-- countdown -->
+				<control type="group">
+					<left>208</left>
+					<top>83</top>
+					<width>64</width>
+					<height>64</height>
+					<control type="image">
+						<texture colordiffuse="CCE31E2D">stremio/circle.png</texture>
+					</control>
+					<control type="label">
+						<width>64</width>
+						<height>64</height>
+						<align>center</align>
+						<aligny>center</aligny>
+						<font>btv_line</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<label>$INFO[Player.TimeRemaining(ss)]</label>
+					</control>
+				</control>
+				<control type="label">
+					<left>18</left>
+					<top>210</top>
+					<width>320</width>
+					<height>48</height>
+					<aligny>center</aligny>
+					<font>btv_text</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<label>$INFO[Window.Property(season),S,]$INFO[Window.Property(episode),E,  ]$INFO[Window.Property(title)]</label>
+				</control>
+				<control type="button" id="3012">
+					<left>350</left>
+					<top>206</top>
+					<width>52</width>
+					<height>52</height>
+					<label />
+					<font />
+					<onleft>3013</onleft>
+					<onright>3013</onright>
+					<texturefocus colordiffuse="btv_accent">stremio/circle.png</texturefocus>
+					<texturenofocus colordiffuse="66000000">stremio/circle.png</texturenofocus>
+				</control>
+				<control type="image">
+					<left>362</left>
+					<top>218</top>
+					<width>28</width>
+					<height>28</height>
+					<aspectratio>keep</aspectratio>
+					<texture>osd/fullscreen/buttons/play.png</texture>
+				</control>
+				<control type="button" id="3013">
+					<left>412</left>
+					<top>206</top>
+					<width>52</width>
+					<height>52</height>
+					<label />
+					<font />
+					<onleft>3012</onleft>
+					<onright>3012</onright>
+					<texturefocus colordiffuse="btv_accent">stremio/circle.png</texturefocus>
+					<texturenofocus colordiffuse="66000000">stremio/circle.png</texturenofocus>
+				</control>
+				<control type="image">
+					<left>426</left>
+					<top>220</top>
+					<width>24</width>
+					<height>24</height>
+					<aspectratio>keep</aspectratio>
+					<texture>dialogs/close.png</texture>
+				</control>
+			</control>
+		</definition>
+	</include>
 </includes>
