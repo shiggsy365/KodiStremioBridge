@@ -432,6 +432,9 @@ def similar(plugin, type, id, panel=None):
             notify(L(30229))
         xbmcplugin.endOfDirectory(handle, succeeded=quiet)
         return
+    # MDBList gives only a title, year and poster: details (and posters) from the first
+    # meta addon, as for the watchlist; titles it can't describe keep MDBList's.
+    previews = preferred_previews(previews, always=True)
     xbmcplugin.setPluginCategory(handle, L(30226))
     items = preview_items(plugin, previews, get_watchstate())
     if quiet:  # the info page's panel

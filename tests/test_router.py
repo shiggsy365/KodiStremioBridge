@@ -3138,6 +3138,24 @@ def test_similar_panel_is_quiet(server, listing, monkeypatch):
     assert ends == [True, False] and len(notices) == 1 and busy_used == [1]
 
 
+def test_similar_titles_get_the_meta_addons_details(server, listing, monkeypatch):
+    """MDBList's recommendations are only a title, year and poster: like the watchlist,
+    they're described by the first meta addon (AIOMetadata's posters and details)."""
+    from kodi_ui import watching
+
+    class FakeMDBList:
+        def recommendations(self, type_, id_):
+            return [{"id": "tt1", "type": "movie", "name": "One", "poster": "plain.jpg"}]
+
+    monkeypatch.setattr(watching, "get_mdblist", lambda: FakeMDBList())
+    asked = []
+    monkeypatch.setattr(watching, "preferred_previews",
+                        lambda previews, always=False: asked.append(([p.id for p in previews], always)) or previews)
+    items, ends = listing
+    call("similar", type="movie", id="tt5", panel=1)
+    assert asked == [(["tt1"], True)] and ends == [True] and len(items) == 1
+
+
 def test_show_browser_selects_the_focused_episode(server, listing, monkeypatch):
     from kodi_ui import details
 
