@@ -1034,6 +1034,11 @@
 
     <!-- An episode card: the thumbnail with its code, title, plot, rating and air date on it,
          and under it, when it's part-watched, how far -->
+    <!-- An episode card's rating: Stremio Bridge's, else the episode's own (from the meta addon) -->
+    <variable name="SBInfoCardRating">
+        <value condition="!String.IsEmpty(ListItem.Property(stremiobridge.rating))">$INFO[ListItem.Property(stremiobridge.rating)]</value>
+        <value condition="Integer.IsGreater(ListItem.Rating,0)">$INFO[ListItem.Rating]</value>
+    </variable>
     <include name="SBInfoEpisodeCard">
         <param name="scroll">false</param>
         <definition>
@@ -1095,7 +1100,7 @@
             <control type="image">
                 <width>104</width>
                 <height>30</height>
-                <texture border="10" colordiffuse="btv_accent">stremio/tab.png</texture>
+                <texture border="10" colordiffuse="80E31E2D">stremio/tab.png</texture>
             </control>
             <control type="label">
                 <width>104</width>
@@ -1121,7 +1126,7 @@
             <left>18</left>
             <top>204</top>
             <width>458</width>
-            <height>66</height>
+            <height>54</height>
             <font>SBInfoCardBody</font>
             <textcolor>FFE6E6E6</textcolor>
             <shadowcolor>A0000000</shadowcolor>
@@ -1131,7 +1136,7 @@
         <control type="group">
             <left>420</left>
             <top>277</top>
-            <visible>!String.IsEmpty(ListItem.Property(stremiobridge.rating))</visible>
+            <visible>!String.IsEmpty($VAR[SBInfoCardRating])</visible>
             <control type="image">
                 <width>56</width>
                 <height>28</height>
@@ -1144,7 +1149,7 @@
                 <aligny>center</aligny>
                 <font>SBInfoBadge</font>
                 <textcolor>FFFFFFFF</textcolor>
-                <label>$INFO[ListItem.Property(stremiobridge.rating)]</label>
+                <label>$VAR[SBInfoCardRating]</label>
             </control>
         </control>
         <control type="label">
