@@ -37,7 +37,8 @@ ON_DEMAND_REFRESH_AGE = 600
 # its first title, "reloads": its path has the widgets' reload token}.
 ROW_STATE = "stremiobridge.row."
 # Arctic Zephyr Stremio's hub windows (Custom_Hub_11xx.xml)
-HUB_WINDOWS = " | ".join(f"Window.IsActive({n})" for n in range(1111, 1120))
+# Hub pages: Arctic Zephyr Stremio's (1111-1119) and BingeTV's (1150).
+HUB_WINDOWS = " | ".join(f"Window.IsActive({n})" for n in (*range(1111, 1120), 1150))
 
 # Plugin URLs can name these by key: Cinemeta (Arctic Zephyr Stremio's widgets)
 # and Streaming Catalogs (its info page), installed or not.
@@ -341,7 +342,7 @@ def browsing_in_videos_window():
 
 
 def browsing_in_hub():
-    """True when the list is loading in one of Arctic Zephyr Stremio's hubs."""
+    """True when the list is loading in one of our skins' hub pages."""
     return xbmc.getCondVisibility(HUB_WINDOWS)
 
 

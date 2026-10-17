@@ -6,11 +6,11 @@
 	<onload condition="!Skin.HasSetting(stremio.setup_done) + System.HasAddon(plugin.video.stremiobridge)">RunPlugin(plugin://plugin.video.stremiobridge/?action=setup_wizard&amp;auto=1)</onload>
 	<!-- The rows fill in after the window opens (a list without items can't take focus): give
 	     focus to the row you were on (the first at start) once it has them. -->
-	<onload condition="String.IsEmpty(Window(Home).Property(btv.row))">AlarmClock(btvfocus1,SetFocus(9101),00:02,silent)</onload>
-	<onload condition="!String.IsEmpty(Window(Home).Property(btv.row))">AlarmClock(btvfocus1,SetFocus(910$INFO[Window(Home).Property(btv.row)]),00:02,silent)</onload>
-	<onload condition="String.IsEmpty(Window(Home).Property(btv.row))">AlarmClock(btvfocus2,SetFocus(9101),00:05,silent)</onload>
-	<onload condition="!String.IsEmpty(Window(Home).Property(btv.row))">AlarmClock(btvfocus2,SetFocus(910$INFO[Window(Home).Property(btv.row)]),00:05,silent)</onload>
 	<onload condition="String.IsEmpty(Window(Home).Property(btv.row))">SetProperty(btv.row,1,home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(btv.menu))">SetProperty(btv.menu,10000,home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(btv.rowbase))">SetProperty(btv.rowbase,910,home)</onload>
+	<onload>AlarmClock(btvfocus1,SetFocus($INFO[Window(Home).Property(btv.rowbase)]$INFO[Window(Home).Property(btv.row)]),00:02,silent)</onload>
+	<onload>AlarmClock(btvfocus2,SetFocus($INFO[Window(Home).Property(btv.rowbase)]$INFO[Window(Home).Property(btv.row)]),00:05,silent)</onload>
 	<controls>
 		<include content="BTVBackground">
 			<param name="fanart">$VAR[BTVHomeFanart]</param>
@@ -20,7 +20,9 @@
 			<include>Visible_Fade</include>
 			<include>BTVTitleInfo</include>
 		</control>
-		<include>BTVHomeRows</include>
+		<include content="BTVHomeRows"><param name="item">10000</param><param name="base">910</param><param name="menu">9201</param></include>
+		<include content="BTVHomeRows"><param name="item">movies</param><param name="base">911</param><param name="menu">9202</param></include>
+		<include content="BTVHomeRows"><param name="item">tvshows</param><param name="base">912</param><param name="menu">9203</param></include>
 		<include>BTVTopBar</include>
 	</controls>
 </window>

@@ -27,12 +27,15 @@
 			<scrolltime tween="cubic" easing="out">220</scrolltime>
 			<onup>9200</onup>
 			<ondown>400</ondown>
+			<!-- A tab only chooses what the row below shows -->
+			<onclick>SetFocus(300)</onclick>
 			<itemlayout width="300" height="56">
 				<control type="label">
 					<left>14</left>
 					<width>272</width>
 					<height>56</height>
 					<align>center</align>
+					<aligny>center</aligny>
 					<font>btv_menu</font>
 					<textcolor>FFB4B4B4</textcolor>
 					<label>$INFO[ListItem.Label]</label>
@@ -58,6 +61,7 @@
 					<width>272</width>
 					<height>56</height>
 					<align>center</align>
+					<aligny>center</aligny>
 					<font>btv_line</font>
 					<textcolor>FFFFFFFF</textcolor>
 					<label>$INFO[ListItem.Label]</label>
@@ -90,7 +94,7 @@
 				<include>BTVPoster</include>
 				<include>BTVPosterName</include>
 			</focusedlayout>
-			<content target="videos">$INFO[Container(300).ListItem.FolderPath]</content>
+			<content target="videos">$INFO[Container(300).ListItem.FolderPath]&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</content>
 		</control>
 
 		<include content="BTVTopBar">
