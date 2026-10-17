@@ -410,7 +410,7 @@
 						<focusedcolor>00FFFFFF</focusedcolor>
 						<texturenofocus>bingetv/bar/search_nf.png</texturenofocus>
 						<texturefocus>bingetv/bar/search_fo.png</texturefocus>
-						<onclick>ActivateWindow(Videos,plugin://plugin.video.stremiobridge/?action=search_menu,return)</onclick>
+						<onclick>ActivateWindow(1170)</onclick>
 					</control>
 					<control type="button" id="9212">
 						<onfocus>CancelAlarm(btvfocus1,true)</onfocus>
@@ -537,5 +537,43 @@
 				<label>$INFO[$PARAM[status]]</label>
 			</control>
 		</definition>
+	</include>
+	<!-- The search page (Custom_1170_Search.xml) -->
+    <variable name="SBSearchOnPill301">
+        <value condition="Control.HasFocus(301)">FFFFFFFF</value>
+        <value>Dark1</value>
+    </variable>
+    <variable name="SBSearchOnPill302">
+        <value condition="Control.HasFocus(302)">FFFFFFFF</value>
+        <value>Dark1</value>
+    </variable>
+    <variable name="StremioSearchHint">
+        <value condition="String.IsEmpty(Window(home).Property(sbsearch.query))">Type to search movies and TV shows</value>
+        <value>No results for "$INFO[Window(home).Property(sbsearch.query)]"</value>
+    </variable>
+    <variable name="StremioSearchKeysToggleLabel">
+        <value condition="String.IsEmpty(Window.Property(sbsearch.keys))">123 / #</value>
+        <value>ABC</value>
+    </variable>
+    <variable name="StremioSearchListPath">
+        <value condition="String.IsEmpty(Window(home).Property(sbsearch.query))">plugin://plugin.video.stremiobridge/?action=search_recent&amp;q=$INFO[Window(home).Property(sbsearch.rev)]</value>
+        <value>plugin://plugin.video.stremiobridge/?action=search_suggest&amp;s=1&amp;q=$INFO[Window(home).Property(sbsearch.settled)]&amp;n=$INFO[Container(401).NumItems]-$INFO[Container(402).NumItems]-$INFO[Window(home).Property(sbsearch.rev)]</value>
+    </variable>
+    <variable name="StremioSearchListTitle">
+        <value condition="String.IsEmpty(Window(home).Property(sbsearch.query))">Recent searches</value>
+        <value>Suggestions</value>
+    </variable>
+	<!-- Search's "searching" mark (in place of Arctic Zephyr's spinner): the word, pulsing -->
+	<include name="BTVBusy">
+		<control type="label">
+			<left>0</left>
+			<top>30</top>
+			<width>720</width>
+			<height>48</height>
+			<font>SBInfoTab</font>
+			<textcolor>FFB4B4B4</textcolor>
+			<label>$LOCALIZE[194]</label>
+			<animation effect="fade" start="100" end="35" time="900" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
+		</control>
 	</include>
 </includes>

@@ -20,4 +20,8 @@
 	<color name="selected">FFFFB70F</color>
 	<color name="invalid">FFFF0000</color>
 	<color name="btv_accent">FFE31E2D</color>
+	<!-- Arctic Zephyr Stremio's greys (pages ported from it) -->
+	<color name="Dark1">FFC5C5C5</color>
+	<color name="Dark2">CCC5C5C5</color>
+	<color name="Dark3">4DC5C5C5</color>
 </colors>
