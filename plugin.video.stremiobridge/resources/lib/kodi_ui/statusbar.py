@@ -15,7 +15,7 @@ import threading
 import xbmc
 import xbmcgui
 
-from .common import ADDON, ADDON_NAME, log, skin_active
+from .common import ADDON, ADDON_NAME, L, log, skin_active
 
 XML = "stremiobridge-status.xml"
 PROGRESS = 100  # the bar's progress line (in the skin's XML)
@@ -46,9 +46,10 @@ class _Bar(xbmcgui.WindowXMLDialog):
 class SkinStatus:
     """The skin's status bar (see the module's description)."""
 
-    def __init__(self, title="", subtitle="", poster=""):
+    def __init__(self, title="", subtitle="", poster="", fanart="", logo=""):
         self._bar = _Bar(XML, ADDON.getAddonInfo("path"), "Default", "1080i")
-        self._bar.properties = {"title": title, "subtitle": subtitle, "poster": poster, "status": ""}
+        self._bar.properties = {"title": title, "subtitle": subtitle, "poster": poster, "fanart": fanart,
+                                "logo": logo, "status": ""}
         self._bar.cancelled = self._bar.finished = self._bar.shown = False
         self._bar.percent = 0
 
@@ -96,7 +97,7 @@ class SkinStatus:
 class DialogStatus:
     """Kodi's progress dialog, with SkinStatus's interface."""
 
-    def __init__(self, title="", subtitle="", poster=""):
+    def __init__(self, title="", subtitle="", poster="", fanart="", logo=""):
         self._dialog = xbmcgui.DialogProgress()
         self._dialog.create(ADDON_NAME, "")
 
@@ -114,11 +115,33 @@ class DialogStatus:
         self._dialog.close()
 
 
-def playback_status(title="", subtitle="", poster=""):
-    """A SkinStatus with Arctic Zephyr Stremio (if its bar is there), else a DialogStatus."""
+def playback_status(title="", subtitle="", poster="", fanart="", logo=""):
+    """A SkinStatus with our skins (if their status window is there), else a DialogStatus."""
     if skin_active():
         try:
-            return SkinStatus(title, subtitle, poster)
+            return SkinStatus(title, subtitle, poster, fanart, logo)
         except RuntimeError as exc:  # an older skin without the bar
             log(f"No status bar in the skin ({exc}); using Kodi's progress dialog", xbmc.LOGDEBUG)
     return DialogStatus(title, subtitle, poster)
+
+
+# Between the play route handing Kodi the stream and the video starting, Kodi opens it (its
+# busy dialog, then a dark player). These home-window properties let a skin keep showing the
+# title meanwhile (BingeTV: the same page as the status window). The service clears them once
+# the video starts, fails or stops; the play route when it gives up.
+PREPARING = "stremiobridge.preparing"
+
+
+def announce_preparing(title="", fanart="", logo=""):
+    home = xbmcgui.Window(10000)
+    home.setProperty(f"{PREPARING}.fanart", fanart)
+    home.setProperty(f"{PREPARING}.logo", logo)
+    home.setProperty(f"{PREPARING}.title", title)
+    home.setProperty(f"{PREPARING}.status", L(30451))
+    home.setProperty(PREPARING, "1")
+
+
+def clear_preparing():
+    home = xbmcgui.Window(10000)
+    for name in (PREPARING, f"{PREPARING}.fanart", f"{PREPARING}.logo", f"{PREPARING}.title", f"{PREPARING}.status"):
+        home.clearProperty(name)

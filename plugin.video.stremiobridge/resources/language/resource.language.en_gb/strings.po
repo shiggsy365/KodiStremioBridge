@@ -1340,3 +1340,7 @@ msgstr ""
 msgctxt "#30450"
 msgid "Up Next: a countdown to the next episode"
 msgstr ""
+
+msgctxt "#30451"
+msgid "Preparing to play…"
+msgstr ""

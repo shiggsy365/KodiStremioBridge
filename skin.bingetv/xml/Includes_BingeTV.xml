@@ -465,4 +465,77 @@
 		</control>
 		</definition>
 	</include>
+	<!-- Getting a title ready to play (finding streams, preparing to play, Kodi opening the stream):
+	     its full-page art with its logo pulsing over it (its name if it has no logo). -->
+	<include name="BTVPreparingPage">
+		<!-- each an info label, e.g. Window.Property(logo) -->
+		<param name="fanart" />
+		<param name="logo" />
+		<param name="title" />
+		<param name="subtitle">Window.Property(none)</param>
+		<param name="status">Window.Property(none)</param>
+		<definition>
+			<control type="image">
+				<width>1920</width>
+				<height>1080</height>
+				<texture colordiffuse="FF0E0F12">bingetv/white.png</texture>
+			</control>
+			<control type="image">
+				<width>1920</width>
+				<height>1080</height>
+				<aspectratio>scale</aspectratio>
+				<fadetime>300</fadetime>
+				<texture background="true">$INFO[$PARAM[fanart]]</texture>
+			</control>
+			<control type="image">
+				<width>1920</width>
+				<height>1080</height>
+				<texture colordiffuse="B3000000">bingetv/white.png</texture>
+			</control>
+			<control type="group">
+				<animation effect="fade" start="100" end="35" time="1100" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
+				<control type="image">
+					<left>460</left>
+					<top>300</top>
+					<width>1000</width>
+					<height>320</height>
+					<aspectratio>keep</aspectratio>
+					<fadetime>300</fadetime>
+					<texture background="true">$INFO[$PARAM[logo]]</texture>
+				</control>
+				<control type="label">
+					<left>160</left>
+					<top>400</top>
+					<width>1600</width>
+					<height>120</height>
+					<align>center</align>
+					<aligny>center</aligny>
+					<font>font60</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<label>$INFO[$PARAM[title]]</label>
+					<visible>String.IsEmpty($PARAM[logo])</visible>
+				</control>
+			</control>
+			<control type="label">
+				<left>160</left>
+				<top>650</top>
+				<width>1600</width>
+				<height>44</height>
+				<align>center</align>
+				<font>btv_line</font>
+				<textcolor>FFFFFFFF</textcolor>
+				<label>$INFO[$PARAM[subtitle]]</label>
+			</control>
+			<control type="label">
+				<left>160</left>
+				<top>700</top>
+				<width>1600</width>
+				<height>40</height>
+				<align>center</align>
+				<font>btv_text</font>
+				<textcolor>FFB4B4B4</textcolor>
+				<label>$INFO[$PARAM[status]]</label>
+			</control>
+		</definition>
+	</include>
 </includes>

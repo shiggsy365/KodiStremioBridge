@@ -960,6 +960,22 @@ def window(monkeypatch):
     return props
 
 
+def test_play_hands_over_with_the_titles_art(server, playback, settings, window):
+    """Between handing Kodi the stream and the video starting, a skin can keep showing the
+    title (BingeTV: its full-page art); the service clears it once the video starts."""
+    from kodi_ui import service
+
+    settings["autoplay"] = True
+    show = {"meta": {**SHOW["meta"], "background": "http://bg", "logo": "http://logo"}}
+    server.routes["/meta/series/tt5.json"] = show
+    server.routes["/s/stream/series/tt5%3A1%3A1.json"] = streams({"url": "https://cdn/e.mkv"})
+    router.run([BASE, "1", "?action=play&type=series&id=tt5%3A1%3A1&meta=tt5", "resume:false"])
+    assert window["stremiobridge.preparing"] == "1"
+    assert (window["stremiobridge.preparing.fanart"], window["stremiobridge.preparing.logo"]) == ("http://bg", "http://logo")
+    service.Tracker(FakeWorker()).onAVStarted()
+    assert not any(k.startswith("stremiobridge.preparing") for k in window)
+
+
 def test_play_announces_entry_and_resume_offset(server, playback, settings, window):
     settings["autoplay"] = True
     server.routes["/meta/series/tt5.json"] = SHOW

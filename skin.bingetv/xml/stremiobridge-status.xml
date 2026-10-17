@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- BingeTV: Stremio Bridge's status while it finds a title's streams, tries them and gets ready to
+     play (kodi_ui/statusbar.py): the title's full-page art with its logo pulsing over it, the step,
+     and a progress line. Its properties: title, subtitle (an episode's code and title), poster,
+     fanart, logo, status (the step); 100 is the progress line. Back cancels. -->
+<window type="dialog">
+	<animation effect="fade" start="0" end="100" time="250">WindowOpen</animation>
+	<animation effect="fade" start="100" end="0" time="200">WindowClose</animation>
+	<controls>
+		<include content="BTVPreparingPage">
+			<param name="fanart">Window.Property(fanart)</param>
+			<param name="logo">Window.Property(logo)</param>
+			<param name="title">Window.Property(title)</param>
+			<param name="subtitle">Window.Property(subtitle)</param>
+			<param name="status">Window.Property(status)</param>
+		</include>
+		<control type="progress" id="100">
+			<left>710</left>
+			<top>760</top>
+			<width>500</width>
+			<height>4</height>
+			<texturebg colordiffuse="30FFFFFF">bingetv/white.png</texturebg>
+			<lefttexture />
+			<midtexture colordiffuse="btv_accent">bingetv/white.png</midtexture>
+			<righttexture />
+			<overlaytexture />
+		</control>
+		<control type="label">
+			<left>160</left>
+			<top>990</top>
+			<width>1600</width>
+			<height>30</height>
+			<align>center</align>
+			<font>btv_small</font>
+			<textcolor>FF8A8A8A</textcolor>
+			<label>Back to cancel</label>
+		</control>
+	</controls>
+</window>

@@ -23,7 +23,7 @@ from .common import (
 )
 from .details import load_show
 from .listitems import episode_code, playback_item
-from .statusbar import playback_status
+from .statusbar import announce_preparing, clear_preparing, playback_status
 from .streamwindow import choose_stream
 from .router import route
 
@@ -65,6 +65,7 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
     pick = pick == "1"
 
     def cancel():
+        clear_preparing()
         if handle >= 0:
             xbmcplugin.setResolvedUrl(handle, False, xbmcgui.ListItem())
     registry = get_registry()
@@ -133,7 +134,11 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
         _use_inputstream(item, stream)
     late_subtitles = None
     if stream.kind != TORRENT and ADDON.getSettingBool("subtitles_enabled"):
-        late_subtitles = _attach_subtitles(item, client, registry, type, id, stream)
+        def preparing(status):
+            status.update(100, L(30451))
+            return _attach_subtitles(item, client, registry, type, id, stream)
+
+        late_subtitles = with_status(info, id, preparing)
 
     # Tell the playback service what this is, and where to resume if Kodi's
     # "Resume from…" was chosen (plugin.resume is None when Kodi didn't ask).
@@ -145,6 +150,7 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
 
     # Never log the path: debrid links and configured addons carry tokens.
     log(f"Playing {type} {id} from {stream.addon}: {describe(stream)[0] or stream.kind}")
+    announce_preparing(info.name if info else "", *status_art(info))
     if handle >= 0:
         xbmcplugin.setResolvedUrl(handle, True, item)
     else:
@@ -164,6 +170,11 @@ def _ask_resume(plugin, row):
     return True
 
 
+def status_art(info):
+    """(fanart, logo) for the status page and the hand-over to Kodi."""
+    return (info.background, info.logo) if info is not None else ("", "")
+
+
 def with_status(info, video_id, work):
     """``work(status)`` behind the status bar (statusbar.py), about the title playing."""
     title, subtitle, poster = "", "", ""
@@ -172,7 +183,7 @@ def with_status(info, video_id, work):
         video = next((v for v in info.videos if v.id == video_id), None)
         if video is not None:
             subtitle = "  ".join(part for part in (episode_code(video), video.title) if part)
-    status = playback_status(title, subtitle, poster)
+    status = playback_status(title, subtitle, poster, *status_art(info))
     try:
         return status.run(work)
     finally:

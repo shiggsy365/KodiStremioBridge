@@ -3,8 +3,20 @@
 	<animation effect="fade" end="100" time="560">WindowOpen</animation>
 	<animation effect="fade" start="100" end="0" time="240">WindowClose</animation>
 	<controls>
+		<!-- BingeTV: Stremio Bridge is getting a title ready (stremiobridge.preparing, set when it
+		     hands Kodi the stream, cleared once the video starts): the title's page, not a spinner. -->
+		<control type="group">
+			<visible>!String.IsEmpty(Window(Home).Property(stremiobridge.preparing))</visible>
+			<include content="BTVPreparingPage">
+				<param name="fanart">Window(Home).Property(stremiobridge.preparing.fanart)</param>
+				<param name="logo">Window(Home).Property(stremiobridge.preparing.logo)</param>
+				<param name="title">Window(Home).Property(stremiobridge.preparing.title)</param>
+				<param name="status">Window(Home).Property(stremiobridge.preparing.status)</param>
+			</include>
+		</control>
 		<control type="group">
 			<visible>String.IsEmpty(Window(Home).Property(script.cinemavision.running))</visible>
+			<visible>String.IsEmpty(Window(Home).Property(stremiobridge.preparing))</visible>
 			<animation effect="fade" time="400">VisibleChange</animation>
 			<visible>!Window.IsActive(startup) + !Player.Caching</visible>
 			<control type="image">

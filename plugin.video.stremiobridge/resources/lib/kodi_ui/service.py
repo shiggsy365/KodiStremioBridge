@@ -28,6 +28,7 @@ from .common import (
     notify_widgets, parse_announcement, plugin_url, refresh_when_idle, skin_active, stale_queue_path,
     take_announcement, take_stale,
 )
+from .statusbar import clear_preparing
 
 SAVE_EVERY = 15            # seconds between progress saves while playing
 SCROBBLE_EVERY = 600       # seconds between "still watching" scrobbles
@@ -91,6 +92,7 @@ class Tracker(xbmc.Player):
     # ------------------------------------------------------------ Kodi callbacks
 
     def onAVStarted(self):
+        clear_preparing()
         data = take_announcement()
         announced = parse_announcement(data)
         if announced is None:
@@ -121,12 +123,14 @@ class Tracker(xbmc.Player):
             self._scrobble("start")
 
     def onPlayBackStopped(self):
+        clear_preparing()
         self._finish(ended=False)
 
     def onPlayBackEnded(self):
         self._finish(ended=True)
 
     def onPlayBackError(self):
+        clear_preparing()
         # A play announced but not started yet is the one that failed: playing
         # again straight after a Stop, Kodi can report the error before the
         # previous video's stop reaches us. Otherwise it's the tracked video.
