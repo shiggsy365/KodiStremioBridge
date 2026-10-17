@@ -119,7 +119,8 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
             if cancelled:
                 return cancel()
         if stream is None:
-            stream = choose_stream(candidates, info, id)
+            stream = choose_stream(candidates, info, id,
+                                   under=lambda work: with_status(info, id, lambda status: work()))
     if stream is None:
         return cancel()
 

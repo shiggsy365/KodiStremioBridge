@@ -80,11 +80,11 @@ class StreamWindow(xbmcgui.WindowXMLDialog):
     fanart = ""
     choice = None
 
-    def onInit(self):
-        self.setProperty("title", self.title)
-        self.setProperty("logo", self.logo)
-        self.setProperty("fanart", self.fanart)
-        self.setProperty("empty", L(30368))
+    _items = None
+
+    def prepare(self):
+        """The cards and chips, before the page opens (on a Fire TV Stick this takes a
+        moment; done while the loading page still shows, the page opens complete)."""
         try:
             strips = badge_strips()
         except OSError as exc:
@@ -92,14 +92,17 @@ class StreamWindow(xbmcgui.WindowXMLDialog):
             strips = None
         infos = [stream_info(s) for s in self.streams]
         self._items = [card_item(s, i, strips) for s, i in zip(self.streams, infos)]
-        self.setProperty("subtitle", "  ·  ".join(p for p in (self.subtitle, L(30367, count=len(self.streams))) if p))
-
         self._filters = filters(self.streams, infos)
-        chips = []
-        for label, members in self._filters:
-            chip = xbmcgui.ListItem(f"{label}  {len(members)}")
-            chips.append(chip)
-        self.getControl(CHIPS).addItems(chips)
+        self._chips = [xbmcgui.ListItem(f"{label}  {len(members)}") for label, members in self._filters]
+
+    def onInit(self):
+        if self._items is None:
+            self.prepare()
+        self.setProperty("title", self.title)
+        self.setProperty("logo", self.logo)
+        self.setProperty("fanart", self.fanart)
+        self.setProperty("subtitle", "  ·  ".join(p for p in (self.subtitle, L(30367, count=len(self.streams))) if p))
+        self.getControl(CHIPS).addItems(self._chips)
         self._show(0)
         self.setFocusId(CARDS)
 
@@ -109,6 +112,8 @@ class StreamWindow(xbmcgui.WindowXMLDialog):
         cards = self.getControl(CARDS)
         cards.reset()
         cards.addItems([self._items[i] for i in self._shown])
+        # Only once there's nothing to show (not while the page opens): "No streams match this filter".
+        self.setProperty("empty", "" if self._shown else L(30368))
         chips = self.getControl(CHIPS)
         for position in range(len(self._filters)):
             chips.getListItem(position).setProperty("active", "1" if position == index else "")
@@ -147,8 +152,9 @@ def filters(streams, infos):
     return chips
 
 
-def choose_stream(candidates, meta=None, video_id=None):
-    """Show the picker for `candidates`; the chosen Stream or None."""
+def choose_stream(candidates, meta=None, video_id=None, under=None):
+    """Show the picker for `candidates`; the chosen Stream or None. `under(work)` runs
+    the cards' preparation (e.g. behind the loading page) before the page opens."""
     window = StreamWindow(XML, ADDON.getAddonInfo("path"), "Default", "1080i")
     window.streams = list(candidates)
     if meta is not None:
@@ -160,6 +166,7 @@ def choose_stream(candidates, meta=None, video_id=None):
             window.subtitle = f"S{video.season}E{video.episode}" + (f" · {video.title}" if video.title else "")
     else:
         window.title = L(30174)
+    (under or (lambda work: work()))(window.prepare)
     window.doModal()
     choice = window.choice
     del window

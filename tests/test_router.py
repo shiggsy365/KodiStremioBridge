@@ -498,7 +498,7 @@ def playback(server, monkeypatch, tmp_path):
 
     monkeypatch.setattr(xbmcgui.Dialog, "select", select)
 
-    def choose(candidates, meta=None, video_id=None):  # the stream picker window
+    def choose(candidates, meta=None, video_id=None, under=None):  # the stream picker window
         state["picker"].append(candidates)
         return candidates[state["choice"]] if state["choice"] >= 0 else None
 
