@@ -43,6 +43,16 @@
 					<visible>Control.HasFocus(87) + VideoPlayer.Content(LiveTV)</visible>
 				</control>
 			</control>
+			<control type="label">
+				<left>80</left>
+				<top>204</top>
+				<width>1200</width>
+				<height>40</height>
+				<font>btv_text</font>
+				<textcolor>FFB4B4B4</textcolor>
+				<shadowcolor>CC000000</shadowcolor>
+				<label>$VAR[BTVOSDCaption]</label>
+			</control>
 			<control type="grouplist" id="200">
 				<left>80</left>
 				<top>128</top>
@@ -53,55 +63,61 @@
 				<onup condition="Player.SeekEnabled">87</onup>
 				<ondown>noop</ondown>
 				<control type="radiobutton" id="600">
-					<include content="BTVOSDButton"><param name="icon">osd/fullscreen/buttons/previous.png</param></include>
+					<include content="BTVOSDButton"><param name="icon">bingetv/osd/previous.png</param></include>
 					<onclick>PlayerControl(Previous)</onclick>
 					<visible>Player.ChapterCount | Integer.IsGreater(Playlist.Length(video),1) | [Player.SeekEnabled + VideoPlayer.Content(livetv)]</visible>
 				</control>
 				<control type="radiobutton" id="601">
-					<include content="BTVOSDButton"><param name="icon">osd/fullscreen/buttons/rewind.png</param></include>
+					<include content="BTVOSDButton"><param name="icon">bingetv/osd/rewind.png</param></include>
 					<onclick condition="Player.Paused">PlayerControl(Play)</onclick>
 					<onclick condition="!Player.Paused">PlayerControl(Rewind)</onclick>
 					<visible>Player.SeekEnabled + !VideoPlayer.Content(livetv)</visible>
 				</control>
 				<control type="radiobutton" id="602">
-					<include content="BTVOSDButton"><param name="icon">osd/fullscreen/buttons/pause.png</param><param name="icon_on">osd/fullscreen/buttons/play.png</param><param name="selected">Player.Paused | Player.Forwarding | Player.Rewinding</param></include>
+					<include content="BTVOSDButton"><param name="icon">bingetv/osd/pause.png</param><param name="icon_on">bingetv/osd/play.png</param><param name="selected">Player.Paused | Player.Forwarding | Player.Rewinding</param></include>
 					<onclick>PlayerControl(Play)</onclick>
 					<visible>Player.PauseEnabled</visible>
 				</control>
 				<control type="radiobutton" id="603">
-					<include content="BTVOSDButton"><param name="icon">osd/fullscreen/buttons/stop.png</param></include>
+					<include content="BTVOSDButton"><param name="icon">bingetv/osd/stop.png</param></include>
 					<onclick>PlayerControl(Stop)</onclick>
 				</control>
 				<control type="radiobutton" id="606">
-					<include content="BTVOSDButton"><param name="icon">osd/fullscreen/buttons/forward.png</param></include>
+					<include content="BTVOSDButton"><param name="icon">bingetv/osd/forward.png</param></include>
 					<onclick condition="Player.Paused">PlayerControl(Play)</onclick>
 					<onclick condition="!Player.Paused">PlayerControl(Forward)</onclick>
 					<visible>Player.SeekEnabled + !VideoPlayer.Content(livetv)</visible>
 				</control>
 				<control type="radiobutton" id="607">
-					<include content="BTVOSDButton"><param name="icon">osd/fullscreen/buttons/next.png</param></include>
+					<include content="BTVOSDButton"><param name="icon">bingetv/osd/next.png</param></include>
 					<onclick>PlayerControl(Next)</onclick>
 					<visible>Player.ChapterCount | Integer.IsGreater(Playlist.Length(video),1) | PVR.IsTimeShift</visible>
 				</control>
+				<control type="radiobutton" id="609">
+					<include content="BTVOSDButton"><param name="icon">bingetv/osd/streams.png</param></include>
+					<onclick>Dialog.Close(videoosd)</onclick>
+					<onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=switch_stream)</onclick>
+					<visible>!String.IsEmpty(Window(Home).Property(plugin.video.stremiobridge.tracking))</visible>
+				</control>
 				<control type="radiobutton" id="610">
-					<include content="BTVOSDButton"><param name="icon">osd/fullscreen/buttons/streams.png</param></include>
+					<include content="BTVOSDButton"><param name="icon">bingetv/osd/audio.png</param></include>
 					<onclick>ActivateWindow(osdaudiosettings)</onclick>
 				</control>
 				<control type="radiobutton" id="611">
-					<include content="BTVOSDButton"><param name="icon">osd/fullscreen/buttons/settings-subtitle.png</param></include>
+					<include content="BTVOSDButton"><param name="icon">bingetv/osd/subtitles.png</param></include>
 					<onclick>ActivateWindow(osdsubtitlesettings)</onclick>
 				</control>
 				<control type="radiobutton" id="612">
-					<include content="BTVOSDButton"><param name="icon">osd/fullscreen/buttons/settings.png</param></include>
+					<include content="BTVOSDButton"><param name="icon">bingetv/osd/video.png</param></include>
 					<onclick>ActivateWindow(osdvideosettings)</onclick>
 				</control>
 				<control type="radiobutton" id="613">
-					<include content="BTVOSDButton"><param name="icon">osd/fullscreen/buttons/channels.png</param></include>
+					<include content="BTVOSDButton"><param name="icon">bingetv/osd/channels.png</param></include>
 					<onclick>ActivateWindow(PVROSDChannels)</onclick>
 					<visible>VideoPlayer.Content(livetv)</visible>
 				</control>
 				<control type="radiobutton" id="614">
-					<include content="BTVOSDButton"><param name="icon">osd/fullscreen/buttons/guide.png</param></include>
+					<include content="BTVOSDButton"><param name="icon">bingetv/osd/guide.png</param></include>
 					<onclick>ActivateWindow(PVRChannelGuide)</onclick>
 					<visible>VideoPlayer.Content(livetv)</visible>
 				</control>

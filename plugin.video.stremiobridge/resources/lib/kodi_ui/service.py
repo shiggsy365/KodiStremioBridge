@@ -25,7 +25,7 @@ from stremio.watchstate import RESUME, WATCHED, next_episode
 
 from .common import (
     ADDON, ADDON_ID, L, get_client, get_mdblist, get_registry, get_watchstate, jsonrpc, log, notify,
-    notify_widgets, parse_announcement, plugin_url, refresh_when_idle, skin_active, stale_queue_path,
+    TRACKING, notify_widgets, parse_announcement, plugin_url, refresh_when_idle, skin_active, stale_queue_path,
     take_announcement, take_stale,
 )
 from .statusbar import clear_preparing
@@ -97,8 +97,11 @@ class Tracker(xbmc.Player):
         announced = parse_announcement(data)
         if announced is None:
             self.entry = None  # something else is playing
+            xbmcgui.Window(10000).clearProperty(TRACKING)
             return
         self.entry, self.pending_seek = announced
+        xbmcgui.Window(10000).setProperty(TRACKING, json.dumps(
+            {"type": self.entry.type, "id": self.entry.video_id, "meta": self.entry.meta_id or None}))
         if data.get("subtitles"):
             entry = self.entry
             threading.Thread(target=late_subtitles, args=(data["subtitles"], lambda: self.entry is entry),
@@ -157,7 +160,10 @@ class Tracker(xbmc.Player):
             return
         now = time.time()
         if self.pending_seek and now - self.started >= SEEK_DELAY:
-            if self.position < self.pending_seek - SEEK_TOLERANCE:
+            if self.duration and self.pending_seek >= self.duration - SEEK_TOLERANCE:
+                # Past its end: not this video (e.g. an addon's short "can't play that" clip)
+                log(f"Not resuming at {int(self.pending_seek)}s: the video is {int(self.duration)}s long")
+            elif self.position < self.pending_seek - SEEK_TOLERANCE:
                 log(f"Resuming at {int(self.pending_seek)}s")
                 self.seekTime(self.pending_seek)
             self.pending_seek = 0.0
@@ -191,6 +197,7 @@ class Tracker(xbmc.Player):
     def _finish(self, ended):
         if not self.entry:
             return
+        xbmcgui.Window(10000).clearProperty(TRACKING)
         if ended and self.duration:
             self.position = self.duration
         status = self._save()

@@ -1,5 +1,6 @@
 """Playback: fetch streams from every addon, pick one, resolve it for Kodi."""
 
+import json
 import os
 import shutil
 import threading
@@ -18,7 +19,7 @@ from stremio.subtitles import download_subtitles, fetch_subtitles, parse_languag
 from stremio.watchstate import PlaybackEntry
 
 from .common import (
-    ADDON, L, announce_playback, choose_from_menu, clock_text, get_client, get_registry,
+    ADDON, TRACKING, L, announce_playback, choose_from_menu, clock_text, get_client, get_registry,
     get_watchstate, log, notify,
 )
 from .details import load_show
@@ -50,7 +51,7 @@ def stream_prefs():
 
 
 @route("play")
-def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries=None, pick=None):
+def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries=None, pick=None, at=None):
     """`id` is what streams are requested for (e.g. ``tt123:1:2`` for an
     episode); `meta` is the show's id when that differs. `binge` asks for a
     stream from the same source group (sent by Up Next for the next episode).
@@ -58,8 +59,11 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
     beginning (the Extended info dialog asks).
     `start`/`tries` come from the service when a stream failed after starting:
     skip the streams already tried (autoplay order) and count the retries.
-    `pick=1` ("Show Playable Streams") shows the stream list even with autoplay on."""
-    if resume in ("1", "0"):  # asked already (e.g. by Extended info): resume or from the start
+    `pick=1` ("Show Playable Streams") shows the stream list even with autoplay on.
+    `at`: start the chosen stream this many seconds in (switch_stream)."""
+    if at:
+        plugin.resume = True
+    elif resume in ("1", "0"):  # asked already (e.g. by Extended info): resume or from the start
         plugin.resume = resume == "1"
     handle = plugin.handle
     pick = pick == "1"
@@ -130,6 +134,8 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
         notify(L(30175), icon=xbmcgui.NOTIFICATION_ERROR)
         return cancel()
 
+    if at:
+        _stop_current()
     item = playback_item(path, info, id, fallback_title=stream.filename or stream.name)
     if use_inputstream:
         _use_inputstream(item, stream)
@@ -144,7 +150,7 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
     # Tell the playback service what this is, and where to resume if Kodi's
     # "Resume from…" was chosen (plugin.resume is None when Kodi didn't ask).
     row = state.get(id)
-    offset = row.position if plugin.resume and row else 0.0
+    offset = float(at) if at else (row.position if plugin.resume and row else 0.0)
     if retry is not None:
         retry["resume"] = bool(offset)
     announce_playback(playback_entry(type, id, meta, info, stream), offset, retry, late_subtitles)
@@ -156,6 +162,39 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
         xbmcplugin.setResolvedUrl(handle, True, item)
     else:
         xbmc.Player().play(path, item)
+    return True
+
+
+@route("switch_stream")
+def switch_stream(plugin):
+    """The stream list again for the video playing now (the OSD's Streams
+    button): the chosen stream carries on from the same point. The video
+    pauses while you choose, and plays on if you back out."""
+    window = xbmcgui.Window(10000)
+    player = xbmc.Player()
+    try:
+        now = json.loads(window.getProperty(TRACKING))
+        at = player.getTime()
+    except (ValueError, RuntimeError):
+        return  # nothing of ours is playing
+    paused = xbmc.getCondVisibility("Player.Paused")
+    if not paused:
+        player.pause()
+    switched = play(plugin, now["type"], now["id"], meta=now.get("meta"), pick="1", at=str(int(at)))
+    if not switched and not paused and xbmc.getCondVisibility("Player.Paused"):
+        player.pause()
+
+
+def _stop_current(wait=5.0):
+    """Stop the video playing now and wait for it to close: opening the next
+    one while it's still loaded can stall it (on Fire TV the hardware decoder
+    is still taken)."""
+    player = xbmc.Player()
+    player.stop()
+    for _ in range(int(wait * 10)):
+        if not player.isPlaying():
+            return
+        xbmc.sleep(100)
 
 
 def _ask_resume(plugin, row):

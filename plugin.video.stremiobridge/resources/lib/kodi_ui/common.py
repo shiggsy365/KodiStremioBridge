@@ -112,6 +112,9 @@ def plugin_url(action, **params):
 
 # Handed from the play route to the playback service: what is about to play.
 NOW_PLAYING = f"{ADDON_ID}.now_playing"
+# Set by the playback service while it tracks a video: {"type", "id", "meta"} (the
+# OSD's "Streams" button, the switch_stream route).
+TRACKING = f"{ADDON_ID}.tracking"
 
 
 def announce_playback(entry, offset=0.0, retry=None, subtitles=None):

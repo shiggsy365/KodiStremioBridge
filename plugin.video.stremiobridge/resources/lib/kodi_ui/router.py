@@ -59,7 +59,7 @@ HANDLERS = {
     "manage": ("add_addon", "addon_actions", "addon_catalogs", "addon_details", "manage", "move_addon",
                "refresh_addon", "remove_addon", "set_catalog_pref", "toggle_addon"),
     "menus": ("clear_cache", "open", "root", "settings", "toggle_parent_items", "widgets"),
-    "player": ("play",),
+    "player": ("play", "switch_stream"),
     "profiles": ("switch_profile",),
     "search": ("move_search_catalog", "new_search", "rename_search_catalog", "search", "search_catalog_actions",
                "search_catalogs", "search_history_clear", "search_history_remove", "search_key", "search_live",

@@ -3927,3 +3927,74 @@ def test_both_our_skins_count_as_ours(monkeypatch):
     for skin, ours in (("skin.arctic.zephyr.stremio", True), ("skin.bingetv", True), ("skin.estuary", False)):
         monkeypatch.setattr(common.xbmc, "getSkinDir", lambda skin=skin: skin)
         assert common.skin_active() is ours
+
+
+def test_tracker_publishes_what_it_tracks(settings, window, monkeypatch):
+    from kodi_ui import service
+
+    monkeypatch.setattr(service.xbmc, "getCondVisibility", lambda cond: False)
+    common.announce_playback(PlaybackEntry(video_id="tt5:1:2", type="series", meta_id="tt5", season=1, episode=2))
+    tracker = service.Tracker(FakeWorker())
+    tracker.onAVStarted()
+    home = common.xbmcgui.Window(10000)
+    assert jsonlib.loads(home.getProperty(common.TRACKING)) == {"type": "series", "id": "tt5:1:2", "meta": "tt5"}
+    tracker.onPlayBackStopped()
+    assert home.getProperty(common.TRACKING) == ""
+
+
+def test_switch_stream_picks_again_and_carries_on(server, playback, settings, window, monkeypatch):
+    server.routes["/s/stream/movie/tt1.json"] = streams(
+        {"url": "https://cdn/720.mkv", "name": "720p"},
+        {"url": "https://cdn/1080.mkv", "name": "1080p"},
+    )
+    home = common.xbmcgui.Window(10000)
+    home.setProperty(common.TRACKING, jsonlib.dumps({"type": "movie", "id": "tt1", "meta": None}))
+    calls, state = [], {"paused": False}
+
+    def pause(self):
+        state["paused"] = not state["paused"]
+        calls.append("pause")
+
+    has_addon = player.xbmc.getCondVisibility
+    monkeypatch.setattr(player.xbmc, "getCondVisibility",
+                        lambda cond: state["paused"] if cond == "Player.Paused" else has_addon(cond))
+    monkeypatch.setattr(player.xbmc.Player, "getTime", lambda self: 321.7, raising=False)
+    monkeypatch.setattr(player.xbmc.Player, "pause", pause, raising=False)
+    monkeypatch.setattr(player.xbmc.Player, "play", lambda self, path, item=None: calls.append(path), raising=False)
+    monkeypatch.setattr(player.xbmc.Player, "stop", lambda self: calls.append("stop"), raising=False)
+
+    playback["choice"] = 0
+    call("switch_stream", handle=-1)
+    assert len(playback["picker"][0]) == 2                     # the list, even with autoplay
+    assert calls[:2] == ["pause", "stop"] and calls[2].startswith("https://cdn/")   # the old one closes first
+    assert common.take_announced_playback()[1] == 321          # carries on from the same point
+
+    calls.clear()
+    state["paused"] = False
+    playback["choice"] = -1                                    # backed out: plays on
+    call("switch_stream", handle=-1)
+    assert calls == ["pause", "pause"] and not state["paused"]
+
+    home.clearProperty(common.TRACKING)                        # nothing of ours playing
+    calls.clear()
+    call("switch_stream", handle=-1)
+    assert calls == []
+
+
+def test_tracker_does_not_resume_past_the_end(settings, window, monkeypatch):
+    from kodi_ui import service
+
+    monkeypatch.setattr(service.xbmc, "getCondVisibility", lambda cond: False)
+    common.announce_playback(PlaybackEntry(video_id="tt1", type="movie", title="M"), offset=123)
+    tracker = service.Tracker(FakeWorker())
+    clock = {"now": 1000.0}
+    monkeypatch.setattr(service.time, "time", lambda: clock["now"])
+    monkeypatch.setattr(tracker, "getTotalTime", lambda: 120.0)     # a short clip, not the film
+    monkeypatch.setattr(tracker, "getTime", lambda: 1.0)
+    monkeypatch.setattr(tracker, "isPlayingVideo", lambda: True)
+    seeks = []
+    monkeypatch.setattr(tracker, "seekTime", lambda t: seeks.append(t))
+    tracker.onAVStarted()
+    clock["now"] += 2
+    tracker.tick()
+    assert seeks == [] and tracker.pending_seek == 0
