@@ -83,11 +83,6 @@
 					<onclick>PlayerControl(Next)</onclick>
 					<visible>Player.ChapterCount | Integer.IsGreater(Playlist.Length(video),1) | PVR.IsTimeShift</visible>
 				</control>
-				<control type="image">
-					<width>24</width>
-					<height>66</height>
-					<texture />
-				</control>
 				<control type="radiobutton" id="610">
 					<include content="BTVOSDButton"><param name="icon">osd/fullscreen/buttons/streams.png</param></include>
 					<onclick>ActivateWindow(osdaudiosettings)</onclick>
