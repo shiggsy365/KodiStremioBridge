@@ -166,10 +166,13 @@ def publish():
     token = home.getProperty(WIDGETS_RELOAD)
     watch_token = home.getProperty(WATCH_RELOAD)
     store = load_store()
+    remember = xbmc.getSkinDir() == BINGETV_SKIN_ID
     for item in ITEMS:
         chosen = store.get(item, {})
         for name in sorted(FIELD_NAMES):
             value = chosen.get(name, default(item, name))
+            if remember:
+                remember_row(home_property(item, name), value)
             if name.startswith("widgetPath") and value.startswith(_OURS):
                 value = with_reload(value, token, watch_token)
             home.setProperty(home_property(item, name), value)
@@ -177,6 +180,16 @@ def publish():
         publish_hubs()
     except Exception as exc:  # noqa: BLE001 - the rows matter more than the menu's extra hubs
         log(f"Menu hubs not published: {exc}")
+
+
+def remember_row(name, value):
+    """BingeTV: keep `value` as a skin setting too (Kodi keeps those, per profile, across
+    restarts), so Home can show its rows as it opens, before this service has started and
+    published them. Without the reload token: that's how they're published at start, so the
+    rows don't load twice."""
+    if xbmc.getInfoLabel(f"Skin.String({name})") != value:
+        quoted = value.replace("\\", "\\\\").replace('"', '\\"')
+        xbmc.executebuiltin(f'Skin.SetString({name},"{quoted}")')
 
 
 # BingeTV's menu bar: the hubs other than Movies and TV Shows that have catalogs

@@ -4238,3 +4238,35 @@ def test_old_settings_files_are_resaved(monkeypatch, tmp_path):
     assert saved == [("script.old", "first", "x")]                # its own value, saved again
     monkeypatch.setattr(settingsfiles.xbmc, "getInfoLabel", lambda label: "21.3 (21.3.0) Git:x")
     assert settingsfiles.resave_old_settings() == []               # Kodi 21 reads its own format
+
+
+def test_bingetv_keeps_home_rows_for_next_start(home_props, monkeypatch, tmp_path):
+    """BingeTV: the rows are also kept as skin settings (without the reload token), so Home can
+    show them as it opens, before the service has started."""
+    from kodi_ui import homewidgets
+
+    monkeypatch.setattr(homewidgets, "profile_dir", lambda: str(tmp_path))
+    monkeypatch.setattr(homewidgets, "skin_active", lambda: True)
+    monkeypatch.setattr(homewidgets, "publish_hubs", lambda registry=None: None)
+    skin, commands = {}, []
+    monkeypatch.setattr(homewidgets.xbmc, "getInfoLabel", lambda label: skin.get(label[len("Skin.String("):-1], ""))
+
+    def builtin(command, *a):
+        commands.append(command)
+        name, _, value = command[len("Skin.SetString("):-1].partition(",")
+        skin[name] = value.strip('"')
+
+    monkeypatch.setattr(homewidgets.xbmc, "executebuiltin", builtin)
+    monkeypatch.setattr(homewidgets.xbmc, "getSkinDir", lambda: "skin.bingetv")
+    home_props[common.WIDGETS_RELOAD] = "123"
+    homewidgets.publish()
+    assert skin["sbhome.10000.widgetPath"] == f"{homewidgets._OURS}?action=continue"   # no token
+    assert home_props["sbhome.10000.widgetPath"].endswith("&reload=123")
+    assert skin["sbhome.10000.widgetName"] == "Continue Watching"
+    count = len(commands)
+    homewidgets.publish()
+    assert len(commands) == count                                    # unchanged: not written again
+    monkeypatch.setattr(homewidgets.xbmc, "getSkinDir", lambda: "skin.arctic.zephyr.stremio")
+    skin.clear()
+    homewidgets.publish()
+    assert skin == {}                                               # only BingeTV keeps them

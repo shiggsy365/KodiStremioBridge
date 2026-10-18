@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.17.3"
+       version="0.17.4"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,8 +23,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.17.3 - On Kodi 22, add-on settings files from Kodi 21 (e.g. after restoring a backup) are saved once in Kodi 22's format, so Kodi stops converting them on every load. Nothing changes on Kodi 21.
-v0.17.2 - For BingeTV: it tells you when a newer BingeTV is out (about once a week, or Settings > Expert > Check for BingeTV updates) and offers the download for your device; its first start offers to restore a Kodi backup. Nothing changes elsewhere.</news>
+        <news>v0.17.4 - BingeTV starts faster: Home shows its rows as it opens (kept from last time), and the service waits a moment before starting up so the rows load first. Nothing changes elsewhere.
+v0.17.3 - On Kodi 22, add-on settings files from Kodi 21 (e.g. after restoring a backup) are saved once in Kodi 22's format, so Kodi stops converting them on every load. Nothing changes on Kodi 21.</news>
     </extension>
 </addon>
 <addon id="plugin.audio.shiggsy365.podcasts"
