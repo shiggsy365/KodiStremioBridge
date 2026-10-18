@@ -92,13 +92,16 @@
 				<include>BTVPosterName</include>
 			</itemlayout>
 			<focusedlayout width="222" height="360">
+				<include>BTVPoster</include>
+				<!-- the info page's focus frame (thin, over the card's edge) -->
 				<control type="image">
-					<width>216</width>
-					<height>319</height>
-					<texture colordiffuse="btv_accent">bingetv/poster_focus.png</texture>
+					<left>7</left>
+					<top>7</top>
+					<width>202</width>
+					<height>305</height>
+					<texture colordiffuse="btv_accent" border="14">stremio/poster-focus.png</texture>
 					<visible>Control.HasFocus(400)</visible>
 				</control>
-				<include>BTVPoster</include>
 				<include>BTVPosterName</include>
 			</focusedlayout>
 			<content target="videos">$INFO[Container(300).ListItem.FolderPath]&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</content>

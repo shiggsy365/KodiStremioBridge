@@ -202,13 +202,16 @@
 						<include>BTVPoster</include>
 					</itemlayout>
 					<focusedlayout width="222" height="330">
+						<include>BTVPoster</include>
+						<!-- the info page's focus frame (thin, over the card's edge) -->
 						<control type="image">
-							<width>216</width>
-							<height>319</height>
-							<texture colordiffuse="btv_accent">bingetv/poster_focus.png</texture>
+							<left>7</left>
+							<top>7</top>
+							<width>202</width>
+							<height>305</height>
+							<texture colordiffuse="btv_accent" border="14">stremio/poster-focus.png</texture>
 							<visible>Control.HasFocus($PARAM[base]$PARAM[n])</visible>
 						</control>
-						<include>BTVPoster</include>
 					</focusedlayout>
 					<content target="videos">$INFO[Window(Home).Property(sbhome.$PARAM[item].widgetPath$PARAM[slot])]</content>
 				</control>
