@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.17.4"
+       version="0.17.5"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,8 +23,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.17.4 - BingeTV starts faster: Home shows its rows as it opens (kept from last time), and the service waits a moment before starting up so the rows load first. Nothing changes elsewhere.
-v0.17.3 - On Kodi 22, add-on settings files from Kodi 21 (e.g. after restoring a backup) are saved once in Kodi 22's format, so Kodi stops converting them on every load. Nothing changes on Kodi 21.</news>
+        <news>v0.17.5 - Profiles: the profile picker shows each profile's picture. On BingeTV it also adds a profile in one go (a name, one of 20 film avatars, and optionally this profile's Stremio add-ons, Home rows and Live TV set-up; it then asks for its own MDBList key), changes a profile's picture and turns &quot;Who's watching?&quot; at start-up on or off.
+v0.17.4 - BingeTV starts faster: Home shows its rows as it opens (kept from last time), and the service waits a moment before starting up so the rows load first. Nothing changes elsewhere.</news>
     </extension>
 </addon>
 <addon id="plugin.audio.shiggsy365.podcasts"
