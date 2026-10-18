@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="skin.bingetv" version="0.2.1" name="BingeTV" provider-name="shiggsy365 (based on Estuary by phil65, Ichabod Fletchman)">
+<addon id="skin.bingetv" version="0.2.2" name="BingeTV" provider-name="shiggsy365 (based on Estuary by phil65, Ichabod Fletchman)">
 	<requires>
 		<import addon="xbmc.gui" version="5.18.0"/>
 	</requires>
