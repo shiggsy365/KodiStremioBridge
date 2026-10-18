@@ -9,7 +9,7 @@
 				<label>$PARAM[label]</label>
 				<label2>$PARAM[label2]</label2>
 				<font></font>
-				<texturefocus colordiffuse="button_focus">lists/focus.png</texturefocus>
+				<texturefocus colordiffuse="button_focus" border="16">lists/focus.png</texturefocus>
 				<texturenofocus />
 				<nested />
 			</control>
@@ -109,7 +109,7 @@
 					<align>center</align>
 					<aligny>center</aligny>
 					<font>font25_title</font>
-					<texturefocus colordiffuse="button_focus">lists/focus.png</texturefocus>
+					<texturefocus colordiffuse="button_focus" border="16">lists/focus.png</texturefocus>
 					<texturenofocus />
 				</control>
 			</control>
@@ -166,7 +166,7 @@
 					<align>center</align>
 					<aligny>center</aligny>
 					<font>font27</font>
-					<texturefocus colordiffuse="button_focus">lists/focus.png</texturefocus>
+					<texturefocus colordiffuse="button_focus" border="16">lists/focus.png</texturefocus>
 					<texturenofocus />
 				</control>
 				<control type="label" id="8">
@@ -1256,7 +1256,7 @@
 						</itemlayout>
 						<focusedlayout width="1120" height="120">
 							<control type="image">
-								<texture colordiffuse="18FFFFFF">lists/focus.png</texture>
+								<texture colordiffuse="18FFFFFF" border="16">lists/focus.png</texture>
 							</control>
 							<control type="image">
 								<width>5</width>
@@ -1425,7 +1425,7 @@
 						<top>2</top>
 						<width>1120</width>
 						<height>116</height>
-						<texture colordiffuse="18FFFFFF">lists/focus.png</texture>
+						<texture colordiffuse="18FFFFFF" border="16">lists/focus.png</texture>
 					</control>
 					<include content="GameLeaderboardRow">
 						<param name="scroll" value="true" />
@@ -1578,7 +1578,7 @@
 						<top>1</top>
 						<width>1120</width>
 						<height>50</height>
-						<texture colordiffuse="18FFFFFF">lists/focus.png</texture>
+						<texture colordiffuse="18FFFFFF" border="16">lists/focus.png</texture>
 					</control>
 					<control type="image">
 						<top>1</top>

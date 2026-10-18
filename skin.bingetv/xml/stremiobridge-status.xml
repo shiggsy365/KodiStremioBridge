@@ -4,6 +4,7 @@
      and a progress line. Its properties: title, subtitle (an episode's code and title), poster,
      fanart, logo, status (the step); 100 is the progress line. Back cancels. -->
 <window type="dialog">
+	<zorder>2</zorder>
 	<animation effect="fade" start="0" end="100" time="250">WindowOpen</animation>
 	<animation effect="fade" start="100" end="0" time="200">WindowClose</animation>
 	<controls>

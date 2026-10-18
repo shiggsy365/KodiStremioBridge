@@ -787,23 +787,7 @@
                         <top>10</top>
                         <width>180</width>
                         <height>270</height>
-                        <control type="group">
-                            <right>12</right>
-                            <top>12</top>
-                            <width>32</width>
-                            <height>32</height>
-                            <visible>String.IsEqual(ListItem.Overlay,OverlayWatched.png)</visible>
-                            <control type="image">
-                                <texture colordiffuse="btv_accent">stremio/circle.png</texture>
-                            </control>
-                            <control type="image">
-                                <left>6</left>
-                                <top>6</top>
-                                <width>20</width>
-                                <height>20</height>
-                                <texture>bingetv/tick.png</texture>
-                            </control>
-                        </control>
+                        <include content="BTVRibbon"><param name="left">60</param><param name="top">0</param><param name="size">120</param></include>
                     </control>
                     <control type="label">
                         <left>10</left>
@@ -846,23 +830,7 @@
                         <top>10</top>
                         <width>180</width>
                         <height>270</height>
-                        <control type="group">
-                            <right>12</right>
-                            <top>12</top>
-                            <width>32</width>
-                            <height>32</height>
-                            <visible>String.IsEqual(ListItem.Overlay,OverlayWatched.png)</visible>
-                            <control type="image">
-                                <texture colordiffuse="btv_accent">stremio/circle.png</texture>
-                            </control>
-                            <control type="image">
-                                <left>6</left>
-                                <top>6</top>
-                                <width>20</width>
-                                <height>20</height>
-                                <texture>bingetv/tick.png</texture>
-                            </control>
-                        </control>
+                        <include content="BTVRibbon"><param name="left">60</param><param name="top">0</param><param name="size">120</param></include>
                     </control>
                     <control type="label">
                         <left>10</left>
@@ -933,23 +901,7 @@
                         <top>10</top>
                         <width>180</width>
                         <height>270</height>
-                        <control type="group">
-                            <right>12</right>
-                            <top>12</top>
-                            <width>32</width>
-                            <height>32</height>
-                            <visible>String.IsEqual(ListItem.Overlay,OverlayWatched.png)</visible>
-                            <control type="image">
-                                <texture colordiffuse="btv_accent">stremio/circle.png</texture>
-                            </control>
-                            <control type="image">
-                                <left>6</left>
-                                <top>6</top>
-                                <width>20</width>
-                                <height>20</height>
-                                <texture>bingetv/tick.png</texture>
-                            </control>
-                        </control>
+                        <include content="BTVRibbon"><param name="left">60</param><param name="top">0</param><param name="size">120</param></include>
                     </control>
                     <control type="label">
                         <left>10</left>
@@ -992,23 +944,7 @@
                         <top>10</top>
                         <width>180</width>
                         <height>270</height>
-                        <control type="group">
-                            <right>12</right>
-                            <top>12</top>
-                            <width>32</width>
-                            <height>32</height>
-                            <visible>String.IsEqual(ListItem.Overlay,OverlayWatched.png)</visible>
-                            <control type="image">
-                                <texture colordiffuse="btv_accent">stremio/circle.png</texture>
-                            </control>
-                            <control type="image">
-                                <left>6</left>
-                                <top>6</top>
-                                <width>20</width>
-                                <height>20</height>
-                                <texture>bingetv/tick.png</texture>
-                            </control>
-                        </control>
+                        <include content="BTVRibbon"><param name="left">60</param><param name="top">0</param><param name="size">120</param></include>
                     </control>
                     <control type="label">
                         <left>10</left>

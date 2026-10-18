@@ -570,7 +570,7 @@ msgid "Lang"
 msgstr ""
 
 msgctxt "#30376"
-msgid "Update Arctic Zephyr Stremio hubs"
+msgid "Update the skin's hubs"
 msgstr ""
 
 msgctxt "#30377"
@@ -1114,7 +1114,7 @@ msgid "Write detailed request information to the Kodi log."
 msgstr ""
 
 msgctxt "#30378"
-msgid "Library integration is off while Arctic Zephyr Stremio is your skin: its menus and widgets show your catalogs directly."
+msgid "Library integration is off with this skin: its menus and widgets show your catalogs directly."
 msgstr ""
 
 msgctxt "#30380"

@@ -1,49 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- BingeTV: notifications as a dark rounded card at the top right with a red edge, sliding in
+     from the right. 400 is the icon, 401 the heading, 402 the message. -->
 <window>
 	<zorder>3</zorder>
 	<controls>
 		<control type="group">
 			<depth>DepthMax</depth>
-			<top>85</top>
-			<right>0</right>
+			<top>40</top>
+			<right>40</right>
 			<width>640</width>
-			<include>OpenClose_Right</include>
+			<height>124</height>
+			<animation type="WindowOpen" reversible="false">
+				<effect type="slide" start="700,0" end="0,0" time="320" tween="cubic" easing="out" />
+				<effect type="fade" start="0" end="100" time="200" />
+			</animation>
+			<animation type="WindowClose" reversible="false">
+				<effect type="slide" start="0,0" end="700,0" time="260" tween="cubic" easing="in" />
+				<effect type="fade" start="100" end="0" time="260" />
+			</animation>
 			<visible>String.IsEmpty(Window(Home).Property(script.cinemavision.running))</visible>
 			<control type="image">
-				<left>0</left>
-				<top>0</top>
+				<left>-12</left>
+				<top>-4</top>
+				<width>664</width>
+				<height>148</height>
+				<texture colordiffuse="99000000" border="32">bingetv/panel.png</texture>
+			</control>
+			<control type="image">
 				<width>640</width>
-				<height>160</height>
-				<texture>dialogs/dialog-bg-nobo.png</texture>
-				<bordertexture border="21" infill="false">overlays/shadow.png</bordertexture>
-				<bordersize>20</bordersize>
+				<height>124</height>
+				<texture colordiffuse="F21B1D23" border="32">bingetv/panel.png</texture>
+			</control>
+			<!-- the red edge: a red card under the dark one, showing down its left side -->
+			<control type="group">
+				<width>640</width>
+				<height>124</height>
+				<control type="image">
+					<width>40</width>
+					<height>124</height>
+					<texture colordiffuse="btv_accent" border="20,32,0,32">bingetv/panel.png</texture>
+				</control>
+				<control type="image">
+					<left>6</left>
+					<width>634</width>
+					<height>124</height>
+					<texture colordiffuse="FF1B1D23" border="26,32,32,32">bingetv/panel.png</texture>
+				</control>
 			</control>
 			<control type="image" id="400">
 				<description>avatar</description>
-				<left>25</left>
-				<top>25</top>
-				<width>110</width>
-				<height>110</height>
-				<aspectratio>stretch</aspectratio>
+				<left>30</left>
+				<top>26</top>
+				<width>72</width>
+				<height>72</height>
+				<aspectratio>keep</aspectratio>
 			</control>
 			<control type="fadelabel" id="401">
 				<description>Line 1 Label</description>
-				<left>150</left>
-				<top>40</top>
-				<width>450</width>
-				<height>18</height>
-				<font>font37</font>
+				<left>124</left>
+				<top>20</top>
+				<width>490</width>
+				<height>40</height>
+				<font>btv_line</font>
+				<textcolor>FFFFFFFF</textcolor>
 				<aligny>center</aligny>
 				<scrollout>false</scrollout>
 				<pauseatend>2000</pauseatend>
 			</control>
 			<control type="fadelabel" id="402">
 				<description>Line 2 Label</description>
-				<left>151</left>
-				<top>68</top>
-				<width>450</width>
-				<height>60</height>
-				<font>font27_narrow</font>
+				<left>124</left>
+				<top>62</top>
+				<width>490</width>
+				<height>40</height>
+				<font>btv_text</font>
+				<textcolor>FFB4B4B4</textcolor>
 				<aligny>center</aligny>
 				<scrollout>false</scrollout>
 				<pauseatend>2000</pauseatend>

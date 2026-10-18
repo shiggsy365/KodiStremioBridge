@@ -65,15 +65,7 @@
 			<control type="radiobutton" id="8">
 				<description>Default RadioButton</description>
 				<include>BTVSettingRow</include>
-				<radiowidth>66</radiowidth>
-				<radioheight>36</radioheight>
-				<radioposx>610</radioposx>
-				<textureradioonfocus>bingetv/toggle_on_fo.png</textureradioonfocus>
-				<textureradioonnofocus>bingetv/toggle_on.png</textureradioonnofocus>
-				<textureradioofffocus>bingetv/toggle_off_fo.png</textureradioofffocus>
-				<textureradiooffnofocus>bingetv/toggle_off.png</textureradiooffnofocus>
-				<textureradioondisabled colordiffuse="66FFFFFF">bingetv/toggle_on.png</textureradioondisabled>
-				<textureradiooffdisabled colordiffuse="66FFFFFF">bingetv/toggle_off.png</textureradiooffdisabled>
+				<include content="BTVSettingSwitch"><param name="x">610</param></include>
 			</control>
 			<control type="spincontrolex" id="9">
 				<description>Default SpinControlex</description>

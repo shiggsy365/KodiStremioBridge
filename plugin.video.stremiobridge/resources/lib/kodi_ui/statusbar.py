@@ -11,6 +11,7 @@ work runs in a thread while the bar holds the screen, and Back stops it.
 """
 
 import threading
+import time
 
 import xbmc
 import xbmcgui
@@ -125,23 +126,38 @@ def playback_status(title="", subtitle="", poster="", fanart="", logo=""):
     return DialogStatus(title, subtitle, poster)
 
 
-# Between the play route handing Kodi the stream and the video starting, Kodi opens it (its
-# busy dialog, then a dark player). These home-window properties let a skin keep showing the
-# title meanwhile (BingeTV: the same page as the status window). The service clears them once
-# the video starts, fails or stops; the play route when it gives up.
+# While the play route works (finding streams, trying them, the stream list, subtitles) and
+# then while Kodi opens the stream it was handed (its busy dialog, then a dark player), these
+# home-window properties let a skin keep the title's page up throughout (BingeTV: the same page
+# as the status window, behind it), instead of what's underneath showing between the steps.
+# The play route clears them when it gives up; once it has handed over (`.handoff`, a time),
+# the service clears them when the video starts, fails or stops, or after HANDOFF_TIMEOUT.
 PREPARING = "stremiobridge.preparing"
+HANDOFF_TIMEOUT = 60
 
 
-def announce_preparing(title="", fanart="", logo=""):
+def announce_preparing(title="", fanart="", logo="", status="", handoff=False, subtitle=""):
     home = xbmcgui.Window(10000)
+    home.setProperty(f"{PREPARING}.subtitle", subtitle)
     home.setProperty(f"{PREPARING}.fanart", fanart)
     home.setProperty(f"{PREPARING}.logo", logo)
     home.setProperty(f"{PREPARING}.title", title)
-    home.setProperty(f"{PREPARING}.status", L(30451))
+    home.setProperty(f"{PREPARING}.status", status)
+    if handoff:
+        home.setProperty(f"{PREPARING}.handoff", str(time.time()))
     home.setProperty(PREPARING, "1")
+
+
+def handoff_age():
+    """Seconds since the play route handed Kodi the stream; None if it hasn't."""
+    try:
+        return time.time() - float(xbmcgui.Window(10000).getProperty(f"{PREPARING}.handoff"))
+    except ValueError:
+        return None
 
 
 def clear_preparing():
     home = xbmcgui.Window(10000)
-    for name in (PREPARING, f"{PREPARING}.fanart", f"{PREPARING}.logo", f"{PREPARING}.title", f"{PREPARING}.status"):
+    for name in (PREPARING, f"{PREPARING}.fanart", f"{PREPARING}.logo", f"{PREPARING}.title", f"{PREPARING}.status",
+                 f"{PREPARING}.subtitle", f"{PREPARING}.handoff"):
         home.clearProperty(name)

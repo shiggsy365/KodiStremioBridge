@@ -52,6 +52,15 @@ def stream_prefs():
 
 @route("play")
 def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries=None, pick=None, at=None):
+    """Find, choose and hand Kodi a stream (_play); True if it handed one over."""
+    try:
+        return _play(plugin, type, id, meta, binge, resume, start, tries, pick, at)
+    except BaseException:
+        clear_preparing()  # never leave the preparing page up
+        raise
+
+
+def _play(plugin, type, id, meta, binge, resume, start, tries, pick, at):
     """`id` is what streams are requested for (e.g. ``tt123:1:2`` for an
     episode); `meta` is the show's id when that differs. `binge` asks for a
     stream from the same source group (sent by Up Next for the next episode).
@@ -80,6 +89,7 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
 
     client = get_client()
     info = load_show(type, meta or id, quiet=True, videos={id})
+    hold_preparing_page(info, id, L(30170))
     streams, errors, cancelled = with_status(info, id, lambda status: _fetch_streams(client, addons, type, id, status))
     for label, exc in errors:
         log(f"Streams from {label} failed: {exc}")
@@ -157,7 +167,7 @@ def play(plugin, type, id, meta=None, binge=None, resume=None, start=None, tries
 
     # Never log the path: debrid links and configured addons carry tokens.
     log(f"Playing {type} {id} from {stream.addon}: {describe(stream)[0] or stream.kind}")
-    announce_preparing(info.name if info else "", *status_art(info))
+    hold_preparing_page(info, id, L(30451), handoff=True)
     if handle >= 0:
         xbmcplugin.setResolvedUrl(handle, True, item)
     else:
@@ -215,14 +225,25 @@ def status_art(info):
     return (info.background, info.logo) if info is not None else ("", "")
 
 
+def status_titles(info, video_id):
+    """(title, subtitle) for the status page: the title's name; an episode's code and title."""
+    if info is None:
+        return "", ""
+    video = next((v for v in info.videos if v.id == video_id), None)
+    subtitle = "  ".join(part for part in (episode_code(video), video.title) if part) if video else ""
+    return info.name, subtitle
+
+
+def hold_preparing_page(info, video_id, status, handoff=False):
+    """Hold the preparing page up for this title (statusbar.announce_preparing)."""
+    title, subtitle = status_titles(info, video_id)
+    announce_preparing(title, *status_art(info), status=status, handoff=handoff, subtitle=subtitle)
+
+
 def with_status(info, video_id, work):
     """``work(status)`` behind the status bar (statusbar.py), about the title playing."""
-    title, subtitle, poster = "", "", ""
-    if info is not None:
-        title, poster = info.name, info.poster
-        video = next((v for v in info.videos if v.id == video_id), None)
-        if video is not None:
-            subtitle = "  ".join(part for part in (episode_code(video), video.title) if part)
+    title, subtitle = status_titles(info, video_id)
+    poster = info.poster if info is not None else ""
     status = playback_status(title, subtitle, poster, *status_art(info))
     try:
         return status.run(work)

@@ -207,6 +207,32 @@
 			</control>
 		</definition>
 	</include>
+	<!-- Watched / paused ribbon across the top-right corner of a poster or thumbnail: green
+	     "Paused" while it has a resume point, else red "Watched" once watched. `left`/`top` place the
+	     ribbon's square (`size`) so its right and top edges meet the artwork's. -->
+	<expression name="BTVPaused">ListItem.IsResumable</expression>
+	<expression name="BTVWatched">!ListItem.IsResumable + [Integer.IsGreater(ListItem.PlayCount,0) | String.IsEqual(ListItem.Overlay,OverlayWatched.png)]</expression>
+	<include name="BTVRibbon">
+		<param name="size">120</param>
+		<definition>
+			<control type="image">
+				<left>$PARAM[left]</left>
+				<top>$PARAM[top]</top>
+				<width>$PARAM[size]</width>
+				<height>$PARAM[size]</height>
+				<texture>bingetv/ribbon_paused.png</texture>
+				<visible>$EXP[BTVPaused]</visible>
+			</control>
+			<control type="image">
+				<left>$PARAM[left]</left>
+				<top>$PARAM[top]</top>
+				<width>$PARAM[size]</width>
+				<height>$PARAM[size]</height>
+				<texture>bingetv/ribbon_watched.png</texture>
+				<visible>$EXP[BTVWatched]</visible>
+			</control>
+		</definition>
+	</include>
 	<include name="BTVPoster">
 		<control type="image">
 			<left>7</left>
@@ -216,14 +242,7 @@
 			<aspectratio>scale</aspectratio>
 			<texture background="true" diffuse="bingetv/poster_mask.png" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
 		</control>
-		<control type="image">
-			<left>89</left>
-			<top>7</top>
-			<width>120</width>
-			<height>120</height>
-			<texture>bingetv/paused_corner.png</texture>
-			<visible>ListItem.IsResumable</visible>
-		</control>
+		<include content="BTVRibbon"><param name="left">69</param><param name="top">7</param><param name="size">140</param></include>
 	</include>
 	<!-- A poster's name underneath it (hub pages). -->
 	<include name="BTVPosterName">
@@ -925,18 +944,35 @@
 	<!-- ============================================================ settings dialogs (DialogSettings.xml)
 	     One row: grey text, a red pill with white text when focused. -->
 	<include name="BTVSettingRow">
-		<width>700</width>
-		<height>64</height>
-		<textoffsetx>28</textoffsetx>
-		<aligny>center</aligny>
-		<font>btv_text</font>
-		<textcolor>FFDDDDDD</textcolor>
-		<focusedcolor>FFFFFFFF</focusedcolor>
-		<disabledcolor>66FFFFFF</disabledcolor>
-		<invalidcolor>invalid</invalidcolor>
-		<selectedcolor>FFFFFFFF</selectedcolor>
-		<texturefocus colordiffuse="btv_accent" border="20">bingetv/pill.png</texturefocus>
-		<texturenofocus />
+		<param name="width">700</param>
+		<definition>
+			<width>$PARAM[width]</width>
+			<height>64</height>
+			<textoffsetx>28</textoffsetx>
+			<aligny>center</aligny>
+			<font>btv_text</font>
+			<textcolor>FFDDDDDD</textcolor>
+			<focusedcolor>FFFFFFFF</focusedcolor>
+			<disabledcolor>66FFFFFF</disabledcolor>
+			<invalidcolor>invalid</invalidcolor>
+			<selectedcolor>FFFFFFFF</selectedcolor>
+			<texturefocus colordiffuse="btv_accent" border="20">bingetv/pill.png</texturefocus>
+			<texturenofocus />
+		</definition>
+	</include>
+	<!-- The red switch on a settings row's right (radiobuttons); `x` is where it sits -->
+	<include name="BTVSettingSwitch">
+		<definition>
+			<radiowidth>66</radiowidth>
+			<radioheight>36</radioheight>
+			<radioposx>$PARAM[x]</radioposx>
+			<textureradioonfocus>bingetv/toggle_on_fo.png</textureradioonfocus>
+			<textureradioonnofocus>bingetv/toggle_on.png</textureradioonnofocus>
+			<textureradioofffocus>bingetv/toggle_off_fo.png</textureradioofffocus>
+			<textureradiooffnofocus>bingetv/toggle_off.png</textureradiooffnofocus>
+			<textureradioondisabled colordiffuse="66FFFFFF">bingetv/toggle_on.png</textureradioondisabled>
+			<textureradiooffdisabled colordiffuse="66FFFFFF">bingetv/toggle_off.png</textureradiooffdisabled>
+		</definition>
 	</include>
 	<include name="BTVSettingDialogButton">
 		<definition>

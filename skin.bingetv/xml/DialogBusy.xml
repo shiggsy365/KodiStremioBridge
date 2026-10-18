@@ -11,6 +11,7 @@
 				<param name="fanart">Window(Home).Property(stremiobridge.preparing.fanart)</param>
 				<param name="logo">Window(Home).Property(stremiobridge.preparing.logo)</param>
 				<param name="title">Window(Home).Property(stremiobridge.preparing.title)</param>
+				<param name="subtitle">Window(Home).Property(stremiobridge.preparing.subtitle)</param>
 				<param name="status">Window(Home).Property(stremiobridge.preparing.status)</param>
 			</include>
 		</control>

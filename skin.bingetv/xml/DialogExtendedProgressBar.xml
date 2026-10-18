@@ -26,7 +26,7 @@
 					<top>10</top>
 					<width>60</width>
 					<height>60</height>
-					<texture>$INFO[Control.GetLabel(32),dialogs/volume/progress/p,.png]</texture>
+					<texture colordiffuse="btv_accent">$INFO[Control.GetLabel(32),dialogs/volume/progress/p,.png]</texture>
 					<animation effect="fade" end="50" time="0" condition="true">Conditional</animation>
 				</control>
 				<control type="image">
@@ -34,7 +34,7 @@
 					<top>10</top>
 					<width>60</width>
 					<height>60</height>
-					<texture>dialogs/extendedprogress/loading.png</texture>
+					<texture colordiffuse="btv_accent">dialogs/extendedprogress/loading.png</texture>
 					<animation effect="rotate" center="auto" start="360" end="0" time="1500" loop="true" condition="true">Conditional</animation>
 				</control>
 			</control>

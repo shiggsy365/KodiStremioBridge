@@ -1075,23 +1075,7 @@
             <top>10</top>
             <width>494</width>
             <height>300</height>
-            <control type="group">
-                <right>12</right>
-                <top>12</top>
-                <width>40</width>
-                <height>40</height>
-                <visible>String.IsEqual(ListItem.Overlay,OverlayWatched.png)</visible>
-                <control type="image">
-                    <texture colordiffuse="btv_accent">stremio/circle.png</texture>
-                </control>
-                <control type="image">
-                    <left>8</left>
-                    <top>8</top>
-                    <width>24</width>
-                    <height>24</height>
-                    <texture>bingetv/tick.png</texture>
-                </control>
-            </control>
+            <include content="BTVRibbon"><param name="left">324</param><param name="top">0</param><param name="size">170</param></include>
         </control>
         <control type="group">
             <left>12</left>
@@ -1207,6 +1191,7 @@
             <aspectratio scalediffuse="false">scale</aspectratio>
             <texture background="true" diffuse="stremio/poster-mask.png" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
         </control>
+        <include content="BTVRibbon"><param name="left">72</param><param name="top">4</param><param name="size">140</param></include>
         <control type="label">
             <left>12</left>
             <top>312</top>

@@ -28,7 +28,7 @@ from .common import (
     TRACKING, notify_widgets, parse_announcement, plugin_url, refresh_when_idle, skin_active, stale_queue_path,
     take_announcement, take_stale,
 )
-from .statusbar import clear_preparing
+from .statusbar import HANDOFF_TIMEOUT, clear_preparing, handoff_age
 
 SAVE_EVERY = 15            # seconds between progress saves while playing
 SCROBBLE_EVERY = 600       # seconds between "still watching" scrobbles
@@ -131,14 +131,16 @@ class Tracker(xbmc.Player):
             self._scrobble("start")
 
     def onPlayBackStopped(self):
-        clear_preparing()
+        if handoff_age() is not None:  # not the last video stopping while the next is prepared
+            clear_preparing()
         self._finish(ended=False)
 
     def onPlayBackEnded(self):
         self._finish(ended=True)
 
     def onPlayBackError(self):
-        clear_preparing()
+        if handoff_age() is not None:
+            clear_preparing()
         # A play announced but not started yet is the one that failed: playing
         # again straight after a Stop, Kodi can report the error before the
         # previous video's stop reaches us. Otherwise it's the tracked video.
@@ -267,6 +269,14 @@ def add_subtitles(paths):
 
 
 MAX_STREAM_RETRIES = 5
+
+
+def expire_preparing():
+    """Take the preparing page down if Kodi never started the stream it was handed."""
+    age = handoff_age()
+    if age is not None and age > HANDOFF_TIMEOUT:
+        log("Kodi didn't start the stream: taking the preparing page down")
+        clear_preparing()
 
 
 def retry_next_stream(retry, same_first=True):
@@ -718,6 +728,7 @@ def _loop(monitor, worker, tracker, follower, home_widgets):
     next_skin_hubs = time.time() + 20
     while not monitor.waitForAbort(1):
         tracker.tick()
+        expire_preparing()
         home_widgets.tick()
         if not skin_active():  # with our skin, titles' menus are ours (contextmenu.py), not Kodi's
             follower.tick()

@@ -4040,3 +4040,42 @@ def test_autoplay_skips_a_placeholder_clip(settings, window, monkeypatch):
     monkeypatch.setattr(service.xbmc, "sleep", lambda ms: None)
     service.retry_next_stream(retry, False)                   # straight to the next stream
     assert played == [f"PlayMedia({BASE}?action=play&type=movie&id=tt1&resume=0&start=1&tries=1,noresume)"]
+
+
+def test_preparing_page_stays_up_from_start_to_hand_over(server, playback, settings, window, monkeypatch):
+    """The page is up from the start of play (so nothing shows between the status steps and the
+    stream list), comes down when play gives up or fails, and after the hand-over only when the
+    video starts, fails, stops or never comes."""
+    from kodi_ui import service, statusbar
+
+    server.routes["/meta/series/tt5.json"] = {"meta": {**SHOW["meta"], "background": "http://bg"}}
+    server.routes["/s/stream/series/tt5%3A1%3A1.json"] = streams({"url": "https://cdn/e.mkv"})
+    seen = {}
+
+    def choose(candidates, meta=None, video_id=None, under=None):
+        seen.update(window)                                    # what's up while the stream list shows
+        return None                                            # backed out
+
+    monkeypatch.setattr(player, "choose_stream", choose)
+    call("play", type="series", id="tt5:1:1", meta="tt5")
+    assert seen["stremiobridge.preparing"] == "1" and seen["stremiobridge.preparing.fanart"] == "http://bg"
+    assert "stremiobridge.preparing.handoff" not in seen
+    assert not any(k.startswith("stremiobridge.preparing") for k in window)   # gave up: down
+
+    monkeypatch.setattr(player, "choose_stream", lambda *a, **k: 1 / 0)
+    with pytest.raises(ZeroDivisionError):
+        call("play", type="series", id="tt5:1:1", meta="tt5")
+    assert not any(k.startswith("stremiobridge.preparing") for k in window)   # failed: down
+
+    # Before the hand-over, the last video stopping (switch_stream) leaves it up
+    statusbar.announce_preparing("Show", status="…")
+    service.Tracker(FakeWorker()).onPlayBackStopped()
+    assert window["stremiobridge.preparing"] == "1"
+
+    statusbar.announce_preparing("Show", status="…", handoff=True)
+    service.expire_preparing()
+    assert window["stremiobridge.preparing"] == "1"            # Kodi's still opening it
+    later = time.time() + statusbar.HANDOFF_TIMEOUT + 1
+    monkeypatch.setattr(statusbar.time, "time", lambda: later)
+    service.expire_preparing()
+    assert not any(k.startswith("stremiobridge.preparing") for k in window)   # never started: down

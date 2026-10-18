@@ -26,20 +26,19 @@
 			<onclick>Action(close)</onclick>
 		</control>
 		<control type="group">
-			<animation effect="slide" end="0,175" time="0" condition="Window.IsActive(home)">conditional</animation>
 			<control type="image" id="999">
 				<description>background image</description>
 				<left>0</left>
 				<top>0</top>
 				<width>450</width>
 				<height>780</height>
-				<texture colordiffuse="dialog_tint">colors/white.png</texture>
+				<texture colordiffuse="dialog_tint" border="32">bingetv/panel.png</texture>
 			</control>
 			<control type="grouplist" id="996">
 				<description>grouplist for context buttons</description>
-				<left>0</left>
+				<left>8</left>
 				<top>0</top>
-				<width>450</width>
+				<width>434</width>
 				<height max="780">auto</height>
 				<usecontrolcoords>true</usecontrolcoords>
 			</control>
@@ -54,10 +53,14 @@
 			<description>button template</description>
 			<left>0</left>
 			<top></top>
-			<width>450</width>
+			<width>434</width>
 			<height>65</height>
-			<align>center</align>
-			<texturefocus colordiffuse="button_focus">lists/focus.png</texturefocus>
+			<align>left</align>
+			<textoffsetx>32</textoffsetx>
+			<font>btv_text</font>
+			<textcolor>FFDDDDDD</textcolor>
+			<focusedcolor>FFFFFFFF</focusedcolor>
+			<texturefocus colordiffuse="button_focus" border="16">lists/focus.png</texturefocus>
 			<texturenofocus />
 		</control>
 	</controls>
