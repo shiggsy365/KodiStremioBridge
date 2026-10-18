@@ -223,6 +223,7 @@ def load_profile(plugin, name):
         xbmc.executebuiltin("Action(Back)")  # the one in use: just close the picker
         return
     log(f"Switching to profile {name}")
+    xbmcgui.Window(10000).setProperty("btv.fromsettings", "1")  # BingeTV: Home focuses its menu button
     xbmc.executebuiltin(f'LoadProfile("{name}",prompt)')  # Kodi asks for a locked one's code
 
 
@@ -321,6 +322,7 @@ def switch_profile(plugin):
         if name == current:
             return
         log(f"Switching to profile {name}")
+        xbmcgui.Window(10000).setProperty("btv.fromsettings", "1")  # BingeTV: Home focuses its menu button
         # Kodi asks for a locked profile's code itself (prompt)
         xbmc.executebuiltin(f'LoadProfile("{name}",prompt)')
     elif action == "add":

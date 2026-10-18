@@ -4,6 +4,8 @@
      one in the middle, bigger and ringed in red; Exit BingeTV below. -->
 <window>
 	<defaultcontrol always="true">52</defaultcontrol>
+	<!-- whoever is chosen, Home opens on its menu bar's Home button -->
+	<onunload>SetProperty(btv.fromsettings,1,home)</onunload>
 	<controls>
 		<include content="BTVBackground">
 			<param name="fanart">special://skin/resources/fanart.jpg</param>
