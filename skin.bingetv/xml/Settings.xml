@@ -41,6 +41,11 @@
 				<include>SettingsPanel</include>
 				<content>
 					<item>
+						<label>BingeTV</label>
+						<onclick>ActivateWindow(SkinSettings)</onclick>
+						<icon>bingetv/osd/video.png</icon>
+					</item>
+					<item>
 						<label>$LOCALIZE[10003]</label>
 						<onclick>ActivateWindow(filemanager)</onclick>
 						<icon>icons/settings/filemanager.png</icon>

@@ -4079,3 +4079,49 @@ def test_preparing_page_stays_up_from_start_to_hand_over(server, playback, setti
     monkeypatch.setattr(statusbar.time, "time", lambda: later)
     service.expire_preparing()
     assert not any(k.startswith("stremiobridge.preparing") for k in window)   # never started: down
+
+
+def test_home_rows_editor(server, settings, home_props, monkeypatch, tmp_path):
+    """BingeTV's Home rows: add, remove and reset a menu item's rows; the menu bar's extra hubs."""
+    from kodi_ui import homerows, homewidgets
+
+    monkeypatch.setattr(homewidgets, "profile_dir", lambda: str(tmp_path))
+    monkeypatch.setattr(homerows, "profile_dir", lambda: str(tmp_path))
+    monkeypatch.setattr(homewidgets, "skin_active", lambda: True)
+    monkeypatch.setattr(homewidgets.xbmc, "getSkinDir", lambda: "skin.bingetv")
+    addon = install(server)
+    answers, headings = [], []
+
+    def select(self, heading, items, *a, **k):
+        headings.append((heading, list(items)))
+        return answers.pop(0)
+
+    monkeypatch.setattr(xbmcgui.Dialog, "select", select)
+    monkeypatch.setattr(xbmcgui.Dialog, "yesno", lambda self, *a, **k: True)
+
+    # Movies: the two standard rows; add the addon's Popular movies, then remove the first row
+    answers[:] = [2,          # "+ Add a row" (after the two rows)
+                  1, 0,       # the Movies hub, its first catalog
+                  0, 3,       # the first row: Remove (no "Move up" for it)
+                  -1]         # done
+    call("home_rows", handle=-1, item="movies")
+    assert [h for h, _ in headings][1] == common.L(30458)
+    rows = homerows.rows_of("movies")
+    assert [name for _, name in rows] == ["Popular Movies", "Popular"]
+    assert "action=catalog" in rows[1][0] and f"addon={addon.key}" in rows[1][0]
+    assert home_props["sbhome.movies.widgetName.2"] == "Popular"
+    assert home_props["sbhome.movies.widgetPath.3"] == ""               # no standard rows filling in
+    assert home_props["sbhome.10000.widgetName"] == "Continue Watching"  # other items untouched
+
+    answers[:] = [3, -1]      # "Back to the standard rows" (after two rows and "Add")
+    call("home_rows", handle=-1, item="movies")
+    assert [name for _, name in homerows.rows_of("movies")] == ["Featured Movies", "Popular Movies"]
+
+    # Only Movies and TV Shows have catalogs: no extra hubs on the menu bar; then one of your own
+    assert home_props["sbhubs.1.id"] == ""
+    registry = common.get_registry()
+    hub = registry.create_hub("Kids")
+    series = next(c for c in addon.manifest.catalogs if c.type == "series")
+    registry.set_catalog_pref(addon.key, series.key, hub=hub)
+    homewidgets.publish_hubs()
+    assert (home_props["sbhubs.1.id"], home_props["sbhubs.1.name"], home_props["sbhubs.2.id"]) == (hub, "Kids", "")

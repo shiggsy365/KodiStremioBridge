@@ -204,5 +204,6 @@
             <label>$INFO[Window.Property(empty)]</label>
             <visible>!String.IsEmpty(Window.Property(empty))</visible>
         </control>
+        <include>BTVTouchBack</include>
     </controls>
 </window>

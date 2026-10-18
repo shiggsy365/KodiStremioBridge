@@ -138,6 +138,14 @@ def organise(plugin):
     xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
 
 
+def _changed(registry=None):
+    """After a change to the hubs: this listing, and BingeTV's menu bar."""
+    from .homewidgets import publish_hubs
+
+    refresh_container()
+    publish_hubs(registry)
+
+
 def _hub_actions(plugin, registry, hub):
     actions = [(L(30358), plugin.run_url("hub_create")), (L(30359), plugin.run_url("hub_rename", hub=hub))]
     if registry.is_custom_hub(hub):
@@ -154,7 +162,7 @@ def _ask_new_hub(registry):
 @route("hub_create")
 def hub_create(plugin):
     if _ask_new_hub(get_registry()):
-        refresh_container()
+        _changed()
 
 
 @route("hub_rename")
@@ -168,7 +176,7 @@ def hub_rename(plugin, hub):
     if name.strip() == current or (custom and not name.strip()):
         return
     registry.rename_hub(hub, name)  # empty: a built-in hub gets its own name back
-    refresh_container()
+    _changed(registry)
 
 
 @route("hub_remove")
@@ -179,7 +187,7 @@ def hub_remove(plugin, hub):
     count = len(registry.hub_entries(hub))
     if xbmcgui.Dialog().yesno(L(30360), L(30363, name=hub_label(hub, registry), count=count)):
         registry.remove_hub(hub)
-        refresh_container()
+        _changed(registry)
 
 
 def _actions(addon, catalog):
@@ -260,7 +268,7 @@ def organise_do(plugin, addon, catalog, do):
         registry.set_catalog_pref(addon, catalog, hub=target)
     else:
         return
-    refresh_container()
+    _changed(registry)
 
 
 def _catalog(addon, catalog, registry=None):

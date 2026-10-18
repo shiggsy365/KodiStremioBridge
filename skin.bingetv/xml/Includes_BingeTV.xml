@@ -210,8 +210,8 @@
 	<!-- Watched / paused ribbon across the top-right corner of a poster or thumbnail: green
 	     "Paused" while it has a resume point, else red "Watched" once watched. `left`/`top` place the
 	     ribbon's square (`size`) so its right and top edges meet the artwork's. -->
-	<expression name="BTVPaused">ListItem.IsResumable</expression>
-	<expression name="BTVWatched">!ListItem.IsResumable + [Integer.IsGreater(ListItem.PlayCount,0) | String.IsEqual(ListItem.Overlay,OverlayWatched.png)]</expression>
+	<expression name="BTVPaused">ListItem.IsResumable + !Skin.HasSetting(btv.hideribbons)</expression>
+	<expression name="BTVWatched">!Skin.HasSetting(btv.hideribbons) + !ListItem.IsResumable + [Integer.IsGreater(ListItem.PlayCount,0) | String.IsEqual(ListItem.Overlay,OverlayWatched.png)]</expression>
 	<include name="BTVRibbon">
 		<param name="size">120</param>
 		<definition>
@@ -280,6 +280,60 @@
 	<!-- The menu along the top: where you are and the sections on the left; search, settings,
 	     (power) and the time on the right. Down returns to the row you were on. -->
 	<expression name="BTVMenuFocused">ControlGroup(9200).HasFocus | ControlGroup(9210).HasFocus</expression>
+	<!-- A hub other than Movies and TV Shows on the menu bar (Anime, More, your own): Stremio
+	     Bridge publishes those with catalogs as sbhubs.N.id / .name. It opens the hub page. -->
+	<include name="BTVHubButton">
+		<param name="kind_visible">true</param>
+		<definition>
+			<!-- one button per kind of hub, as a button's own textures can't vary: only the
+			     one matching the hub in slot `n` shows -->
+			<control type="button" id="920$PARAM[n]$PARAM[k]">
+				<onfocus>CancelAlarm(btvfocus1,true)</onfocus>
+				<onfocus>CancelAlarm(btvfocus2,true)</onfocus>
+				<onfocus>CancelAlarm(btvhubfocus1,true)</onfocus>
+				<onfocus>CancelAlarm(btvhubfocus2,true)</onfocus>
+				<width>64</width>
+				<height>60</height>
+				<label>$INFO[Window(Home).Property(sbhubs.$PARAM[n].name)]</label>
+				<textcolor>00FFFFFF</textcolor>
+				<focusedcolor>00FFFFFF</focusedcolor>
+				<texturenofocus>bingetv/bar/$PARAM[icon]_nf.png</texturenofocus>
+				<texturefocus>bingetv/bar/$PARAM[icon]_fo.png</texturefocus>
+				<onclick>SetProperty(btv.hub,$INFO[Window(Home).Property(sbhubs.$PARAM[n].id)],home)</onclick>
+				<onclick>SetProperty(btv.hubname,$INFO[Window(Home).Property(sbhubs.$PARAM[n].name)],home)</onclick>
+				<onclick condition="!Window.IsActive(1150)">ActivateWindow(1150)</onclick>
+				<onclick condition="Window.IsActive(1150)">SetFocus(300)</onclick>
+				<visible>$PARAM[kind_visible]</visible>
+			</control>
+		</definition>
+	</include>
+	<include name="BTVHubButtons">
+		<definition>
+			<include content="BTVHubButton"><param name="n">$PARAM[n]</param><param name="k">1</param><param name="icon">anime</param>
+				<param name="kind_visible">String.IsEqual(Window(Home).Property(sbhubs.$PARAM[n].id),anime)</param></include>
+			<include content="BTVHubButton"><param name="n">$PARAM[n]</param><param name="k">2</param><param name="icon">more</param>
+				<param name="kind_visible">String.IsEqual(Window(Home).Property(sbhubs.$PARAM[n].id),more)</param></include>
+			<include content="BTVHubButton"><param name="n">$PARAM[n]</param><param name="k">3</param><param name="icon">hub</param>
+				<param name="kind_visible">!String.IsEmpty(Window(Home).Property(sbhubs.$PARAM[n].id)) + !String.IsEqual(Window(Home).Property(sbhubs.$PARAM[n].id),anime) + !String.IsEqual(Window(Home).Property(sbhubs.$PARAM[n].id),more)</param></include>
+		</definition>
+	</include>
+	<!-- Touch screen mode (skin settings): a Back button at the top left, for pages a remote
+	     leaves with its Back key. Out of the remote's way (nothing navigates to it). -->
+	<include name="BTVTouchBack">
+		<control type="button">
+			<left>12</left>
+			<top>18</top>
+			<width>64</width>
+			<height>60</height>
+			<label>$LOCALIZE[15108]</label>
+			<textcolor>00FFFFFF</textcolor>
+			<focusedcolor>00FFFFFF</focusedcolor>
+			<texturenofocus>bingetv/bar/back_nf.png</texturenofocus>
+			<texturefocus>bingetv/bar/back_fo.png</texturefocus>
+			<onclick>Back</onclick>
+			<visible>Skin.HasSetting(touchmode) + !Window.IsActive(Home)</visible>
+		</control>
+	</include>
 	<include name="BTVTopBar">
 		<param name="title">$LOCALIZE[10000]</param>
 		<param name="down">$INFO[Window(Home).Property(btv.rowbase)]$INFO[Window(Home).Property(btv.row)]</param>
@@ -291,6 +345,7 @@
 				<height>140</height>
 				<texture colordiffuse="CC000000" flipy="true">bingetv/fade_down.png</texture>
 			</control>
+			<include>BTVTouchBack</include>
 			<control type="label">
 				<left>80</left>
 				<top>18</top>
@@ -377,6 +432,10 @@
 						<onclick condition="!Window.IsActive(1150)">ActivateWindow(1150)</onclick>
 						<onclick condition="Window.IsActive(1150)">SetFocus(300)</onclick>
 					</control>
+					<include content="BTVHubButtons"><param name="n">1</param></include>
+					<include content="BTVHubButtons"><param name="n">2</param></include>
+					<include content="BTVHubButtons"><param name="n">3</param></include>
+					<include content="BTVHubButtons"><param name="n">4</param></include>
 					<control type="button" id="9204">
 						<onfocus>CancelAlarm(btvfocus1,true)</onfocus>
 						<onfocus>CancelAlarm(btvfocus2,true)</onfocus>
@@ -390,6 +449,7 @@
 						<texturenofocus>bingetv/bar/music_nf.png</texturenofocus>
 						<texturefocus>bingetv/bar/music_fo.png</texturefocus>
 						<onclick>ActivateWindow(Music,root)</onclick>
+						<visible>!Skin.HasSetting(btv.hidemusic)</visible>
 					</control>
 					<control type="button" id="9205">
 						<onfocus>CancelAlarm(btvfocus1,true)</onfocus>
@@ -404,7 +464,7 @@
 						<texturenofocus>bingetv/bar/livetv_nf.png</texturenofocus>
 						<texturefocus>bingetv/bar/livetv_fo.png</texturefocus>
 						<onclick>ActivateWindow(TVChannels)</onclick>
-						<visible>System.HasPVRAddon</visible>
+						<visible>System.HasPVRAddon + !Skin.HasSetting(btv.hidelivetv)</visible>
 					</control>
 			</control>
 			<control type="grouplist" id="9210">
@@ -945,6 +1005,24 @@
 	</include>
 	<!-- ============================================================ settings dialogs (DialogSettings.xml)
 	     One row: grey text, a red pill with white text when focused. -->
+	<!-- Skin settings (SkinSettings.xml) -->
+	<variable name="BTVOSDHideLabel">
+		<value condition="Skin.HasSetting(btv.osd3)">3 seconds</value>
+		<value condition="Skin.HasSetting(btv.osd5)">5 seconds</value>
+		<value condition="Skin.HasSetting(btv.osd10)">10 seconds</value>
+		<value>7 seconds</value>
+	</variable>
+	<expression name="BTVOSDIdle">[Skin.HasSetting(btv.osd3) + System.IdleTime(3)] | [Skin.HasSetting(btv.osd5) + System.IdleTime(5)] | [Skin.HasSetting(btv.osd10) + System.IdleTime(10)] | [!Skin.HasSetting(btv.osd3) + !Skin.HasSetting(btv.osd5) + !Skin.HasSetting(btv.osd10) + System.IdleTime(7)]</expression>
+	<variable name="BTVSkinSettingHelp">
+		<value condition="Control.HasFocus(101)">Choose the rows on Home and on the Movies and TV Shows menu items: add one from your lists or any catalog, move it, rename it or remove it.</value>
+		<value condition="Control.HasFocus(102)">Music on the menu bar, for music from your add-ons and library.</value>
+		<value condition="Control.HasFocus(103)">Live TV on the menu bar, when a TV add-on (such as IPTV Simple) is set up.</value>
+		<value condition="Control.HasFocus(104)">A power button by the clock, to quit BingeTV or turn the device off.</value>
+		<value condition="Control.HasFocus(105)">A green "Paused" ribbon on titles you're part-way through, and a red "Watched" one on those you've seen.</value>
+		<value condition="Control.HasFocus(106)">How long the player's controls stay up after your last key press.</value>
+		<value condition="Control.HasFocus(107)">For tablets and other touch screens: a Back button at the top left of every page but Home.</value>
+		<value condition="Control.HasFocus(108)">Stremio Bridge's own settings: your add-ons, catalogs, playback, subtitles, MDBList and more.</value>
+	</variable>
 	<include name="BTVSettingRow">
 		<param name="width">700</param>
 		<definition>

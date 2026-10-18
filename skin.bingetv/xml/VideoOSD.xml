@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- BingeTV OSD: round buttons on DialogSeekBar's bar, and the progress line to seek along (Up).
-     It closes itself after 7 seconds without a key press (Custom_1160_OSDAutoClose.xml). -->
+     It closes itself after 7 seconds (skin settings) without a key press (Custom_1160_OSDAutoClose.xml). -->
 <window>
 	<onload condition="!Player.PauseEnabled">SetFocus(603)</onload>
 	<defaultcontrol always="true">602</defaultcontrol>

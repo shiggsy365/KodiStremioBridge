@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- BingeTV: closes the OSD after 7 seconds without a key press (not while one of its settings
+<!-- BingeTV: closes the OSD after 7 seconds (skin settings: 3-10) without a key press (not while one of its settings
      dialogs, the channels or the guide is open). Kodi opens this by itself when its <visible>
      becomes true; it closes the OSD and, with that, itself. -->
 <window type="dialog" id="1160">
-	<visible>Window.IsActive(videoosd) + System.IdleTime(7)</visible>
+	<visible>Window.IsActive(videoosd) + [$EXP[BTVOSDIdle]]</visible>
 	<visible>![Window.IsActive(osdaudiosettings) | Window.IsActive(osdsubtitlesettings) | Window.IsActive(osdvideosettings) | Window.IsActive(osdcmssettings) | Window.IsActive(1101) | Window.IsActive(pvrosdchannels) | Window.IsActive(pvrchannelguide) | Window.IsActive(pvrguideinfo) | Window.IsActive(sliderdialog) | Window.IsActive(subtitlesearch) | Window.IsActive(playerprocessinfo) | Window.IsActive(videobookmarks)]</visible>
 	<onload>Dialog.Close(videoosd)</onload>
 	<controls />

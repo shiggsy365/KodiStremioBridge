@@ -21,10 +21,11 @@ import os
 import re
 from urllib.parse import parse_qsl, urlsplit
 
+import xbmc
 import xbmcgui
 import xbmcvfs
 
-from .common import ADDON_ID, SKIN_ID, WATCH_RELOAD, WATCH_ROWS, WIDGETS_RELOAD, log, profile_dir, skin_active
+from .common import ADDON_ID, BINGETV_SKIN_ID, SKIN_ID, WATCH_RELOAD, WATCH_ROWS, WIDGETS_RELOAD, log, profile_dir, skin_active
 
 ITEMS = ("10000", "movies", "tvshows")  # labelIDs of the home menu's Home, Movies and TV Shows
 SLOTS = range(1, 7)
@@ -172,3 +173,27 @@ def publish():
             if name.startswith("widgetPath") and value.startswith(_OURS):
                 value = with_reload(value, token, watch_token)
             home.setProperty(home_property(item, name), value)
+    try:
+        publish_hubs()
+    except Exception as exc:  # noqa: BLE001 - the rows matter more than the menu's extra hubs
+        log(f"Menu hubs not published: {exc}")
+
+
+# BingeTV's menu bar: the hubs other than Movies and TV Shows that have catalogs
+# (Anime, More, the user's own), as sbhubs.N.id / sbhubs.N.name.
+MENU_HUBS = 4
+
+
+def publish_hubs(registry=None):
+    if xbmc.getSkinDir() != BINGETV_SKIN_ID:
+        return
+    from .common import get_registry
+    from .hubs import hub_label
+
+    registry = registry or get_registry()
+    hubs = [h for h in registry.hubs_in_use() if h not in ("movies", "tvshows")][:MENU_HUBS]
+    home = xbmcgui.Window(10000)
+    for n in range(1, MENU_HUBS + 1):
+        hub = hubs[n - 1] if n <= len(hubs) else ""
+        home.setProperty(f"sbhubs.{n}.id", hub)
+        home.setProperty(f"sbhubs.{n}.name", hub_label(hub, registry) if hub else "")

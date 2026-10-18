@@ -981,5 +981,6 @@
             <label>$VAR[StremioSearchHint]</label>
             <visible>!Integer.IsGreater(Container(401).NumItems,0) + !Integer.IsGreater(Container(402).NumItems,0) + !Container(401).IsUpdating + !Container(402).IsUpdating</visible>
         </control>
+        <include>BTVTouchBack</include>
     </controls>
 </window>

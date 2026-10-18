@@ -1344,3 +1344,35 @@ msgstr ""
 msgctxt "#30451"
 msgid "Preparing to play…"
 msgstr ""
+
+msgctxt "#30452"
+msgid "Home rows"
+msgstr ""
+
+msgctxt "#30453"
+msgid "Home"
+msgstr ""
+
+msgctxt "#30454"
+msgid "Add a row"
+msgstr ""
+
+msgctxt "#30455"
+msgid "Back to the standard rows"
+msgstr ""
+
+msgctxt "#30456"
+msgid "Change what it shows"
+msgstr ""
+
+msgctxt "#30457"
+msgid "Use the standard rows again? Your rows for this menu item are removed."
+msgstr ""
+
+msgctxt "#30458"
+msgid "What should the row show?"
+msgstr ""
+
+msgctxt "#30459"
+msgid "Your lists"
+msgstr ""

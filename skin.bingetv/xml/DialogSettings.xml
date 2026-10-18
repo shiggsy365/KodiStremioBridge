@@ -5,17 +5,17 @@
 <window>
 	<defaultcontrol>5</defaultcontrol>
 	<animation type="WindowOpen" reversible="false">
-		<effect type="slide" start="780,0" end="0,0" time="260" tween="cubic" easing="out" />
+		<effect type="slide" start="900,0" end="0,0" time="260" tween="cubic" easing="out" />
 		<effect type="fade" start="0" end="100" time="200" />
 	</animation>
 	<animation type="WindowClose" reversible="false">
-		<effect type="slide" start="0,0" end="780,0" time="220" tween="cubic" easing="in" />
+		<effect type="slide" start="0,0" end="900,0" time="220" tween="cubic" easing="in" />
 		<effect type="fade" start="100" end="0" time="200" />
 	</animation>
 	<controls>
 		<control type="group">
-			<left>1140</left>
-			<width>780</width>
+			<left>1020</left>
+			<width>900</width>
 			<visible>!Window.IsVisible(sliderdialog)</visible>
 			<animation effect="fade" time="200">VisibleChange</animation>
 			<control type="image">
@@ -25,14 +25,14 @@
 				<texture colordiffuse="99000000" flipx="true">bingetv/fade_right.png</texture>
 			</control>
 			<control type="image">
-				<width>780</width>
+				<width>900</width>
 				<height>1080</height>
 				<texture colordiffuse="F215171C">bingetv/white.png</texture>
 			</control>
 			<control type="label" id="2">
 				<left>50</left>
 				<top>54</top>
-				<width>680</width>
+				<width>800</width>
 				<height>56</height>
 				<aligny>center</aligny>
 				<font>SBInfoHeading</font>
@@ -49,7 +49,7 @@
 				<description>control area</description>
 				<left>30</left>
 				<top>150</top>
-				<width>700</width>
+				<width>820</width>
 				<height>770</height>
 				<itemgap>6</itemgap>
 				<pagecontrol>60</pagecontrol>
@@ -60,39 +60,39 @@
 			</control>
 			<control type="button" id="7">
 				<description>Default Button</description>
-				<include>BTVSettingRow</include>
+				<include content="BTVSettingRow"><param name="width">820</param></include>
 			</control>
 			<control type="radiobutton" id="8">
 				<description>Default RadioButton</description>
-				<include>BTVSettingRow</include>
-				<include content="BTVSettingSwitch"><param name="x">610</param></include>
+				<include content="BTVSettingRow"><param name="width">820</param></include>
+				<include content="BTVSettingSwitch"><param name="x">730</param></include>
 			</control>
 			<control type="spincontrolex" id="9">
 				<description>Default SpinControlex</description>
-				<include>BTVSettingRow</include>
+				<include content="BTVSettingRow"><param name="width">820</param></include>
 				<spinwidth>26</spinwidth>
 				<spinheight>40</spinheight>
 			</control>
 			<control type="image" id="11">
 				<description>separator image</description>
-				<width>700</width>
+				<width>820</width>
 				<height>2</height>
 				<texture colordiffuse="1FFFFFFF">bingetv/white.png</texture>
 			</control>
 			<control type="edit" id="12">
-				<include>BTVSettingRow</include>
+				<include content="BTVSettingRow"><param name="width">820</param></include>
 			</control>
 			<control type="sliderex" id="13">
 				<description>Default Slider</description>
-				<include>BTVSettingRow</include>
-				<textwidth>440</textwidth>
+				<include content="BTVSettingRow"><param name="width">820</param></include>
+				<textwidth>560</textwidth>
 				<sliderwidth>200</sliderwidth>
 				<sliderheight>24</sliderheight>
 				<textureslidernibfocus colordiffuse="FFFFFFFF">buttons/slider-nib.png</textureslidernibfocus>
 			</control>
 			<control type="label" id="14">
 				<description>Default Label</description>
-				<width>700</width>
+				<width>820</width>
 				<height>60</height>
 				<textoffsetx>28</textoffsetx>
 				<aligny>center</aligny>
@@ -102,7 +102,7 @@
 			<control type="grouplist" id="9000">
 				<left>30</left>
 				<top>950</top>
-				<width>700</width>
+				<width>820</width>
 				<height>64</height>
 				<orientation>horizontal</orientation>
 				<itemgap>14</itemgap>
@@ -115,7 +115,7 @@
 				<include content="BTVSettingDialogButton"><param name="id">30</param></include>
 			</control>
 			<control type="scrollbar" id="60">
-				<left>742</left>
+				<left>862</left>
 				<top>150</top>
 				<width>6</width>
 				<height>770</height>
