@@ -36,6 +36,9 @@ SEEK_DELAY = 1.5           # let playback settle before seeking to the resume po
 SEEK_TOLERANCE = 30        # Kodi already resumed if we're within this many seconds
 LATE_SUBTITLES_AFTER = (5, 20)  # seconds into the video to ask the subtitle addons again
 UPNEXT = "service.upnext"
+# Shorter than this, an autoplayed video is a stream addon's placeholder (AIOStreams plays a
+# short "couldn't play that" clip instead of failing), not the title: try the next stream.
+PLACEHOLDER_SECONDS = 151
 
 
 class Worker:
@@ -87,6 +90,7 @@ class Tracker(xbmc.Player):
     def _reset(self):
         self.position = self.duration = 0.0
         self.pending_seek = 0.0
+        self.retry = None  # autoplay: how to try the next stream
         self.started = self.last_save = self.last_scrobble = 0.0
 
     # ------------------------------------------------------------ Kodi callbacks
@@ -108,6 +112,7 @@ class Tracker(xbmc.Player):
                              name="stremiobridge-subtitles", daemon=True).start()
         now = time.time()
         self.started = self.last_save = self.last_scrobble = now
+        self.retry = data.get("retry")
         self.position, self.duration = 0.0, self._total_time()
         get_watchstate().touch(self.entry)  # remembers the source group right away
         log(f"Tracking {self.entry.type} {self.entry.video_id}")
@@ -159,6 +164,10 @@ class Tracker(xbmc.Player):
         except RuntimeError:
             return
         now = time.time()
+        if self.retry and self.duration and now - self.started >= SEEK_DELAY:
+            retry, self.retry = self.retry, None  # checked once, when its length is known
+            if self.duration < PLACEHOLDER_SECONDS:
+                return self._abandon(retry)
         if self.pending_seek and now - self.started >= SEEK_DELAY:
             if self.duration and self.pending_seek >= self.duration - SEEK_TOLERANCE:
                 # Past its end: not this video (e.g. an addon's short "can't play that" clip)
@@ -173,6 +182,15 @@ class Tracker(xbmc.Player):
             self._scrobble("start")
 
     # ------------------------------------------------------------ helpers
+
+    def _abandon(self, retry):
+        """Stop a placeholder clip (without saving it as progress) and play the next stream."""
+        log(f"{self.entry.video_id}: the stream is {int(self.duration)}s long, a placeholder: trying the next one")
+        self.entry = None
+        xbmcgui.Window(10000).clearProperty(TRACKING)
+        self._reset()
+        self.stop()
+        self.worker.submit(retry_next_stream, retry, False)
 
     def _total_time(self):
         try:
@@ -251,20 +269,29 @@ def add_subtitles(paths):
 MAX_STREAM_RETRIES = 5
 
 
-def retry_next_stream(retry):
+def retry_next_stream(retry, same_first=True):
     """After a stream failed to play: the same stream once more first (opening
     it can fail for a moment, e.g. replaying straight after a Stop while the
-    server is still closing the last connection), then the next ones."""
-    same = retry["tries"] == 0
+    server is still closing the last connection), then the next ones.
+    `same_first=False` goes straight to the next (the stream played, but was a
+    placeholder)."""
+    same = same_first and retry["tries"] == 0
     start = retry["next"] - 1 if same else retry["next"]
     if start >= retry["total"] or retry["tries"] >= MAX_STREAM_RETRIES:
         log(f"Not retrying {retry['id']}: tried {retry['tries'] + 1} times after playback errors")
+        if not same_first:
+            notify(L(30179, count=retry["tries"] + 1), icon=xbmcgui.NOTIFICATION_ERROR)
         return
     if same:
         log(f"Trying {retry['id']} again")
         xbmc.sleep(1000)
     else:
         notify(L(30178))
+    player = xbmc.Player()
+    for _ in range(50):  # the last one must have closed (Fire TV's decoder is still taken otherwise)
+        if not player.isPlaying():
+            break
+        xbmc.sleep(100)
     # noresume: `resume` says it already (Kodi would ask if it had a bookmark for the URL)
     xbmc.executebuiltin("PlayMedia({},noresume)".format(plugin_url(
         "play", type=retry["type"], id=retry["id"], meta=retry.get("meta"), binge=retry.get("binge"),

@@ -3998,3 +3998,45 @@ def test_tracker_does_not_resume_past_the_end(settings, window, monkeypatch):
     clock["now"] += 2
     tracker.tick()
     assert seeks == [] and tracker.pending_seek == 0
+
+
+def test_autoplay_skips_a_placeholder_clip(settings, window, monkeypatch):
+    from kodi_ui import service
+
+    for module in (service, common):
+        monkeypatch.setattr(module, "ADDON_ID", "plugin.video.stremiobridge")
+    monkeypatch.setattr(service.xbmc, "getCondVisibility", lambda cond: False)
+    retry = {"type": "movie", "id": "tt1", "meta": None, "binge": None, "next": 1, "total": 3, "tries": 0,
+             "resume": False}
+
+    def start(length):
+        common.announce_playback(PlaybackEntry(video_id="tt1", type="movie", title="M"), 0, retry)
+        worker = FakeWorker()
+        tracker = service.Tracker(worker)
+        clock = {"now": 1000.0}
+        stops = []
+        monkeypatch.setattr(service.time, "time", lambda: clock["now"])
+        monkeypatch.setattr(tracker, "getTotalTime", lambda: length)
+        monkeypatch.setattr(tracker, "getTime", lambda: 1.0)
+        monkeypatch.setattr(tracker, "isPlayingVideo", lambda: True)
+        monkeypatch.setattr(tracker, "stop", lambda: stops.append(True))
+        tracker.onAVStarted()
+        clock["now"] += 2
+        tracker.tick()
+        return tracker, worker, stops
+
+    tracker, worker, stops = start(120.0)                     # AIOStreams' "couldn't play that" clip
+    assert stops and tracker.entry is None and worker.jobs[-1] == ("retry_next_stream", (retry, False))
+    tracker.onPlayBackStopped()
+    row = common.get_watchstate().get("tt1")
+    assert row is None or (not row.watched and row.position == 0)   # not saved as progress or watched
+
+    tracker, worker, stops = start(2400.0)                    # the film: plays on
+    assert not stops and tracker.entry is not None
+
+    played = []
+    monkeypatch.setattr(service.xbmc, "executebuiltin", lambda cmd, *a: played.append(cmd))
+    monkeypatch.setattr(xbmcgui.Dialog, "notification", lambda *a, **k: None)
+    monkeypatch.setattr(service.xbmc, "sleep", lambda ms: None)
+    service.retry_next_stream(retry, False)                   # straight to the next stream
+    assert played == [f"PlayMedia({BASE}?action=play&type=movie&id=tt1&resume=0&start=1&tries=1,noresume)"]
