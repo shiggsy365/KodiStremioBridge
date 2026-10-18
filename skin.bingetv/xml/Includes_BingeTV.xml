@@ -443,6 +443,8 @@
 						<focusedcolor>00FFFFFF</focusedcolor>
 						<texturenofocus>bingetv/bar/settings_nf.png</texturenofocus>
 						<texturefocus>bingetv/bar/settings_fo.png</texturefocus>
+						<!-- coming back, Home (or the hub) focuses the menu bar's Home button -->
+						<onclick>SetProperty(btv.fromsettings,1,home)</onclick>
 						<onclick>ActivateWindow(Settings)</onclick>
 					</control>
 					<control type="button" id="9213">

@@ -5,8 +5,11 @@
 <window type="window" id="1150">
 	<defaultcontrol always="true">400</defaultcontrol>
 	<!-- The lists fill in after the window opens: focus the titles once they have items. -->
-	<onload>AlarmClock(btvhubfocus1,SetFocus(400),00:02,silent)</onload>
-	<onload>AlarmClock(btvhubfocus2,SetFocus(400),00:05,silent)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(btv.fromsettings))">AlarmClock(btvhubfocus1,SetFocus(400),00:02,silent)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(btv.fromsettings))">AlarmClock(btvhubfocus2,SetFocus(400),00:05,silent)</onload>
+	<!-- Back from Settings: the menu bar's Home button -->
+	<onload condition="!String.IsEmpty(Window(Home).Property(btv.fromsettings))">SetFocus(9201)</onload>
+	<onload>ClearProperty(btv.fromsettings,home)</onload>
 	<controls>
 		<include content="BTVBackground">
 			<param name="fanart">$INFO[Container(400).ListItem.Art(fanart)]</param>

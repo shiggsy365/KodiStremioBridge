@@ -9,8 +9,11 @@
 	<onload condition="String.IsEmpty(Window(Home).Property(btv.row))">SetProperty(btv.row,1,home)</onload>
 	<onload condition="String.IsEmpty(Window(Home).Property(btv.menu))">SetProperty(btv.menu,10000,home)</onload>
 	<onload condition="String.IsEmpty(Window(Home).Property(btv.rowbase))">SetProperty(btv.rowbase,910,home)</onload>
-	<onload>AlarmClock(btvfocus1,SetFocus($INFO[Window(Home).Property(btv.rowbase)]$INFO[Window(Home).Property(btv.row)]),00:02,silent)</onload>
-	<onload>AlarmClock(btvfocus2,SetFocus($INFO[Window(Home).Property(btv.rowbase)]$INFO[Window(Home).Property(btv.row)]),00:05,silent)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(btv.fromsettings))">AlarmClock(btvfocus1,SetFocus($INFO[Window(Home).Property(btv.rowbase)]$INFO[Window(Home).Property(btv.row)]),00:02,silent)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(btv.fromsettings))">AlarmClock(btvfocus2,SetFocus($INFO[Window(Home).Property(btv.rowbase)]$INFO[Window(Home).Property(btv.row)]),00:05,silent)</onload>
+	<!-- Back from Settings: the menu bar's Home button -->
+	<onload condition="!String.IsEmpty(Window(Home).Property(btv.fromsettings))">SetFocus(9201)</onload>
+	<onload>ClearProperty(btv.fromsettings,home)</onload>
 	<controls>
 		<include content="BTVBackground">
 			<param name="fanart">$VAR[BTVHomeFanart]</param>
