@@ -1691,12 +1691,12 @@ def test_skin_context_menu_for_a_season(monkeypatch):
     from kodi_ui import contextmenu, router
 
     monkeypatch.setattr(contextmenu, "ADDON_ID", "plugin.video.stremiobridge")
-    labels = {208: "Play", 19033: "Information", 14076: "Add to favourites", 14077: "Remove from favourites"}
+    labels = {208: "Play", 19033: "Information"}
     monkeypatch.setattr(contextmenu.xbmc, "getLocalizedString", lambda n: labels[n])
     plugin = router.Plugin(["plugin://plugin.video.stremiobridge/", "-1", ""])
     path = "plugin://plugin.video.stremiobridge/?action=season&type=series&id=tt5&season=2"
-    entries = contextmenu.menu_entries(plugin, path, [], favourite=False, watched=True)
-    assert [label for label, _ in entries][::3] == ["Play", "Add to favourites"] and len(entries) == 4
+    entries = contextmenu.menu_entries(plugin, path, [], watched=True)
+    assert [label for label, _ in entries][:2] == ["Play", "Information"] and len(entries) == 3
     assert "action=info_play" in entries[0][1] and "season=2" in entries[0][1]
     assert "action=extended_info" in entries[1][1] and "season=2" in entries[1][1]
     assert "action=set_watched" in entries[2][1] and "season=2" in entries[2][1] and "value=0" in entries[2][1]
@@ -2961,7 +2961,7 @@ def test_context_menu_order(monkeypatch):
     from kodi_ui import contextmenu, router
 
     monkeypatch.setattr(contextmenu, "ADDON_ID", "plugin.video.stremiobridge")
-    labels = {208: "Play", 19033: "Information", 14076: "Add to favourites", 14077: "Remove from favourites"}
+    labels = {208: "Play", 19033: "Information"}
     monkeypatch.setattr(contextmenu.xbmc, "getLocalizedString", lambda n: labels[n])
     plugin = router.Plugin(["plugin://plugin.video.stremiobridge/", "-1", ""])
     path = "plugin://plugin.video.stremiobridge/?action=play&type=series&id=tt2%3A1%3A3&meta=tt2"
@@ -2971,19 +2971,18 @@ def test_context_menu_order(monkeypatch):
            ["Show Playable Streams", "PlayMedia(plugin://x/?action=play&type=series&id=tt2:1:3&pick=1)"],
            ["Remove from Continue Watching", "RunPlugin(plugin://x/?action=dismiss&id=tt2)"],
            ["Mark as watched", "RunPlugin(plugin://x/?action=set_watched&type=series&id=tt2:1:3&value=1&meta=tt2)"]]
-    entries = contextmenu.menu_entries(plugin, path, own, favourite=False)
+    entries = contextmenu.menu_entries(plugin, path, own)
     assert [label for label, _ in entries] == [
-        "Play", "Information", "Mark as watched", "Show Playable Streams", "Add to watchlist",
-        "Remove from Continue Watching", "Play trailer", "Add to favourites"]
+        "Play", "Information", "Show Playable Streams", "Mark as watched", "Add to watchlist"]
     # Play and the stream picker take the info page's route: its resume question and autoplay setting
     play = dict(parse_qsl(urlsplit(entries[0][1][len("RunPlugin("):-1]).query))
     assert play == {"action": "info_play", "type": "series", "id": "tt2", "video": "tt2:1:3"}
-    streams = dict(parse_qsl(urlsplit(entries[3][1][len("RunPlugin("):-1]).query))
+    streams = dict(parse_qsl(urlsplit(entries[2][1][len("RunPlugin("):-1]).query))
     assert streams == {"action": "info_play", "type": "series", "id": "tt2", "video": "tt2:1:3", "pick": "1"}
     assert "action=extended_info" in entries[1][1] and "video=tt2%3A1%3A3" in entries[1][1]
 
     show = contextmenu.menu_entries(plugin, "plugin://plugin.video.stremiobridge/?action=meta&type=series&id=tt2",
-                                    [], favourite=False)
+                                    [])
     assert show[0][0] == "Play" and "action=info_play" in show[0][1]  # a show plays its next episode
     assert contextmenu.item_target("plugin://plugin.video.stremiobridge/?action=catalog&type=movie&id=top") is None
 
@@ -3272,7 +3271,7 @@ def test_context_menu_in_the_info_page_show_browser_is_the_episodes(monkeypatch)
 
     monkeypatch.setattr(contextmenu.xbmc, "getLocalizedString", lambda n: str(n))
     plugin = router.Plugin([base, "-1", ""])
-    marks = [cmd for _, cmd in contextmenu.menu_entries(plugin, path, [], favourite=False) if "set_watched" in cmd]
+    marks = [cmd for _, cmd in contextmenu.menu_entries(plugin, path, []) if "set_watched" in cmd]
     assert len(marks) == 1 and "id=tt5%3A1%3A2" in marks[0] and "meta=tt5" in marks[0]   # the episode, not the show
 
     monkeypatch.setattr(contextmenu.xbmc, "getCondVisibility", lambda cond: False)          # no info page open
@@ -3631,8 +3630,8 @@ def test_titles_menus_start_with_the_skins_hand_over_marker(monkeypatch):
     plugin = router.Plugin(["plugin://plugin.video.stremiobridge/", "-1", ""])
     path = "plugin://plugin.video.stremiobridge/?action=play&type=movie&id=tt1"
     own = [["Stremio Bridge", common.MENU_MARKER], ["Play trailer", "RunPlugin(trailer)"]]
-    entries = contextmenu.menu_entries(plugin, path, own, favourite=False)
-    assert common.MENU_MARKER not in [cmd for _, cmd in entries] and "RunPlugin(trailer)" in [c for _, c in entries]
+    entries = contextmenu.menu_entries(plugin, path, own)
+    assert [label for label, _ in entries][:2] == ["208", "19033"] and len(entries) == 3   # no marker, no trailer
 
 
 def test_home_widgets_follow_the_profile(monkeypatch, tmp_path, home_props):

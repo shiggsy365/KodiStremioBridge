@@ -1263,4 +1263,6 @@
 			</control>
 		</definition>
 	</include>
+	<!-- The context menu of a Stremio Bridge title: its first entry is the add-on's marker -->
+	<expression name="BTVMenuHandoff">String.IsEqual(Control.GetLabel(1001),System.AddonTitle(plugin.video.stremiobridge)) + String.IsEmpty(Window(home).Property(stremiobridge.menu_open)) + String.IsEmpty(Window(home).Property(stremiobridge.menu_native))</expression>
 </includes>

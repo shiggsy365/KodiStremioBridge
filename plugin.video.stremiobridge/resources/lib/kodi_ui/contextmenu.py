@@ -1,4 +1,4 @@
-"""Our own context menu for titles, used with Arctic Zephyr Stremio.
+"""Our own context menu for titles, used with Arctic Zephyr Stremio and BingeTV.
 
 Kodi builds its context menu itself (Play, Information, Queue item, Play next,
 Add to favourites, then add-on entries), and a skin can't reorder or drop
@@ -7,9 +7,11 @@ one of our titles, the skin closes it and runs this route instead
 (DialogContextMenu.xml), which finds the focused item once the menu has gone
 and shows:
 
-    Play, Information, Mark as watched (or unwatched: one entry, for the movie,
-    episode, season or show the item is), Show Playable Streams, Add to
-    watchlist, (the item's other entries), Play trailer, Add to favourites
+    Play, Information, Show Playable Streams, Mark as watched (or unwatched:
+    one entry, for the movie, episode, season or show the item is), Add to
+    watchlist (or Remove from watchlist; MDBList users)
+
+and nothing else: Information has the rest (trailer, other versions, cast...).
 
 The show itself is browsed from Information (its season and episode browser).
 
@@ -25,24 +27,19 @@ from urllib.parse import parse_qsl, urlsplit
 import xbmc
 import xbmcgui
 
-from .common import ADDON_ID, MENU_NATIVE, MENU_PROPERTY, L, choose_from_menu, jsonrpc
+from .common import ADDON_ID, MENU_NATIVE, MENU_PROPERTY, L, choose_from_menu
 from .listitems import PLAYABLE_TYPES
 from .router import route
 
 _COLOUR = re.compile(r"\[/?COLOR[^\]]*\]")
 
-# Where the item's own entries go, by what they run; None drops them.
+# Where the item's own entries go, by what they run; any other is dropped (None).
 _RANKS = (
-    ("action=context_menu", None),      # the skin's marker (common.MENU_MARKER)
-    ("action=extended_info", None),     # Information covers it
-    ("action=library_", None),
-    ("action=set_watched", 3),
-    ("pick=1", 4),
-    ("action%3Dmeta", 5), ("action=meta", 5),
-    ("action=watchlist_", 6),
-    ("action=play_trailer", 8),
+    ("pick=1", 3),                      # Show playable streams
+    ("action=set_watched", 4),
+    ("action=watchlist_", 5),
 )
-OTHER_RANK = 7
+WATCHED_RANK = 4
 
 
 def item_target(path):
@@ -60,13 +57,12 @@ def rank(command):
     for needle, place in _RANKS:
         if needle in command:
             return place
-    return OTHER_RANK
+    return None
 
 
-def menu_entries(plugin, path, own_entries, favourite, watched=False):
+def menu_entries(plugin, path, own_entries, watched=False):
     """``[(label, builtin)]`` in our order. `own_entries` are the item's
-    ``[label, builtin]`` pairs; `favourite` is True/False (is it one);
-    `watched` is the item's tick (for Mark as watched, when the item's own
+    ``[label, builtin]`` pairs; `watched` is the item's tick (for Mark as watched, when the item's own
     entries leave it to Kodi)."""
     action, params = item_target(path)
     type_, id_ = params["type"], params["id"]
@@ -92,11 +88,11 @@ def menu_entries(plugin, path, own_entries, favourite, watched=False):
     for label, command in own_entries:
         clean = _COLOUR.sub("", label)
         place = rank(command)
-        if place == 4:  # Show playable streams: through info_play, like the info page's button
+        if place == 3:  # Show playable streams: through info_play, like the info page's button
             command = plugin.run_url("info_play", pick=1, **target)
         if place is not None:
             entries.append((place, clean, command))
-    if not any(place == 3 for place, _, _ in entries):
+    if not any(place == WATCHED_RANK for place, _, _ in entries):
         if action == "meta":
             mark = {"type": type_, "id": id_}
         elif action == "season":
@@ -106,9 +102,8 @@ def menu_entries(plugin, path, own_entries, favourite, watched=False):
         else:
             video = params.get("video")
             mark = {"type": type_, "id": video or id_, "meta": id_ if video else None}
-        entries.append((3, L(30191 if watched else 30190),
+        entries.append((WATCHED_RANK, L(30191 if watched else 30190),
                         plugin.run_url("set_watched", value=int(not watched), **mark)))
-    entries.append((9, xbmc.getLocalizedString(14077 if favourite else 14076), "favourite"))
     entries.sort(key=lambda e: e[0])  # stable: the item's own order within a rank
     return [(label, command) for _, label, command in entries]
 
@@ -126,20 +121,6 @@ def browser_entry(plugin, path, watched):
     else:
         target["video"] = params.get("video")
     return L(30191 if watched else 30190), plugin.run_url("info_mark", value=int(not watched), **target)
-
-
-def is_favourite(path):
-    favourites = jsonrpc("Favourites.GetFavourites", properties=["path", "windowparameter"]).get("favourites") or []
-    return any(path in (f.get("path"), f.get("windowparameter")) for f in favourites)
-
-
-def toggle_favourite(path, title, thumb, folder):
-    """Kodi's Favourites.AddFavourite adds, or removes one already there."""
-    if folder:
-        jsonrpc("Favourites.AddFavourite", title=title, type="window", window="videos",
-                windowparameter=path, thumbnail=thumb)
-    else:
-        jsonrpc("Favourites.AddFavourite", title=title, type="media", path=path, thumbnail=thumb)
 
 
 # The skin's info page lists whose items get our menu: the show browser's
@@ -175,9 +156,6 @@ def context_menu(plugin, path="", source="ListItem"):
 
 
 def _show_menu(plugin, path, source="ListItem"):
-    title = xbmc.getInfoLabel(f"{source}.Label")
-    thumb = xbmc.getInfoLabel(f"{source}.Art(poster)") or xbmc.getInfoLabel(f"{source}.Art(thumb)")
-    folder = xbmc.getCondVisibility(f"{source}.IsFolder")
     try:
         own = json.loads(xbmc.getInfoLabel(f"{source}.Property({MENU_PROPERTY})") or "[]")
     except ValueError:
@@ -186,12 +164,8 @@ def _show_menu(plugin, path, source="ListItem"):
     if source in BROWSER_LISTS:
         entries = [browser_entry(plugin, path, watched)]
     else:
-        entries = menu_entries(plugin, path, own, is_favourite(path), watched)
+        entries = menu_entries(plugin, path, own, watched)
     choice = choose_from_menu([label for label, _ in entries])
     if choice < 0:
         return
-    command = entries[choice][1]
-    if command == "favourite":
-        toggle_favourite(path, title, thumb, folder)
-    else:
-        xbmc.executebuiltin(command)
+    xbmc.executebuiltin(entries[choice][1])
