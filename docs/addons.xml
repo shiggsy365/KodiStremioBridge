@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.17.0"
+       version="0.17.1"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,8 +23,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.17.0 - For BingeTV's new skin: the player's Streams button picks another stream for what's playing and carries on where you were; autoplay skips a stream that turns out to be a short "can't play" clip and tries the next; the preparing page stays up from start to finish; a Home rows editor; extra hubs on the menu bar. Similar titles use your meta addon. Kodi 21 and Arctic Zephyr Stremio work as before.
-v0.16.4 - Ready for Kodi 22's faster add-on start-up (the interpreter kept between calls, which BingeTV turns on): the library export follows a profile switch, and the watchlist's Add/Remove in menus catches up with changes made elsewhere within a minute. Nothing changes on Kodi 21.</news>
+        <news>v0.17.1 - Settings, a tab per area: Home page layout (BingeTV), Add-ons and manifests, Playback, Subtitles, Watch state, MDBList, IPTV (IPTV Simple's playlist and guide, Dispatcharr Bridge), Search, Expert, Kodi add-ons; with links to Kodi's own player, subtitle and add-on pages. Your settings carry over.
+v0.17.0 - For BingeTV's new skin: the player's Streams button picks another stream for what's playing and carries on where you were; autoplay skips a stream that turns out to be a short "can't play" clip and tries the next; the preparing page stays up from start to finish; a Home rows editor; extra hubs on the menu bar. Similar titles use your meta addon. Kodi 21 and Arctic Zephyr Stremio work as before.</news>
     </extension>
 </addon>
 <addon id="plugin.audio.shiggsy365.podcasts"
