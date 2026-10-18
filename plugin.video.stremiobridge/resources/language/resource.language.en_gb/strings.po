@@ -1596,3 +1596,63 @@ msgstr ""
 msgctxt "#30514"
 msgid "Asks GitHub whether a newer BingeTV is out, and offers to download it. BingeTV also checks about once a week."
 msgstr ""
+
+msgctxt "#30515"
+msgid "Profiles"
+msgstr ""
+
+msgctxt "#30516"
+msgid "Name of the new profile"
+msgstr ""
+
+msgctxt "#30517"
+msgid "There's already a profile called {name}."
+msgstr ""
+
+msgctxt "#30518"
+msgid "A picture for {name}"
+msgstr ""
+
+msgctxt "#30519"
+msgid "Give {name} the Stremio add-ons, Home rows and Live TV set-up of this profile? (Not the MDBList key or watch history: {name} sets up its own.)"
+msgstr ""
+
+msgctxt "#30520"
+msgid "Start empty"
+msgstr ""
+
+msgctxt "#30521"
+msgid "Copy them"
+msgstr ""
+
+msgctxt "#30522"
+msgid "The profile couldn't be added."
+msgstr ""
+
+msgctxt "#30523"
+msgid "{name} is ready. Switch to it now?"
+msgstr ""
+
+msgctxt "#30524"
+msgid "+  Add a profile"
+msgstr ""
+
+msgctxt "#30525"
+msgid "Change my picture"
+msgstr ""
+
+msgctxt "#30526"
+msgid "Ask \"Who's watching?\" when BingeTV starts"
+msgstr ""
+
+msgctxt "#30527"
+msgid "On"
+msgstr ""
+
+msgctxt "#30528"
+msgid "Off"
+msgstr ""
+
+msgctxt "#30529"
+msgid "Lock a profile with a code…"
+msgstr ""

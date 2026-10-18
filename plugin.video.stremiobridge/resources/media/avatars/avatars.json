@@ -1,0 +1,82 @@
+[
+ {
+  "file": "director.png",
+  "name": "Director"
+ },
+ {
+  "file": "cinema.png",
+  "name": "Cinema"
+ },
+ {
+  "file": "ticket.png",
+  "name": "Ticket"
+ },
+ {
+  "file": "camera.png",
+  "name": "Camera"
+ },
+ {
+  "file": "drama.png",
+  "name": "Drama"
+ },
+ {
+  "file": "scifi.png",
+  "name": "Sci-Fi"
+ },
+ {
+  "file": "robot.png",
+  "name": "Robot"
+ },
+ {
+  "file": "horror.png",
+  "name": "Horror"
+ },
+ {
+  "file": "fantasy.png",
+  "name": "Fantasy"
+ },
+ {
+  "file": "action.png",
+  "name": "Action"
+ },
+ {
+  "file": "detective.png",
+  "name": "Detective"
+ },
+ {
+  "file": "hero.png",
+  "name": "Hero"
+ },
+ {
+  "file": "pirate.png",
+  "name": "Pirate"
+ },
+ {
+  "file": "wild.png",
+  "name": "Wild"
+ },
+ {
+  "file": "romance.png",
+  "name": "Romance"
+ },
+ {
+  "file": "musical.png",
+  "name": "Musical"
+ },
+ {
+  "file": "explorer.png",
+  "name": "Explorer"
+ },
+ {
+  "file": "night.png",
+  "name": "Night"
+ },
+ {
+  "file": "family.png",
+  "name": "Family"
+ },
+ {
+  "file": "awards.png",
+  "name": "Awards"
+ }
+]

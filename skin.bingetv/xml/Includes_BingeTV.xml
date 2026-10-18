@@ -354,7 +354,7 @@
 				<font>btv_menu</font>
 				<textcolor>FFDDDDDD</textcolor>
 				<label>$PARAM[title]</label>
-				<visible>!$EXP[BTVMenuFocused]</visible>
+				<visible>!$EXP[BTVMenuFocused] | System.HasActiveModalDialog</visible>
 			</control>
 			<control type="label">
 				<left>80</left>
@@ -364,7 +364,7 @@
 				<font>btv_menu</font>
 				<textcolor>FFFFFFFF</textcolor>
 				<label>$INFO[System.CurrentControl]</label>
-				<visible>$EXP[BTVMenuFocused]</visible>
+				<visible>$EXP[BTVMenuFocused] + !System.HasActiveModalDialog</visible>
 			</control>
 			<control type="grouplist" id="9200">
 				<left>250</left>
@@ -523,6 +523,45 @@
 						<onclick>ActivateWindow(ShutdownMenu)</onclick>
 						<visible>Skin.HasSetting(btv.showpower)</visible>
 					</control>
+					<!-- the profile in use: its picture (drawn over this bare button, below) opens the
+					     profile picker (Stremio Bridge: switch, add, change picture) -->
+					<control type="button" id="9214">
+						<onfocus>CancelAlarm(btvfocus1,true)</onfocus>
+						<onfocus>CancelAlarm(btvfocus2,true)</onfocus>
+						<onfocus>CancelAlarm(btvhubfocus1,true)</onfocus>
+						<onfocus>CancelAlarm(btvhubfocus2,true)</onfocus>
+						<width>64</width>
+						<height>60</height>
+						<label>$INFO[System.ProfileName]</label>
+						<textcolor>00FFFFFF</textcolor>
+						<focusedcolor>00FFFFFF</focusedcolor>
+						<texturenofocus />
+						<texturefocus />
+						<onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=switch_profile)</onclick>
+					</control>
+			</control>
+			<!-- the profile button's picture: it's always the group's last, against its right edge -->
+			<control type="group">
+				<right>290</right>
+				<top>18</top>
+				<width>64</width>
+				<height>60</height>
+				<control type="image">
+					<left>7</left>
+					<top>5</top>
+					<width>50</width>
+					<height>50</height>
+					<texture colordiffuse="btv_accent">stremio/circle.png</texture>
+					<visible>Control.HasFocus(9214)</visible>
+				</control>
+				<control type="image">
+					<left>11</left>
+					<top>9</top>
+					<width>42</width>
+					<height>42</height>
+					<aspectratio scalediffuse="false">scale</aspectratio>
+					<texture diffuse="stremio/circle.png" fallback="DefaultUser.png">$INFO[System.ProfileThumb]</texture>
+				</control>
 			</control>
 			<control type="label">
 				<right>64</right>

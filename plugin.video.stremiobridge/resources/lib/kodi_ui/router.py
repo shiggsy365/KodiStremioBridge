@@ -63,7 +63,7 @@ HANDLERS = {
     "linked": ("open_kodi",),
     "menus": ("clear_cache", "open", "root", "settings", "toggle_parent_items", "widgets"),
     "player": ("play", "switch_stream"),
-    "profiles": ("switch_profile",),
+    "profiles": ("add_profile", "profile_picture", "switch_profile"),
     "search": ("move_search_catalog", "new_search", "rename_search_catalog", "search", "search_catalog_actions",
                "search_catalogs", "search_history_clear", "search_history_remove", "search_key", "search_live",
                "search_menu", "search_open", "search_pick", "search_recent", "search_suggest",

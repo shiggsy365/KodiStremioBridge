@@ -14,6 +14,7 @@ Cancel setup (or Back) stops there; anything already added stays.
 
 import xbmc
 import xbmcgui
+import xbmcvfs
 
 from mdblist import MDBListAuthError, MDBListError
 from stremio import StremioError
@@ -34,6 +35,10 @@ def providers(resource):
     """Names of the enabled addons that provide `resource`."""
     return [a.name for a in get_registry().all()
             if a.enabled and resource in a.manifest.resource_names]
+
+
+def is_master_profile():
+    return xbmcvfs.translatePath("special://profile/") == xbmcvfs.translatePath("special://masterprofile/")
 
 
 def is_set_up():
@@ -61,7 +66,8 @@ def setup_wizard(plugin, auto=""):
         xbmc.executebuiltin(f"Skin.SetBool({DONE_SETTING})")  # offered once, whatever happens next
     if auto and is_set_up():
         return
-    if auto:
+    has_addons = bool(providers(STREAM)) and bool(providers(META))
+    if auto and not has_addons and is_master_profile():
         from .bingetv import first_run_restore
 
         first_run_restore(plugin)  # BingeTV's first start: from a backup? (Kodi closes if restored)
@@ -69,7 +75,9 @@ def setup_wizard(plugin, auto=""):
     choice = _choice(L(30418))
     if choice == ENTER:
         mdblist_synced = bool(_mdblist_step())
-    if choice != CANCEL:
+    if auto and has_addons:
+        finished = choice != CANCEL  # e.g. a new profile with its add-ons copied: only MDBList to ask
+    elif choice != CANCEL:
         # The first addon is required: Enter or Cancel setup
         while not added:
             if _choice(L(30419), can_skip=False) == CANCEL:

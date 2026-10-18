@@ -4270,3 +4270,62 @@ def test_bingetv_keeps_home_rows_for_next_start(home_props, monkeypatch, tmp_pat
     skin.clear()
     homewidgets.publish()
     assert skin == {}                                               # only BingeTV keeps them
+
+
+def test_new_profile_takes_setup_but_not_personal_data(monkeypatch, tmp_path):
+    """BingeTV's "+ Add a profile": the new profile gets this one's Stremio add-ons, Home rows,
+    skin options and Live TV set-up, not its MDBList key or watch history."""
+    from kodi_ui import profiles
+
+    assert profiles.profile_folder("Kids' Room", set()) == "profiles/kids-room/"
+    assert profiles.profile_folder("Kids", {"kids", "kids-2"}) == "profiles/kids-3/"
+
+    master, current = tmp_path / "master", tmp_path / "current" / "addon_data"
+    sb = current / profiles.ADDON_ID
+    sb.mkdir(parents=True)
+    (sb / "addons.json").write_text('{"addons": []}')
+    (sb / "watch.db").write_text("history")
+    (sb / "settings.xml").write_text('<settings version="2"><setting id="autoplay">true</setting>'
+                                     '<setting id="mdblist_api_key">SECRET</setting></settings>')
+    skin = current / "skin.bingetv"
+    skin.mkdir()
+    (skin / "settings.xml").write_text('<settings><setting id="stremio.setup_done" type="bool">true</setting>'
+                                       '<setting id="btv.showpower" type="bool">true</setting></settings>')
+    (current / "pvr.iptvsimple").mkdir()
+    (current / "pvr.iptvsimple" / "instance-settings-1.xml").write_text("<settings/>")
+    paths = {"special://profile/addon_data/": str(current), "special://masterprofile/": str(master)}
+    monkeypatch.setattr(profiles.xbmcvfs, "translatePath", lambda p: paths[p])
+
+    profiles.copy_setup("profiles/kids/")
+    there = master / "profiles" / "kids" / "addon_data"
+    assert (there / profiles.ADDON_ID / "addons.json").exists()
+    assert not (there / profiles.ADDON_ID / "watch.db").exists()
+    sb_settings = (there / profiles.ADDON_ID / "settings.xml").read_text()
+    assert "autoplay" in sb_settings and "SECRET" not in sb_settings
+    skin_settings = (there / "skin.bingetv" / "settings.xml").read_text()
+    assert "btv.showpower" in skin_settings and "setup_done" not in skin_settings
+    assert (there / "pvr.iptvsimple" / "instance-settings-1.xml").exists()
+
+
+def test_add_profile_in_one_go(monkeypatch, tmp_path):
+    from kodi_ui import profiles
+
+    listed = [{"label": "Master user"}]
+    monkeypatch.setattr(profiles, "_profiles", lambda: list(listed))
+    commands = []
+
+    def builtin(command, wait=False):
+        commands.append(command)
+        if command.startswith("BingeTV.AddProfile("):
+            listed.append({"label": command.split('"')[1]})
+
+    monkeypatch.setattr(profiles.xbmc, "executebuiltin", builtin)
+    monkeypatch.setattr(profiles, "_choose_avatar", lambda heading: "special://masterprofile/avatars/hero.png")
+    monkeypatch.setattr(profiles, "copy_setup", lambda folder: commands.append(f"copy {folder}"))
+    monkeypatch.setattr(profiles.xbmcvfs, "translatePath", lambda p: str(tmp_path))
+    monkeypatch.setattr(xbmcgui.Dialog, "input", lambda self, *a, **k: "Kids")
+    answers = [True, False]                       # copy the set-up; don't switch now
+    monkeypatch.setattr(xbmcgui.Dialog, "yesno", lambda self, *a, **k: answers.pop(0))
+    profiles.add_profile()
+    assert commands == ['BingeTV.AddProfile("Kids","special://masterprofile/avatars/hero.png","profiles/kids/")',
+                        "copy profiles/kids/"]
