@@ -1712,3 +1712,19 @@ msgstr ""
 msgctxt "#30543"
 msgid "Add-ons"
 msgstr ""
+
+msgctxt "#30544"
+msgid "Exit BingeTV"
+msgstr ""
+
+msgctxt "#30545"
+msgid "A new name for {name}"
+msgstr ""
+
+msgctxt "#30546"
+msgid "Rename"
+msgstr ""
+
+msgctxt "#30547"
+msgid "Delete profile"
+msgstr ""

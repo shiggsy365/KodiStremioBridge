@@ -746,7 +746,16 @@ def _loop(monitor, worker, tracker, follower, home_widgets):
     next_prewarm = time.time() + 180
     next_skin_hubs = time.time() + 20
     next_update = time.time() + 120          # BingeTV: is a newer one out? (about weekly: bingetv.py)
+    from .linked import snapshot, sync as sync_linked
+
+    linked_seen, next_linked = snapshot(), time.time() + 3
     while not monitor.waitForAbort(1):
+        if time.time() >= next_linked:       # settings linked to the skin etc. (linked.py)
+            next_linked = time.time() + 3
+            seen = snapshot()
+            if seen != linked_seen:
+                linked_seen = seen
+                sync_linked()
         tracker.tick()
         expire_preparing()
         home_widgets.tick()

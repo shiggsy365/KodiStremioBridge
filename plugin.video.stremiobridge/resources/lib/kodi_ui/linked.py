@@ -185,21 +185,32 @@ def links():
 
 # ------------------------------------------------------------------ syncing
 
-def _ours(setting, kind):
+def _fresh():
+    """Our settings as they are now (a long-running service's own Addon object can lag behind
+    changes made in the settings page)."""
+    try:
+        return xbmcaddon.Addon(ADDON_ID)
+    except RuntimeError:
+        return ADDON
+
+
+def _ours(setting, kind, addon=None):
+    addon = addon or ADDON
     if kind == "bool":
-        return ADDON.getSettingBool(setting)
+        return addon.getSettingBool(setting)
     if kind == "int":
-        return ADDON.getSettingInt(setting)
-    return ADDON.getSettingString(setting)
+        return addon.getSettingInt(setting)
+    return addon.getSettingString(setting)
 
 
-def _set_ours(setting, kind, value):
+def _set_ours(setting, kind, value, addon=None):
+    addon = addon or ADDON
     if kind == "bool":
-        ADDON.setSettingBool(setting, bool(value))
+        addon.setSettingBool(setting, bool(value))
     elif kind == "int":
-        ADDON.setSettingInt(setting, int(value))
+        addon.setSettingInt(setting, int(value))
     else:
-        ADDON.setSettingString(setting, str(value))
+        addon.setSettingString(setting, str(value))
 
 
 def _store_path():
@@ -215,25 +226,40 @@ def _load():
         return {}
 
 
+def snapshot():
+    """Our side of each linked value, cheaply: when it differs from the last one, something
+    was changed here and sync() is due. (The service checks this every few seconds as well
+    as on Kodi's settings-changed event, which a change made in the settings page doesn't
+    always bring while the dialog is up.)"""
+    values, addon = [], _fresh()
+    for setting, kind, _, _ in links():
+        try:
+            values.append(_ours(setting, kind, addon))
+        except Exception:  # noqa: BLE001
+            values.append(None)
+    return tuple(values)
+
+
 def sync():
     """Bring each linked value into step (see the module's description)."""
     last = _load()
     changed = False
+    addon = _fresh()
     for setting, kind, get, put in links():
         try:
-            theirs, ours = get(), _ours(setting, kind)
+            theirs, ours = get(), _ours(setting, kind, addon)
             if theirs is None:  # the other side isn't there (e.g. not installed)
                 continue
             if setting not in last:      # first time: theirs
                 if ours != theirs:
-                    _set_ours(setting, kind, theirs)
+                    _set_ours(setting, kind, theirs, addon)
                 last[setting] = theirs
             elif ours != last[setting]:  # changed here
                 put(ours)
                 last[setting] = ours
                 log(f"Settings: {setting} passed on")
             elif theirs != last[setting]:  # changed over there
-                _set_ours(setting, kind, theirs)
+                _set_ours(setting, kind, theirs, addon)
                 last[setting] = theirs
             else:
                 continue

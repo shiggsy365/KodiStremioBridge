@@ -643,7 +643,7 @@
 						<visible>Skin.HasSetting(btv.showpower)</visible>
 					</control>
 					<!-- the profile in use: its picture (drawn over this bare button, below) opens the
-					     profile picker (Stremio Bridge: switch, add, change picture) -->
+					     profile picker (Custom_1181_Profiles.xml) -->
 					<control type="button" id="9214">
 						<onfocus>CancelAlarm(btvfocus1,true)</onfocus>
 						<onfocus>CancelAlarm(btvfocus2,true)</onfocus>
@@ -656,7 +656,7 @@
 						<focusedcolor>00FFFFFF</focusedcolor>
 						<texturenofocus />
 						<texturefocus />
-						<onclick>RunPlugin(plugin://plugin.video.stremiobridge/?action=switch_profile)</onclick>
+						<onclick>ActivateWindow(1181)</onclick>
 					</control>
 			</control>
 			<!-- the profile button's picture: it's always the group's last, against its right edge -->

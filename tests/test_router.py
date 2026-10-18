@@ -3778,6 +3778,29 @@ def test_switch_profile_loads_the_chosen_one(monkeypatch):
     assert ran == ["System.LogOff"]
 
 
+def test_profile_picker_exits_bingetv(monkeypatch):
+    """BingeTV's profile picker ends with Exit BingeTV (also with just one profile)."""
+    from kodi_ui import bingetv, profiles
+
+    monkeypatch.setattr(bingetv, "build_info", lambda: {"version": "0.2.2"})
+    monkeypatch.setattr(profiles, "can_manage", lambda: False)
+    monkeypatch.setattr(profiles, "jsonrpc", lambda method, **params: {"profiles": [{"label": "Nuala & Jon"}]})
+    monkeypatch.setattr(profiles.xbmc, "getInfoLabel", lambda label: "Nuala & Jon")
+    monkeypatch.setattr(common.ADDON, "getLocalizedString",
+                        lambda i: {30446: "Switch profile", 30447: "Watching now", 30544: "Exit BingeTV"}[i])
+    ran, shown = [], []
+    monkeypatch.setattr(profiles.xbmc, "executebuiltin", lambda command, wait=False: ran.append(command))
+
+    def select(self, heading, items, autoclose=0, preselect=-1, useDetails=False):
+        shown.extend(items)
+        return len(items) - 1
+
+    monkeypatch.setattr(xbmcgui.Dialog, "select", select)
+    call("switch_profile", handle=-1)
+    assert len(shown) == 2                                # the one profile, then Exit BingeTV
+    assert ran == ["Quit"]
+
+
 def test_widgets_show_expired_catalogs_at_once_and_the_service_refreshes_them(server, listing, settings,
                                                                              monkeypatch):
     from kodi_ui import browse, service
@@ -4415,3 +4438,30 @@ def test_setup_wizard_waits_for_the_skin_to_settle(monkeypatch):
 
     wizard._settle(Monitor(), seconds=2.0)
     assert Monitor.waits == 10                                 # one drop, then 8 steady checks
+
+
+def test_profile_window_lists_profiles_with_their_menus(monkeypatch):
+    """BingeTV's profile window: each profile loads on click, with its options in its context menu;
+    the master profile and the one in use can't be deleted; "Add a profile" comes last."""
+    from kodi_ui import profiles, router
+
+    monkeypatch.setattr(profiles, "jsonrpc", lambda method, **params: {"profiles": [
+        {"label": "Nuala & Jon"}, {"label": "Vincent", "thumbnail": "special://v.png"}, {"label": "Kids"}]})
+    monkeypatch.setattr(profiles.xbmc, "getInfoLabel", lambda label: "Vincent")
+    monkeypatch.setattr(profiles, "can_manage", lambda: True)
+    monkeypatch.setattr(profiles, "login_screen_on", lambda: False)
+    monkeypatch.setattr(common.ADDON, "getLocalizedString", lambda i: f"#{i}")
+    plugin = router.Plugin(["plugin://plugin.video.stremiobridge/", "1", ""])
+    added = []
+    monkeypatch.setattr(profiles.xbmcplugin, "addDirectoryItems", lambda handle, items, total: added.extend(items))
+    monkeypatch.setattr(profiles.xbmcplugin, "endOfDirectory", lambda *a, **k: None)
+    profiles.profile_items(plugin)
+    assert [dict(parse_qsl(urlsplit(url).query)) for url, _, _ in added] == [
+        {"action": "load_profile", "name": "Nuala & Jon"}, {"action": "load_profile", "name": "Vincent"},
+        {"action": "load_profile", "name": "Kids"}, {"action": "add_profile"}]
+
+    menu = lambda name: [label for label, _ in profiles.profile_menu(plugin, name, "Vincent", "Nuala & Jon", True)]
+    assert "#30547" in menu("Kids")                                   # Delete profile
+    assert "#30547" not in menu("Vincent") and "#30547" not in menu("Nuala & Jon")
+    assert menu("Kids")[:2] == ["#30525", "#30546"]                   # change picture, rename
+    assert [label for label, _ in profiles.profile_menu(plugin, "Kids", "Vincent", "Nuala & Jon", False)] == []

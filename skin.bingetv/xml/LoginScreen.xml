@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- BingeTV "Who's watching?": Kodi's profile picker (shown at start-up when it's turned on, or
      after logging off). The profiles (52, filled by Kodi) as big film avatars with the focused
-     one in the middle, bigger and ringed in red; the power options below. -->
+     one in the middle, bigger and ringed in red; Exit BingeTV below. -->
 <window>
 	<defaultcontrol always="true">52</defaultcontrol>
 	<controls>
@@ -116,13 +116,13 @@
 			<top>900</top>
 			<width>320</width>
 			<height>64</height>
-			<label>$LOCALIZE[31072]</label>
+			<label>Exit BingeTV</label>
 			<font>btv_line</font>
 			<align>center</align>
 			<aligny>center</aligny>
 			<textcolor>FFDDDDDD</textcolor>
 			<focusedcolor>FFFFFFFF</focusedcolor>
-			<onclick>ActivateWindow(ShutdownMenu)</onclick>
+			<onclick>Quit</onclick>
 			<onleft>52</onleft>
 			<onright>52</onright>
 			<onup>52</onup>
