@@ -1728,3 +1728,11 @@ msgstr ""
 msgctxt "#30547"
 msgid "Delete profile"
 msgstr ""
+
+msgctxt "#30548"
+msgid "Change picture"
+msgstr ""
+
+msgctxt "#30549"
+msgid "\"Who's watching?\" at start: {state}"
+msgstr ""

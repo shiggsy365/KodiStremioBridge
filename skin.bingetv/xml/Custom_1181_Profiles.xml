@@ -114,7 +114,7 @@
 			<align>center</align>
 			<font>btv_text</font>
 			<textcolor>FF8A8A8A</textcolor>
-			<label>$INFO[Container(52).ListItem.Label2]</label>
+			<label>$INFO[Container(52).ListItem.Property(note)]</label>
 		</control>
 		<control type="label">
 			<left>0</left>

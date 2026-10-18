@@ -4463,5 +4463,6 @@ def test_profile_window_lists_profiles_with_their_menus(monkeypatch):
     menu = lambda name: [label for label, _ in profiles.profile_menu(plugin, name, "Vincent", "Nuala & Jon", True)]
     assert "#30547" in menu("Kids")                                   # Delete profile
     assert "#30547" not in menu("Vincent") and "#30547" not in menu("Nuala & Jon")
-    assert menu("Kids")[:2] == ["#30525", "#30546"]                   # change picture, rename
+    assert menu("Kids")[:2] == ["#30548", "#30546"]                   # change picture, rename
+    assert menu("Vincent")[0] == "#30525"                             # change my picture
     assert [label for label, _ in profiles.profile_menu(plugin, "Kids", "Vincent", "Nuala & Jon", False)] == []

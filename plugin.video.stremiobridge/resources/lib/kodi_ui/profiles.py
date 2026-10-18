@@ -229,15 +229,16 @@ def load_profile(plugin, name):
 
 def profile_menu(plugin, name, current, master_name, manage):
     """A profile's context menu in the skin's profile window: ``[(label, builtin)]``."""
+    picture = L(30525 if name == current else 30548)  # Change my picture / Change picture
     if not manage:
-        return [(L(30525), plugin.run_url("profile_picture", name=name))] if name == current else []
+        return [(picture, plugin.run_url("profile_picture", name=name))] if name == current else []
     login = login_screen_on()
-    menu = [(L(30525), plugin.run_url("profile_picture", name=name)),
+    menu = [(picture, plugin.run_url("profile_picture", name=name)),
             (L(30546), plugin.run_url("rename_profile", name=name))]
     if name not in (current, master_name):
         menu.append((L(30547), plugin.run_url("delete_profile", name=name)))
     menu += [(L(30524), plugin.run_url("add_profile")),
-             (f"{L(30526)}: {L(30527) if login else L(30528)}", plugin.run_url("toggle_login_screen")),
+             (L(30549, state=L(30527) if login else L(30528)), plugin.run_url("toggle_login_screen")),
              (L(30529), "ActivateWindow(Profiles)")]
     return menu
 
@@ -259,6 +260,7 @@ def profile_items(plugin, rev=None):
     for name, note, thumb in profile_choices(profiles, current):
         item = xbmcgui.ListItem(name, note, offscreen=True)
         item.setArt({"icon": thumb, "thumb": thumb})
+        item.setProperty("note", note)  # Kodi formats a listing's second label itself
         item.addContextMenuItems(profile_menu(plugin, name, current, master_name, manage))
         items.append((plugin.url_for("load_profile", name=name), item, False))
     if manage:
