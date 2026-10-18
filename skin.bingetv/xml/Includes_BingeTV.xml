@@ -42,10 +42,14 @@
 		<value condition="!String.IsEmpty(ListItem.Art(tvshow.clearlogo))">$INFO[ListItem.Art(tvshow.clearlogo)]</value>
 	</variable>
 	<variable name="BTVTitle">
+		<value condition="$EXP[BTVCardChannel]">$INFO[ListItem.ChannelName]</value>
+		<value condition="String.IsEmpty(ListItem.Title)">$INFO[ListItem.Label]</value>
 		<value condition="!String.IsEmpty(ListItem.TVShowTitle)">$INFO[ListItem.TVShowTitle]</value>
 		<value>$INFO[ListItem.Title]</value>
 	</variable>
 	<variable name="BTVLine1">
+		<value condition="$EXP[BTVCardChannel]">$INFO[ListItem.StartTime]$INFO[ListItem.EndTime, – ,  ]$INFO[ListItem.Title]</value>
+		<value condition="!String.IsEmpty(ListItem.Artist)">$INFO[ListItem.Artist]$INFO[ListItem.Year,   ,]</value>
 		<value condition="!String.IsEmpty(ListItem.Episode)">S$INFO[ListItem.Season]$INFO[ListItem.Episode, E,  ]$INFO[ListItem.Title]</value>
 		<value>$INFO[ListItem.Property(ReleaseDate)]$VAR[BTVDuration,   ,]$INFO[ListItem.Rating,   ★ ,]</value>
 	</variable>
@@ -55,6 +59,7 @@
 		<value condition="!String.IsEmpty(ListItem.Duration)">$INFO[ListItem.Duration(mm)]m</value>
 	</variable>
 	<variable name="BTVLine2">
+		<value condition="$EXP[BTVCardChannel]">$INFO[ListItem.NextStartTime,Next ,  ]$INFO[ListItem.NextTitle]</value>
 		<value condition="!String.IsEmpty(ListItem.Episode)">$INFO[ListItem.Property(ReleaseDate)]</value>
 	</variable>
 	<variable name="BTVGenres">
@@ -103,7 +108,7 @@
 					<font>btv_line</font>
 					<textcolor>FFFFFFFF</textcolor>
 					<label>$VAR[BTVLine2]</label>
-					<visible>!String.IsEmpty(ListItem.Episode)</visible>
+					<visible>!String.IsEmpty(ListItem.Episode) | $EXP[BTVCardChannel]</visible>
 				</control>
 				<control type="label">
 					<width>1400</width>
@@ -174,6 +179,8 @@
 					<font>btv_row</font>
 					<textcolor>FFDDDDDD</textcolor>
 					<label>$INFO[Window(Home).Property(sbhome.$PARAM[item].widgetName$PARAM[slot])]</label>
+					<!-- not for a list with nothing in it (an empty music library, no recordings) -->
+					<visible>Container($PARAM[base]$PARAM[n]).IsUpdating | Integer.IsGreater(Container($PARAM[base]$PARAM[n]).NumItems,0)</visible>
 				</control>
 				<control type="list" id="$PARAM[base]$PARAM[n]">
 					<left>66</left>
@@ -190,6 +197,7 @@
 					<onup>SetFocus($PARAM[prev])</onup>
 					<ondown condition="!String.IsEmpty(Window(Home).Property(sbhome.$PARAM[item].widgetPath$PARAM[nextslot]))">SetFocus($PARAM[next])</ondown>
 					<onclick condition="String.Contains(ListItem.FileNameAndPath,plugin.video.stremiobridge/?action=extended_info)">RunPlugin($ESCINFO[ListItem.FileNameAndPath])</onclick>
+					<onclick condition="ListItem.IsFolder + [String.StartsWith(ListItem.FolderPath,musicdb://) | String.StartsWith(ListItem.FolderPath,plugin://plugin.audio.)]">ActivateWindow(Music,$ESCINFO[ListItem.FolderPath],return)</onclick>
 					<itemlayout width="222" height="330">
 						<include>BTVPoster</include>
 					</itemlayout>
@@ -233,6 +241,11 @@
 			</control>
 		</definition>
 	</include>
+	<!-- A row's card: the poster; for a Live TV channel its logo, name and what's on now; for
+	     anything else without a poster (albums, artists, songs, recordings, add-ons' folders and
+	     items) its square picture and name. -->
+	<expression name="BTVCardChannel">!String.IsEmpty(ListItem.ChannelName) + String.StartsWith(ListItem.FileNameAndPath,pvr://channels)</expression>
+	<expression name="BTVCardSquare">String.IsEmpty(ListItem.Art(poster)) + !$EXP[BTVCardChannel]</expression>
 	<include name="BTVPoster">
 		<control type="image">
 			<left>7</left>
@@ -241,6 +254,91 @@
 			<height>305</height>
 			<aspectratio>scale</aspectratio>
 			<texture background="true" diffuse="bingetv/poster_mask.png" fallback="DefaultVideo.png">$INFO[ListItem.Art(poster)]</texture>
+			<visible>!$EXP[BTVCardChannel] + !$EXP[BTVCardSquare]</visible>
+		</control>
+		<control type="group">
+			<visible>$EXP[BTVCardChannel] | $EXP[BTVCardSquare]</visible>
+			<control type="image">
+				<left>7</left>
+				<top>7</top>
+				<width>202</width>
+				<height>305</height>
+				<texture diffuse="bingetv/poster_mask.png" colordiffuse="FF26262C">bingetv/white.png</texture>
+			</control>
+			<!-- square picture -->
+			<control type="image">
+				<left>7</left>
+				<top>7</top>
+				<width>202</width>
+				<height>202</height>
+				<aspectratio>scale</aspectratio>
+				<texture background="true" fallback="DefaultFolder.png">$INFO[ListItem.Icon]</texture>
+				<visible>$EXP[BTVCardSquare]</visible>
+			</control>
+			<control type="label">
+				<left>17</left>
+				<top>216</top>
+				<width>182</width>
+				<height>34</height>
+				<font>font12</font>
+				<textcolor>FFFFFFFF</textcolor>
+				<label>$INFO[ListItem.Label]</label>
+				<visible>$EXP[BTVCardSquare]</visible>
+			</control>
+			<control type="label">
+				<left>17</left>
+				<top>250</top>
+				<width>182</width>
+				<height>34</height>
+				<font>font12</font>
+				<textcolor>FFA0A0A0</textcolor>
+				<label>$INFO[ListItem.Artist]</label>
+				<visible>$EXP[BTVCardSquare]</visible>
+			</control>
+			<!-- channel: logo, name, the programme on now and how far in it is -->
+			<control type="image">
+				<left>27</left>
+				<top>30</top>
+				<width>162</width>
+				<height>130</height>
+				<aspectratio>keep</aspectratio>
+				<texture background="true" fallback="DefaultTVShows.png">$INFO[ListItem.Icon]</texture>
+				<visible>$EXP[BTVCardChannel]</visible>
+			</control>
+			<control type="label">
+				<left>17</left>
+				<top>176</top>
+				<width>182</width>
+				<height>34</height>
+				<font>font12</font>
+				<align>center</align>
+				<textcolor>FFFFFFFF</textcolor>
+				<label>$INFO[ListItem.ChannelNumberLabel,,  ]$INFO[ListItem.ChannelName]</label>
+				<visible>$EXP[BTVCardChannel]</visible>
+			</control>
+			<control type="textbox">
+				<left>17</left>
+				<top>214</top>
+				<width>182</width>
+				<height>66</height>
+				<font>font12</font>
+				<align>center</align>
+				<textcolor>FFA0A0A0</textcolor>
+				<label>$INFO[ListItem.Title]</label>
+				<visible>$EXP[BTVCardChannel]</visible>
+			</control>
+			<control type="progress">
+				<left>27</left>
+				<top>290</top>
+				<width>162</width>
+				<height>5</height>
+				<texturebg colordiffuse="33FFFFFF">bingetv/white.png</texturebg>
+				<lefttexture />
+				<midtexture colordiffuse="btv_accent">bingetv/white.png</midtexture>
+				<righttexture />
+				<info>ListItem.Progress</info>
+				<visible>$EXP[BTVCardChannel] + !String.IsEmpty(ListItem.Title)</visible>
+			</control>
 		</control>
 		<include content="BTVRibbon"><param name="left">69</param><param name="top">7</param><param name="size">140</param></include>
 	</include>
@@ -275,6 +373,18 @@
 		<value condition="String.IsEqual(Window(Home).Property(btv.menu),10000) + String.IsEqual(Window(Home).Property(btv.row),4)">$INFO[Container(9104).ListItem.Art(fanart)]</value>
 		<value condition="String.IsEqual(Window(Home).Property(btv.menu),10000) + String.IsEqual(Window(Home).Property(btv.row),5)">$INFO[Container(9105).ListItem.Art(fanart)]</value>
 		<value condition="String.IsEqual(Window(Home).Property(btv.menu),10000) + String.IsEqual(Window(Home).Property(btv.row),6)">$INFO[Container(9106).ListItem.Art(fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.menu),music) + String.IsEqual(Window(Home).Property(btv.row),1)">$INFO[Container(9131).ListItem.Art(fanart)]$INFO[Container(9131).ListItem.Art(artist.fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.menu),music) + String.IsEqual(Window(Home).Property(btv.row),2)">$INFO[Container(9132).ListItem.Art(fanart)]$INFO[Container(9132).ListItem.Art(artist.fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.menu),music) + String.IsEqual(Window(Home).Property(btv.row),3)">$INFO[Container(9133).ListItem.Art(fanart)]$INFO[Container(9133).ListItem.Art(artist.fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.menu),music) + String.IsEqual(Window(Home).Property(btv.row),4)">$INFO[Container(9134).ListItem.Art(fanart)]$INFO[Container(9134).ListItem.Art(artist.fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.menu),music) + String.IsEqual(Window(Home).Property(btv.row),5)">$INFO[Container(9135).ListItem.Art(fanart)]$INFO[Container(9135).ListItem.Art(artist.fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.menu),music) + String.IsEqual(Window(Home).Property(btv.row),6)">$INFO[Container(9136).ListItem.Art(fanart)]$INFO[Container(9136).ListItem.Art(artist.fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.menu),livetv) + String.IsEqual(Window(Home).Property(btv.row),1)">$INFO[Container(9141).ListItem.Art(fanart)]$INFO[Container(9141).ListItem.Art(artist.fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.menu),livetv) + String.IsEqual(Window(Home).Property(btv.row),2)">$INFO[Container(9142).ListItem.Art(fanart)]$INFO[Container(9142).ListItem.Art(artist.fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.menu),livetv) + String.IsEqual(Window(Home).Property(btv.row),3)">$INFO[Container(9143).ListItem.Art(fanart)]$INFO[Container(9143).ListItem.Art(artist.fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.menu),livetv) + String.IsEqual(Window(Home).Property(btv.row),4)">$INFO[Container(9144).ListItem.Art(fanart)]$INFO[Container(9144).ListItem.Art(artist.fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.menu),livetv) + String.IsEqual(Window(Home).Property(btv.row),5)">$INFO[Container(9145).ListItem.Art(fanart)]$INFO[Container(9145).ListItem.Art(artist.fanart)]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.menu),livetv) + String.IsEqual(Window(Home).Property(btv.row),6)">$INFO[Container(9146).ListItem.Art(fanart)]$INFO[Container(9146).ListItem.Art(artist.fanart)]</value>
 	</variable>
 
 	<!-- The menu along the top: where you are and the sections on the left; search, settings,
@@ -441,6 +551,9 @@
 						<onfocus>CancelAlarm(btvfocus2,true)</onfocus>
 						<onfocus>CancelAlarm(btvhubfocus1,true)</onfocus>
 						<onfocus>CancelAlarm(btvhubfocus2,true)</onfocus>
+						<onfocus condition="Window.IsActive(Home) + !String.IsEqual(Window(Home).Property(btv.menu),music)">SetProperty(btv.row,1,home)</onfocus>
+						<onfocus condition="Window.IsActive(Home)">SetProperty(btv.menu,music,home)</onfocus>
+						<onfocus condition="Window.IsActive(Home)">SetProperty(btv.rowbase,913,home)</onfocus>
 						<width>64</width>
 						<height>60</height>
 						<label>$LOCALIZE[2]</label>
@@ -456,6 +569,9 @@
 						<onfocus>CancelAlarm(btvfocus2,true)</onfocus>
 						<onfocus>CancelAlarm(btvhubfocus1,true)</onfocus>
 						<onfocus>CancelAlarm(btvhubfocus2,true)</onfocus>
+						<onfocus condition="Window.IsActive(Home) + !String.IsEqual(Window(Home).Property(btv.menu),livetv)">SetProperty(btv.row,1,home)</onfocus>
+						<onfocus condition="Window.IsActive(Home)">SetProperty(btv.menu,livetv,home)</onfocus>
+						<onfocus condition="Window.IsActive(Home)">SetProperty(btv.rowbase,914,home)</onfocus>
 						<width>64</width>
 						<height>60</height>
 						<label>Live TV</label>

@@ -45,10 +45,8 @@
 				<orientation>vertical</orientation>
 				<onleft>9000</onleft>
 				<onright>5</onright>
-				<onup condition="String.IsEqual(Window(addonsettings).Property(Addon.Type),kodi.gameclient)">Action(LastPage)</onup>
-				<onup condition="!String.IsEqual(Window(addonsettings).Property(Addon.Type),kodi.gameclient)">20</onup>
-				<ondown condition="String.IsEqual(Window(addonsettings).Property(Addon.Type),kodi.gameclient)">Action(FirstPage)</ondown>
-				<ondown condition="!String.IsEqual(Window(addonsettings).Property(Addon.Type),kodi.gameclient)">20</ondown>
+				<onup>Action(LastPage)</onup>
+				<ondown>Action(FirstPage)</ondown>
 			</control>
 			<control type="button" id="3588">
 				<left>199</left>
@@ -250,8 +248,9 @@
 					<texture>$INFO[Window(addonsettings).Property(Addon.Icon)]</texture>
 				</control>
 			</control>
+			<!-- BingeTV: no settings level picker (always expert); kept hidden for its label -->
 			<control type="radiobutton" id="20">
-				<visible>!String.IsEqual(Window(addonsettings).Property(Addon.Type),kodi.gameclient)</visible>
+				<visible>false</visible>
 				<left>10</left>
 				<top>740</top>
 				<width>410</width>

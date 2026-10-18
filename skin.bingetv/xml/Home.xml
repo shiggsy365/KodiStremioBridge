@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- BingeTV Home: the focused title at the top, Stremio Bridge's rows (sbhome.10000.*) below,
+<!-- BingeTV Home: the focused title at the top, Stremio Bridge's rows (sbhome.<menu item>.*) below,
      one at a time, and the menu along the top. Up/Down moves between rows. -->
 <window>
 	<defaultcontrol always="true">9101</defaultcontrol>
@@ -46,6 +46,30 @@
 	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.tvshows.widgetName.4)) + !String.IsEmpty(Skin.String(sbhome.tvshows.widgetName.4))">SetProperty(sbhome.tvshows.widgetName.4,"$INFO[Skin.String(sbhome.tvshows.widgetName.4)]",home)</onload>
 	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.tvshows.widgetName.5)) + !String.IsEmpty(Skin.String(sbhome.tvshows.widgetName.5))">SetProperty(sbhome.tvshows.widgetName.5,"$INFO[Skin.String(sbhome.tvshows.widgetName.5)]",home)</onload>
 	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.tvshows.widgetName.6)) + !String.IsEmpty(Skin.String(sbhome.tvshows.widgetName.6))">SetProperty(sbhome.tvshows.widgetName.6,"$INFO[Skin.String(sbhome.tvshows.widgetName.6)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.music.widgetPath)) + !String.IsEmpty(Skin.String(sbhome.music.widgetPath))">SetProperty(sbhome.music.widgetPath,"$INFO[Skin.String(sbhome.music.widgetPath)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.music.widgetPath.2)) + !String.IsEmpty(Skin.String(sbhome.music.widgetPath.2))">SetProperty(sbhome.music.widgetPath.2,"$INFO[Skin.String(sbhome.music.widgetPath.2)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.music.widgetPath.3)) + !String.IsEmpty(Skin.String(sbhome.music.widgetPath.3))">SetProperty(sbhome.music.widgetPath.3,"$INFO[Skin.String(sbhome.music.widgetPath.3)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.music.widgetPath.4)) + !String.IsEmpty(Skin.String(sbhome.music.widgetPath.4))">SetProperty(sbhome.music.widgetPath.4,"$INFO[Skin.String(sbhome.music.widgetPath.4)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.music.widgetPath.5)) + !String.IsEmpty(Skin.String(sbhome.music.widgetPath.5))">SetProperty(sbhome.music.widgetPath.5,"$INFO[Skin.String(sbhome.music.widgetPath.5)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.music.widgetPath.6)) + !String.IsEmpty(Skin.String(sbhome.music.widgetPath.6))">SetProperty(sbhome.music.widgetPath.6,"$INFO[Skin.String(sbhome.music.widgetPath.6)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.music.widgetName)) + !String.IsEmpty(Skin.String(sbhome.music.widgetName))">SetProperty(sbhome.music.widgetName,"$INFO[Skin.String(sbhome.music.widgetName)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.music.widgetName.2)) + !String.IsEmpty(Skin.String(sbhome.music.widgetName.2))">SetProperty(sbhome.music.widgetName.2,"$INFO[Skin.String(sbhome.music.widgetName.2)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.music.widgetName.3)) + !String.IsEmpty(Skin.String(sbhome.music.widgetName.3))">SetProperty(sbhome.music.widgetName.3,"$INFO[Skin.String(sbhome.music.widgetName.3)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.music.widgetName.4)) + !String.IsEmpty(Skin.String(sbhome.music.widgetName.4))">SetProperty(sbhome.music.widgetName.4,"$INFO[Skin.String(sbhome.music.widgetName.4)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.music.widgetName.5)) + !String.IsEmpty(Skin.String(sbhome.music.widgetName.5))">SetProperty(sbhome.music.widgetName.5,"$INFO[Skin.String(sbhome.music.widgetName.5)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.music.widgetName.6)) + !String.IsEmpty(Skin.String(sbhome.music.widgetName.6))">SetProperty(sbhome.music.widgetName.6,"$INFO[Skin.String(sbhome.music.widgetName.6)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.livetv.widgetPath)) + !String.IsEmpty(Skin.String(sbhome.livetv.widgetPath))">SetProperty(sbhome.livetv.widgetPath,"$INFO[Skin.String(sbhome.livetv.widgetPath)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.livetv.widgetPath.2)) + !String.IsEmpty(Skin.String(sbhome.livetv.widgetPath.2))">SetProperty(sbhome.livetv.widgetPath.2,"$INFO[Skin.String(sbhome.livetv.widgetPath.2)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.livetv.widgetPath.3)) + !String.IsEmpty(Skin.String(sbhome.livetv.widgetPath.3))">SetProperty(sbhome.livetv.widgetPath.3,"$INFO[Skin.String(sbhome.livetv.widgetPath.3)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.livetv.widgetPath.4)) + !String.IsEmpty(Skin.String(sbhome.livetv.widgetPath.4))">SetProperty(sbhome.livetv.widgetPath.4,"$INFO[Skin.String(sbhome.livetv.widgetPath.4)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.livetv.widgetPath.5)) + !String.IsEmpty(Skin.String(sbhome.livetv.widgetPath.5))">SetProperty(sbhome.livetv.widgetPath.5,"$INFO[Skin.String(sbhome.livetv.widgetPath.5)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.livetv.widgetPath.6)) + !String.IsEmpty(Skin.String(sbhome.livetv.widgetPath.6))">SetProperty(sbhome.livetv.widgetPath.6,"$INFO[Skin.String(sbhome.livetv.widgetPath.6)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.livetv.widgetName)) + !String.IsEmpty(Skin.String(sbhome.livetv.widgetName))">SetProperty(sbhome.livetv.widgetName,"$INFO[Skin.String(sbhome.livetv.widgetName)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.livetv.widgetName.2)) + !String.IsEmpty(Skin.String(sbhome.livetv.widgetName.2))">SetProperty(sbhome.livetv.widgetName.2,"$INFO[Skin.String(sbhome.livetv.widgetName.2)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.livetv.widgetName.3)) + !String.IsEmpty(Skin.String(sbhome.livetv.widgetName.3))">SetProperty(sbhome.livetv.widgetName.3,"$INFO[Skin.String(sbhome.livetv.widgetName.3)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.livetv.widgetName.4)) + !String.IsEmpty(Skin.String(sbhome.livetv.widgetName.4))">SetProperty(sbhome.livetv.widgetName.4,"$INFO[Skin.String(sbhome.livetv.widgetName.4)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.livetv.widgetName.5)) + !String.IsEmpty(Skin.String(sbhome.livetv.widgetName.5))">SetProperty(sbhome.livetv.widgetName.5,"$INFO[Skin.String(sbhome.livetv.widgetName.5)]",home)</onload>
+	<onload condition="String.IsEmpty(Window(Home).Property(sbhome.livetv.widgetName.6)) + !String.IsEmpty(Skin.String(sbhome.livetv.widgetName.6))">SetProperty(sbhome.livetv.widgetName.6,"$INFO[Skin.String(sbhome.livetv.widgetName.6)]",home)</onload>
 	<onload condition="String.IsEmpty(Window(Home).Property(btv.row))">SetProperty(btv.row,1,home)</onload>
 	<onload condition="String.IsEmpty(Window(Home).Property(btv.menu))">SetProperty(btv.menu,10000,home)</onload>
 	<onload condition="String.IsEmpty(Window(Home).Property(btv.rowbase))">SetProperty(btv.rowbase,910,home)</onload>
@@ -66,6 +90,8 @@
 		<include content="BTVHomeRows"><param name="item">10000</param><param name="base">910</param><param name="menu">9201</param></include>
 		<include content="BTVHomeRows"><param name="item">movies</param><param name="base">911</param><param name="menu">9202</param></include>
 		<include content="BTVHomeRows"><param name="item">tvshows</param><param name="base">912</param><param name="menu">9203</param></include>
+		<include content="BTVHomeRows"><param name="item">music</param><param name="base">913</param><param name="menu">9204</param></include>
+		<include content="BTVHomeRows"><param name="item">livetv</param><param name="base">914</param><param name="menu">9205</param></include>
 		<include>BTVTopBar</include>
 	</controls>
 </window>

@@ -4126,6 +4126,47 @@ def test_home_rows_editor(server, settings, home_props, monkeypatch, tmp_path):
     assert (home_props["sbhubs.1.id"], home_props["sbhubs.1.name"], home_props["sbhubs.2.id"]) == (hub, "Kids", "")
 
 
+def test_music_rows_from_an_addon_folder(server, settings, home_props, monkeypatch, tmp_path):
+    """BingeTV's Music and Live TV rows: Kodi's own lists first, then a folder of any add-on."""
+    from kodi_ui import homerows, homewidgets
+
+    monkeypatch.setattr(homewidgets, "profile_dir", lambda: str(tmp_path))
+    monkeypatch.setattr(homerows, "profile_dir", lambda: str(tmp_path))
+    monkeypatch.setattr(homewidgets, "skin_active", lambda: True)
+    monkeypatch.setattr(homewidgets.xbmc, "getSkinDir", lambda: "skin.bingetv")
+    install(server)
+    folders = {"plugin://plugin.audio.radio/": [{"file": "plugin://plugin.audio.radio/?genre", "label": "[B]Genres[/B]",
+                                                  "filetype": "directory"}],
+               "plugin://plugin.audio.radio/?genre": [{"file": "plugin://plugin.audio.radio/?genre=jazz",
+                                                        "label": "Jazz", "filetype": "directory"}]}
+
+    def rpc(method, **params):
+        if method == "Addons.GetAddons":
+            return {"addons": [{"addonid": "plugin.audio.radio", "name": "Radio"}]
+                    if params["type"] == "xbmc.addon.audio" else [{"addonid": "plugin.video.youtube", "name": "YouTube"}]}
+        return {"files": folders.get(params["directory"], [])}
+
+    monkeypatch.setattr(homerows, "jsonrpc", rpc)
+    monkeypatch.setattr(homerows.xbmc, "getCondVisibility", lambda condition: False)  # Music shown, no Live TV
+    answers, headings = [], []
+
+    def select(self, heading, items, *a, **k):
+        headings.append((heading, list(items)))
+        return answers.pop(0)
+
+    monkeypatch.setattr(xbmcgui.Dialog, "select", select)
+    answers[:] = [2,          # "+ Add a row" (after the two standard rows)
+                  1,          # Add-ons (after the music library)
+                  0,          # Radio (music add-ons first), then into Genres, and use Jazz
+                  1, 1, 0,
+                  -1]
+    call("home_rows", handle=-1, item="music")
+    assert headings[2][1] == ["Radio", "YouTube"] and headings[3][1][1] == "Genres"
+    assert homerows.rows_of("music")[-1] == ("plugin://plugin.audio.radio/?genre=jazz", "Jazz")
+    assert home_props["sbhome.music.widgetPath.3"].startswith("plugin://plugin.audio.radio/?genre=jazz")
+    assert home_props["sbhome.livetv.widgetPath"] == "pvr://channels/tv/*?view=lastplayed"   # the standard rows
+
+
 def test_linked_settings_sync_both_ways(settings, monkeypatch, tmp_path):
     """BingeTV's settings page: skin options, IPTV Simple's addresses and Dispatcharr Bridge's
     settings are kept here and over there, whichever side changed."""

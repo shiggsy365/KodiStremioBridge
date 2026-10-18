@@ -1,5 +1,5 @@
 """BingeTV's Home rows: choose, order, rename and remove the rows on Home and on
-the Movies and TV Shows menu items (Arctic Zephyr Stremio uses Skin Shortcuts'
+the Movies, TV Shows, Music and Live TV menu items (Arctic Zephyr Stremio uses Skin Shortcuts'
 Customise Home for this instead).
 
 The choices go in the same per-profile store as Customise Home's
@@ -11,15 +11,25 @@ rows no longer fill in.
 
 import json
 import os
+import re
+from urllib.parse import quote
 
+import xbmc
 import xbmcgui
 
-from .common import L, get_registry, profile_dir
-from .homewidgets import DEFAULTS, ITEMS, SLOTS, STORE, field, load_store, publish
+from .common import ADDON_ID, L, get_registry, jsonrpc, profile_dir
+from .homewidgets import BINGETV_ITEMS, DEFAULTS, SLOTS, STORE, field, load_store, publish
 from .router import route
 
-MENU_LABELS = {"10000": 30453, "movies": 30040, "tvshows": 30341}
+MENU_LABELS = {"10000": 30453, "movies": 30040, "tvshows": 30341, "music": 30530, "livetv": 30531}
+_COLOUR = re.compile(r"\[/?(?:COLOR|B|I)[^\]]*\]")
 LISTS = (("continue", 30180), ("next_up", 30181), ("watchlist", 30300))
+# Kodi's own lists a row can show: the music library, and Live TV (with its channel groups)
+MUSIC_ROWS = (("musicdb://recentlyaddedalbums/", 30532), ("musicdb://recentlyplayedalbums/", 30533),
+              ("musicdb://top100/albums/", 30534), ("musicdb://top100/songs/", 30535),
+              ("musicdb://albums/", 30536), ("musicdb://artists/", 30537))
+LIVETV_ROWS = (("pvr://channels/tv/*?view=lastplayed", 30538), ("pvr://channels/tv/*", 30539),
+               ("pvr://recordings/tv/active?view=flat", 30540), ("pvr://timers/tv/timers", 30541))
 
 
 def rows_of(item, store=None):
@@ -58,9 +68,24 @@ def reset_rows(item):
     publish()
 
 
-def row_sources(plugin):
+def channel_groups():
+    """``[(path, name), ...]``: Live TV's channel groups (Kodi's own "All channels" aside), as
+    pvr://channels/tv/<name>@<client id>/ (the client whose groups they are: the first that has
+    groups, as JSON-RPC doesn't say which group is whose)."""
+    clients = jsonrpc("PVR.GetClients").get("clients") or []
+    client = next((c["clientid"] for c in clients if c.get("supportschannelgroups")), None)
+    if client is None:
+        return []
+    every = xbmc.getLocalizedString(19287)  # "All channels"
+    groups = jsonrpc("PVR.GetChannelGroups", channeltype="tv").get("channelgroups") or []
+    return [(f"pvr://channels/tv/{quote(g['label'], safe='')}@{client}/", g["label"])
+            for g in groups if g.get("label") and g["label"] != every]
+
+
+def row_sources(plugin, item=None):
     """``[(label, [(path, name), ...]), ...]``: what a row can show, grouped: your
-    lists, then each hub's catalogs."""
+    lists, each hub's catalogs, then Kodi's music library, Live TV and add-ons (those first
+    on Music and Live TV). Add-ons' choices are None: they're browsed."""
     from .browse import catalog_item
     from .hubs import hub_label
 
@@ -71,18 +96,64 @@ def row_sources(plugin):
         for addon, catalog in registry.hub_catalogs(hub):
             choices.append((catalog_item(plugin, addon, catalog)[0], addon.display_name(catalog, tidy=True)))
         groups.append((hub_label(hub, registry), choices))
-    return groups
+    kodi = [(L(30530), [(path, L(label)) for path, label in MUSIC_ROWS])]
+    if xbmc.getCondVisibility("System.HasPVRAddon"):
+        kodi.append((L(30531), [(path, L(label)) for path, label in LIVETV_ROWS] + channel_groups()))
+    if item == "livetv":
+        kodi.reverse()
+    kodi.append((L(30543), None))  # Add-ons: a folder of one, browsed (_choose_source)
+    return kodi + groups if item in ("music", "livetv") else groups + kodi
 
 
-def _choose_source(plugin):
-    """A (path, name) chosen from row_sources, or None."""
-    groups = [(label, choices) for label, choices in row_sources(plugin) if choices]
+def addon_sources(item=None):
+    """``[(path, name), ...]``: the music and video add-ons a row can show a folder of
+    (music ones first on Music)."""
+    found = {}
+    for content in ("audio", "video"):
+        listed = jsonrpc("Addons.GetAddons", type="xbmc.addon." + content, enabled=True,
+                         properties=["name"]).get("addons") or []
+        found[content] = sorted(((f"plugin://{a['addonid']}/", a.get("name") or a["addonid"])
+                                 for a in listed if a.get("addonid") != ADDON_ID), key=lambda a: a[1].lower())
+    first, second = ("audio", "video") if item == "music" else ("video", "audio")
+    return found[first] + [a for a in found[second] if a not in found[first]]
+
+
+def _browse_addon(path, name):
+    """A folder of an add-on, chosen by browsing it: ``(path, name)``, or None (back)."""
+    dialog = xbmcgui.Dialog()
+    trail = [(path, name)]
+    while trail:
+        here, title = trail[-1]
+        listed = jsonrpc("Files.GetDirectory", directory=here, media="files").get("files") or []
+        folders = [(f["file"], _COLOUR.sub("", f.get("label") or "")) for f in listed
+                   if f.get("filetype") == "directory" and f.get("file")]
+        pick = dialog.select(title, [f"+  {L(30542)}"] + [label for _, label in folders])
+        if pick < 0:
+            trail.pop()
+        elif pick == 0:
+            return here, title
+        else:
+            trail.append(folders[pick - 1])
+    return None
+
+
+def _choose_source(plugin, item=None):
+    """A (path, name) chosen from row_sources or an add-on's folders, or None."""
+    groups = [(label, choices) for label, choices in row_sources(plugin, item) if choices or choices is None]
     dialog = xbmcgui.Dialog()
     while True:
         group = dialog.select(L(30458), [label for label, _ in groups])
         if group < 0:
             return None
         choices = groups[group][1]
+        if choices is None:
+            addons = addon_sources(item)
+            pick = dialog.select(groups[group][0], [name for _, name in addons])
+            if pick >= 0:
+                chosen = _browse_addon(*addons[pick])
+                if chosen:
+                    return chosen
+            continue
         pick = dialog.select(groups[group][0], [name for _, name in choices])
         if pick >= 0:
             return choices[pick]
@@ -110,7 +181,7 @@ def _edit_row(plugin, item, rows, index):
             return False
         rows[index] = (path, new)
     elif do == "change":
-        source = _choose_source(plugin)
+        source = _choose_source(plugin, item)
         if source is None:
             return False
         rows[index] = source
@@ -119,15 +190,26 @@ def _edit_row(plugin, item, rows, index):
     return True
 
 
+def menu_items():
+    """The menu items with rows: Music and Live TV unless they're hidden (or there's no Live TV)."""
+    items = list(BINGETV_ITEMS)
+    if xbmc.getCondVisibility("Skin.HasSetting(btv.hidemusic)"):
+        items.remove("music")
+    if xbmc.getCondVisibility("Skin.HasSetting(btv.hidelivetv) | !System.HasPVRAddon"):
+        items.remove("livetv")
+    return items
+
+
 @route("home_rows")
 def home_rows(plugin, item=None):
     """The editor: pick a menu item (unless given), then its rows."""
     dialog = xbmcgui.Dialog()
-    if item not in ITEMS:
-        pick = dialog.select(L(30452), [L(MENU_LABELS[i]) for i in ITEMS])
+    items = menu_items()
+    if item not in items:
+        pick = dialog.select(L(30452), [L(MENU_LABELS[i]) for i in items])
         if pick < 0:
             return
-        item = ITEMS[pick]
+        item = items[pick]
     heading = f"{L(30452)} · {L(MENU_LABELS[item])}"
     while True:
         rows = rows_of(item)
@@ -145,7 +227,7 @@ def home_rows(plugin, item=None):
             continue
         do = extra[choice - len(rows)][0]
         if do == "add":
-            source = _choose_source(plugin)
+            source = _choose_source(plugin, item)
             if source is not None:
                 save_rows(item, rows + [source])
         elif dialog.yesno(heading, L(30457)):

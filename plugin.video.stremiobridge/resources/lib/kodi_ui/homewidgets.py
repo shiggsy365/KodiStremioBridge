@@ -28,6 +28,7 @@ import xbmcvfs
 from .common import ADDON_ID, BINGETV_SKIN_ID, SKIN_ID, WATCH_RELOAD, WATCH_ROWS, WIDGETS_RELOAD, log, profile_dir, skin_active
 
 ITEMS = ("10000", "movies", "tvshows")  # labelIDs of the home menu's Home, Movies and TV Shows
+BINGETV_ITEMS = ITEMS + ("music", "livetv")  # BingeTV's menu bar also has rows for Music and Live TV
 SLOTS = range(1, 7)
 FIELDS = ("widgetPath", "widgetName")
 PROPERTIES_FILE = f"special://profile/addon_data/script.skinshortcuts/{SKIN_ID}.properties"
@@ -41,6 +42,10 @@ DEFAULTS = {  # as the skin had them (until a profile chooses others)
                (f"{_OURS}?action=catalog&addon=cinemeta&type=movie&id=top", "Popular Movies")],
     "tvshows": [(f"{_OURS}?action=catalog&addon=cinemeta&type=series&id=imdbRating", "Featured Series"),
                 (f"{_OURS}?action=catalog&addon=cinemeta&type=series&id=top", "Popular Series")],
+    "music": [("musicdb://recentlyaddedalbums/", "Recently Added Albums"),
+              ("musicdb://recentlyplayedalbums/", "Recently Played Albums")],
+    "livetv": [("pvr://channels/tv/*?view=lastplayed", "Recently Watched Channels"),
+               ("pvr://channels/tv/*", "All Channels")],
 }
 
 
@@ -167,7 +172,7 @@ def publish():
     watch_token = home.getProperty(WATCH_RELOAD)
     store = load_store()
     remember = xbmc.getSkinDir() == BINGETV_SKIN_ID
-    for item in ITEMS:
+    for item in BINGETV_ITEMS if remember else ITEMS:
         chosen = store.get(item, {})
         for name in sorted(FIELD_NAMES):
             value = chosen.get(name, default(item, name))

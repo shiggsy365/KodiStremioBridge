@@ -1656,3 +1656,59 @@ msgstr ""
 msgctxt "#30529"
 msgid "Lock a profile with a code…"
 msgstr ""
+
+msgctxt "#30530"
+msgid "Music"
+msgstr ""
+
+msgctxt "#30531"
+msgid "Live TV"
+msgstr ""
+
+msgctxt "#30532"
+msgid "Recently added albums"
+msgstr ""
+
+msgctxt "#30533"
+msgid "Recently played albums"
+msgstr ""
+
+msgctxt "#30534"
+msgid "Most played albums"
+msgstr ""
+
+msgctxt "#30535"
+msgid "Most played songs"
+msgstr ""
+
+msgctxt "#30536"
+msgid "All albums"
+msgstr ""
+
+msgctxt "#30537"
+msgid "All artists"
+msgstr ""
+
+msgctxt "#30538"
+msgid "Recently watched channels"
+msgstr ""
+
+msgctxt "#30539"
+msgid "All channels"
+msgstr ""
+
+msgctxt "#30540"
+msgid "Recordings"
+msgstr ""
+
+msgctxt "#30541"
+msgid "Timers"
+msgstr ""
+
+msgctxt "#30542"
+msgid "Use this folder as a row"
+msgstr ""
+
+msgctxt "#30543"
+msgid "Add-ons"
+msgstr ""

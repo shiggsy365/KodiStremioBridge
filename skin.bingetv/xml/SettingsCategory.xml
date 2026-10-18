@@ -100,7 +100,7 @@
 				<onleft>5</onleft>
 				<onright>5</onright>
 				<onup>3</onup>
-				<ondown>20</ondown>
+				<ondown>3</ondown>
 			</control>
 			<control type="button" id="10">
 				<description>Default Category Button</description>
@@ -143,7 +143,9 @@
 		<control type="group">
 			<depth>DepthContentPanel</depth>
 			<include>OpenClose_Left</include>
+			<!-- BingeTV: no settings level picker (always expert); kept hidden for its label -->
 			<control type="radiobutton" id="20">
+				<visible>false</visible>
 				<width>470</width>
 				<left>0</left>
 				<bottom>70</bottom>
