@@ -109,6 +109,30 @@ def write_iptv(changes):
     _restart_addon(IPTV, enable=bool(changes.get("m3uUrl")))
 
 
+LIVE_TV_MARKER = "live_tv_enabled"
+
+
+def enable_live_tv():
+    """A profile whose Live TV is set up (copied from another profile, or restored) but whose
+    IPTV Simple is off (Kodi keeps that per profile): turned on, once (after that, off stays off)."""
+    marker = os.path.join(profile_dir(), LIVE_TV_MARKER)
+    if os.path.exists(marker):
+        return
+    values = _iptv_values()
+    if not (values.get("m3uUrl") or values.get("m3uPath")):
+        return
+    details = jsonrpc("Addons.GetAddonDetails", addonid=IPTV, properties=["enabled"]) or {}
+    enabled = (details.get("addon") or {}).get("enabled")
+    if enabled is None:
+        return  # not installed
+    if not enabled:
+        jsonrpc("Addons.SetAddonEnabled", addonid=IPTV, enabled=True)
+        log("Live TV is set up in this profile: IPTV Simple turned on")
+    os.makedirs(profile_dir(), exist_ok=True)
+    with open(marker, "w", encoding="utf-8") as f:
+        f.write("1")
+
+
 def _restart_addon(addon_id, enable=False):
     details = jsonrpc("Addons.GetAddonDetails", addonid=addon_id, properties=["enabled"]) or {}
     enabled = (details.get("addon") or {}).get("enabled")

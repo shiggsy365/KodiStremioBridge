@@ -58,10 +58,26 @@ def _choice(message, can_skip=True):
                                  defaultbutton=xbmcgui.DLG_YESNO_YES_BTN) else CANCEL
 
 
+def _settle(monitor=None, seconds=2.0, limit=20.0):
+    """Wait until Home has stayed up, with nothing over it, for `seconds`: loading a profile
+    reloads the skin twice, and a reload closes any dialog already open (it would look
+    cancelled)."""
+    monitor = monitor or xbmc.Monitor()
+    steady, waited = 0.0, 0.0
+    while steady < seconds and waited < limit:
+        if monitor.waitForAbort(0.25):
+            return
+        waited += 0.25
+        up = xbmc.getCondVisibility("Window.IsActive(home) + !System.HasActiveModalDialog")
+        steady = steady + 0.25 if up else 0.0
+
+
 @route("setup_wizard")
 def setup_wizard(plugin, auto=""):
     """`auto`: started by the skin on its first run (quietly done if there's
     nothing to set up)."""
+    if auto:
+        _settle()
     if skin_active():
         xbmc.executebuiltin(f"Skin.SetBool({DONE_SETTING})")  # offered once, whatever happens next
     if auto and is_set_up():

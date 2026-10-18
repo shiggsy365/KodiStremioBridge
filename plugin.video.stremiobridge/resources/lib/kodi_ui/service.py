@@ -722,9 +722,10 @@ def run():
     apply_splash()
     home_widgets = HomeWidgets()  # this profile's, before the home screen shows
     try:
-        from .linked import sync
+        from .linked import enable_live_tv, sync
 
         sync()
+        enable_live_tv()
     except Exception as exc:  # noqa: BLE001
         log(f"Linked settings not synced: {exc}")
     log("Service started")

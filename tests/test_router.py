@@ -4369,3 +4369,49 @@ def test_add_profile_in_one_go(monkeypatch, tmp_path):
     profiles.add_profile()
     assert commands == ['BingeTV.AddProfile("Kids","special://masterprofile/avatars/hero.png","profiles/kids/")',
                         "copy profiles/kids/"]
+
+
+def test_copied_live_tv_is_turned_on_once(monkeypatch, tmp_path):
+    """A new profile with Live TV copied in has IPTV Simple off (Kodi keeps that per profile):
+    the service turns it on, once."""
+    from kodi_ui import linked
+
+    monkeypatch.setattr(linked, "profile_dir", lambda: str(tmp_path))
+    values = {"m3uUrl": ""}
+    monkeypatch.setattr(linked, "_iptv_values", lambda: dict(values))
+    state, calls = {"enabled": False}, []
+
+    def rpc(method, **params):
+        calls.append(method)
+        if method == "Addons.SetAddonEnabled":
+            state["enabled"] = params["enabled"]
+        return {"addon": {"enabled": state["enabled"]}}
+
+    monkeypatch.setattr(linked, "jsonrpc", rpc)
+    linked.enable_live_tv()
+    assert calls == [] and state["enabled"] is False          # no Live TV set up: nothing
+    values["m3uUrl"] = "http://example/playlist.m3u"
+    linked.enable_live_tv()
+    assert state["enabled"] is True
+    state["enabled"] = False                                   # turned off afterwards: stays off
+    calls.clear()
+    linked.enable_live_tv()
+    assert calls == [] and state["enabled"] is False
+
+
+def test_setup_wizard_waits_for_the_skin_to_settle(monkeypatch):
+    """A profile load reloads the skin twice: the wizard waits until Home has stayed up."""
+    from kodi_ui import wizard
+
+    seen = iter([True, False, True, True, True, True, True, True, True, True])
+    monkeypatch.setattr(wizard.xbmc, "getCondVisibility", lambda condition: next(seen))
+
+    class Monitor:
+        waits = 0
+
+        def waitForAbort(self, seconds):
+            Monitor.waits += 1
+            return False
+
+    wizard._settle(Monitor(), seconds=2.0)
+    assert Monitor.waits == 10                                 # one drop, then 8 steady checks
