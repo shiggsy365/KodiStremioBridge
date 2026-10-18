@@ -1,223 +1,217 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- BingeTV TV guide (Live TV on the menu bar): Arctic Zephyr Stremio's full-screen guide in
+     BingeTV's colours. Channel groups as tabs along the top (11, filled by Kodi) with the guide's
+     options, "full guide" and the clock on the right; the focused programme under them; the grid
+     below (a slim time ruler, then as many 70px rows as fit: 11, or 13 with "full guide", which
+     hides the programme info). Focus is red with white text, as everywhere in BingeTV. -->
 <window>
-	<defaultcontrol always="true">50</defaultcontrol>
-	<backgroundcolor>background</backgroundcolor>
-	<views>50,51,52,53</views>
 	<menucontrol>9000</menucontrol>
+	<defaultcontrol always="true">10</defaultcontrol>
+	<views>10,12</views>
 	<controls>
-		<include>DefaultBackground</include>
+		<control type="image">
+			<width>1920</width>
+			<height>1080</height>
+			<texture colordiffuse="primary_background">bingetv/white.png</texture>
+		</control>
 		<control type="group">
-			<animation effect="fade" start="100" end="0" time="200" tween="sine" condition="$EXP[infodialog_active]">Conditional</animation>
+			<left>20</left>
+			<right>20</right>
+			<top>10</top>
+			<bottom>10</bottom>
+			<animation effect="fade" start="0" end="100" time="200">WindowOpen</animation>
+			<animation effect="fade" start="100" end="0" time="150">WindowClose</animation>
+			<control type="image">
+				<left>-8</left>
+				<right>-8</right>
+				<top>-8</top>
+				<bottom>-8</bottom>
+				<texture colordiffuse="dialog_tint" border="32">bingetv/panel.png</texture>
+			</control>
+
+			<!-- Top bar: channel groups, the guide's options, full guide, clock -->
+			<control type="image">
+				<width>1880</width>
+				<height>70</height>
+				<texture colordiffuse="1FFFFFFF" border="32">bingetv/panel.png</texture>
+			</control>
+			<control type="list" id="11">
+				<left>0</left>
+				<top>3</top>
+				<width>1420</width>
+				<height>64</height>
+				<onup condition="!Control.IsVisible(12)">10</onup>
+				<onup condition="Control.IsVisible(12)">12</onup>
+				<ondown condition="!Control.IsVisible(12)">10</ondown>
+				<ondown condition="Control.IsVisible(12)">12</ondown>
+				<onright>11441</onright>
+				<onleft>11442</onleft>
+				<orientation>horizontal</orientation>
+				<viewtype label="535">list</viewtype>
+				<scrolltime tween="quadratic">400</scrolltime>
+				<itemlayout width="230" height="64">
+					<control type="label">
+						<left>6</left>
+						<top>8</top>
+						<width>218</width>
+						<height>48</height>
+						<align>center</align>
+						<aligny>center</aligny>
+						<font>SBInfoTab</font>
+						<textcolor>FFA0A0A0</textcolor>
+						<label>$INFO[ListItem.Label]</label>
+					</control>
+				</itemlayout>
+				<focusedlayout width="230" height="64">
+					<control type="image">
+						<left>6</left>
+						<top>8</top>
+						<width>218</width>
+						<height>48</height>
+						<texture border="20" colordiffuse="btv_accent">bingetv/pill.png</texture>
+						<visible>Control.HasFocus(11)</visible>
+					</control>
+					<control type="image">
+						<left>6</left>
+						<top>8</top>
+						<width>218</width>
+						<height>48</height>
+						<texture border="20" colordiffuse="40FFFFFF">bingetv/pill.png</texture>
+						<visible>!Control.HasFocus(11)</visible>
+					</control>
+					<control type="label">
+						<left>6</left>
+						<top>8</top>
+						<width>218</width>
+						<height>48</height>
+						<align>center</align>
+						<aligny>center</aligny>
+						<font>SBInfoTab</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<label>[B]$INFO[ListItem.Label][/B]</label>
+					</control>
+				</focusedlayout>
+			</control>
+			<!-- the guide's options (Kodi's side menu: channel groups, search, ...) -->
+			<control type="button" id="11441">
+				<left>1430</left>
+				<top>3</top>
+				<width>64</width>
+				<height>64</height>
+				<label>$LOCALIZE[33063]</label>
+				<textcolor>00FFFFFF</textcolor>
+				<focusedcolor>00FFFFFF</focusedcolor>
+				<texturenofocus>bingetv/bar/settings_nf.png</texturenofocus>
+				<texturefocus>bingetv/bar/settings_fo.png</texturefocus>
+				<onup condition="!Control.IsVisible(12)">10</onup>
+				<onup condition="Control.IsVisible(12)">12</onup>
+				<ondown condition="!Control.IsVisible(12)">10</ondown>
+				<ondown condition="Control.IsVisible(12)">12</ondown>
+				<onleft>11</onleft>
+				<onright>11442</onright>
+				<onclick>SetFocus(9000)</onclick>
+			</control>
+			<!-- full guide: two more rows, without the programme info -->
+			<control type="button" id="11442">
+				<left>1500</left>
+				<top>3</top>
+				<width>64</width>
+				<height>64</height>
+				<label>Full guide</label>
+				<textcolor>00FFFFFF</textcolor>
+				<focusedcolor>00FFFFFF</focusedcolor>
+				<texturenofocus>bingetv/bar/more_nf.png</texturenofocus>
+				<texturefocus>bingetv/bar/more_fo.png</texturefocus>
+				<onup condition="!Control.IsVisible(12)">10</onup>
+				<onup condition="Control.IsVisible(12)">12</onup>
+				<ondown condition="!Control.IsVisible(12)">10</ondown>
+				<ondown condition="Control.IsVisible(12)">12</ondown>
+				<onleft>11441</onleft>
+				<onright>SetFocus(11,0,absolute)</onright>
+				<onclick condition="Control.IsVisible(12)">Container.SetViewMode(10)</onclick>
+				<onclick condition="Control.IsVisible(10)">Container.SetViewMode(12)</onclick>
+			</control>
+			<control type="label">
+				<right>20</right>
+				<width>300</width>
+				<height>70</height>
+				<align>right</align>
+				<aligny>center</aligny>
+				<font>SBInfoHeading</font>
+				<textcolor>btv_accent</textcolor>
+				<label>$INFO[System.Time]</label>
+			</control>
+
+			<include content="BTVGuideGrid">
+				<param name="id">10</param>
+				<param name="top">248</param>
+				<param name="height">810</param>
+				<param name="line">bingetv/progressline.png</param>
+				<param name="label">19069</param>
+			</include>
+			<!-- full guide: two more rows, no programme info -->
+			<include content="BTVGuideGrid">
+				<param name="id">12</param>
+				<param name="top">72</param>
+				<param name="height">950</param>
+				<param name="line">bingetv/progressline2.png</param>
+				<param name="label">19032</param>
+			</include>
+
+			<!-- The focused programme: under the tab bar, above the grid -->
 			<control type="group">
-				<description>Guide Timeline</description>
-				<visible>Control.IsVisible(50) | Control.IsVisible(51) | Control.IsVisible(52) | Control.IsVisible(53)</visible>
-				<include>OpenClose_Right</include>
-				<include>Visible_Right</include>
-				<control type="group">
-					<top>140</top>
-					<depth>DepthContentPanel</depth>
-					<control type="image">
-						<left>0</left>
-						<top>-10</top>
-						<width>100%</width>
-						<bottom>336</bottom>
-						<texture colordiffuse="E6FFFFFF">dialogs/dialog-bg-nobo.png</texture>
-					</control>
-					<control type="group">
-						<visible>Control.IsVisible(50) | Control.IsVisible(51)</visible>
-						<control type="image">
-							<left>0</left>
-							<top>0</top>
-							<width>100%</width>
-							<height>50</height>
-							<texture colordiffuse="border_alpha">colors/white50.png</texture>
-						</control>
-						<control type="image">
-							<left>42</left>
-							<top>0</top>
-							<width>364</width>
-							<height>50</height>
-							<texture colordiffuse="button_focus">colors/white.png</texture>
-							<visible>Control.HasFocus(11)</visible>
-						</control>
-						<control type="image">
-							<left>10</left>
-							<top>10</top>
-							<width>20</width>
-							<height>30</height>
-							<texture>icons/keyboard/arrowleft.png</texture>
-							<animation effect="fade" start="0" end="100" time="150">VisibleChange</animation>
-							<visible>Control.HasFocus(11) + Container(11).HasPrevious</visible>
-						</control>
-						<control type="image">
-							<right>10</right>
-							<top>10</top>
-							<width>20</width>
-							<height>30</height>
-							<texture>icons/keyboard/arrowright.png</texture>
-							<animation effect="fade" start="0" end="100" time="150">VisibleChange</animation>
-							<visible>Control.HasFocus(11) + !String.IsEqual(Container(11).CurrentItem, Container(11).NumItems)</visible>
-						</control>
-					</control>
-					<control type="fixedlist" id="11">
-						<top>0</top>
-						<left>40</left>
-						<right>40</right>
-						<onleft>noop</onleft>
-						<onright>noop</onright>
-						<onup>63</onup>
-						<ondown>63</ondown>
-						<orientation>horizontal</orientation>
-						<scrolltime>200</scrolltime>
-						<visible>Control.IsVisible(50) | Control.IsVisible(51)</visible>
-						<itemlayout height="50" width="368">
-							<control type="image">
-								<left>1</left>
-								<top>0</top>
-								<width>366</width>
-								<height>49</height>
-								<texture colordiffuse="60FFFFFF">colors/white50.png</texture>
-							</control>
-							<control type="label">
-								<left>5</left>
-								<width>358</width>
-								<height>48</height>
-								<align>center</align>
-								<aligny>center</aligny>
-								<label>$INFO[ListItem.Label]</label>
-								<textcolor>lightgrey</textcolor>
-							</control>
-						</itemlayout>
-						<focusedlayout height="50" width="368">
-							<control type="image">
-								<left>1</left>
-								<top>0</top>
-								<width>366</width>
-								<height>50</height>
-								<texture colordiffuse="button_focus">colors/white.png</texture>
-								<animation effect="fade" end="30" condition="true">Conditional</animation>
-								<visible>!Control.HasFocus(11)</visible>
-							</control>
-							<control type="label">
-								<left>5</left>
-								<width>358</width>
-								<height>48</height>
-								<align>center</align>
-								<aligny>center</aligny>
-								<scroll>true</scroll>
-								<label>$INFO[ListItem.Label]</label>
-							</control>
-						</focusedlayout>
-					</control>
-					<control type="group" id="63">
-						<include content="EpgGrid">
-							<param name="control_id" value="50"/>
-							<param name="control_orientation" value="vertical"/>
-							<param name="control_top" value="62"/>
-							<param name="control_onupdown_id" value="11"/>
-							<param name="viewtype_label" value="19298"/>
-							<param name="progress_texture_border" value="0,60,18,14"/>
-							<param name="progress_texture" value="windows/pvr/epg_progress_vertical.png"/>
-							<param name="has_rulerdate_layout" value="false"/>
-							<param name="ruler_width" value="1400"/>
-							<param name="ruler_label_width" value="365"/>
-							<param name="channel_width" value="350"/>
-							<param name="scrollbar_top" value="110"/>
-						</include>
-						<include content="EpgGrid">
-							<param name="control_id" value="51"/>
-							<param name="control_orientation" value="horizontal"/>
-							<param name="control_top" value="62"/>
-							<param name="control_onupdown_id" value="11"/>
-							<param name="viewtype_label" value="19297"/>
-							<param name="progress_texture_border" value="5,10,5,10"/>
-							<param name="progress_texture" value="windows/pvr/epg_progress_horizontal.png"/>
-							<param name="has_rulerdate_layout" value="true"/>
-							<param name="ruler_width" value="150"/>
-							<param name="ruler_label_width" value="150"/>
-							<param name="channel_width" value="310"/>
-							<param name="scrollbar_top" value="168"/>
-						</include>
-						<include content="EpgGrid">
-							<param name="control_id" value="52"/>
-							<param name="control_orientation" value="vertical"/>
-							<param name="control_top" value="0"/>
-							<param name="control_onupdown_id" value="52"/>
-							<param name="viewtype_label" value="19301"/>
-							<param name="progress_texture_border" value="0,60,18,14"/>
-							<param name="progress_texture" value="windows/pvr/epg_progress_vertical.png"/>
-							<param name="has_rulerdate_layout" value="false"/>
-							<param name="ruler_width" value="1400"/>
-							<param name="ruler_label_width" value="365"/>
-							<param name="channel_width" value="350"/>
-							<param name="scrollbar_top" value="47"/>
-						</include>
-						<include content="EpgGrid">
-							<param name="control_id" value="53"/>
-							<param name="control_orientation" value="horizontal"/>
-							<param name="control_top" value="0"/>
-							<param name="control_onupdown_id" value="53"/>
-							<param name="viewtype_label" value="19300"/>
-							<param name="progress_texture_border" value="5,10,5,10"/>
-							<param name="progress_texture" value="windows/pvr/epg_progress_horizontal.png"/>
-							<param name="has_rulerdate_layout" value="true"/>
-							<param name="ruler_width" value="150"/>
-							<param name="ruler_label_width" value="150"/>
-							<param name="channel_width" value="310"/>
-							<param name="scrollbar_top" value="102"/>
-						</include>
-					</control>
+				<top>78</top>
+				<height>164</height>
+				<left>30</left>
+				<right>20</right>
+				<visible>!Control.IsVisible(12)</visible>
+				<control type="label">
+					<top>4</top>
+					<right>280</right>
+					<height>60</height>
+					<aligny>center</aligny>
+					<font>SBInfoHeading</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<label>$INFO[ListItem.Title]</label>
 				</control>
-				<control type="group">
-					<bottom>30</bottom>
-					<height>300</height>
-					<control type="image">
-						<top>10</top>
-						<left>30</left>
-						<width>290</width>
-						<height>250</height>
-						<aspectratio align="center" aligny="center">keep</aspectratio>
-						<fadetime>400</fadetime>
-						<texture>$INFO[ListItem.ChannelLogo]</texture>
-					</control>
-					<control type="group">
-						<visible>String.IsEmpty(ListItem.EpgEventIcon)</visible>
-						<include content="EpgEventDetails">
-							<param name="right" value="30"/>
-						</include>
-					</control>
-					<control type="group">
-						<visible>!String.IsEmpty(ListItem.EpgEventIcon)</visible>
-						<include content="EpgEventDetails">
-							<param name="right" value="350"/>
-						</include>
-					</control>
-					<control type="image">
-						<top>10</top>
-						<right>30</right>
-						<width>290</width>
-						<height>250</height>
-						<aspectratio align="center" aligny="center">keep</aspectratio>
-						<fadetime>400</fadetime>
-						<texture>$INFO[ListItem.EpgEventIcon]</texture>
-						<visible>!String.IsEmpty(ListItem.EpgEventIcon)</visible>
-					</control>
+				<control type="label">
+					<top>4</top>
+					<right>270</right>
+					<width>600</width>
+					<height>60</height>
+					<align>right</align>
+					<aligny>center</aligny>
+					<font>SBInfoFacts</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<label>$INFO[ListItem.StartTime]$INFO[ListItem.EndTime, - ,]</label>
+				</control>
+				<control type="textbox">
+					<top>68</top>
+					<right>270</right>
+					<height>90</height>
+					<align>justify</align>
+					<font>SBInfoBody</font>
+					<textcolor>FFE0E0E0</textcolor>
+					<label>$INFO[ListItem.Plot]</label>
+				</control>
+				<control type="image">
+					<right>0</right>
+					<top>8</top>
+					<width>250</width>
+					<height>150</height>
+					<aspectratio align="center" aligny="center">keep</aspectratio>
+					<texture>$VAR[BTVGuideImage]</texture>
+					<fadetime>200</fadetime>
 				</control>
 			</control>
-			<include>PVRChannelNumberInput</include>
-			<include content="TopBar">
-				<param name="breadcrumbs_label" value="$VAR[BreadcrumbsPVRGuideVar]" />
-				<param name="sublabel" value="" />
+		</control>
+
+		<include>PVRChannelNumberInput</include>
+		<control type="group">
+			<include>MediaMenuCommon</include>
+			<include content="PVRSideBar">
+				<param name="group_label2" value="$INFO[Control.GetLabel(30)]" />
 			</include>
-			<include content="BottomBar">
-				<param name="info_visible" value="true" />
-			</include>
-			<control type="group">
-				<include>MediaMenuCommon</include>
-				<include content="PVRSideBar">
-					<param name="group_label2" value="$INFO[Control.GetLabel(30)]" />
-				</include>
-			</control>
 		</control>
 		<control type="label" id="29">
 			<font></font>

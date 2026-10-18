@@ -463,7 +463,7 @@
 						<focusedcolor>00FFFFFF</focusedcolor>
 						<texturenofocus>bingetv/bar/livetv_nf.png</texturenofocus>
 						<texturefocus>bingetv/bar/livetv_fo.png</texturefocus>
-						<onclick>ActivateWindow(TVChannels)</onclick>
+						<onclick>ActivateWindow(TVGuide)</onclick>
 						<visible>System.HasPVRAddon + !Skin.HasSetting(btv.hidelivetv)</visible>
 					</control>
 			</control>
@@ -1051,6 +1051,176 @@
 				<focusedcolor>FFFFFFFF</focusedcolor>
 				<texturefocus colordiffuse="btv_accent" border="20">bingetv/pill.png</texturefocus>
 				<texturenofocus colordiffuse="26FFFFFF" border="20">bingetv/pill.png</texturenofocus>
+			</control>
+		</definition>
+	</include>
+	<!-- ============================================================ TV guide (MyPVRGuide.xml),
+	     Arctic Zephyr Stremio's layout in BingeTV's colours -->
+	<variable name="BTVGuideImage">
+		<value condition="!String.IsEmpty(ListItem.EpgEventIcon)">$INFO[ListItem.EpgEventIcon]</value>
+		<value>$INFO[ListItem.Icon]</value>
+	</variable>
+	<!-- The guide's grid: one per view (10, and 12 for "full guide") -->
+	<include name="BTVGuideGrid">
+		<definition>
+			<control type="epggrid" id="$PARAM[id]">
+				<left>0</left>
+				<width>1880</width>
+				<top>$PARAM[top]</top>
+				<height>$PARAM[height]</height>
+				<progresstexture border="5" colordiffuse="1AE31E2D">$PARAM[line]</progresstexture>
+				<onleft>9000</onleft>
+				<onup>11</onup>
+				<viewtype label="$PARAM[label]">list</viewtype>
+				<scrolltime tween="quadratic">250</scrolltime>
+				<timeblocks>40</timeblocks>
+				<rulerunit>6</rulerunit>
+				<rulerlayout height="40" width="260">
+					<control type="label" id="2">
+						<posx>10</posx>
+						<posy>4</posy>
+						<width>200</width>
+						<align>left</align>
+						<aligny>top</aligny>
+						<font>SBInfoSmall</font>
+						<label>$INFO[ListItem.Label]</label>
+						<textcolor>btv_accent</textcolor>
+					</control>
+				</rulerlayout>
+				<channellayout height="70" width="460">
+					<include content="BTVGuideChannel">
+						<param name="focused" value="false"/>
+					</include>
+				</channellayout>
+				<focusedchannellayout height="70" width="460">
+					<include content="BTVGuideChannel">
+						<param name="focused" value="Control.HasFocus($PARAM[id])"/>
+					</include>
+				</focusedchannellayout>
+				<itemlayout height="70" width="260">
+					<control type="image" id="2">
+						<left>3</left>
+						<top>3</top>
+						<width>254</width>
+						<height>64</height>
+						<texture border="14" colordiffuse="1FFFFFFF">stremio/tab.png</texture>
+					</control>
+					<include content="BTVGuideProgramme">
+						<param name="color" value="FFD0D0D0"/>
+					</include>
+				</itemlayout>
+				<focusedlayout height="70" width="260">
+					<control type="image" id="2">
+						<left>3</left>
+						<top>3</top>
+						<width>254</width>
+						<height>64</height>
+						<texture border="14" colordiffuse="40FFFFFF">stremio/tab.png</texture>
+						<visible>!Control.HasFocus($PARAM[id])</visible>
+					</control>
+					<control type="image" id="2">
+						<left>3</left>
+						<top>3</top>
+						<width>254</width>
+						<height>64</height>
+						<texture border="14" colordiffuse="btv_accent">stremio/tab.png</texture>
+						<visible>Control.HasFocus($PARAM[id])</visible>
+					</control>
+					<include content="BTVGuideProgramme">
+						<param name="color" value="FFFFFFFF"/>
+					</include>
+				</focusedlayout>
+			</control>
+		</definition>
+	</include>
+	<include name="BTVGuideChannel">
+		<definition>
+			<control type="image">
+				<left>3</left>
+				<top>3</top>
+				<width>454</width>
+				<height>64</height>
+				<texture border="14" colordiffuse="1FFFFFFF">stremio/tab.png</texture>
+				<visible>!$PARAM[focused]</visible>
+			</control>
+			<control type="image">
+				<left>3</left>
+				<top>3</top>
+				<width>454</width>
+				<height>64</height>
+				<texture border="14" colordiffuse="40FFFFFF">stremio/tab.png</texture>
+				<visible>$PARAM[focused]</visible>
+			</control>
+			<control type="image">
+				<left>3</left>
+				<top>3</top>
+				<width>454</width>
+				<height>64</height>
+				<texture border="14" colordiffuse="btv_accent">stremio/frame-4px.png</texture>
+				<visible>ListItem.IsPlaying</visible>
+			</control>
+			<control type="label">
+				<left>8</left>
+				<width>80</width>
+				<height>70</height>
+				<align>center</align>
+				<aligny>center</aligny>
+				<font>SBInfoTab</font>
+				<textcolor>FFFFFFFF</textcolor>
+				<label>$INFO[ListItem.ChannelNumberLabel]</label>
+			</control>
+			<control type="image">
+				<left>96</left>
+				<top>8</top>
+				<width>120</width>
+				<height>54</height>
+				<aspectratio aligny="center" align="center">keep</aspectratio>
+				<texture>$INFO[ListItem.Icon]</texture>
+			</control>
+			<control type="label">
+				<left>230</left>
+				<width>216</width>
+				<height>70</height>
+				<aligny>center</aligny>
+				<font>SBInfoTab</font>
+				<textcolor>FFFFFFFF</textcolor>
+				<label>$INFO[ListItem.ChannelName]</label>
+			</control>
+		</definition>
+	</include>
+	<!-- A programme: in an epggrid, images with id 2 and labels with id 1 take its width -->
+	<include name="BTVGuideProgramme">
+		<definition>
+			<control type="image">
+				<left>8</left>
+				<top>11</top>
+				<width>48</width>
+				<height>48</height>
+				<texture colordiffuse="$PARAM[color]">bingetv/timer.png</texture>
+				<visible>ListItem.HasTimer | ListItem.IsRecording</visible>
+			</control>
+			<control type="label" id="1">
+				<left>14</left>
+				<top>0</top>
+				<width>228</width>
+				<height>70</height>
+				<aligny>center</aligny>
+				<font>SBInfoTab</font>
+				<textcolor>$PARAM[color]</textcolor>
+				<label>$INFO[ListItem.Label]</label>
+				<visible>!ListItem.HasTimer + !ListItem.IsRecording</visible>
+			</control>
+			<control type="label" id="1">
+				<left>0</left>
+				<top>0</top>
+				<width>242</width>
+				<height>70</height>
+				<textoffsetx>62</textoffsetx>
+				<aligny>center</aligny>
+				<font>SBInfoTab</font>
+				<textcolor>$PARAM[color]</textcolor>
+				<label>$INFO[ListItem.Label]</label>
+				<visible>ListItem.HasTimer | ListItem.IsRecording</visible>
 			</control>
 		</definition>
 	</include>
