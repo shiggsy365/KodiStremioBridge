@@ -4206,3 +4206,35 @@ def test_bingetv_update_notice(monkeypatch, tmp_path):
     assert bingetv.check_for_update(force=True)              # "Check for BingeTV updates": always
     release["tag_name"] = "v0.2.0"
     assert not bingetv.check_for_update(force=True)          # up to date
+
+
+def test_old_settings_files_are_resaved(monkeypatch, tmp_path):
+    from kodi_ui import settingsfiles
+
+    for addon_id, version in (("script.old", "2"), ("script.new", "4"), ("script.gone", "2")):
+        (tmp_path / addon_id).mkdir()
+        (tmp_path / addon_id / "settings.xml").write_text(
+            f'<settings version="{version}"><setting id="first">x</setting><setting id="b">y</setting></settings>')
+    (tmp_path / "skin.x").mkdir()                                  # a skin's settings: no version
+    (tmp_path / "skin.x" / "settings.xml").write_text('<settings><setting id="a" type="bool">true</setting></settings>')
+    monkeypatch.setattr(settingsfiles.xbmcvfs, "translatePath", lambda path: str(tmp_path))
+    monkeypatch.setattr(settingsfiles.xbmc, "getInfoLabel", lambda label: "22.0 (22.0.0) Git:x")
+    monkeypatch.setattr(settingsfiles.xbmc, "getCondVisibility", lambda cond: "script.gone" not in cond)
+    saved = []
+
+    class FakeAddon:
+        def __init__(self, addon_id):
+            self.id = addon_id
+
+        def getSetting(self, key):
+            return "x"
+
+        def setSetting(self, key, value):
+            saved.append((self.id, key, value))
+
+    monkeypatch.setattr(settingsfiles.xbmcaddon, "Addon", FakeAddon)
+    assert settingsfiles.old_files() == [("script.gone", "first"), ("script.old", "first")]
+    assert settingsfiles.resave_old_settings() == ["script.old"]   # not installed: left alone
+    assert saved == [("script.old", "first", "x")]                # its own value, saved again
+    monkeypatch.setattr(settingsfiles.xbmc, "getInfoLabel", lambda label: "21.3 (21.3.0) Git:x")
+    assert settingsfiles.resave_old_settings() == []               # Kodi 21 reads its own format

@@ -737,6 +737,7 @@ def run():
 
 def _loop(monitor, worker, tracker, follower, home_widgets):
     from .backup import install_after_restore
+    from .settingsfiles import resave_old_settings
     from .splash import apply_splash
 
     next_sync = time.time() + 60             # first syncs shortly after Kodi starts
@@ -771,3 +772,4 @@ def _loop(monitor, worker, tracker, follower, home_widgets):
             worker.submit(refresh_skin_hubs)
             worker.submit(apply_splash)  # again: on a first start the skin sets its default late
             worker.submit(install_after_restore)  # the first start after a restore (backup.py)
+            worker.submit(resave_old_settings)  # Kodi 21's settings files (settingsfiles.py)
