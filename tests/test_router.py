@@ -4125,3 +4125,54 @@ def test_home_rows_editor(server, settings, home_props, monkeypatch, tmp_path):
     registry.set_catalog_pref(addon.key, series.key, hub=hub)
     homewidgets.publish_hubs()
     assert (home_props["sbhubs.1.id"], home_props["sbhubs.1.name"], home_props["sbhubs.2.id"]) == (hub, "Kids", "")
+
+
+def test_linked_settings_sync_both_ways(settings, monkeypatch, tmp_path):
+    """BingeTV's settings page: skin options, IPTV Simple's addresses and Dispatcharr Bridge's
+    settings are kept here and over there, whichever side changed."""
+    import xml.etree.ElementTree as ET
+
+    from kodi_ui import linked
+
+    settings.update(btv_show_music=True, btv_show_livetv=True, btv_show_power=False, btv_ribbons=True,
+                    btv_touch=False, btv_osd_hide=7, iptv_m3u_url="", iptv_epg_url="",
+                    dispatcharr_url="", dispatcharr_api_key="", dispatcharr_long_press=True)
+    monkeypatch.setattr(common.ADDON, "getSettingInt", lambda key: int(settings[key]))
+    monkeypatch.setattr(common.ADDON, "setSettingInt", lambda key, value: settings.__setitem__(key, value))
+    monkeypatch.setattr(linked, "profile_dir", lambda: str(tmp_path / "profile"))
+    monkeypatch.setattr(linked.xbmc, "getSkinDir", lambda: "skin.bingetv")
+    skin, rpc = {"touchmode"}, []
+    monkeypatch.setattr(linked.xbmc, "getCondVisibility",
+                        lambda cond: cond.startswith("Skin.HasSetting(") and cond[16:-1] in skin)
+
+    def builtin(command, *a):
+        name = command[command.index("(") + 1:-1]
+        (skin.add if command.startswith("Skin.SetBool") else skin.discard)(name)
+
+    monkeypatch.setattr(linked.xbmc, "executebuiltin", builtin)
+    iptv = tmp_path / "instance-settings-1.xml"
+    iptv.write_text('<settings version="2"><setting id="m3uPathType" default="true">1</setting>'
+                    '<setting id="m3uUrl">http://tv/m3u</setting></settings>')
+    monkeypatch.setattr(linked, "_iptv_path", lambda: str(iptv))
+    monkeypatch.setattr(linked, "jsonrpc", lambda method, **p: rpc.append((method, p)) or
+                        ({"addon": {"enabled": True}} if method == "Addons.GetAddonDetails" else {}))
+
+    def no_addon(addon_id):
+        raise RuntimeError("not installed")
+
+    monkeypatch.setattr(linked.xbmcaddon, "Addon", no_addon)
+
+    linked.sync()                                   # first time: the other side's values
+    assert settings["btv_touch"] is True and settings["iptv_m3u_url"] == "http://tv/m3u"
+    assert settings["dispatcharr_url"] == ""        # Dispatcharr Bridge isn't installed: left alone
+
+    settings.update(btv_show_power=True, btv_show_music=False, btv_osd_hide=3, iptv_epg_url="http://tv/epg")
+    linked.sync()                                   # changed here: passed on
+    assert {"btv.showpower", "btv.hidemusic", "btv.osd3"} <= skin
+    values = {s.get("id"): (s.text, s.get("default")) for s in ET.parse(iptv).getroot()}
+    assert values["epgUrl"] == ("http://tv/epg", None) and values["epgPathType"] == ("1", None)
+    assert [m for m, _ in rpc if m == "Addons.SetAddonEnabled"] == ["Addons.SetAddonEnabled"] * 2  # restarted
+
+    skin.discard("touchmode")                       # changed over there: brought here
+    linked.sync()
+    assert settings["btv_touch"] is False and settings["btv_show_power"] is True

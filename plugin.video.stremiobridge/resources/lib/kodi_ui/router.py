@@ -59,6 +59,7 @@ HANDLERS = {
     "manage": ("add_addon", "addon_actions", "addon_catalogs", "addon_details", "manage", "move_addon",
                "refresh_addon", "remove_addon", "set_catalog_pref", "toggle_addon"),
     "homerows": ("home_rows",),
+    "linked": ("open_kodi",),
     "menus": ("clear_cache", "open", "root", "settings", "toggle_parent_items", "widgets"),
     "player": ("play", "switch_stream"),
     "profiles": ("switch_profile",),

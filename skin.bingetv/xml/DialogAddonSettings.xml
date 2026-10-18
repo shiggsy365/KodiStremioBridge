@@ -14,6 +14,27 @@
 				<param name="header_label" value="" />
 				<param name="header_id" value="2" />
 			</include>
+			<!-- Stremio Bridge's settings are BingeTV's settings page: its own heading -->
+			<control type="group">
+				<visible>String.IsEqual(Window(addonsettings).Property(Addon.ID),plugin.video.stremiobridge)</visible>
+				<control type="image">
+					<left>30</left>
+					<top>4</top>
+					<width>1600</width>
+					<height>56</height>
+					<texture colordiffuse="dialog_tint">bingetv/white.png</texture>
+				</control>
+				<control type="label">
+					<left>40</left>
+					<top>4</top>
+					<width>1400</width>
+					<height>56</height>
+					<aligny>center</aligny>
+					<font>font32_title</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<label>BingeTV settings</label>
+				</control>
+			</control>
 			<control type="grouplist" id="3">
 				<description>Categories Area</description>
 				<left>10</left>

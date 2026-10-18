@@ -513,8 +513,10 @@ class LibraryMonitor(xbmc.Monitor):
 
     def onSettingsChanged(self):
         from .keymap import apply_keymap
+        from .linked import sync
 
         apply_keymap()
+        sync()  # the skin's options, IPTV Simple, Dispatcharr Bridge
 
     def onNotification(self, sender, method, data):
         if method == "VideoLibrary.OnUpdate":
@@ -710,6 +712,12 @@ def run():
     apply_keymap()
     apply_splash()
     home_widgets = HomeWidgets()  # this profile's, before the home screen shows
+    try:
+        from .linked import sync
+
+        sync()
+    except Exception as exc:  # noqa: BLE001
+        log(f"Linked settings not synced: {exc}")
     log("Service started")
     try:
         _loop(monitor, worker, tracker, follower, home_widgets)

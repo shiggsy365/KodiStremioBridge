@@ -42,7 +42,7 @@
 				<content>
 					<item>
 						<label>BingeTV</label>
-						<onclick>ActivateWindow(SkinSettings)</onclick>
+						<onclick>Addon.OpenSettings(plugin.video.stremiobridge)</onclick>
 						<icon>bingetv/osd/video.png</icon>
 					</item>
 					<item>

@@ -503,9 +503,10 @@
 						<focusedcolor>00FFFFFF</focusedcolor>
 						<texturenofocus>bingetv/bar/settings_nf.png</texturenofocus>
 						<texturefocus>bingetv/bar/settings_fo.png</texturefocus>
-						<!-- coming back, Home (or the hub) focuses the menu bar's Home button -->
-						<onclick>SetProperty(btv.fromsettings,1,home)</onclick>
-						<onclick>ActivateWindow(Settings)</onclick>
+						<!-- BingeTV's settings (Stremio Bridge's, with a tab per area); closed, focus is
+						     on the menu bar's Home button -->
+						<onclick>SetFocus(9201)</onclick>
+						<onclick>Addon.OpenSettings(plugin.video.stremiobridge)</onclick>
 					</control>
 					<control type="button" id="9213">
 						<onfocus>CancelAlarm(btvfocus1,true)</onfocus>
@@ -1005,24 +1006,8 @@
 	</include>
 	<!-- ============================================================ settings dialogs (DialogSettings.xml)
 	     One row: grey text, a red pill with white text when focused. -->
-	<!-- Skin settings (SkinSettings.xml) -->
-	<variable name="BTVOSDHideLabel">
-		<value condition="Skin.HasSetting(btv.osd3)">3 seconds</value>
-		<value condition="Skin.HasSetting(btv.osd5)">5 seconds</value>
-		<value condition="Skin.HasSetting(btv.osd10)">10 seconds</value>
-		<value>7 seconds</value>
-	</variable>
+	<!-- How long the OSD stays up: Stremio Bridge's settings (Home page layout) set btv.osdN -->
 	<expression name="BTVOSDIdle">[Skin.HasSetting(btv.osd3) + System.IdleTime(3)] | [Skin.HasSetting(btv.osd5) + System.IdleTime(5)] | [Skin.HasSetting(btv.osd10) + System.IdleTime(10)] | [!Skin.HasSetting(btv.osd3) + !Skin.HasSetting(btv.osd5) + !Skin.HasSetting(btv.osd10) + System.IdleTime(7)]</expression>
-	<variable name="BTVSkinSettingHelp">
-		<value condition="Control.HasFocus(101)">Choose the rows on Home and on the Movies and TV Shows menu items: add one from your lists or any catalog, move it, rename it or remove it.</value>
-		<value condition="Control.HasFocus(102)">Music on the menu bar, for music from your add-ons and library.</value>
-		<value condition="Control.HasFocus(103)">Live TV on the menu bar, when a TV add-on (such as IPTV Simple) is set up.</value>
-		<value condition="Control.HasFocus(104)">A power button by the clock, to quit BingeTV or turn the device off.</value>
-		<value condition="Control.HasFocus(105)">A green "Paused" ribbon on titles you're part-way through, and a red "Watched" one on those you've seen.</value>
-		<value condition="Control.HasFocus(106)">How long the player's controls stay up after your last key press.</value>
-		<value condition="Control.HasFocus(107)">For tablets and other touch screens: a Back button at the top left of every page but Home.</value>
-		<value condition="Control.HasFocus(108)">Stremio Bridge's own settings: your add-ons, catalogs, playback, subtitles, MDBList and more.</value>
-	</variable>
 	<include name="BTVSettingRow">
 		<param name="width">700</param>
 		<definition>

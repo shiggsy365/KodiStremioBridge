@@ -1376,3 +1376,191 @@ msgstr ""
 msgctxt "#30459"
 msgid "Your lists"
 msgstr ""
+
+msgctxt "#30460"
+msgid "Home page layout"
+msgstr ""
+
+msgctxt "#30461"
+msgid "Choose the rows on Home and on the Movies and TV Shows menu items: add one from your lists or any catalog, move it, rename it or remove it."
+msgstr ""
+
+msgctxt "#30462"
+msgid "Show Music on the menu bar"
+msgstr ""
+
+msgctxt "#30463"
+msgid "Music on the menu bar, for music from your add-ons and library."
+msgstr ""
+
+msgctxt "#30464"
+msgid "Show Live TV on the menu bar"
+msgstr ""
+
+msgctxt "#30465"
+msgid "Live TV on the menu bar, when a TV add-on (such as IPTV Simple) is set up."
+msgstr ""
+
+msgctxt "#30466"
+msgid "Show the power button on the menu bar"
+msgstr ""
+
+msgctxt "#30467"
+msgid "A power button by the clock, to quit BingeTV or turn the device off."
+msgstr ""
+
+msgctxt "#30468"
+msgid "Show \"Watched\" and \"Paused\" ribbons"
+msgstr ""
+
+msgctxt "#30469"
+msgid "A green \"Paused\" ribbon on titles you're part-way through, and a red \"Watched\" one on those you've seen."
+msgstr ""
+
+msgctxt "#30470"
+msgid "Hide the player controls after"
+msgstr ""
+
+msgctxt "#30471"
+msgid "How long the player's controls stay up after your last key press."
+msgstr ""
+
+msgctxt "#30472"
+msgid "3 seconds"
+msgstr ""
+
+msgctxt "#30473"
+msgid "5 seconds"
+msgstr ""
+
+msgctxt "#30474"
+msgid "7 seconds"
+msgstr ""
+
+msgctxt "#30475"
+msgid "10 seconds"
+msgstr ""
+
+msgctxt "#30476"
+msgid "Touch screen mode"
+msgstr ""
+
+msgctxt "#30477"
+msgid "For tablets and other touch screens: a Back button at the top left of every page but Home."
+msgstr ""
+
+msgctxt "#30478"
+msgid "Add-ons and manifests"
+msgstr ""
+
+msgctxt "#30479"
+msgid "Kodi"
+msgstr ""
+
+msgctxt "#30480"
+msgid "Kodi's player settings (expert)"
+msgstr ""
+
+msgctxt "#30481"
+msgid "All of Kodi's own video player settings, at the expert level: refresh rate, decoding, audio output and more."
+msgstr ""
+
+msgctxt "#30482"
+msgid "Kodi's subtitle settings (expert)"
+msgstr ""
+
+msgctxt "#30483"
+msgid "All of Kodi's own subtitle settings, at the expert level: font, size, colour, position, border and more."
+msgstr ""
+
+msgctxt "#30484"
+msgid "IPTV"
+msgstr ""
+
+msgctxt "#30485"
+msgid "IPTV Simple (Live TV)"
+msgstr ""
+
+msgctxt "#30486"
+msgid "Playlist (M3U) address"
+msgstr ""
+
+msgctxt "#30487"
+msgid "The address of your M3U playlist. IPTV Simple loads its channels from it."
+msgstr ""
+
+msgctxt "#30488"
+msgid "Guide (EPG) address"
+msgstr ""
+
+msgctxt "#30489"
+msgid "The address of your XMLTV guide. IPTV Simple loads the TV guide from it."
+msgstr ""
+
+msgctxt "#30490"
+msgid "Dispatcharr Bridge"
+msgstr ""
+
+msgctxt "#30491"
+msgid "Dispatcharr address"
+msgstr ""
+
+msgctxt "#30492"
+msgid "For example https://dispatcharr.example.com. Leave empty to use the address of IPTV Simple's playlist."
+msgstr ""
+
+msgctxt "#30493"
+msgid "API key"
+msgstr ""
+
+msgctxt "#30494"
+msgid "A Dispatcharr API key of an admin user (switching a channel's source needs admin rights). Create one in Dispatcharr under your user's settings."
+msgstr ""
+
+msgctxt "#30495"
+msgid "Long-press OK/Select to choose a source"
+msgstr ""
+
+msgctxt "#30496"
+msgid "While watching live TV, hold OK/Select to open the source picker. A normal press still does what it did."
+msgstr ""
+
+msgctxt "#30497"
+msgid "Expert"
+msgstr ""
+
+msgctxt "#30498"
+msgid "Kodi's settings"
+msgstr ""
+
+msgctxt "#30499"
+msgid "Kodi's own settings: display, audio, network, profiles, the system and more."
+msgstr ""
+
+msgctxt "#30500"
+msgid "Kodi add-ons"
+msgstr ""
+
+msgctxt "#30501"
+msgid "Add-ons"
+msgstr ""
+
+msgctxt "#30502"
+msgid "Kodi's add-on browser: install, update, enable and disable add-ons."
+msgstr ""
+
+msgctxt "#30503"
+msgid "Add-on settings"
+msgstr ""
+
+msgctxt "#30504"
+msgid "Kodi's add-on settings: updates, unknown sources and dependencies."
+msgstr ""
+
+msgctxt "#30505"
+msgid "File manager"
+msgstr ""
+
+msgctxt "#30506"
+msgid "Kodi's file manager: add sources, copy and delete files."
+msgstr ""

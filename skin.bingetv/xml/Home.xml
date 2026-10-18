@@ -3,6 +3,8 @@
      one at a time, and the menu along the top. Up/Down moves between rows. -->
 <window>
 	<defaultcontrol always="true">9101</defaultcontrol>
+	<!-- Stremio Bridge's settings show the BingeTV-only tabs (Home page layout) when this is set -->
+	<onload>SetProperty(btv.skin,1,home)</onload>
 	<onload condition="!Skin.HasSetting(stremio.setup_done) + System.HasAddon(plugin.video.stremiobridge)">RunPlugin(plugin://plugin.video.stremiobridge/?action=setup_wizard&amp;auto=1)</onload>
 	<!-- The rows fill in after the window opens (a list without items can't take focus): give
 	     focus to the row you were on (the first at start) once it has them. -->
