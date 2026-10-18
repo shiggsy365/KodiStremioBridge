@@ -1564,3 +1564,35 @@ msgstr ""
 msgctxt "#30506"
 msgid "Kodi's file manager: add sources, copy and delete files."
 msgstr ""
+
+msgctxt "#30507"
+msgid "Check for BingeTV updates"
+msgstr ""
+
+msgctxt "#30508"
+msgid "BingeTV {latest} is out (you have {current}). Download it now?"
+msgstr ""
+
+msgctxt "#30509"
+msgid "This isn't BingeTV, so there's nothing to check: Stremio Bridge itself updates from its repository."
+msgstr ""
+
+msgctxt "#30510"
+msgid "You have the latest BingeTV ({version})."
+msgstr ""
+
+msgctxt "#30511"
+msgid "Welcome to BingeTV. Bring your Kodi setup across from a backup? Make one on the old device with Stremio Bridge: Settings > Expert > Back up this Kodi."
+msgstr ""
+
+msgctxt "#30512"
+msgid "Start afresh"
+msgstr ""
+
+msgctxt "#30513"
+msgid "Restore a backup"
+msgstr ""
+
+msgctxt "#30514"
+msgid "Asks GitHub whether a newer BingeTV is out, and offers to download it. BingeTV also checks about once a week."
+msgstr ""

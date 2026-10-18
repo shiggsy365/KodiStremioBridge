@@ -760,6 +760,19 @@
                     <default>false</default>
                     <control type="toggle" />
                 </setting>
+                <setting id="bingetv_update" type="action" label="30507" help="30514">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=bingetv_update)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                    <dependencies>
+                        <dependency type="visible" on="property" name="InfoBool">!String.IsEmpty(Window(Home).Property(btv.skin))</dependency>
+                    </dependencies>
+                </setting>
                 <setting id="kodi_settings" type="action" label="30498" help="30499">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=open_kodi&amp;window=settings)</data>

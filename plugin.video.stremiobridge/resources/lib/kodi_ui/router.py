@@ -49,6 +49,7 @@ class Plugin:
 # @route decorators by tests/test_router.py.
 HANDLERS = {
     "backup": ("backup", "restore"),
+    "bingetv": ("bingetv_restore_offer", "bingetv_update"),
     "browse": ("catalog", "choose_filter", "row_page", "type"),
     "contextmenu": ("context_menu",),
     "details": ("info_episodes", "info_seasons", "meta", "people", "play_trailer", "season"),

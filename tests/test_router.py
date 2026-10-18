@@ -4176,3 +4176,33 @@ def test_linked_settings_sync_both_ways(settings, monkeypatch, tmp_path):
     skin.discard("touchmode")                       # changed over there: brought here
     linked.sync()
     assert settings["btv_touch"] is False and settings["btv_show_power"] is True
+
+
+def test_bingetv_update_notice(monkeypatch, tmp_path):
+    from kodi_ui import bingetv
+
+    info = tmp_path / "bingetv.json"
+    monkeypatch.setattr(bingetv.xbmcvfs, "translatePath", lambda path: str(info))
+    monkeypatch.setattr(bingetv, "profile_dir", lambda: str(tmp_path / "profile"))
+    asked, opened = [], []
+    monkeypatch.setattr(xbmcgui.Dialog, "yesno", lambda self, heading, message, *a, **k: asked.append(message) or True)
+    monkeypatch.setattr(xbmcgui.Dialog, "ok", lambda self, *a, **k: True)
+    monkeypatch.setattr(bingetv, "open_link", opened.append)
+    release = {"tag_name": "v0.3.0", "html_url": "https://github.com/x/releases/v0.3.0", "assets": [
+        {"name": "bingetv-armeabi-v7a-release.apk", "browser_download_url": "https://dl/arm.apk"},
+        {"name": "bingetv-arm64-v8a-release.apk", "browser_download_url": "https://dl/arm64.apk"}]}
+    monkeypatch.setattr(bingetv, "latest_release", lambda url: release)
+    monkeypatch.setattr(bingetv, "device_abi", lambda: "armeabi-v7a")
+
+    assert not bingetv.check_for_update()                    # plain Kodi: no build file, nothing asked
+    info.write_text('{"version": "0.2.0", "releases": "https://api.github.com/repos/x/releases/latest"}')
+    assert bingetv.version_key("v0.10.2") > bingetv.version_key("0.9.9")
+    assert bingetv.download_url(release, "arm64-v8a") == "https://dl/arm64.apk"
+
+    assert bingetv.check_for_update(now=1e9)                # newer: offered, the APK for this device
+    assert opened == ["https://dl/arm.apk"] and len(asked) == 1
+    assert not bingetv.check_for_update(now=1e9 + 3600)        # within the week: not asked again
+    assert not bingetv.check_for_update(now=1e9 + bingetv.CHECK_EVERY + 1)  # same version: once
+    assert bingetv.check_for_update(force=True)              # "Check for BingeTV updates": always
+    release["tag_name"] = "v0.2.0"
+    assert not bingetv.check_for_update(force=True)          # up to date

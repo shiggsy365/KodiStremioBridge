@@ -271,6 +271,15 @@ def add_subtitles(paths):
 MAX_STREAM_RETRIES = 5
 
 
+def check_bingetv_update():
+    from .bingetv import check_for_update
+
+    try:
+        check_for_update()
+    except Exception as exc:  # noqa: BLE001
+        log(f"BingeTV update check: {exc}")
+
+
 def expire_preparing():
     """Take the preparing page down if Kodi never started the stream it was handed."""
     age = handoff_age()
@@ -734,6 +743,7 @@ def _loop(monitor, worker, tracker, follower, home_widgets):
     next_library = time.time() + 120
     next_prewarm = time.time() + 180
     next_skin_hubs = time.time() + 20
+    next_update = time.time() + 120          # BingeTV: is a newer one out? (about weekly: bingetv.py)
     while not monitor.waitForAbort(1):
         tracker.tick()
         expire_preparing()
@@ -746,6 +756,10 @@ def _loop(monitor, worker, tracker, follower, home_widgets):
         if time.time() >= next_library:
             next_library = time.time() + LIBRARY_UPDATE_EVERY
             worker.submit(update_library)
+        if time.time() >= next_update:
+            next_update = time.time() + 3600
+            if not xbmc.Player().isPlaying():  # its own thread: the question waits for an answer
+                threading.Thread(target=check_bingetv_update, name="bingetv-update", daemon=True).start()
         if stale_queued():  # widgets showed expired lists: refresh just those, now
             _stale_submitted.set()
             worker.submit(refresh_stale)

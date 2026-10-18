@@ -61,6 +61,10 @@ def setup_wizard(plugin, auto=""):
         xbmc.executebuiltin(f"Skin.SetBool({DONE_SETTING})")  # offered once, whatever happens next
     if auto and is_set_up():
         return
+    if auto:
+        from .bingetv import first_run_restore
+
+        first_run_restore(plugin)  # BingeTV's first start: from a backup? (Kodi closes if restored)
     added, mdblist_synced, finished = 0, False, False
     choice = _choice(L(30418))
     if choice == ENTER:
