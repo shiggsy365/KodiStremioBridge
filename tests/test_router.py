@@ -4615,7 +4615,7 @@ def test_home_trailer_waits_for_youtubes_server(monkeypatch, home_props):
     assert ran == []                                                    # waits a while before retrying
     now[0] = 15.0
     trailer.tick()
-    assert ran == ['PlayMedia("plugin://plugin.video.youtube/play/?video_id=abc",0,1)']
+    assert ran == ['PlayMedia("plugin://plugin.video.youtube/play/?video_id=abc&screensaver=true",0,1)']
 
 
 def test_playing_streams_badges_are_published_for_the_osd(monkeypatch, home_props, tmp_path):

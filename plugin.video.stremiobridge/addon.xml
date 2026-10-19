@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.17.21"
+       version="0.17.22"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -22,14 +22,14 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.17.21 - BingeTV: Home trailers wake YouTube when it has gone idle, so they play after a pause too.
+        <news>v0.17.22 - BingeTV: Home trailers play in YouTube's screensaver mode (with BingeTV 0.2.5, a direct stream: no hang when an info page opens mid-trailer).
+v0.17.21 - BingeTV: Home trailers wake YouTube when it has gone idle, so they play after a pause too.
 v0.17.20 - BingeTV: no volume icon when a muted trailer starts or stops.
 v0.17.19 - BingeTV: hub pages laid out like Home, with trailers; the info page uses Home's centred layout with chips.
 v0.17.18 - BingeTV: minimal chips; the description shows at 2 seconds and stays while a trailer loads.
 v0.17.17 - BingeTV: the focused title in a centred column, with its date, length, rating and genres as chips and its description after 2 seconds.
 v0.17.16 - BingeTV: the playing stream's badges (4K, Dolby Vision, Atmos, ...) show in the OSD under "Ends at".
 v0.17.15 - BingeTV: a Home trailer only starts when YouTube is ready for it (Kodi could hang for a minute when it wasn't).
-v0.17.14 - BingeTV: Home's trailers can play muted (Settings > Home page layout; on to start with).
-v0.17.13 - BingeTV trailers on Home: a black background while one plays, and the focus stays on the title while it loads.</news>
+v0.17.14 - BingeTV: Home's trailers can play muted (Settings > Home page layout; on to start with).</news>
     </extension>
 </addon>

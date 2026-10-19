@@ -136,6 +136,15 @@ def wake_youtube(wait=4.0, monitor=None):
     return False
 
 
+def trailer_url(url):
+    """YouTube's "screensaver" playback for a trailer: no history, prompts or suggestions, and
+    (BingeTV's YouTube, patches/addons) a direct stream rather than MPEG-DASH through YouTube's
+    local server, which Kodi can wait on for 20 s, frozen, when the trailer is stopped."""
+    if url.startswith(YOUTUBE) and "screensaver=" not in url:
+        return url + ("&" if "?" in url else "?") + "screensaver=true"
+    return url
+
+
 class PlaybackEvents(xbmc.Player):
     """Counts video starts and stops: the trailer is the first start after it was asked for,
     and over at the next stop (or another start: something else plays instead)."""
@@ -198,6 +207,7 @@ class HomeTrailer:
             return
         if url and focused_title() and focused_title()[0] == path:  # (still: waking YouTube takes a moment)
             log(f"Home trailer for {path}")
+            url = trailer_url(url)
             xbmcgui.Window(10000).setProperty(PROPERTY, "1")
             xbmcgui.Window(10000).clearProperty("stremiobridge.playing.badges")  # not the trailer's
             self.playing = (now, self.player.starts, self.player.stops)
