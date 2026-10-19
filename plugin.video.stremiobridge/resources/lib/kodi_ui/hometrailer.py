@@ -9,8 +9,10 @@ The trailer is the list item's own (ListItem.Trailer), else its title's metadata
 """
 
 import time
+import urllib.request
 
 import xbmc
+import xbmcaddon
 import xbmcgui
 
 from .common import ADDON, BINGETV_SKIN_ID, jsonrpc, log
@@ -49,6 +51,25 @@ def trailer_for(path, trailer=""):
     owner = params.get("meta") or params["id"].split(":")[0]
     meta = load_meta(params["type"], owner, quiet=True)
     return YOUTUBE_PLUGIN.format(meta.trailer) if meta and meta.trailer else ""
+
+
+YOUTUBE = "plugin://plugin.video.youtube/"
+RETRY = 10  # seconds before trying a trailer again when YouTube wasn't ready
+
+
+def youtube_ready(timeout=1.5):
+    """Is YouTube's local stream server answering? Its trailers play through it (MPEG-DASH), and
+    when it's asleep (YouTube's service rests it while Kodi is idle) Kodi waits for it on its
+    main thread, 20 s at a time: the whole UI hangs. So a trailer only starts when it answers."""
+    try:
+        port = xbmcaddon.Addon("plugin.video.youtube").getSettingInt("kodion.http.port") or 50152
+    except (RuntimeError, ValueError):
+        port = 50152
+    try:
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}/youtube/ping", timeout=timeout) as response:
+            return response.status < 400
+    except (OSError, ValueError):
+        return False
 
 
 class PlaybackEvents(xbmc.Player):
@@ -107,6 +128,10 @@ class HomeTrailer:
             return
         self.tried = path
         url = trailer_for(path, title[1])
+        if url and url.startswith(YOUTUBE) and not youtube_ready():
+            log("Home trailer: YouTube's stream server isn't answering; trying again shortly")
+            self.tried, self.since = None, now + RETRY - ADDON.getSettingInt("btv_trailer_delay")
+            return
         if url and self.focused == path:
             log(f"Home trailer for {path}")
             xbmcgui.Window(10000).setProperty(PROPERTY, "1")

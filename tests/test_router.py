@@ -4480,6 +4480,7 @@ def test_home_trailer_plays_after_the_delay_and_stops_with_the_focus(monkeypatch
     monkeypatch.setattr(hometrailer, "focused_title", lambda: focus["title"])
     monkeypatch.setattr(hometrailer.xbmc, "getCondVisibility", lambda condition: False)  # no busy dialog
     ran = []
+    monkeypatch.setattr(hometrailer, "youtube_ready", lambda: True)
     monkeypatch.setattr(hometrailer.xbmc, "executebuiltin", lambda command, *a: ran.append(command))
 
     class Player:                                                      # PlaybackEvents' counts
@@ -4557,6 +4558,7 @@ def test_home_trailer_clears_when_playback_quietly_stops(monkeypatch, home_props
     monkeypatch.setattr(hometrailer, "focused_title", lambda: ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1", "plugin://yt/1"))
     monkeypatch.setattr(hometrailer.xbmc, "getCondVisibility", lambda condition: False)
     monkeypatch.setattr(hometrailer.xbmc, "executebuiltin", lambda command, *a: None)
+    monkeypatch.setattr(hometrailer, "youtube_ready", lambda: True)
 
     class Player:
         starts = stops = 0
@@ -4577,3 +4579,39 @@ def test_home_trailer_clears_when_playback_quietly_stops(monkeypatch, home_props
     trailer.tick()
     assert not home_props.get("btv.trailer") and trailer.playing is None
     assert not mute["on"]                                              # sound back
+
+
+def test_home_trailer_waits_for_youtubes_server(monkeypatch, home_props):
+    """No trailer while YouTube's stream server isn't answering (Kodi would hang waiting for
+    it): it's tried again shortly, and plays once the server answers."""
+    from kodi_ui import hometrailer
+
+    monkeypatch.setattr(hometrailer.ADDON, "getSettingBool", lambda k: k == "btv_home_trailers")
+    monkeypatch.setattr(hometrailer.ADDON, "getSettingInt", lambda k: 5)
+    monkeypatch.setattr(hometrailer, "focused_title", lambda: (
+        "plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1",
+        "plugin://plugin.video.youtube/play/?video_id=abc"))
+    monkeypatch.setattr(hometrailer.xbmc, "getCondVisibility", lambda condition: False)
+    ran, ready = [], {"up": False}
+    monkeypatch.setattr(hometrailer.xbmc, "executebuiltin", lambda command, *a: ran.append(command))
+    monkeypatch.setattr(hometrailer, "youtube_ready", lambda: ready["up"])
+
+    class Player:
+        starts = stops = 0
+
+        def isPlaying(self):
+            return False
+
+    now = [0.0]
+    trailer = hometrailer.HomeTrailer(player=Player(), clock=lambda: now[0])
+    trailer.tick()
+    now[0] = 5.0
+    trailer.tick()
+    assert ran == [] and not home_props.get("btv.trailer")              # server down: not played
+    ready["up"] = True
+    now[0] = 9.0
+    trailer.tick()
+    assert ran == []                                                    # waits a while before retrying
+    now[0] = 15.0
+    trailer.tick()
+    assert ran == ['PlayMedia("plugin://plugin.video.youtube/play/?video_id=abc",0,1)']
