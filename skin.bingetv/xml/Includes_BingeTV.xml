@@ -66,23 +66,24 @@
 		<value condition="!String.IsEmpty(ListItem.Property(stremiobridge.genres))">$INFO[ListItem.Property(stremiobridge.genres)]</value>
 		<value>$INFO[ListItem.Genre]</value>
 	</variable>
-	<!-- A rounded chip (genre, date, length, rating) in a centred row; sized to its text -->
+	<!-- A chip (genre, date, length, rating) in a centred row, sized to its text: minimal, a thin
+	     rounded rectangle in a darker BingeTV red and small light capitals -->
 	<include name="BTVChip">
 		<param name="label" />
 		<param name="visible">true</param>
 		<definition>
 			<control type="button">
 				<width>auto</width>
-				<height>46</height>
+				<height>38</height>
 				<label>$PARAM[label]</label>
 				<font>btv_chip</font>
-				<textoffsetx>22</textoffsetx>
+				<textoffsetx>18</textoffsetx>
 				<align>center</align>
 				<aligny>center</aligny>
-				<textcolor>FFFFFFFF</textcolor>
-				<disabledcolor>FFFFFFFF</disabledcolor>
-				<texturenofocus border="20" colordiffuse="40FFFFFF">bingetv/pill.png</texturenofocus>
-				<texturefocus border="20" colordiffuse="40FFFFFF">bingetv/pill.png</texturefocus>
+				<textcolor>D9FFFFFF</textcolor>
+				<disabledcolor>D9FFFFFF</disabledcolor>
+				<texturenofocus border="10" colordiffuse="FF8C1219">bingetv/chip_outline.png</texturenofocus>
+				<texturefocus border="10" colordiffuse="FF8C1219">bingetv/chip_outline.png</texturefocus>
 				<enable>false</enable>
 				<visible>$PARAM[visible]</visible>
 			</control>
@@ -157,10 +158,10 @@
 				<!-- date, length, rating -->
 				<control type="grouplist">
 					<width>632</width>
-					<height>46</height>
+					<height>38</height>
 					<orientation>horizontal</orientation>
 					<align>center</align>
-					<itemgap>12</itemgap>
+					<itemgap>10</itemgap>
 					<visible>!$EXP[BTVCardChannel] + String.IsEmpty(ListItem.Artist)</visible>
 					<include content="BTVChip">
 						<param name="label">$INFO[ListItem.Property(ReleaseDate)]</param>
@@ -182,10 +183,10 @@
 				<!-- genres: a chip each (Stremio Bridge's), else Kodi's as text -->
 				<control type="grouplist">
 					<width>632</width>
-					<height>46</height>
+					<height>38</height>
 					<orientation>horizontal</orientation>
 					<align>center</align>
-					<itemgap>12</itemgap>
+					<itemgap>10</itemgap>
 					<visible>!String.IsEmpty(ListItem.Property(stremiobridge.genre1))</visible>
 					<include content="BTVChip">
 						<param name="label">$INFO[ListItem.Property(stremiobridge.genre1)]</param>
@@ -219,7 +220,7 @@
 					<label>$INFO[ListItem.Plot]</label>
 					<!-- a bare info label to compare with: Kodi resolves a $INFO[] there once, at load -->
 					<visible>String.IsEqual(Window(Home).Property(btv.steady),ListItem.FileNameAndPath)</visible>
-					<animation effect="fade" start="0" end="100" time="400">Visible</animation>
+					<animation effect="fade" start="0" end="100" time="250">Visible</animation>
 				</control>
 			</control>
 		</control>

@@ -20,7 +20,7 @@ from .contextmenu import item_target
 
 PROPERTY = "btv.trailer"
 STEADY = "btv.steady"   # a title focused this long (its path): the skin shows its description
-STEADY_AFTER = 2.0
+STEADY_AFTER = 1.6     # + the next tick, the skin's fade and drawing: shown at about 2 s
 HUB_WINDOW, HUB_LIST = 1150, 400
 ROWS = {base * 10 + n for base in range(910, 915) for n in range(1, 7)}  # Home's row lists
 TICK = 0.25
@@ -56,6 +56,10 @@ def focused_path():
     return xbmc.getInfoLabel(f"Container({control}).ListItem.FileNameAndPath") if control in ROWS else ""
 
 
+def busy():
+    return xbmc.getCondVisibility("Window.IsActive(busydialog) | Window.IsActive(busydialognocancel)")
+
+
 class SteadyFocus:
     """Marks the title that has kept the focus for STEADY_AFTER seconds (Window(Home).Property(btv.steady)):
     the skin fades its description in then, rather than flashing every title's on the way past."""
@@ -66,6 +70,8 @@ class SteadyFocus:
         self.path, self.since, self.marked = "", 0.0, ""
 
     def tick(self):
+        if busy():  # Kodi's busy dialog (a trailer loading) has the focus for a moment: no change
+            return
         now, path = self.clock(), self.focused()
         if path != self.path:
             self.path, self.since = path, now
@@ -144,7 +150,7 @@ class HomeTrailer:
 
     def tick(self):
         now = self.clock()
-        if xbmc.getCondVisibility("Window.IsActive(busydialog) | Window.IsActive(busydialognocancel)"):
+        if busy():
             # Kodi's busy dialog (e.g. while YouTube finds the trailer's stream) isn't leaving Home
             if self.playing:
                 self._follow(now)

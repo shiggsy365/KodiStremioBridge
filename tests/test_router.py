@@ -4632,11 +4632,12 @@ def test_playing_streams_badges_are_published_for_the_osd(monkeypatch, home_prop
     assert strip and os.path.exists(strip)
 
 
-def test_steady_focus_marks_a_title_after_two_seconds(home_props):
+def test_steady_focus_marks_a_title_after_two_seconds(monkeypatch, home_props):
     """BingeTV shows a title's description once it has kept the focus for 2 seconds."""
     from kodi_ui import hometrailer
 
-    now, focus = [0.0], {"path": "a"}
+    monkeypatch.setattr(hometrailer, "busy", lambda: busy["on"])
+    now, focus, busy = [0.0], {"path": "a"}, {"on": False}
     steady = hometrailer.SteadyFocus(clock=lambda: now[0], focused=lambda: focus["path"])
     steady.tick()
     now[0] = 1.5
@@ -4645,6 +4646,10 @@ def test_steady_focus_marks_a_title_after_two_seconds(home_props):
     now[0] = 2.0
     steady.tick()
     assert home_props.get("btv.steady") == "a"
+    busy["on"], focus["path"] = True, ""                                  # a trailer loading: kept
+    steady.tick()
+    assert home_props.get("btv.steady") == "a"
+    busy["on"] = False
     focus["path"] = "b"                                                  # moved on: none until steady again
     steady.tick()
     assert not home_props.get("btv.steady")

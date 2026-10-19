@@ -171,8 +171,8 @@
 		<font>
 			<name>btv_chip</name>
 			<filename>NotoSans-Regular.ttf</filename>
-			<size>25</size>
-			<style>lighten</style>
+			<size>21</size>
+			<style>uppercase</style>
 		</font>
 		<font>
 			<name>btv_row</name>
@@ -419,8 +419,8 @@
 		<font>
 			<name>btv_chip</name>
 			<filename>arial.ttf</filename>
-			<size>25</size>
-			<style>lighten</style>
+			<size>21</size>
+			<style>uppercase</style>
 		</font>
 		<font>
 			<name>btv_row</name>
