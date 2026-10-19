@@ -17,7 +17,7 @@
 		<control type="group">
 			<visible>Control.HasFocus(400)</visible>
 			<include>Visible_Fade</include>
-			<include content="BTVTitleInfo"><param name="plot">180</param></include>
+			<include content="BTVTitleInfo"><param name="plot">107</param></include>
 		</control>
 
 		<!-- Tabs: the hub's catalogs. The current one sits on a pill (red while the tabs have focus). -->

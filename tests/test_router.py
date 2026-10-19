@@ -4630,3 +4630,38 @@ def test_playing_streams_badges_are_published_for_the_osd(monkeypatch, home_prop
     player.publish_badges(stream)
     strip = home_props.get("stremiobridge.playing.badges")
     assert strip and os.path.exists(strip)
+
+
+def test_steady_focus_marks_a_title_after_two_seconds(home_props):
+    """BingeTV shows a title's description once it has kept the focus for 2 seconds."""
+    from kodi_ui import hometrailer
+
+    now, focus = [0.0], {"path": "a"}
+    steady = hometrailer.SteadyFocus(clock=lambda: now[0], focused=lambda: focus["path"])
+    steady.tick()
+    now[0] = 1.5
+    steady.tick()
+    assert not home_props.get("btv.steady")
+    now[0] = 2.0
+    steady.tick()
+    assert home_props.get("btv.steady") == "a"
+    focus["path"] = "b"                                                  # moved on: none until steady again
+    steady.tick()
+    assert not home_props.get("btv.steady")
+    now[0] = 4.1
+    steady.tick()
+    assert home_props.get("btv.steady") == "b"
+
+
+def test_genres_are_also_set_one_each_for_chips():
+    from kodi_ui import listitems
+
+    class Item:
+        props = {}
+
+        def setProperty(self, key, value):
+            self.props[key] = value
+
+    item = Item()
+    listitems.set_genres(item, ["Crime", "Drama"])
+    assert [item.props[f"stremiobridge.genre{n}"] for n in (1, 2, 3)] == ["Crime", "Drama", ""]

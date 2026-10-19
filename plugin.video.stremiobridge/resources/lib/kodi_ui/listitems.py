@@ -70,6 +70,8 @@ def set_genres(item, genres):
     """Genres as Arctic Zephyr Stremio shows them ("Drama  •  Fantasy");
     Kodi's own ListItem.Genre joins them with slashes."""
     item.setProperty("stremiobridge.genres", GENRE_SEPARATOR.join(genres))
+    for n in range(3):  # one each, for BingeTV's genre chips
+        item.setProperty(f"stremiobridge.genre{n + 1}", genres[n] if n < len(genres) else "")
 
 
 def _apply_preview(item, preview):

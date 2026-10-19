@@ -66,65 +66,160 @@
 		<value condition="!String.IsEmpty(ListItem.Property(stremiobridge.genres))">$INFO[ListItem.Property(stremiobridge.genres)]</value>
 		<value>$INFO[ListItem.Genre]</value>
 	</variable>
+	<!-- A rounded chip (genre, date, length, rating) in a centred row; sized to its text -->
+	<include name="BTVChip">
+		<param name="label" />
+		<param name="visible">true</param>
+		<definition>
+			<control type="button">
+				<width>auto</width>
+				<height>46</height>
+				<label>$PARAM[label]</label>
+				<font>btv_chip</font>
+				<textoffsetx>22</textoffsetx>
+				<align>center</align>
+				<aligny>center</aligny>
+				<textcolor>FFFFFFFF</textcolor>
+				<disabledcolor>FFFFFFFF</disabledcolor>
+				<texturenofocus border="20" colordiffuse="40FFFFFF">bingetv/pill.png</texturenofocus>
+				<texturefocus border="20" colordiffuse="40FFFFFF">bingetv/pill.png</texturefocus>
+				<enable>false</enable>
+				<visible>$PARAM[visible]</visible>
+			</control>
+		</definition>
+	</include>
+	<!-- The focused title, in a centred column over the left 35% of the screen: its clear logo (or
+	     title), the episode, chips for its date, length and rating, chips for its genres, and its
+	     description, which fades in once the title has kept the focus for 2 seconds
+	     (Window(Home).Property(btv.steady), set by Stremio Bridge's service). -->
 	<include name="BTVTitleInfo">
-		<param name="plot">242</param>
+		<param name="plot">178</param>
 		<definition>
 		<control type="group">
-			<left>80</left>
-			<top>110</top>
+			<left>40</left>
+			<top>100</top>
+			<width>632</width>
 			<control type="image">
-				<width>360</width>
-				<height>130</height>
-				<aspectratio align="left" aligny="center">keep</aspectratio>
+				<width>632</width>
+				<height>150</height>
+				<aspectratio align="center" aligny="center">keep</aspectratio>
 				<fadetime>300</fadetime>
 				<texture background="true">$VAR[BTVLogo]</texture>
 			</control>
+			<!-- no clear logo: the title, on up to two lines in the logo's place -->
 			<control type="label">
-				<top>50</top>
-				<width>1300</width>
-				<height>70</height>
+				<width>632</width>
+				<height>150</height>
+				<align>center</align>
+				<aligny>center</aligny>
+				<wrapmultiline>true</wrapmultiline>
 				<font>font52_title</font>
 				<textcolor>FFFFFFFF</textcolor>
 				<label>$VAR[BTVTitle]</label>
 				<visible>String.IsEmpty(ListItem.Art(clearlogo)) + String.IsEmpty(ListItem.Art(tvshow.clearlogo))</visible>
 			</control>
 			<control type="grouplist">
-				<top>145</top>
-				<width>1400</width>
-				<height>370</height>
+				<top>162</top>
+				<width>632</width>
+				<height>520</height>
 				<orientation>vertical</orientation>
-				<itemgap>1</itemgap>
+				<itemgap>14</itemgap>
 				<usecontrolcoords>true</usecontrolcoords>
+				<!-- the episode -->
 				<control type="label">
-					<width>1400</width>
+					<width>632</width>
 					<height>40</height>
+					<align>center</align>
+					<font>btv_line</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<label>S$INFO[ListItem.Season]$INFO[ListItem.Episode, E,  ]$INFO[ListItem.Title]</label>
+					<visible>!String.IsEmpty(ListItem.Episode)</visible>
+				</control>
+				<!-- a channel, an album: its lines as text -->
+				<control type="label">
+					<width>632</width>
+					<height>40</height>
+					<align>center</align>
 					<font>btv_line</font>
 					<textcolor>FFFFFFFF</textcolor>
 					<label>$VAR[BTVLine1]</label>
+					<visible>$EXP[BTVCardChannel] | !String.IsEmpty(ListItem.Artist)</visible>
 				</control>
 				<control type="label">
-					<width>1400</width>
+					<width>632</width>
 					<height>40</height>
+					<align>center</align>
 					<font>btv_line</font>
 					<textcolor>FFFFFFFF</textcolor>
 					<label>$VAR[BTVLine2]</label>
-					<visible>!String.IsEmpty(ListItem.Episode) | $EXP[BTVCardChannel]</visible>
+					<visible>$EXP[BTVCardChannel]</visible>
+				</control>
+				<!-- date, length, rating -->
+				<control type="grouplist">
+					<width>632</width>
+					<height>46</height>
+					<orientation>horizontal</orientation>
+					<align>center</align>
+					<itemgap>12</itemgap>
+					<visible>!$EXP[BTVCardChannel] + String.IsEmpty(ListItem.Artist)</visible>
+					<include content="BTVChip">
+						<param name="label">$INFO[ListItem.Property(ReleaseDate)]</param>
+						<param name="visible">!String.IsEmpty(ListItem.Property(ReleaseDate))</param>
+					</include>
+					<include content="BTVChip">
+						<param name="label">$INFO[ListItem.Year]</param>
+						<param name="visible">String.IsEmpty(ListItem.Property(ReleaseDate)) + !String.IsEmpty(ListItem.Year)</param>
+					</include>
+					<include content="BTVChip">
+						<param name="label">$VAR[BTVDuration]</param>
+						<param name="visible">!String.IsEmpty(ListItem.Duration)</param>
+					</include>
+					<include content="BTVChip">
+						<param name="label">$INFO[ListItem.Rating,★ ]</param>
+						<param name="visible">!String.IsEmpty(ListItem.Rating)</param>
+					</include>
+				</control>
+				<!-- genres: a chip each (Stremio Bridge's), else Kodi's as text -->
+				<control type="grouplist">
+					<width>632</width>
+					<height>46</height>
+					<orientation>horizontal</orientation>
+					<align>center</align>
+					<itemgap>12</itemgap>
+					<visible>!String.IsEmpty(ListItem.Property(stremiobridge.genre1))</visible>
+					<include content="BTVChip">
+						<param name="label">$INFO[ListItem.Property(stremiobridge.genre1)]</param>
+					</include>
+					<include content="BTVChip">
+						<param name="label">$INFO[ListItem.Property(stremiobridge.genre2)]</param>
+						<param name="visible">!String.IsEmpty(ListItem.Property(stremiobridge.genre2))</param>
+					</include>
+					<include content="BTVChip">
+						<param name="label">$INFO[ListItem.Property(stremiobridge.genre3)]</param>
+						<param name="visible">!String.IsEmpty(ListItem.Property(stremiobridge.genre3))</param>
+					</include>
 				</control>
 				<control type="label">
-					<width>1400</width>
+					<width>632</width>
 					<height>40</height>
+					<align>center</align>
 					<font>btv_text</font>
 					<textcolor>FFB4B4B4</textcolor>
-					<label>$VAR[BTVGenres]</label>
+					<label>$INFO[ListItem.Genre]</label>
+					<visible>String.IsEmpty(ListItem.Property(stremiobridge.genre1)) + !String.IsEmpty(ListItem.Genre)</visible>
 				</control>
-				<!-- the description: the left half of the screen (the trailer plays on the right) -->
+				<!-- the description: once the title has kept the focus for 2 seconds -->
 				<control type="textbox">
-					<width>760</width>
+					<width>632</width>
 					<height>$PARAM[plot]</height>
+					<align>justify</align>
 					<font>btv_text</font>
 					<textcolor>FFEEEEEE</textcolor>
 					<autoscroll delay="6000" time="3000" repeat="8000">true</autoscroll>
 					<label>$INFO[ListItem.Plot]</label>
+					<!-- a bare info label to compare with: Kodi resolves a $INFO[] there once, at load -->
+					<visible>String.IsEqual(Window(Home).Property(btv.steady),ListItem.FileNameAndPath)</visible>
+					<animation effect="fade" start="0" end="100" time="400">Visible</animation>
 				</control>
 			</control>
 		</control>

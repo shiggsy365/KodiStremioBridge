@@ -19,6 +19,9 @@ from .common import ADDON, BINGETV_SKIN_ID, jsonrpc, log
 from .contextmenu import item_target
 
 PROPERTY = "btv.trailer"
+STEADY = "btv.steady"   # a title focused this long (its path): the skin shows its description
+STEADY_AFTER = 2.0
+HUB_WINDOW, HUB_LIST = 1150, 400
 ROWS = {base * 10 + n for base in range(910, 915) for n in range(1, 7)}  # Home's row lists
 TICK = 0.25
 
@@ -38,6 +41,38 @@ def focused_title():
     if not path or item_target(path) is None:
         return None
     return path, xbmc.getInfoLabel(f"Container({control}).ListItem.Trailer")
+
+
+def focused_path():
+    """The path of the title focused on Home's rows or a hub page's list, else ""."""
+    if xbmc.getCondVisibility(f"Window.IsActive({HUB_WINDOW}) + Control.HasFocus({HUB_LIST})"):
+        return xbmc.getInfoLabel(f"Container({HUB_LIST}).ListItem.FileNameAndPath")
+    if not xbmc.getCondVisibility("Window.IsActive(home)"):
+        return ""
+    try:
+        control = int(xbmc.getInfoLabel("System.CurrentControlId") or 0)
+    except ValueError:
+        return ""
+    return xbmc.getInfoLabel(f"Container({control}).ListItem.FileNameAndPath") if control in ROWS else ""
+
+
+class SteadyFocus:
+    """Marks the title that has kept the focus for STEADY_AFTER seconds (Window(Home).Property(btv.steady)):
+    the skin fades its description in then, rather than flashing every title's on the way past."""
+
+    def __init__(self, clock=time.monotonic, focused=focused_path):
+        self.clock = clock
+        self.focused = focused
+        self.path, self.since, self.marked = "", 0.0, ""
+
+    def tick(self):
+        now, path = self.clock(), self.focused()
+        if path != self.path:
+            self.path, self.since = path, now
+        steady = path if path and now - self.since >= STEADY_AFTER else ""
+        if steady != self.marked:
+            self.marked = steady
+            xbmcgui.Window(10000).setProperty(STEADY, steady)
 
 
 def trailer_for(path, trailer=""):
@@ -185,10 +220,13 @@ class HomeTrailer:
 def run():
     """The service's trailer thread (with a Monitor of its own): until Kodi stops the service."""
     monitor = xbmc.Monitor()
-    trailer = HomeTrailer()
+    trailer, steady = HomeTrailer(), SteadyFocus()
     xbmcgui.Window(10000).clearProperty(PROPERTY)
     while not monitor.waitForAbort(TICK):
+        if xbmc.getSkinDir() != BINGETV_SKIN_ID:
+            continue
         try:
+            steady.tick()
             trailer.tick()
         except Exception as exc:  # noqa: BLE001 - a trailer mustn't take the service down
             log(f"Home trailer: {exc}", xbmc.LOGWARNING)
