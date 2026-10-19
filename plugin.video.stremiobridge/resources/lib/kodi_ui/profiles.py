@@ -32,6 +32,7 @@ from .router import route
 
 LOCKED, CURRENT = 20166, 30447  # Kodi's "Locked"; ours "Watching now"
 REVISION = "btv.profiles.rev"      # the skin's profile window reloads its list when this changes
+POSITION = "btv.profiles.current"  # ... and starts on this item: the profile in use
 AVATARS = os.path.join(ADDON.getAddonInfo("path"), "resources", "media", "avatars")
 AVATAR_STORE = "special://masterprofile/avatars/"   # chosen avatars, where every profile can see them
 MASTER = "special://masterprofile/"
@@ -257,15 +258,21 @@ def profile_items(plugin, rev=None):
     manage = can_manage()
     master_name = profiles[0].get("label") if profiles else ""
     items = []
-    for name, note, thumb in profile_choices(profiles, current):
+    locked = {p.get("label") for p in profiles if p.get("lockmode")}
+    for index, (name, note, thumb) in enumerate(profile_choices(profiles, current)):
+        if name == current:
+            xbmcgui.Window(10000).setProperty(POSITION, str(index))
         item = xbmcgui.ListItem(name, note, offscreen=True)
         item.setArt({"icon": thumb, "thumb": thumb})
         item.setProperty("note", note)  # Kodi formats a listing's second label itself
+        item.setProperty("locked", "1" if name in locked else "")
+        item.setProperty("hide_add_remove_favourite", "true")  # Kodi's own menu entry: not for a profile
         item.addContextMenuItems(profile_menu(plugin, name, current, master_name, manage))
         items.append((plugin.url_for("load_profile", name=name), item, False))
     if manage:
         item = xbmcgui.ListItem(L(30524), offscreen=True)
         item.setArt({"icon": "DefaultAddSource.png", "thumb": "DefaultAddSource.png"})
+        item.setProperty("hide_add_remove_favourite", "true")
         items.append((plugin.url_for("add_profile"), item, False))
     xbmcplugin.addDirectoryItems(plugin.handle, items, len(items))
     xbmcplugin.endOfDirectory(plugin.handle, cacheToDisc=False)

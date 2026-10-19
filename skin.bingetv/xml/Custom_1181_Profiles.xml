@@ -6,7 +6,7 @@
 <window type="window" id="1181">
 	<defaultcontrol always="true">52</defaultcontrol>
 	<!-- the list fills in after the window opens -->
-	<onload>AlarmClock(btvprofilefocus,SetFocus(52),00:01,silent)</onload>
+	<onload>AlarmClock(btvprofilefocus,SetFocus(52,$INFO[Window(Home).Property(btv.profiles.current)],absolute),00:01,silent)</onload>
 	<controls>
 		<include content="BTVBackground">
 			<param name="fanart">special://skin/resources/fanart.jpg</param>
@@ -61,6 +61,14 @@
 					<texture diffuse="bingetv/panel.png" fallback="DefaultUser.png">$INFO[ListItem.Icon]</texture>
 					<animation effect="fade" start="100" end="55" time="0" condition="true">Conditional</animation>
 				</control>
+				<control type="image">
+					<left>249</left>
+					<top>222</top>
+					<width>56</width>
+					<height>56</height>
+					<texture>OverlayLocked.png</texture>
+					<visible>!String.IsEmpty(ListItem.Property(locked))</visible>
+					</control>
 				<control type="label">
 					<left>20</left>
 					<top>310</top>
@@ -90,6 +98,14 @@
 						<height>250</height>
 						<aspectratio scalediffuse="false">scale</aspectratio>
 						<texture diffuse="bingetv/panel.png" fallback="DefaultUser.png">$INFO[ListItem.Icon]</texture>
+					</control>
+					<control type="image">
+						<left>257</left>
+						<top>230</top>
+						<width>56</width>
+						<height>56</height>
+						<texture>OverlayLocked.png</texture>
+						<visible>!String.IsEmpty(ListItem.Property(locked))</visible>
 					</control>
 				</control>
 				<control type="label">
