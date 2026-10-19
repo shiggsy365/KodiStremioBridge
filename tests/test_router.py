@@ -2,6 +2,7 @@
 
 import contextlib
 import importlib
+import json
 import os
 import time
 from urllib.parse import parse_qsl, urlencode, urlsplit
@@ -4582,15 +4583,16 @@ def test_home_trailer_clears_when_playback_quietly_stops(monkeypatch, home_props
 
 
 def test_home_trailer_waits_for_youtubes_server(monkeypatch, home_props):
-    """No trailer while YouTube's stream server isn't answering (Kodi would hang waiting for
-    it): it's tried again shortly, and plays once the server answers."""
+    """A YouTube trailer is found in the background (RunPlugin; BingeTV's YouTube hands the stream
+    back). Without that hand-over (another YouTube) it's played as before, but not while YouTube's
+    stream server isn't answering (Kodi would hang waiting for it): it's tried again shortly."""
     from kodi_ui import hometrailer
 
     monkeypatch.setattr(hometrailer.ADDON, "getSettingBool", lambda k: k == "btv_home_trailers")
     monkeypatch.setattr(hometrailer.ADDON, "getSettingInt", lambda k: 5)
-    monkeypatch.setattr(hometrailer, "focused_title", lambda: (
-        "plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1",
-        "plugin://plugin.video.youtube/play/?video_id=abc"))
+    title = ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1",
+             "plugin://plugin.video.youtube/play/?video_id=abc")
+    monkeypatch.setattr(hometrailer, "focused_title", lambda: title)
     monkeypatch.setattr(hometrailer.xbmc, "getCondVisibility", lambda condition: False)
     ran, ready = [], {"up": False}
     monkeypatch.setattr(hometrailer.xbmc, "executebuiltin", lambda command, *a: ran.append(command))
@@ -4599,23 +4601,43 @@ def test_home_trailer_waits_for_youtubes_server(monkeypatch, home_props):
 
     class Player:
         starts = stops = 0
+        played = []
 
         def isPlaying(self):
             return False
 
+        def play(self, path, item, windowed):
+            self.played.append((path, item.getProperty("BingeTVTrailer"), windowed))
+
     now = [0.0]
-    trailer = hometrailer.HomeTrailer(player=Player(), clock=lambda: now[0])
+    player = Player()
+    trailer = hometrailer.HomeTrailer(player=player, clock=lambda: now[0])
     trailer.tick()
     now[0] = 5.0
     trailer.tick()
-    assert ran == [] and not home_props.get("btv.trailer")              # server down: not played
+    assert ran == ['RunPlugin("plugin://plugin.video.youtube/play/?video_id=abc&screensaver=true")']
+    home_props["bingetv.trailer_stream"] = json.dumps({"path": "https://manifest/x.m3u8", "props": {}, "mime": ""})
+    now[0] = 6.0
+    trailer.tick()
+    assert player.played and player.played[0][0] == "https://manifest/x.m3u8" and player.played[0][2] is True
+    assert home_props.get("btv.trailer") == "1" and not home_props.get("bingetv.trailer_stream")
+
+    # another YouTube: no hand-over; played as before once its server answers
+    ran.clear()
+    trailer = hometrailer.HomeTrailer(player=player, clock=lambda: now[0])
+    now[0] = 20.0
+    trailer.tick()
+    now[0] = 25.0
+    trailer.tick()                                                      # RunPlugin...
+    now[0] = 34.0
+    trailer.tick()                                                      # ... no answer: server down
+    assert ran[-1].startswith("RunPlugin") and len(ran) == 1
     ready["up"] = True
-    now[0] = 9.0
+    now[0] = 44.0
     trailer.tick()
-    assert ran == []                                                    # waits a while before retrying
-    now[0] = 15.0
+    now[0] = 53.0
     trailer.tick()
-    assert ran == ['PlayMedia("plugin://plugin.video.youtube/play/?video_id=abc&screensaver=true",0,1)']
+    assert ran[-1] == 'PlayMedia("plugin://plugin.video.youtube/play/?video_id=abc&screensaver=true",0,1)'
 
 
 def test_playing_streams_badges_are_published_for_the_osd(monkeypatch, home_props, tmp_path):

@@ -8,6 +8,7 @@ meantime (a title's Play) is left alone.
 The trailer is the list item's own (ListItem.Trailer), else its title's metadata's.
 """
 
+import json
 import time
 import urllib.request
 
@@ -103,6 +104,8 @@ def trailer_for(path, trailer=""):
 
 YOUTUBE = "plugin://plugin.video.youtube/"
 RETRY = 10  # seconds before trying a trailer again when YouTube wasn't ready
+RESOLVED = "bingetv.trailer_stream"  # the stream BingeTV's YouTube found for a trailer (JSON)
+RESOLVE_WAIT = 8
 
 
 def youtube_ready(timeout=1.5):
@@ -175,6 +178,7 @@ class HomeTrailer:
         self.since = 0.0          # ... focused since
         self.tried = None         # the title whose trailer was tried (once per focus)
         self.playing = None       # our trailer: (asked at, starts and stops counted then)
+        self.resolving = None     # a YouTube trailer being found in the background: (title, url, since)
         self.muted = False        # we muted Kodi for it (and unmute it after)
 
     def enabled(self):
@@ -192,6 +196,9 @@ class HomeTrailer:
         if path != self.focused:
             self.focused, self.since, self.tried = path, now, None
             self.stop()
+        if self.resolving:
+            self._resolve(now)
+            return
         if self.playing:
             self._follow(now)
             return
@@ -201,7 +208,35 @@ class HomeTrailer:
             return
         self.tried = path
         url = trailer_for(path, title[1])
-        if url and url.startswith(YOUTUBE) and not youtube_ready() and not wake_youtube():
+        if url and url.startswith(YOUTUBE):
+            # found in the background (YouTube runs as a script, BingeTV's patches/addons hand the
+            # stream back): Kodi's playback of a plugin path would put up its busy dialog, which
+            # takes the remote's keys for the seconds YouTube takes
+            xbmcgui.Window(10000).clearProperty(RESOLVED)
+            xbmc.executebuiltin(f'RunPlugin("{trailer_url(url)}")')
+            self.resolving = (path, url, now)
+            return
+        self._start(path, url, now)
+
+    def _resolve(self, now):
+        path, url, since = self.resolving
+        raw = xbmcgui.Window(10000).getProperty(RESOLVED)
+        if raw:
+            self.resolving = None
+            xbmcgui.Window(10000).clearProperty(RESOLVED)
+            try:
+                stream = json.loads(raw)
+            except ValueError:
+                return
+            if self.focused == path:
+                self._start(path, url, now, stream)
+        elif now - since > RESOLVE_WAIT:  # a YouTube without BingeTV's patch: played as before
+            self.resolving = None
+            if self.focused == path:
+                self._start(path, url, now)
+
+    def _start(self, path, url, now, stream=None):
+        if stream is None and url and url.startswith(YOUTUBE) and not youtube_ready() and not wake_youtube():
             log("Home trailer: YouTube's stream server isn't answering; trying again shortly")
             self.tried, self.since = None, now + RETRY - ADDON.getSettingInt("btv_trailer_delay")
             return
@@ -214,7 +249,16 @@ class HomeTrailer:
             if ADDON.getSettingBool("btv_trailer_muted") and not self._is_muted():
                 self._set_mute(True)
                 self.muted = True
-            xbmc.executebuiltin(f'PlayMedia("{url}",0,1)')  # 1: in a window, not fullscreen
+            if stream:
+                item = xbmcgui.ListItem(path=stream["path"], offscreen=True)
+                item.setProperties(stream.get("props") or {})
+                item.setProperty("BingeTVTrailer", "true")  # no busy dialog (BingeTV's Kodi, patches/0011)
+                if stream.get("mime"):
+                    item.setMimeType(stream["mime"])
+                    item.setContentLookup(False)
+                self.player.play(stream["path"], item, True)  # True: in a window, not fullscreen
+            else:
+                xbmc.executebuiltin(f'PlayMedia("{url}",0,1)')  # 1: in a window, not fullscreen
 
     def _state(self):
         """``(started, over)`` for our trailer, from the playback events since it was asked for."""
@@ -233,6 +277,7 @@ class HomeTrailer:
 
     def stop(self):
         """Stop our trailer (only ours, also while it's still starting) and hide its window."""
+        self.resolving = None
         if not self.playing:
             return
         _started, over = self._state()
