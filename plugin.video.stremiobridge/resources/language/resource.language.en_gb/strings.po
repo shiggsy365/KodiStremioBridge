@@ -1752,3 +1752,11 @@ msgstr ""
 msgctxt "#30553"
 msgid "How long a title has to stay focused before its trailer starts."
 msgstr ""
+
+msgctxt "#30554"
+msgid "Play trailers muted"
+msgstr ""
+
+msgctxt "#30555"
+msgid "Home's trailers play without sound (the sound comes back as soon as the trailer stops)."
+msgstr ""

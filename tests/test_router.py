@@ -4473,7 +4473,7 @@ def test_home_trailer_plays_after_the_delay_and_stops_with_the_focus(monkeypatch
     stops it, and only it: playback started meanwhile is left alone."""
     from kodi_ui import hometrailer
 
-    settings = {"btv_home_trailers": True, "btv_trailer_delay": 5}
+    settings = {"btv_home_trailers": True, "btv_trailer_delay": 5, "btv_trailer_muted": False}
     monkeypatch.setattr(hometrailer.ADDON, "getSettingBool", lambda k: settings[k])
     monkeypatch.setattr(hometrailer.ADDON, "getSettingInt", lambda k: settings[k])
     focus = {"title": ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1", "plugin://yt/1")}
@@ -4544,8 +4544,16 @@ def test_home_trailer_clears_when_playback_quietly_stops(monkeypatch, home_props
     window flag set, nor block the next trailer."""
     from kodi_ui import hometrailer
 
-    monkeypatch.setattr(hometrailer.ADDON, "getSettingBool", lambda k: True)
+    monkeypatch.setattr(hometrailer.ADDON, "getSettingBool", lambda k: True)          # muted too
     monkeypatch.setattr(hometrailer.ADDON, "getSettingInt", lambda k: 5)
+    mute = {"on": False}
+
+    def rpc(method, **params):
+        if method == "Application.SetMute":
+            mute["on"] = params["mute"]
+        return {"muted": mute["on"]}
+
+    monkeypatch.setattr(hometrailer, "jsonrpc", rpc)
     monkeypatch.setattr(hometrailer, "focused_title", lambda: ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1", "plugin://yt/1"))
     monkeypatch.setattr(hometrailer.xbmc, "getCondVisibility", lambda condition: False)
     monkeypatch.setattr(hometrailer.xbmc, "executebuiltin", lambda command, *a: None)
@@ -4564,7 +4572,8 @@ def test_home_trailer_clears_when_playback_quietly_stops(monkeypatch, home_props
     trailer.tick()
     player.starts, player.on = 1, True                                 # playing
     trailer.tick()
-    assert home_props.get("btv.trailer") == "1"
+    assert home_props.get("btv.trailer") == "1" and mute["on"]        # muted while it plays
     player.on = False                                                  # gone, no stop event
     trailer.tick()
     assert not home_props.get("btv.trailer") and trailer.playing is None
+    assert not mute["on"]                                              # sound back

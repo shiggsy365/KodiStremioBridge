@@ -13,7 +13,7 @@ import time
 import xbmc
 import xbmcgui
 
-from .common import ADDON, BINGETV_SKIN_ID, log
+from .common import ADDON, BINGETV_SKIN_ID, jsonrpc, log
 from .contextmenu import item_target
 
 PROPERTY = "btv.trailer"
@@ -81,6 +81,7 @@ class HomeTrailer:
         self.since = 0.0          # ... focused since
         self.tried = None         # the title whose trailer was tried (once per focus)
         self.playing = None       # our trailer: (asked at, starts and stops counted then)
+        self.muted = False        # we muted Kodi for it (and unmute it after)
 
     def enabled(self):
         return ADDON.getSettingBool("btv_home_trailers")
@@ -110,6 +111,9 @@ class HomeTrailer:
             log(f"Home trailer for {path}")
             xbmcgui.Window(10000).setProperty(PROPERTY, "1")
             self.playing = (now, self.player.starts, self.player.stops)
+            if ADDON.getSettingBool("btv_trailer_muted") and not self._is_muted():
+                self._set_mute(True)
+                self.muted = True
             xbmc.executebuiltin(f'PlayMedia("{url}",0,1)')  # 1: in a window, not fullscreen
 
     def _state(self):
@@ -139,6 +143,17 @@ class HomeTrailer:
     def _clear(self):
         self.playing = None
         xbmcgui.Window(10000).clearProperty(PROPERTY)
+        if self.muted:  # the sound back (whatever plays next)
+            self.muted = False
+            self._set_mute(False)
+
+    @staticmethod
+    def _is_muted():
+        return bool((jsonrpc("Application.GetProperties", properties=["muted"]) or {}).get("muted"))
+
+    @staticmethod
+    def _set_mute(on):
+        jsonrpc("Application.SetMute", mute=on)
 
 
 def run():

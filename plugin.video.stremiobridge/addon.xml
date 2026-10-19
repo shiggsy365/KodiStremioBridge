@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.17.13"
+       version="0.17.14"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -22,12 +22,12 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.17.13 - BingeTV trailers on Home: a black background while one plays, and the focus stays on the title while it loads.
+        <news>v0.17.14 - BingeTV: Home's trailers can play muted (Settings > Home page layout; on to start with).
+v0.17.13 - BingeTV trailers on Home: a black background while one plays, and the focus stays on the title while it loads.
 v0.17.12 - BingeTV: trailers on Home. Turn on "Play trailers on Home" (Settings > Home page layout): when a title stays focused (3 to 10 seconds, your choice), its trailer plays at the top right.
 v0.17.11 - BingeTV: the profile picker starts on your profile and shows locked ones; the service starts at once after a profile switch.
 v0.17.10 - BingeTV's profile window: clearer menu labels; the focused profile's note shows.
 v0.17.9 - BingeTV: after switching profile, Home opens on its menu bar's Home button.
-v0.17.8 - BingeTV: the profile picker shows the profiles like "Who's watching?", each with its options in its context menu (picture, rename, delete, add a profile); Exit BingeTV is there too. Settings that change the menu bar (hide Music or Live TV) apply straight away.
-v0.17.7 - BingeTV profiles: a new profile's setup (its own MDBList key) is no longer cut short as the profile loads, and Live TV copied into it is turned on.</news>
+v0.17.8 - BingeTV: the profile picker shows the profiles like "Who's watching?", each with its options in its context menu (picture, rename, delete, add a profile); Exit BingeTV is there too. Settings that change the menu bar (hide Music or Live TV) apply straight away.</news>
     </extension>
 </addon>

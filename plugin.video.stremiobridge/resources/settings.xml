@@ -73,6 +73,15 @@
                         <dependency type="visible" on="property" name="InfoBool">!String.IsEmpty(Window(Home).Property(btv.skin))</dependency>
                     </dependencies>
                 </setting>
+                <setting id="btv_trailer_muted" type="boolean" label="30554" help="30555" parent="btv_home_trailers">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                    <dependencies>
+                        <dependency type="enable" setting="btv_home_trailers">true</dependency>
+                        <dependency type="visible" on="property" name="InfoBool">!String.IsEmpty(Window(Home).Property(btv.skin))</dependency>
+                    </dependencies>
+                </setting>
                 <setting id="btv_osd_hide" type="integer" label="30470" help="30471">
                     <level>0</level>
                     <default>7</default>
