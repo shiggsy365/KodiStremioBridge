@@ -235,7 +235,8 @@
 							<width>202</width>
 							<height>305</height>
 							<texture colordiffuse="btv_accent" border="14">stremio/poster-focus.png</texture>
-							<visible>Control.HasFocus($PARAM[base]$PARAM[n])</visible>
+							<!-- also while Kodi's busy dialog (hidden) has the focus as a trailer loads -->
+							<visible>Control.HasFocus($PARAM[base]$PARAM[n]) | [!String.IsEmpty(Window(Home).Property(btv.trailer)) + [Window.IsActive(busydialog) | Window.IsActive(busydialognocancel)] + String.IsEqual(Window(Home).Property(btv.rowbase),$PARAM[base]) + String.IsEqual(Window(Home).Property(btv.row),$PARAM[n])]</visible>
 						</control>
 					</focusedlayout>
 					<content target="videos">$INFO[Window(Home).Property(sbhome.$PARAM[item].widgetPath$PARAM[slot])]</content>

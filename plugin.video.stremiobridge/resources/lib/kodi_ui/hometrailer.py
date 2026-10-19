@@ -116,7 +116,10 @@ class HomeTrailer:
         """``(started, over)`` for our trailer, from the playback events since it was asked for."""
         _asked, starts, stops = self.playing
         started = self.player.starts > starts
-        over = self.player.stops > stops or self.player.starts > starts + 1
+        # over: stopped or ended, replaced by another start, or simply not playing any more
+        # (should Kodi's stop event go astray)
+        over = self.player.stops > stops or self.player.starts > starts + 1 \
+            or (started and not self.player.isPlaying())
         return started, over
 
     def _follow(self, now):

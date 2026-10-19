@@ -4538,3 +4538,33 @@ def test_home_trailer_plays_after_the_delay_and_stops_with_the_focus(monkeypatch
         now[0] = t
         trailer.tick()
     assert ran == []                                                   # turned off
+
+def test_home_trailer_clears_when_playback_quietly_stops(monkeypatch, home_props):
+    """A trailer that stopped without Kodi's stop event (an error, say) doesn't leave the
+    window flag set, nor block the next trailer."""
+    from kodi_ui import hometrailer
+
+    monkeypatch.setattr(hometrailer.ADDON, "getSettingBool", lambda k: True)
+    monkeypatch.setattr(hometrailer.ADDON, "getSettingInt", lambda k: 5)
+    monkeypatch.setattr(hometrailer, "focused_title", lambda: ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1", "plugin://yt/1"))
+    monkeypatch.setattr(hometrailer.xbmc, "getCondVisibility", lambda condition: False)
+    monkeypatch.setattr(hometrailer.xbmc, "executebuiltin", lambda command, *a: None)
+
+    class Player:
+        starts = stops = 0
+        on = False
+
+        def isPlaying(self):
+            return self.on
+
+    player, now = Player(), [0.0]
+    trailer = hometrailer.HomeTrailer(player=player, clock=lambda: now[0])
+    trailer.tick()
+    now[0] = 5.0
+    trailer.tick()
+    player.starts, player.on = 1, True                                 # playing
+    trailer.tick()
+    assert home_props.get("btv.trailer") == "1"
+    player.on = False                                                  # gone, no stop event
+    trailer.tick()
+    assert not home_props.get("btv.trailer") and trailer.playing is None
