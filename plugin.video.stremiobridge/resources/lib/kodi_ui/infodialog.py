@@ -303,6 +303,11 @@ def page_text(meta, episode, state, season=None, rows=None):
         "title": meta.name,
         "subtitle": "",
     }
+    # one each, for BingeTV's chips
+    for n in range(2):
+        text[f"fact{n + 1}"] = facts[n] if n < len(facts) else ""
+    for n in range(3):
+        text[f"genre{n + 1}"] = meta.genres[n] if n < len(meta.genres) else ""
     if episode is not None:
         text["subtitle"] = "  ".join(part for part in (episode_code(episode), episode.title) if part)
     return text

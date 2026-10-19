@@ -23,6 +23,11 @@
 	<onload>SetProperty(sbinfo.trailer,$INFO[ListItem.Trailer],home)</onload>
 	<onload>SetProperty(sbinfo.play_label,$ESCINFO[ListItem.Property(stremiobridge.play_label)],home)</onload>
 	<onload>SetProperty(sbinfo.facts,$ESCINFO[ListItem.Property(stremiobridge.facts)],home)</onload>
+	<onload>SetProperty(sbinfo.fact1,$ESCINFO[ListItem.Property(stremiobridge.fact1)],home)</onload>
+	<onload>SetProperty(sbinfo.fact2,$ESCINFO[ListItem.Property(stremiobridge.fact2)],home)</onload>
+	<onload>SetProperty(sbinfo.genre1,$ESCINFO[ListItem.Property(stremiobridge.genre1)],home)</onload>
+	<onload>SetProperty(sbinfo.genre2,$ESCINFO[ListItem.Property(stremiobridge.genre2)],home)</onload>
+	<onload>SetProperty(sbinfo.genre3,$ESCINFO[ListItem.Property(stremiobridge.genre3)],home)</onload>
 	<onload>SetProperty(sbinfo.genres,$ESCINFO[ListItem.Property(stremiobridge.genres)],home)</onload>
 	<onload>SetProperty(sbinfo.certification,$ESCINFO[ListItem.Property(stremiobridge.certification)],home)</onload>
 	<onload>SetProperty(sbinfo.rating,$ESCINFO[ListItem.Property(stremiobridge.rating)],home)</onload>
@@ -62,6 +67,11 @@
 	<onunload>ClearProperty(sbinfo.resumable,home)</onunload>
 	<onunload>ClearProperty(sbinfo.play_label,home)</onunload>
 	<onunload>ClearProperty(sbinfo.facts,home)</onunload>
+	<onunload>ClearProperty(sbinfo.fact1,home)</onunload>
+	<onunload>ClearProperty(sbinfo.fact2,home)</onunload>
+	<onunload>ClearProperty(sbinfo.genre1,home)</onunload>
+	<onunload>ClearProperty(sbinfo.genre2,home)</onunload>
+	<onunload>ClearProperty(sbinfo.genre3,home)</onunload>
 	<onunload>ClearProperty(sbinfo.genres,home)</onunload>
 	<onunload>ClearProperty(sbinfo.certification,home)</onunload>
 	<onunload>ClearProperty(sbinfo.rating,home)</onunload>

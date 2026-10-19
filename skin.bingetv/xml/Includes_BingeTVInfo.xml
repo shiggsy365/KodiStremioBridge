@@ -288,6 +288,8 @@
         <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.watched_action,$INFO[Container(5061).ListItem.Property(stremiobridge.watched_action)],home)</onunfocus>
         <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.play_label,$ESCINFO[Container(5061).ListItem.Property(stremiobridge.page.play_label)],home)</onunfocus>
         <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.facts,$ESCINFO[Container(5061).ListItem.Property(stremiobridge.page.facts)],home)</onunfocus>
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.fact1,$ESCINFO[Container(5061).ListItem.Property(stremiobridge.page.fact1)],home)</onunfocus>
+        <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.fact2,$ESCINFO[Container(5061).ListItem.Property(stremiobridge.page.fact2)],home)</onunfocus>
         <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.rating,$ESCINFO[Container(5061).ListItem.Property(stremiobridge.page.rating)],home)</onunfocus>
         <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.subtitle,$ESCINFO[Container(5061).ListItem.Property(stremiobridge.page.subtitle)],home)</onunfocus>
         <onunfocus condition="Integer.IsGreater(Container(5061).NumItems,0) + !$EXP[SBInfoEpisodesStale]">SetProperty(sbinfo.plot,$ESCINFO[Container(5061).ListItem.Plot],home)</onunfocus>
@@ -301,6 +303,18 @@
     <variable name="SBInfoFacts">
         <value condition="$EXP[SBInfoFollowCard]">$INFO[Container(5061).ListItem.Property(stremiobridge.page.facts)]</value>
         <value>$INFO[Window(home).Property(sbinfo.facts)]</value>
+    </variable>
+    <variable name="SBInfoFact1">
+        <value condition="$EXP[SBInfoFollowCard]">$INFO[Container(5061).ListItem.Property(stremiobridge.page.fact1)]</value>
+        <value>$INFO[Window(home).Property(sbinfo.fact1)]</value>
+    </variable>
+    <variable name="SBInfoFact2">
+        <value condition="$EXP[SBInfoFollowCard]">$INFO[Container(5061).ListItem.Property(stremiobridge.page.fact2)]</value>
+        <value>$INFO[Window(home).Property(sbinfo.fact2)]</value>
+    </variable>
+    <variable name="SBInfoRatingChip">
+        <value condition="$EXP[SBInfoFollowCard]">$INFO[Container(5061).ListItem.Property(stremiobridge.page.rating),★ ]</value>
+        <value>$INFO[Window(home).Property(sbinfo.rating),★ ]</value>
     </variable>
     <variable name="SBInfoPlot">
         <value condition="$EXP[SBInfoFollowCard]">$INFO[Container(5061).ListItem.Plot]</value>
@@ -468,22 +482,26 @@
                 <control type="group">
                     <width>1920</width>
                     <height>690</height>
+                    <!-- Home's layout: a centred column over the left 35% of the screen (Includes_BingeTV.xml's
+                         BTVTitleInfo), with facts and genres as chips -->
                     <control type="image">
-                        <left>80</left>
-                        <top>50</top>
-                        <width>640</width>
-                        <height>190</height>
-                        <aspectratio align="left" aligny="bottom">keep</aspectratio>
+                        <left>40</left>
+                        <top>100</top>
+                        <width>632</width>
+                        <height>150</height>
+                        <aspectratio align="center" aligny="center">keep</aspectratio>
                         <texture background="true">$INFO[Window(home).Property(sbinfo.clearlogo)]</texture>
                         <visible>!String.IsEmpty(Window(home).Property(sbinfo.clearlogo))</visible>
                     </control>
                     <control type="label">
-                        <left>80</left>
-                        <top>110</top>
-                        <width>1300</width>
-                        <height>130</height>
-                        <aligny>bottom</aligny>
-                        <font>SBInfoTitle</font>
+                        <left>40</left>
+                        <top>100</top>
+                        <width>632</width>
+                        <height>150</height>
+                        <align>center</align>
+                        <aligny>center</aligny>
+                        <wrapmultiline>true</wrapmultiline>
+                        <font>font52_title</font>
                         <textcolor>FFFFFFFF</textcolor>
                         <label>$INFO[Window(home).Property(sbinfo.title)]</label>
                         <visible>String.IsEmpty(Window(home).Property(sbinfo.clearlogo))</visible>
@@ -491,63 +509,73 @@
 
                     <!-- the text: rows close up when one is empty -->
                     <control type="grouplist">
-                        <left>80</left>
+                        <left>40</left>
                         <top>262</top>
-                        <width>1100</width>
-                        <height>300</height>
+                        <width>632</width>
+                        <height>340</height>
                         <orientation>vertical</orientation>
-                        <itemgap>12</itemgap>
+                        <itemgap>14</itemgap>
                         <usecontrolcoords>true</usecontrolcoords>
                         <control type="label">
-                            <width>1100</width>
+                            <width>632</width>
                             <height>40</height>
-                            <font>SBInfoFacts</font>
+                            <align>center</align>
+                            <font>btv_line</font>
                             <textcolor>FFFFFFFF</textcolor>
                             <label>$VAR[SBInfoSubtitle]</label>
                             <visible>[$EXP[SBInfoFollowCard] + !String.IsEmpty(Container(5061).ListItem.Property(stremiobridge.page.subtitle))] | [!$EXP[SBInfoFollowCard] + !String.IsEmpty(Window(home).Property(sbinfo.subtitle))]</visible>
                         </control>
+                        <!-- year, seasons or length, age rating, rating -->
                         <control type="grouplist">
-                            <width>1100</width>
-                            <height>42</height>
+                            <width>632</width>
+                            <height>38</height>
                             <orientation>horizontal</orientation>
-                            <itemgap>22</itemgap>
-                            <control type="label">
-                                <width>auto</width>
-                                <height>42</height>
-                                <aligny>center</aligny>
-                                <font>SBInfoFacts</font>
-                                <textcolor>FFFFFFFF</textcolor>
-                                <label>$VAR[SBInfoFacts]</label>
-                                <visible>[$EXP[SBInfoFollowCard] + !String.IsEmpty(Container(5061).ListItem.Property(stremiobridge.page.facts))] | [!$EXP[SBInfoFollowCard] + !String.IsEmpty(Window(home).Property(sbinfo.facts))]</visible>
-                            </control>
-                            <include content="SBInfoPill">
-                                <param name="label" value="$INFO[Window(home).Property(sbinfo.certification)]"/>
-                                <param name="value" value="Window(home).Property(sbinfo.certification)"/>
+                            <align>center</align>
+                            <itemgap>10</itemgap>
+                            <include content="BTVChip">
+                                <param name="label">$VAR[SBInfoFact1]</param>
+                                <param name="visible">[$EXP[SBInfoFollowCard] + !String.IsEmpty(Container(5061).ListItem.Property(stremiobridge.page.fact1))] | [!$EXP[SBInfoFollowCard] + !String.IsEmpty(Window(home).Property(sbinfo.fact1))]</param>
                             </include>
-                            <include content="SBInfoPill">
-                                <param name="label" value="$INFO[Window(home).Property(sbinfo.rating)]"/>
-                                <param name="value" value="Window(home).Property(sbinfo.rating)"/>
-                                <param name="visible" value="!$EXP[SBInfoFollowCard]"/>
+                            <include content="BTVChip">
+                                <param name="label">$VAR[SBInfoFact2]</param>
+                                <param name="visible">[$EXP[SBInfoFollowCard] + !String.IsEmpty(Container(5061).ListItem.Property(stremiobridge.page.fact2))] | [!$EXP[SBInfoFollowCard] + !String.IsEmpty(Window(home).Property(sbinfo.fact2))]</param>
                             </include>
-                            <include content="SBInfoPill">
-                                <param name="label" value="$INFO[Container(5061).ListItem.Property(stremiobridge.page.rating)]"/>
-                                <param name="value" value="Container(5061).ListItem.Property(stremiobridge.page.rating)"/>
-                                <param name="visible" value="$EXP[SBInfoFollowCard]"/>
+                            <include content="BTVChip">
+                                <param name="label">$INFO[Window(home).Property(sbinfo.certification)]</param>
+                                <param name="visible">!String.IsEmpty(Window(home).Property(sbinfo.certification))</param>
+                            </include>
+                            <include content="BTVChip">
+                                <param name="label">$VAR[SBInfoRatingChip]</param>
+                                <param name="visible">[$EXP[SBInfoFollowCard] + !String.IsEmpty(Container(5061).ListItem.Property(stremiobridge.page.rating))] | [!$EXP[SBInfoFollowCard] + !String.IsEmpty(Window(home).Property(sbinfo.rating))]</param>
                             </include>
                         </control>
-                        <control type="label">
-                            <width>1100</width>
-                            <height>36</height>
-                            <font>SBInfoBody</font>
-                            <textcolor>FFB4B4B4</textcolor>
-                            <label>$INFO[Window(home).Property(sbinfo.genres)]</label>
-                            <visible>!String.IsEmpty(Window(home).Property(sbinfo.genres))</visible>
+                        <!-- genres -->
+                        <control type="grouplist">
+                            <width>632</width>
+                            <height>38</height>
+                            <orientation>horizontal</orientation>
+                            <align>center</align>
+                            <itemgap>10</itemgap>
+                            <visible>!String.IsEmpty(Window(home).Property(sbinfo.genre1))</visible>
+                            <include content="BTVChip">
+                                <param name="label">$INFO[Window(home).Property(sbinfo.genre1)]</param>
+                                <param name="visible">true</param>
+                            </include>
+                            <include content="BTVChip">
+                                <param name="label">$INFO[Window(home).Property(sbinfo.genre2)]</param>
+                                <param name="visible">!String.IsEmpty(Window(home).Property(sbinfo.genre2))</param>
+                            </include>
+                            <include content="BTVChip">
+                                <param name="label">$INFO[Window(home).Property(sbinfo.genre3)]</param>
+                                <param name="visible">!String.IsEmpty(Window(home).Property(sbinfo.genre3))</param>
+                            </include>
                         </control>
                         <control type="textbox">
-                            <width>1000</width>
-                            <height>112</height>
-                            <font>SBInfoBody</font>
-                            <textcolor>FFF0F0F0</textcolor>
+                            <width>632</width>
+                            <height>178</height>
+                            <align>justify</align>
+                            <font>btv_text</font>
+                            <textcolor>FFEEEEEE</textcolor>
                             <label>$VAR[SBInfoPlot]</label>
                             <autoscroll delay="6000" time="3000" repeat="8000">true</autoscroll>
                         </control>
@@ -557,7 +585,7 @@
                     <!-- (a plain group: a grouplist of groups won't move focus left and right) -->
                     <control type="group">
                         <left>80</left>
-                        <top>580</top>
+                        <top>612</top>
                         <width>1400</width>
                         <height>66</height>
                         <control type="group">

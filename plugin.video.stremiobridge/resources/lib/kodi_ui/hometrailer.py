@@ -27,15 +27,21 @@ TICK = 0.25
 
 
 def focused_title():
-    """``(path, trailer)`` of the title focused in one of Home's rows, else None."""
-    if xbmc.getSkinDir() != BINGETV_SKIN_ID or not xbmc.getCondVisibility(
-            "Window.IsActive(home) + !System.HasActiveModalDialog + !Window.IsActive(fullscreenvideo)"):
+    """``(path, trailer)`` of the title focused in one of Home's rows or a hub page's list, else None."""
+    if xbmc.getSkinDir() != BINGETV_SKIN_ID or xbmc.getCondVisibility(
+            "System.HasActiveModalDialog | Window.IsActive(fullscreenvideo)"):
         return None
-    try:
-        control = int(xbmc.getInfoLabel("System.CurrentControlId") or 0)
-    except ValueError:
+    if xbmc.getCondVisibility(f"Window.IsActive({HUB_WINDOW})"):
+        control = HUB_LIST if xbmc.getCondVisibility(f"Control.HasFocus({HUB_LIST})") else 0
+    elif xbmc.getCondVisibility("Window.IsActive(home)"):
+        try:
+            control = int(xbmc.getInfoLabel("System.CurrentControlId") or 0)
+        except ValueError:
+            return None
+        control = control if control in ROWS else 0
+    else:
         return None
-    if control not in ROWS:
+    if not control:
         return None
     path = xbmc.getInfoLabel(f"Container({control}).ListItem.FileNameAndPath")
     if not path or item_target(path) is None:

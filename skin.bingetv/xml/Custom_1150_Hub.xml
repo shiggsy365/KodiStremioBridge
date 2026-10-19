@@ -14,10 +14,11 @@
 		<include content="BTVBackground">
 			<param name="fanart">$INFO[Container(400).ListItem.Art(fanart)]</param>
 		</include>
+		<include>BTVTrailer</include>
 		<control type="group">
-			<visible>Control.HasFocus(400)</visible>
+			<visible>Control.HasFocus(400) | [!String.IsEmpty(Window(Home).Property(btv.trailer)) + [Window.IsActive(busydialog) | Window.IsActive(busydialognocancel)]]</visible>
 			<include>Visible_Fade</include>
-			<include content="BTVTitleInfo"><param name="plot">107</param></include>
+			<include>BTVTitleInfo</include>
 		</control>
 
 		<!-- Tabs: the hub's catalogs. The current one sits on a pill (red while the tabs have focus). -->
@@ -25,7 +26,7 @@
 			<onfocus>CancelAlarm(btvhubfocus1,true)</onfocus>
 			<onfocus>CancelAlarm(btvhubfocus2,true)</onfocus>
 			<left>66</left>
-			<top>575</top>
+			<top>627</top>
 			<width>1854</width>
 			<height>56</height>
 			<orientation>horizontal</orientation>
@@ -80,18 +81,17 @@
 			<onfocus>CancelAlarm(btvhubfocus1,true)</onfocus>
 			<onfocus>CancelAlarm(btvhubfocus2,true)</onfocus>
 			<left>66</left>
-			<top>648</top>
+			<top>688</top>
 			<width>1854</width>
-			<height>360</height>
+			<height>330</height>
 			<orientation>horizontal</orientation>
 			<scrolltime tween="cubic" easing="out">260</scrolltime>
 			<onup>300</onup>
 			<onclick condition="String.Contains(ListItem.FileNameAndPath,plugin.video.stremiobridge/?action=extended_info)">RunPlugin($ESCINFO[ListItem.FileNameAndPath])</onclick>
-			<itemlayout width="222" height="360">
+			<itemlayout width="222" height="330">
 				<include>BTVPoster</include>
-				<include>BTVPosterName</include>
 			</itemlayout>
-			<focusedlayout width="222" height="360">
+			<focusedlayout width="222" height="330">
 				<include>BTVPoster</include>
 				<!-- the info page's focus frame (thin, over the card's edge) -->
 				<control type="image">
@@ -100,9 +100,9 @@
 					<width>202</width>
 					<height>305</height>
 					<texture colordiffuse="btv_accent" border="14">stremio/poster-focus.png</texture>
-					<visible>Control.HasFocus(400)</visible>
+					<!-- also while Kodi's busy dialog (hidden) has the focus as a trailer loads -->
+					<visible>Control.HasFocus(400) | [!String.IsEmpty(Window(Home).Property(btv.trailer)) + [Window.IsActive(busydialog) | Window.IsActive(busydialognocancel)]]</visible>
 				</control>
-				<include>BTVPosterName</include>
 			</focusedlayout>
 			<content target="videos">$INFO[Container(300).ListItem.FolderPath]&amp;reload=$INFO[Window(Home).Property(plugin.video.stremiobridge.widgets.reload)]</content>
 		</control>
