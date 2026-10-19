@@ -4,6 +4,8 @@
 	<controls>
 		<control type="group">
 			<visible>!Window.IsActive(startup) + !Window.IsActive(GameVolume)</visible>
+			<!-- not for a Home trailer's own mute and unmute (Stremio Bridge's hometrailer.py) -->
+			<visible>String.IsEmpty(Window(Home).Property(btv.quietvolume))</visible>
 			<centerleft>50%</centerleft>
 			<width>112</width>
 			<top>0</top>

@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.17.19"
+       version="0.17.20"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,7 +23,8 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.17.19 - BingeTV: hub pages laid out like Home, with trailers; the info page uses Home's centred layout with chips.
+        <news>v0.17.20 - BingeTV: no volume icon when a muted trailer starts or stops.
+v0.17.19 - BingeTV: hub pages laid out like Home, with trailers; the info page uses Home's centred layout with chips.
 v0.17.18 - BingeTV: minimal chips; the description shows at 2 seconds and stays while a trailer loads.
 v0.17.17 - BingeTV: the focused title in a centred column, with its date, length, rating and genres as chips and its description after 2 seconds.
 v0.17.16 - BingeTV: the playing stream's badges (4K, Dolby Vision, Atmos, ...) show in the OSD under "Ends at".

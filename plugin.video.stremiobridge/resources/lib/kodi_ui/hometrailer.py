@@ -19,6 +19,7 @@ from .common import ADDON, BINGETV_SKIN_ID, jsonrpc, log
 from .contextmenu import item_target
 
 PROPERTY = "btv.trailer"
+QUIET_VOLUME = "btv.quietvolume"  # a trailer's mute or unmute: no volume icon for it
 STEADY = "btv.steady"   # a title focused this long (its path): the skin shows its description
 STEADY_AFTER = 1.6     # + the next tick, the skin's fade and drawing: shown at about 2 s
 HUB_WINDOW, HUB_LIST = 1150, 400
@@ -226,7 +227,10 @@ class HomeTrailer:
 
     @staticmethod
     def _set_mute(on):
+        # the skin hides Kodi's volume icon while this is set (cleared a moment after the change)
+        xbmcgui.Window(10000).setProperty(QUIET_VOLUME, "1")
         jsonrpc("Application.SetMute", mute=on)
+        xbmc.executebuiltin(f"AlarmClock(btvquietvolume,ClearProperty({QUIET_VOLUME},home),00:03,silent)")
 
 
 def run():
