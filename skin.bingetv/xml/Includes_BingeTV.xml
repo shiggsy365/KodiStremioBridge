@@ -494,10 +494,26 @@
 				<texture colordiffuse="CC000000" flipy="true">bingetv/fade_down.png</texture>
 			</control>
 			<include>BTVTouchBack</include>
-			<control type="label">
+			<!-- the page name: BingeTV's "B" before it, a red underline below (as in the dialogs) -->
+			<control type="image">
 				<left>80</left>
-				<top>18</top>
-				<width>170</width>
+				<top>26</top>
+				<width>44</width>
+				<height>44</height>
+				<aspectratio>keep</aspectratio>
+				<texture>special://xbmc/media/vendor_icon.png</texture>
+			</control>
+			<control type="image">
+				<left>136</left>
+				<top>72</top>
+				<width>56</width>
+				<height>4</height>
+				<texture colordiffuse="btv_accent">bingetv/white.png</texture>
+			</control>
+			<control type="label">
+				<left>136</left>
+				<top>14</top>
+				<width>164</width>
 				<height>60</height>
 				<font>btv_menu</font>
 				<textcolor>FFDDDDDD</textcolor>
@@ -505,9 +521,9 @@
 				<visible>!$EXP[BTVMenuFocused] | System.HasActiveModalDialog</visible>
 			</control>
 			<control type="label">
-				<left>80</left>
-				<top>18</top>
-				<width>170</width>
+				<left>136</left>
+				<top>14</top>
+				<width>164</width>
 				<height>60</height>
 				<font>btv_menu</font>
 				<textcolor>FFFFFFFF</textcolor>
@@ -515,7 +531,7 @@
 				<visible>$EXP[BTVMenuFocused] + !System.HasActiveModalDialog</visible>
 			</control>
 			<control type="grouplist" id="9200">
-				<left>250</left>
+				<left>300</left>
 				<top>18</top>
 				<width>700</width>
 				<height>60</height>
