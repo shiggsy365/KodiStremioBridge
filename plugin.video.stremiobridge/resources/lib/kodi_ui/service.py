@@ -131,11 +131,14 @@ class Tracker(xbmc.Player):
             self._scrobble("start")
 
     def onPlayBackStopped(self):
+        if handoff_age() is None:  # (not a video stopped while the next one is prepared)
+            xbmcgui.Window(10000).clearProperty("stremiobridge.playing.badges")
         if handoff_age() is not None:  # not the last video stopping while the next is prepared
             clear_preparing()
         self._finish(ended=False)
 
     def onPlayBackEnded(self):
+        xbmcgui.Window(10000).clearProperty("stremiobridge.playing.badges")
         self._finish(ended=True)
 
     def onPlayBackError(self):

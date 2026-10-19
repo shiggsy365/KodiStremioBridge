@@ -25,7 +25,7 @@ from .common import (
 from .details import load_show
 from .listitems import episode_code, playback_item
 from .statusbar import announce_preparing, clear_preparing, playback_status
-from .streamwindow import choose_stream
+from .streamwindow import badge_strips, choose_stream
 from .router import route
 
 INPUTSTREAM = "inputstream.adaptive"
@@ -165,6 +165,7 @@ def _play(plugin, type, id, meta, binge, resume, start, tries, pick, at):
         retry["resume"] = bool(offset)
     announce_playback(playback_entry(type, id, meta, info, stream), offset, retry, late_subtitles)
 
+    publish_badges(stream)
     # Never log the path: debrid links and configured addons carry tokens.
     log(f"Playing {type} {id} from {stream.addon}: {describe(stream)[0] or stream.kind}")
     hold_preparing_page(info, id, L(30451), handoff=True)
@@ -173,6 +174,26 @@ def _play(plugin, type, id, meta, binge, resume, start, tries, pick, at):
     else:
         xbmc.Player().play(path, item)
     return True
+
+
+PLAYING_BADGES = "stremiobridge.playing.badges"  # the playing stream's badge strip (the OSD shows it)
+
+
+def publish_badges(stream):
+    """The stream's badges (4K, Dolby Vision, Atmos, ... as in the stream picker) for the OSD,
+    under "Ends at"; cleared when playback stops (service.Tracker)."""
+    from stremio.streaminfo import stream_info
+
+    try:
+        strip = badge_strips().strip(stream_info(stream).badges())
+    except Exception as exc:  # noqa: BLE001 - badges are a nicety; never in the way of playing
+        log(f"No OSD badges: {exc}")
+        strip = ""
+    window = xbmcgui.Window(10000)
+    if strip:
+        window.setProperty(PLAYING_BADGES, strip)
+    else:
+        window.clearProperty(PLAYING_BADGES)
 
 
 @route("switch_stream")

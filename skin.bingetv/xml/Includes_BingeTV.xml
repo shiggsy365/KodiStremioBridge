@@ -1073,6 +1073,17 @@
 				<shadowcolor>CC000000</shadowcolor>
 				<label>$VAR[BTVOSDFinish]</label>
 			</control>
+			<!-- the playing stream's badges (4K, Dolby Vision, Atmos, ...: Stremio Bridge's, as in
+			     the stream picker) under "Ends at"; cleared when playback stops -->
+			<control type="image">
+				<right>80</right>
+				<top>198</top>
+				<width>700</width>
+				<height>36</height>
+				<aspectratio align="right">keep</aspectratio>
+				<texture>$INFO[Window(Home).Property(stremiobridge.playing.badges)]</texture>
+				<visible>!String.IsEmpty(Window(Home).Property(stremiobridge.playing.badges)) + !VideoPlayer.Content(LiveTV)</visible>
+			</control>
 		</control>
 	</include>
 	<!-- A round OSD button (as the info page's): grey, red when focused, with a white icon. A

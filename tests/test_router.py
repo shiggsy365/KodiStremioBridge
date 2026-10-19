@@ -4615,3 +4615,18 @@ def test_home_trailer_waits_for_youtubes_server(monkeypatch, home_props):
     now[0] = 15.0
     trailer.tick()
     assert ran == ['PlayMedia("plugin://plugin.video.youtube/play/?video_id=abc",0,1)']
+
+
+def test_playing_streams_badges_are_published_for_the_osd(monkeypatch, home_props, tmp_path):
+    """The stream that plays has its badges (as in the stream picker) published for the OSD."""
+    from kodi_ui import player
+    from stremio.streams import Stream
+
+    monkeypatch.setattr(player, "badge_strips", lambda: __import__("stremio.badgestrip", fromlist=["x"]).BadgeStrips(
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "plugin.video.stremiobridge",
+                     "resources", "media", "badges"), str(tmp_path)))
+    stream = Stream.from_dict({"name": "AIOStreams 4K", "title": "Movie.2024.2160p.WEB-DL.DV.HDR.Atmos.mkv",
+                               "url": "https://example/x.mkv"}, addon="a")
+    player.publish_badges(stream)
+    strip = home_props.get("stremiobridge.playing.badges")
+    assert strip and os.path.exists(strip)

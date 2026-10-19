@@ -135,6 +135,7 @@ class HomeTrailer:
         if url and self.focused == path:
             log(f"Home trailer for {path}")
             xbmcgui.Window(10000).setProperty(PROPERTY, "1")
+            xbmcgui.Window(10000).clearProperty("stremiobridge.playing.badges")  # not the trailer's
             self.playing = (now, self.player.starts, self.player.stops)
             if ADDON.getSettingBool("btv_trailer_muted") and not self._is_muted():
                 self._set_mute(True)
