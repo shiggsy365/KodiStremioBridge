@@ -4595,6 +4595,7 @@ def test_home_trailer_waits_for_youtubes_server(monkeypatch, home_props):
     ran, ready = [], {"up": False}
     monkeypatch.setattr(hometrailer.xbmc, "executebuiltin", lambda command, *a: ran.append(command))
     monkeypatch.setattr(hometrailer, "youtube_ready", lambda: ready["up"])
+    monkeypatch.setattr(hometrailer, "wake_youtube", lambda: False)                  # it doesn't wake
 
     class Player:
         starts = stops = 0

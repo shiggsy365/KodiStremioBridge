@@ -120,6 +120,22 @@ def youtube_ready(timeout=1.5):
         return False
 
 
+def wake_youtube(wait=4.0, monitor=None):
+    """Ask YouTube's service to start its stream server (as YouTube's own player does: its
+    service IPC, server_wakeup) and wait up to `wait` seconds for it to answer."""
+    jsonrpc("JSONRPC.NotifyAll", sender="plugin.video.youtube", message="service_ipc",
+            data={"target": "server_wakeup", "response_required": False, "force": True})
+    monitor = monitor or xbmc.Monitor()
+    waited = 0.0
+    while waited < wait:
+        if monitor.waitForAbort(0.5):
+            return False
+        waited += 0.5
+        if youtube_ready(timeout=0.5):
+            return True
+    return False
+
+
 class PlaybackEvents(xbmc.Player):
     """Counts video starts and stops: the trailer is the first start after it was asked for,
     and over at the next stop (or another start: something else plays instead)."""
@@ -176,11 +192,11 @@ class HomeTrailer:
             return
         self.tried = path
         url = trailer_for(path, title[1])
-        if url and url.startswith(YOUTUBE) and not youtube_ready():
+        if url and url.startswith(YOUTUBE) and not youtube_ready() and not wake_youtube():
             log("Home trailer: YouTube's stream server isn't answering; trying again shortly")
             self.tried, self.since = None, now + RETRY - ADDON.getSettingInt("btv_trailer_delay")
             return
-        if url and self.focused == path:
+        if url and focused_title() and focused_title()[0] == path:  # (still: waking YouTube takes a moment)
             log(f"Home trailer for {path}")
             xbmcgui.Window(10000).setProperty(PROPERTY, "1")
             xbmcgui.Window(10000).clearProperty("stremiobridge.playing.badges")  # not the trailer's
