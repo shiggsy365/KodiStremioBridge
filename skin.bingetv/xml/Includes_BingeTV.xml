@@ -494,7 +494,8 @@
 				<texture colordiffuse="CC000000" flipy="true">bingetv/fade_down.png</texture>
 			</control>
 			<include>BTVTouchBack</include>
-			<!-- the page name: BingeTV's "B" before it, a red underline below (as in the dialogs) -->
+			<!-- the page name: BingeTV's "B" before it (the name's top level with the B's top), a red
+			     underline below (its bottom level with the B's) -->
 			<control type="image">
 				<left>80</left>
 				<top>26</top>
@@ -505,14 +506,14 @@
 			</control>
 			<control type="image">
 				<left>136</left>
-				<top>72</top>
+				<top>61</top>
 				<width>56</width>
 				<height>4</height>
 				<texture colordiffuse="btv_accent">bingetv/white.png</texture>
 			</control>
 			<control type="label">
 				<left>136</left>
-				<top>14</top>
+				<top>18</top>
 				<width>164</width>
 				<height>60</height>
 				<font>btv_menu</font>
@@ -522,7 +523,7 @@
 			</control>
 			<control type="label">
 				<left>136</left>
-				<top>14</top>
+				<top>18</top>
 				<width>164</width>
 				<height>60</height>
 				<font>btv_menu</font>
