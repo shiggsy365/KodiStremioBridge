@@ -48,6 +48,31 @@
                         <dependency type="visible" on="property" name="InfoBool">!String.IsEmpty(Window(Home).Property(btv.skin))</dependency>
                     </dependencies>
                 </setting>
+                <setting id="btv_home_trailers" type="boolean" label="30550" help="30551">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                    <dependencies>
+                        <dependency type="visible" on="property" name="InfoBool">!String.IsEmpty(Window(Home).Property(btv.skin))</dependency>
+                    </dependencies>
+                </setting>
+                <setting id="btv_trailer_delay" type="integer" label="30552" help="30553" parent="btv_home_trailers">
+                    <level>0</level>
+                    <default>5</default>
+                    <constraints>
+                        <options>
+                            <option label="30472">3</option>
+                            <option label="30473">5</option>
+                            <option label="30474">7</option>
+                            <option label="30475">10</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string" />
+                    <dependencies>
+                        <dependency type="enable" setting="btv_home_trailers">true</dependency>
+                        <dependency type="visible" on="property" name="InfoBool">!String.IsEmpty(Window(Home).Property(btv.skin))</dependency>
+                    </dependencies>
+                </setting>
                 <setting id="btv_osd_hide" type="integer" label="30470" help="30471">
                     <level>0</level>
                     <default>7</default>

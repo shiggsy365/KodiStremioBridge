@@ -117,8 +117,9 @@
 					<textcolor>FFB4B4B4</textcolor>
 					<label>$VAR[BTVGenres]</label>
 				</control>
+				<!-- the description: the left half of the screen (the trailer plays on the right) -->
 				<control type="textbox">
-					<width>1050</width>
+					<width>760</width>
 					<height>$PARAM[plot]</height>
 					<font>btv_text</font>
 					<textcolor>FFEEEEEE</textcolor>

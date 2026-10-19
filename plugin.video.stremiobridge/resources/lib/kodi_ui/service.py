@@ -729,6 +729,9 @@ def run():
     except Exception as exc:  # noqa: BLE001
         log(f"Linked settings not synced: {exc}")
     log("Service started")
+    from . import hometrailer
+
+    threading.Thread(target=hometrailer.run, name="stremiobridge-trailer", daemon=True).start()
     try:
         _loop(monitor, worker, tracker, follower, home_widgets)
     finally:  # also when Kodi kills the service: no thread may be left running

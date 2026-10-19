@@ -1736,3 +1736,19 @@ msgstr ""
 msgctxt "#30549"
 msgid "\"Who's watching?\" at start: {state}"
 msgstr ""
+
+msgctxt "#30550"
+msgid "Play trailers on Home"
+msgstr ""
+
+msgctxt "#30551"
+msgid "When a title on Home stays focused, its trailer plays at the top right."
+msgstr ""
+
+msgctxt "#30552"
+msgid "Start a trailer after"
+msgstr ""
+
+msgctxt "#30553"
+msgid "How long a title has to stay focused before its trailer starts."
+msgstr ""

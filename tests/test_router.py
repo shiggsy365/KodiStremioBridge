@@ -4466,3 +4466,75 @@ def test_profile_window_lists_profiles_with_their_menus(monkeypatch):
     assert menu("Kids")[:2] == ["#30548", "#30546"]                   # change picture, rename
     assert menu("Vincent")[0] == "#30525"                             # change my picture
     assert [label for label, _ in profiles.profile_menu(plugin, "Kids", "Vincent", "Nuala & Jon", False)] == []
+
+
+def test_home_trailer_plays_after_the_delay_and_stops_with_the_focus(monkeypatch, home_props):
+    """BingeTV: a title focused on Home long enough gets its trailer in a window; moving on
+    stops it, and only it: playback started meanwhile is left alone."""
+    from kodi_ui import hometrailer
+
+    settings = {"btv_home_trailers": True, "btv_trailer_delay": 5}
+    monkeypatch.setattr(hometrailer.ADDON, "getSettingBool", lambda k: settings[k])
+    monkeypatch.setattr(hometrailer.ADDON, "getSettingInt", lambda k: settings[k])
+    focus = {"title": ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1", "plugin://yt/1")}
+    monkeypatch.setattr(hometrailer, "focused_title", lambda: focus["title"])
+    monkeypatch.setattr(hometrailer.xbmc, "getCondVisibility", lambda condition: False)  # no busy dialog
+    ran = []
+    monkeypatch.setattr(hometrailer.xbmc, "executebuiltin", lambda command, *a: ran.append(command))
+
+    class Player:                                                      # PlaybackEvents' counts
+        starts = stops = 0
+        on = False
+
+        def isPlaying(self):
+            return self.on
+
+        def start(self):
+            self.starts += 1
+            self.on = True
+
+        def stop(self):
+            ran.append("stop")
+            self.stops += 1
+            self.on = False
+
+    player, now = Player(), [0.0]
+    trailer = hometrailer.HomeTrailer(player=player, clock=lambda: now[0])
+    trailer.tick()
+    now[0] = 4.0
+    trailer.tick()
+    assert ran == []                                                   # not yet
+    now[0] = 5.0
+    trailer.tick()
+    assert ran == ['PlayMedia("plugin://yt/1",0,1)'] and home_props.get("btv.trailer") == "1"
+    player.start()                                                     # the trailer plays
+    now[0] = 6.0
+    trailer.tick()
+    assert home_props.get("btv.trailer") == "1"                        # still shown while it plays
+    focus["title"] = ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt2", "")
+    now[0] = 7.0
+    trailer.tick()
+    assert ran[-1] == "stop" and not home_props.get("btv.trailer")    # focus moved: stopped
+
+    ran.clear()
+    focus["title"] = ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1", "plugin://yt/1")
+    now[0] = 20.0
+    trailer.tick()
+    now[0] = 26.0
+    trailer.tick()
+    player.start()                                                     # the trailer
+    trailer.tick()
+    player.start()                                                     # then the title's own playback
+    trailer.tick()
+    focus["title"] = None
+    trailer.tick()
+    assert "stop" not in ran and not home_props.get("btv.trailer")    # left alone
+
+    settings["btv_home_trailers"] = False
+    ran.clear()
+    player.on = False
+    focus["title"] = ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt3", "plugin://yt/3")
+    for t in (40.0, 50.0):
+        now[0] = t
+        trailer.tick()
+    assert ran == []                                                   # turned off

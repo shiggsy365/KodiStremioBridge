@@ -151,6 +151,28 @@
 			<include>Visible_Fade</include>
 			<include>BTVTitleInfo</include>
 		</control>
+		<!-- the focused title's trailer (Stremio Bridge's hometrailer.py, when turned on): half size,
+		     at the right below the clock -->
+		<control type="group">
+			<left>900</left>
+			<top>105</top>
+			<width>960</width>
+			<height>540</height>
+			<visible>!String.IsEmpty(Window(Home).Property(btv.trailer)) + Player.HasVideo + !$EXP[BTVMenuFocused]</visible>
+			<animation effect="fade" start="0" end="100" time="400">Visible</animation>
+			<animation effect="fade" start="100" end="0" time="200">Hidden</animation>
+			<control type="image">
+				<left>-6</left>
+				<top>-6</top>
+				<right>-6</right>
+				<bottom>-6</bottom>
+				<texture colordiffuse="FF000000" border="32">bingetv/panel.png</texture>
+			</control>
+			<control type="videowindow">
+				<width>960</width>
+				<height>540</height>
+			</control>
+		</control>
 		<include content="BTVHomeRows"><param name="item">10000</param><param name="base">910</param><param name="menu">9201</param></include>
 		<include content="BTVHomeRows"><param name="item">movies</param><param name="base">911</param><param name="menu">9202</param></include>
 		<include content="BTVHomeRows"><param name="item">tvshows</param><param name="base">912</param><param name="menu">9203</param></include>

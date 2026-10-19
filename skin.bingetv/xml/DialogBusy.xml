@@ -18,6 +18,8 @@
 		<control type="group">
 			<visible>String.IsEmpty(Window(Home).Property(script.cinemavision.running))</visible>
 			<visible>String.IsEmpty(Window(Home).Property(stremiobridge.preparing))</visible>
+			<!-- nor while a trailer starts on Home (Stremio Bridge's hometrailer.py) -->
+			<visible>String.IsEmpty(Window(Home).Property(btv.trailer))</visible>
 			<animation effect="fade" time="400">VisibleChange</animation>
 			<visible>!Window.IsActive(startup) + !Player.Caching</visible>
 			<control type="image">
