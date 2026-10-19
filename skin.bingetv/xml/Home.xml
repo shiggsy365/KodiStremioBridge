@@ -139,7 +139,9 @@
 	<onload condition="String.IsEmpty(Window(Home).Property(btv.fromsettings))">AlarmClock(btvfocus2,SetFocus($INFO[Window(Home).Property(btv.rowbase)]$INFO[Window(Home).Property(btv.row)]),00:05,silent)</onload>
 	<!-- Back from Settings: the menu bar's Home button -->
 	<onload condition="!String.IsEmpty(Window(Home).Property(btv.fromsettings))">SetFocus(9201)</onload>
-	<onload>ClearProperty(btv.fromsettings,home)</onload>
+	<!-- cleared a moment later, not at once: a profile load opens Home twice (the second time
+	     after the skin reloads for the new profile), and both must focus the menu -->
+	<onload condition="!String.IsEmpty(Window(Home).Property(btv.fromsettings))">AlarmClock(btvfromsettings,ClearProperty(btv.fromsettings,home),00:06,silent)</onload>
 	<controls>
 		<include content="BTVBackground">
 			<param name="fanart">$VAR[BTVHomeFanart]</param>
