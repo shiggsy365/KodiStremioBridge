@@ -101,6 +101,7 @@ def _owner(row):
 # show plus the one episode), so they don't parse long-running shows' whole
 # episode lists every time a list or widget opens.
 SLIM_SECONDS = 6 * 3600
+NEXT_UP_VERSION = 2  # in its cache key: raised when how Next Up is worked out changes
 
 
 def resume_metas(rows):
@@ -281,7 +282,7 @@ def next_up(state, limit=NEXT_UP_SHOWS):
     SLIM_SECONDS pass, whichever is first."""
     today = datetime.date.today().isoformat()
     cache = get_cache()
-    key = f"nextup:{state.signature()}:{today}:{limit}"
+    key = f"nextup:{NEXT_UP_VERSION}:{state.signature()}:{today}:{limit}"
     hit = cache.get(key)
     if hit:
         return _from_slim(hit[0])
