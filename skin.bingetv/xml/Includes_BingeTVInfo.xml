@@ -668,7 +668,8 @@
                             <param name="shift" value="!$EXP[SBInfoWatchlist]"/>
                             <param name="icon" value="buttonsdialogs/trailer.png"/>
                             <param name="visible" value="$EXP[SBInfoHasTrailer]"/>
-                            <param name="onclick" value="PlayMedia($ESCINFO[Window(home).Property(sbinfo.trailer)])"/>
+                            <!-- through Stremio Bridge: the page closes first, so the trailer plays full screen, not behind it -->
+                            <param name="onclick" value="RunPlugin(plugin://plugin.video.stremiobridge/?action=play_trailer&amp;type=$INFO[Window(home).Property(sbinfo.type)]&amp;id=$INFO[Window(home).Property(sbinfo.id)])"/>
                         </include>
                         <control type="label">
                             <left>898</left>
@@ -1149,7 +1150,7 @@
         <control type="group">
             <left>420</left>
             <top>277</top>
-            <visible>!String.IsEmpty($VAR[SBInfoCardRating])</visible>
+            <visible>!String.IsEmpty(ListItem.Property(stremiobridge.rating)) | Integer.IsGreater(ListItem.Rating,0)</visible>
             <control type="image">
                 <width>56</width>
                 <height>28</height>

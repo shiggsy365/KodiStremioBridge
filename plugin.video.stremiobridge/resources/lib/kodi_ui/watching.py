@@ -53,10 +53,15 @@ def continue_watching(plugin, page="1"):
     entries = [(row.updated_at, _resume_item(plugin, row, metas.get((_owner(row), row.video_id))), row.is_episode)
                for row in rows]
     if ADDON.getSettingBool("continue_with_next_up"):
-        started = {row.meta_id for row in rows if row.is_episode}
+        from stremio.watchstate import show_keys
+
+        started = set()
+        for watched in rows:
+            if watched.is_episode:
+                started |= show_keys(watched.meta_id, watched.ids)
         activity = {show_id: when for show_id, _, when in state.recent_shows(NEXT_UP_SHOWS, with_time=True)}
         for meta, video in next_up(state):
-            if meta.id not in started:  # its in-progress episode is listed already
+            if not show_keys(meta.id, dict(meta.external_ids)) & started:  # its in-progress episode is listed already
                 entries.append((activity.get(meta.id, 0.0),
                                 _next_episode_item(plugin, meta, video, state, remove_label=L(30192)), True))
     entries.sort(key=lambda entry: entry[0], reverse=True)
@@ -287,8 +292,19 @@ def next_up(state, limit=NEXT_UP_SHOWS):
         return [video] if video is not None else []
 
     found = fetch_slim_metas(shows, upcoming)
-    saved = [{"type": type_, "video": found[show_id]["videos"][0]["id"], "meta": found[show_id]}
-             for show_id, type_ in shows if found.get(show_id, {}).get("videos")]
+    from stremio.models import external_ids
+    from stremio.watchstate import show_keys
+
+    saved, seen = [], set()
+    for show_id, type_ in shows:
+        meta = found.get(show_id) or {}
+        if not meta.get("videos"):
+            continue
+        keys = show_keys(show_id, external_ids(show_id, meta))
+        if keys & seen:
+            continue  # the same show under another id (watched through another catalog)
+        seen |= keys
+        saved.append({"type": type_, "video": meta["videos"][0]["id"], "meta": meta})
     cache.set(key, saved, SLIM_SECONDS)
     return _from_slim(saved)
 

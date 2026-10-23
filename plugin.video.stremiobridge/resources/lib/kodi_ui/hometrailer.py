@@ -9,12 +9,14 @@ The trailer is the list item's own (ListItem.Trailer), else its title's metadata
 """
 
 import json
+import os
 import time
 import urllib.request
 
 import xbmc
 import xbmcaddon
 import xbmcgui
+import xbmcvfs
 
 from .common import ADDON, BINGETV_SKIN_ID, jsonrpc, log
 from .contextmenu import item_target
@@ -251,7 +253,12 @@ class HomeTrailer:
                 self.muted = True
             if stream:
                 item = xbmcgui.ListItem(path=stream["path"], offscreen=True)
-                item.setProperties(stream.get("props") or {})
+                props = dict(stream.get("props") or {})
+                if props.get("inputstream"):
+                    # YouTube asks for its HLS streams to be chosen by hand ("manual-osd"); left so,
+                    # InputStream Adaptive's audio stalls on a Fire TV Stick: no sound at all
+                    props["inputstream.adaptive.stream_selection_type"] = "adaptive"
+                item.setProperties(props)
                 item.setProperty("BingeTVTrailer", "true")  # no busy dialog (BingeTV's Kodi, patches/0011)
                 if stream.get("mime"):
                     item.setMimeType(stream["mime"])
@@ -298,15 +305,37 @@ class HomeTrailer:
 
     @staticmethod
     def _set_mute(on):
+        # Kodi keeps its mute across restarts: should BingeTV close, or a profile load, before
+        # the trailer's unmute, the next start undoes it (unmute_left_over)
+        marker = xbmcvfs.translatePath(MUTED_MARKER)
+        try:
+            if on:
+                with open(marker, "w", encoding="utf-8") as f:
+                    f.write("1")
+            elif os.path.exists(marker):
+                os.remove(marker)
+        except OSError:
+            pass
         # the skin hides Kodi's volume icon while this is set (cleared a moment after the change)
         xbmcgui.Window(10000).setProperty(QUIET_VOLUME, "1")
         jsonrpc("Application.SetMute", mute=on)
         xbmc.executebuiltin(f"AlarmClock(btvquietvolume,ClearProperty({QUIET_VOLUME},home),00:03,silent)")
 
 
+MUTED_MARKER = "special://masterprofile/addon_data/plugin.video.stremiobridge/trailer_muted"
+
+
+def unmute_left_over():
+    """A trailer's mute that was never undone (BingeTV closed mid-trailer): undone now."""
+    if os.path.exists(xbmcvfs.translatePath(MUTED_MARKER)):
+        log("Undoing a trailer's mute left over from last time")
+        HomeTrailer._set_mute(False)
+
+
 def run():
     """The service's trailer thread (with a Monitor of its own): until Kodi stops the service."""
     monitor = xbmc.Monitor()
+    unmute_left_over()
     trailer, steady = HomeTrailer(), SteadyFocus()
     xbmcgui.Window(10000).clearProperty(PROPERTY)
     while not monitor.waitForAbort(TICK):

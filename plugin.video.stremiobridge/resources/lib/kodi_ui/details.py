@@ -332,6 +332,10 @@ def play_trailer(plugin, type, id, yt=None):
     elif not xbmc.getCondVisibility("System.HasAddon(plugin.video.youtube)"):
         notify(L(30069), icon=xbmcgui.NOTIFICATION_WARNING)
     else:
+        if xbmc.getCondVisibility("Window.IsVisible(movieinformation)"):
+            # Kodi doesn't go full screen over an open dialog: the trailer would play behind it
+            xbmc.executebuiltin("Dialog.Close(movieinformation,true)")
+            xbmc.Monitor().waitForAbort(0.3)
         xbmc.executebuiltin(f"PlayMedia({YOUTUBE_PLUGIN.format(yt)})")
 
 

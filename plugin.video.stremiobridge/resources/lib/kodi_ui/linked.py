@@ -104,6 +104,13 @@ def write_iptv(changes):
             element = ET.SubElement(root, "setting", id=sid)
         element.attrib.pop("default", None)
         element.text = value
+    if dispatcharr_playlist(changes.get("m3uUrl")) and not (settings.get("defaultMimeType") is not None
+                                                           and settings["defaultMimeType"].text):
+        element = settings.get("defaultMimeType")
+        if element is None:
+            element = ET.SubElement(root, "setting", id="defaultMimeType")
+        element.attrib.pop("default", None)
+        element.text = TS_MIME  # (see ensure_stream_type)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     tree.write(path, encoding="utf-8", xml_declaration=False)
     _restart_addon(IPTV, enable=bool(changes.get("m3uUrl")))
@@ -131,6 +138,25 @@ def enable_live_tv():
     os.makedirs(profile_dir(), exist_ok=True)
     with open(marker, "w", encoding="utf-8") as f:
         f.write("1")
+
+
+TS_MIME = "video/mp2t"
+
+
+def dispatcharr_playlist(url):
+    """A Dispatcharr playlist (…/output/m3u): its streams (…/proxy/ts/stream/<id>) are MPEG-TS."""
+    return "/output/m3u" in (url or "")
+
+
+def ensure_stream_type():
+    """With a Dispatcharr playlist, IPTV Simple's default MIME type is MPEG-TS. Its stream
+    addresses have no extension, so otherwise IPTV Simple and then Kodi probe each one to tell
+    its type, on Kodi's main thread: with Dispatcharr slow to answer, that froze BingeTV for up
+    to 2 minutes (3 tries of 20 s, twice) whenever a channel started."""
+    values = _iptv_values()
+    if dispatcharr_playlist(values.get("m3uUrl")) and not values.get("defaultMimeType"):
+        log("IPTV Simple: Dispatcharr's streams are MPEG-TS (no probing them as channels start)")
+        write_iptv({"defaultMimeType": TS_MIME})
 
 
 def _restart_addon(addon_id, enable=False):

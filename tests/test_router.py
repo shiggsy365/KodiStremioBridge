@@ -378,7 +378,8 @@ def test_play_trailer(server, monkeypatch):
                                                       "trailers": [{"source": "abc", "type": "Trailer"}]}}
     played, notes, has_youtube = [], [], [True]
     monkeypatch.setattr(details.xbmc, "executebuiltin", lambda cmd, *a: played.append(cmd))
-    monkeypatch.setattr(details.xbmc, "getCondVisibility", lambda cond: has_youtube[0])
+    monkeypatch.setattr(details.xbmc, "getCondVisibility",
+                        lambda cond: False if "movieinformation" in cond else has_youtube[0])
     monkeypatch.setattr(xbmcgui.Dialog, "notification", lambda self, h, msg, *a: notes.append(msg))
 
     call("play_trailer", handle=-1, type="movie", id="tt1", yt="known")        # id from the listing
@@ -4693,3 +4694,38 @@ def test_genres_are_also_set_one_each_for_chips():
     item = Item()
     listitems.set_genres(item, ["Crime", "Drama"])
     assert [item.props[f"stremiobridge.genre{n}"] for n in (1, 2, 3)] == ["Crime", "Drama", ""]
+
+
+def test_continue_watching_merges_a_show_under_two_ids(tmp_path):
+    """The same show played through two catalogs (tt… and tmdb:…) is one entry: their external
+    ids match."""
+    from stremio.watchstate import PlaybackEntry, WatchState
+
+    state = WatchState(str(tmp_path / "w.db"))
+    for video, meta, ids, when in (("tt100:4:11", "tt100", {"imdb": "tt100", "tmdb": 237243}, 20),
+                                   ("tmdb:237243:4:12", "tmdb:237243", {"tmdb": 237243, "trakt": 9}, 30),
+                                   ("tt200:1:1", "tt200", {"imdb": "tt200"}, 10)):
+        state._clock = lambda when=when: when
+        state.record(PlaybackEntry(video_id=video, type="series", meta_id=meta, season=4, episode=1, ids=ids),
+                     300, 3000)
+    rows = state.continue_watching()
+    assert [r.video_id for r in rows] == ["tmdb:237243:4:12", "tt200:1:1"]
+
+
+def test_dispatcharr_playlists_get_an_mpeg_ts_default(monkeypatch, tmp_path):
+    """IPTV Simple with a Dispatcharr playlist is told its streams are MPEG-TS, so channel starts
+    don't probe them (which froze Kodi while Dispatcharr was slow)."""
+    from kodi_ui import linked
+
+    path = tmp_path / "instance-settings-1.xml"
+    monkeypatch.setattr(linked, "_iptv_path", lambda: str(path))
+    monkeypatch.setattr(linked, "_restart_addon", lambda *a, **k: None)
+    linked.write_iptv({"m3uPathType": "1", "m3uUrl": "https://dispatcharr.example/output/m3u"})
+    assert linked._iptv_values()["defaultMimeType"] == "video/mp2t"
+
+    other = tmp_path / "other.xml"
+    monkeypatch.setattr(linked, "_iptv_path", lambda: str(other))
+    linked.write_iptv({"m3uPathType": "1", "m3uUrl": "https://example/list.m3u"})
+    assert not linked._iptv_values().get("defaultMimeType")
+    linked.ensure_stream_type()
+    assert not linked._iptv_values().get("defaultMimeType")

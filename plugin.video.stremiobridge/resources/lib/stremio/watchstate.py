@@ -58,6 +58,21 @@ class PlaybackEntry:
         return cls(**{k: v for k, v in data.items() if k in cls.__record_fields__})
 
 
+def show_keys(meta_id, ids):
+    """Every key a show is known by: its id and its external ids ("imdb:tt…", "tmdb:123", …).
+    The same show reached through two catalogs can have two ids (tt0053494, tmdb:1234), but
+    its external ids still match."""
+    keys = {str(meta_id)} if meta_id else set()
+    if str(meta_id).startswith("tt"):
+        keys.add(f"imdb:{meta_id}")
+    for name, value in (ids or {}).items():
+        if value and name in ("imdb", "tmdb", "tvdb", "trakt", "mdblist", "kitsu", "mal"):
+            keys.add(f"{name}:{value}")
+            if name == "imdb":
+                keys.add(str(value))
+    return keys
+
+
 @dataclass
 class Row(PlaybackEntry):
     position: float = 0.0
@@ -157,9 +172,10 @@ class WatchState:
         rows, shows = [], set()
         for row in self._rows("WHERE position > 0 ORDER BY updated_at DESC"):
             if row.meta_id and row.season is not None:
-                if row.meta_id in shows or row.updated_at <= dismissed.get(row.meta_id, 0):
-                    continue
-                shows.add(row.meta_id)
+                keys = show_keys(row.meta_id, row.ids)
+                if keys & shows or row.updated_at <= dismissed.get(row.meta_id, 0):
+                    continue  # (one episode per show, whichever id it was played under)
+                shows |= keys
             rows.append(row)
             if len(rows) >= limit:
                 break
