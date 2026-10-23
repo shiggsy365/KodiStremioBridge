@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.stremiobridge"
        name="Stremio Bridge"
-       version="0.17.26"
+       version="0.17.27"
        provider-name="shiggsy365">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -23,14 +23,13 @@
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
-        <news>v0.17.26 - My Library (exporting titles to Kodi's library) is gone; the watchlist and everything else stay.
+        <news>v0.17.27 - Next Up and watched ticks follow a show when its metadata addon starts using another of its ids (e.g. Big Brother: TMDB, then IMDb).
+v0.17.26 - My Library (exporting titles to Kodi's library) is gone; the watchlist and everything else stay.
 v0.17.25 - Trailers play without the YouTube add-on: they start sooner, play to the end with sound, and stopping one no longer freezes Kodi. Descriptions on Home show after half a second.
 v0.17.24 - Live TV no longer freezes BingeTV when Dispatcharr is slow; Home trailers have sound; the info page's trailer plays full screen; a show played through two catalogs is one entry in Continue Watching.
 v0.17.23 - BingeTV: Home trailers are found in the background, so the remote keeps working while one starts (with BingeTV 0.2.5).
 v0.17.22 - BingeTV: Home trailers play in YouTube's screensaver mode (with BingeTV 0.2.5, a direct stream: no hang when an info page opens mid-trailer).
-v0.17.21 - BingeTV: Home trailers wake YouTube when it has gone idle, so they play after a pause too.
-v0.17.20 - BingeTV: no volume icon when a muted trailer starts or stops.
-v0.17.19 - BingeTV: hub pages laid out like Home, with trailers; the info page uses Home's centred layout with chips.</news>
+v0.17.21 - BingeTV: Home trailers wake YouTube when it has gone idle, so they play after a pause too.</news>
     </extension>
 </addon>
 <addon id="plugin.audio.shiggsy365.podcasts"

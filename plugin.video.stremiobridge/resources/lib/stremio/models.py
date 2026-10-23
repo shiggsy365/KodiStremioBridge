@@ -406,13 +406,17 @@ class Meta(MetaPreview):
         if not fields_:
             return None
         hints = data.get("behaviorHints") if isinstance(data.get("behaviorHints"), dict) else {}
+        ids = external_ids(fields_["id"], data)
+        from .watchstate import note_aliases  # (watchstate doesn't import this module)
+
+        note_aliases(fields_["id"], ids)
         return cls(
             **fields_,
             country=data.get("country") or "",
             certification=_certification(data),
             videos=tuple(v for v in (Video.from_dict(x) for x in data.get("videos") or []) if v),
             default_video_id=hints.get("defaultVideoId") or "",
-            external_ids=tuple(sorted(external_ids(fields_["id"], data).items())),
+            external_ids=tuple(sorted(ids.items())),
         )
 
     @property

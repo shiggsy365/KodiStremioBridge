@@ -11,7 +11,7 @@ from stremio import StremioError, showindex
 from stremio.client import resource_url
 from stremio.meta import cinemeta_fallback, fetch_meta_source, meta_candidates
 from stremio.models import CAST, DIRECTOR, WRITER
-from stremio.watchstate import next_episode
+from stremio.watchstate import next_episode, note_aliases
 
 from .common import ADDON, L, add_context_menu, get_client, get_registry, get_watchstate, log, notify
 from .listitems import (
@@ -63,7 +63,10 @@ def show_index(type_, id_, registry=None, client=None):
     if not candidates or client.cache is None:
         return None
     # The first addon's: the one load_meta reads first
-    return showindex.load(client.cache, resource_url(candidates[0][1], "meta", type_, id_), type_, time.time())
+    index = showindex.load(client.cache, resource_url(candidates[0][1], "meta", type_, id_), type_, time.time())
+    if index is not None and index.meta.id != id_:  # answered under another of its ids (fetch_meta_source)
+        note_aliases(index.meta.id, dict(index.meta.external_ids), asked_as=id_)
+    return index
 
 
 def load_show(type_, id_, quiet=False, seasons=(), videos=()):

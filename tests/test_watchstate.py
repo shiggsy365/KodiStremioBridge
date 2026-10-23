@@ -191,3 +191,43 @@ def test_continue_watching_lists_one_episode_per_show(state, clock):
     clock.now += 5
     state.record(ep(1, 1), 700, 2400)                          # played again: the show is back
     assert [r.video_id for r in state.continue_watching()] == ["tt5:1:1", "tt1"]
+
+
+def test_watched_state_follows_a_show_renamed_by_its_metadata_addon(tmp_path):
+    """Episodes watched under tmdb:237243 still count once the metadata addon answers with the
+    show's IMDb id (and its tmdb id among its fields): Next Up goes on from them."""
+    state = WatchState(str(tmp_path / "w.db"))
+    for episode in (26, 27):
+        entry = PlaybackEntry(video_id=f"tmdb:237243:4:{episode}", type="series", meta_id="tmdb:237243",
+                              season=4, episode=episode)
+        state.record(entry, 3000, 3000)
+    meta = Meta.from_dict({"id": "tt48436891", "type": "series", "name": "Big Brother", "tmdb_id": 237243,
+                           "videos": [{"id": f"tt48436891:4:{n}", "season": 4, "episode": n,
+                                       "released": "2026-10-%02dT12:00:00.000Z" % (n - 13)} for n in range(26, 37)]})
+    assert state.watched_episodes("tt48436891") == {(4, 26), (4, 27)}
+    assert next_episode(meta, state.watched_episodes(meta.id), "2026-10-23").id == "tt48436891:4:28"
+    rows = state.lookup(["tt48436891:4:27", "tt48436891:4:28"])
+    assert list(rows) == ["tt48436891:4:27"] and rows["tt48436891:4:27"].watched
+
+
+def test_a_show_answered_under_another_id_keeps_its_watched_state(tmp_path):
+    """Asked for tmdb:237243, the metadata addon answers with tt48436891 and nothing else to tie
+    them: the episodes watched under the id it was asked for still count (fetch_meta_source)."""
+    from stremio.meta import fetch_meta_source
+
+    state = WatchState(str(tmp_path / "w.db"))
+    state.record(PlaybackEntry(video_id="tmdb:999001:1:2", type="series", meta_id="tmdb:999001",
+                               season=1, episode=2), 3000, 3000)
+
+    class Client:
+        def get_resource(self, url, resource, type_, id_):
+            return {"meta": {"id": "tt99900100", "type": "series", "name": "Renamed",
+                             "videos": [{"id": f"tt99900100:1:{n}", "season": 1, "episode": n,
+                                         "released": "2026-01-0%dT00:00:00.000Z" % n} for n in (1, 2, 3)]}}
+
+    class Addon:
+        name, transport_url, manifest = "Meta", "https://example/manifest.json", None
+
+    _, _, _, meta = fetch_meta_source(Client(), [Addon()], "series", "tmdb:999001")
+    assert meta.id == "tt99900100" and state.watched_episodes(meta.id) == {(1, 2)}
+    assert next_episode(meta, state.watched_episodes(meta.id), "2026-02-01").id == "tt99900100:1:3"

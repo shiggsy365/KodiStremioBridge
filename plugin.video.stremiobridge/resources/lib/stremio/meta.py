@@ -3,6 +3,7 @@
 from . import AddonRequestError, StremioError
 from .models import Manifest, Meta
 from .registry import InstalledAddon
+from .watchstate import note_aliases
 
 CINEMETA_URL = "https://v3-cinemeta.strem.io/manifest.json"
 CINEMETA_NAME = "Cinemeta"
@@ -84,6 +85,8 @@ def fetch_meta_source(client, addons, type_, id_, fallbacks=()):
         raw = data.get("meta") if isinstance(data, dict) else None
         meta = Meta.from_dict(raw, type_)
         if meta is not None:
+            if meta.id != id_:  # answered under another of its ids: watched state is under either
+                note_aliases(meta.id, dict(meta.external_ids), asked_as=id_)
             return name, url, raw, meta
         errors.append(f"{name}: no meta")
     raise MetaNotFound(f"No meta for {type_} {id_}" + (f" ({'; '.join(errors)})" if errors else ""))

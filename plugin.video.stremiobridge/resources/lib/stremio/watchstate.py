@@ -58,6 +58,39 @@ class PlaybackEntry:
         return cls(**{k: v for k, v in data.items() if k in cls.__record_fields__})
 
 
+_ALIASES = {}  # a title's id -> every id it's known by (note_aliases), for this process
+_ALIASES_LOCK = threading.Lock()
+
+
+def note_aliases(meta_id, ids, asked_as=""):
+    """Remember that a title is known by its external ids too, and by the id it was asked for
+    (`asked_as`: a metadata addon can answer for tmdb:237243 with tt48436891): watched state
+    stored under one is found under the others."""
+    keys = show_keys(meta_id, ids) | ({asked_as} if asked_as else set())
+    if len(keys) < 2:
+        return
+    with _ALIASES_LOCK:
+        for key in keys:
+            known = _ALIASES.setdefault(key, set())
+            known |= keys
+
+
+def aliases(meta_id):
+    """Every id `meta_id` is known by (itself included)."""
+    with _ALIASES_LOCK:
+        return {meta_id} | _ALIASES.get(meta_id, set())
+
+
+def _alias_video_ids(video_id):
+    """``{alias video id: video id}``: the same movie or episode under its title's other ids."""
+    parts = video_id.rsplit(":", 2)
+    if len(parts) == 3 and parts[1].isdigit() and parts[2].isdigit():
+        prefix, suffix = parts[0], f":{parts[1]}:{parts[2]}"
+    else:
+        prefix, suffix = video_id, ""
+    return {key + suffix: video_id for key in aliases(prefix) if key + suffix != video_id}
+
+
 def show_keys(meta_id, ids):
     """Every key a show is known by: its id and its external ids ("imdb:tt…", "tmdb:123", …).
     The same show reached through two catalogs can have two ids (tt0053494, tmdb:1234), but
@@ -153,13 +186,22 @@ class WatchState:
         return rows[0] if rows else None
 
     def lookup(self, video_ids):
-        """``{video_id: Row}`` for the ids that have any state."""
+        """``{video_id: Row}`` for the ids that have any state (also stored under another of
+        their title's ids: note_aliases)."""
         video_ids = list(dict.fromkeys(video_ids))
+        alias = {}
+        for video_id in video_ids:
+            alias.update(_alias_video_ids(video_id))
+        wanted = video_ids + [a for a in alias if a not in video_ids]
         found = {}
-        for i in range(0, len(video_ids), 500):
-            chunk = video_ids[i:i + 500]
+        for i in range(0, len(wanted), 500):
+            chunk = wanted[i:i + 500]
             marks = ",".join("?" * len(chunk))
             found.update({r.video_id: r for r in self._rows(f"WHERE video_id IN ({marks})", chunk)})
+        for alias_id, video_id in alias.items():
+            row = found.pop(alias_id, None) if alias_id not in video_ids else found.get(alias_id)
+            if row is not None and (video_id not in found or row.updated_at > found[video_id].updated_at):
+                found[video_id] = row
         return found
 
     def continue_watching(self, limit=50):
@@ -199,10 +241,12 @@ class WatchState:
         return [(meta_id, type_ or "series") for meta_id, type_, _ in rows]
 
     def watched_episodes(self, meta_id):
+        """``{(season, episode)}`` watched, under any of the show's ids (note_aliases)."""
+        ids = sorted(aliases(meta_id))
         with self._lock:
             cursor = self._db.execute(
-                "SELECT season, episode FROM progress WHERE meta_id = ? AND watched = 1 AND season IS NOT NULL",
-                (meta_id,))
+                f"SELECT season, episode FROM progress WHERE meta_id IN ({','.join('?' * len(ids))})"
+                " AND watched = 1 AND season IS NOT NULL", ids)
             return {(s, e) for s, e in cursor.fetchall()}
 
     def binge_group(self, meta_id, max_age):
