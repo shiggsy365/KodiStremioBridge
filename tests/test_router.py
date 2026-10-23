@@ -371,23 +371,23 @@ def test_people_route_searches_by_name(server, listing):
 
 
 def test_play_trailer(server, monkeypatch):
-    from kodi_ui import details
+    from kodi_ui import details, youtube
 
     install(server)
     server.routes["/meta/movie/tt1.json"] = {"meta": {"id": "tt1", "type": "movie", "name": "M",
-                                                      "trailers": [{"source": "abc", "type": "Trailer"}]}}
-    played, notes, has_youtube = [], [], [True]
-    monkeypatch.setattr(details.xbmc, "executebuiltin", lambda cmd, *a: played.append(cmd))
-    monkeypatch.setattr(details.xbmc, "getCondVisibility",
-                        lambda cond: False if "movieinformation" in cond else has_youtube[0])
+                                                      "trailers": [{"source": "abcdefghijk", "type": "Trailer"}]}}
+    played, notes, found = [], [], [True]
+    monkeypatch.setattr(details.xbmc, "getCondVisibility", lambda cond: False)
+    monkeypatch.setattr(details.xbmc.Player, "play", lambda self, url, item=None: played.append(url), raising=False)
+    monkeypatch.setattr(youtube, "trailer_item",
+                        lambda vid, max_height=1080: (f"http://127.0.0.1:1/trailer/{vid}.mpd", None) if found[0] else None)
     monkeypatch.setattr(xbmcgui.Dialog, "notification", lambda self, h, msg, *a: notes.append(msg))
 
-    call("play_trailer", handle=-1, type="movie", id="tt1", yt="known")        # id from the listing
+    call("play_trailer", handle=-1, type="movie", id="tt1", yt="knownknown1")  # id from the listing
     call("play_trailer", handle=-1, type="movie", id="tt1")                    # looked up from meta
-    assert played == ["PlayMedia(plugin://plugin.video.youtube/play/?video_id=known)",
-                      "PlayMedia(plugin://plugin.video.youtube/play/?video_id=abc)"]
-    has_youtube[0] = False
-    call("play_trailer", handle=-1, type="movie", id="tt1")
+    assert played == ["http://127.0.0.1:1/trailer/knownknown1.mpd", "http://127.0.0.1:1/trailer/abcdefghijk.mpd"]
+    found[0] = False
+    call("play_trailer", handle=-1, type="movie", id="tt1")                    # YouTube didn't have it
     server.routes["/meta/movie/tt2.json"] = {"meta": {"id": "tt2", "type": "movie", "name": "No trailer"}}
     call("play_trailer", handle=-1, type="movie", id="tt2")
     assert len(played) == 2 and len(notes) == 2
@@ -3985,7 +3985,9 @@ def test_switch_stream_picks_again_and_carries_on(server, playback, settings, wi
     monkeypatch.setattr(player.xbmc.Player, "getTime", lambda self: 321.7, raising=False)
     monkeypatch.setattr(player.xbmc.Player, "pause", pause, raising=False)
     monkeypatch.setattr(player.xbmc.Player, "play", lambda self, path, item=None: calls.append(path), raising=False)
-    monkeypatch.setattr(player.xbmc.Player, "stop", lambda self: calls.append("stop"), raising=False)
+    builtin = player.xbmc.executebuiltin
+    monkeypatch.setattr(player.xbmc, "executebuiltin",
+                        lambda cmd, *a: calls.append("stop") if cmd == "PlayerControl(Stop)" else builtin(cmd, *a))
 
     playback["choice"] = 0
     call("switch_stream", handle=-1)
@@ -4482,7 +4484,6 @@ def test_home_trailer_plays_after_the_delay_and_stops_with_the_focus(monkeypatch
     monkeypatch.setattr(hometrailer, "focused_title", lambda: focus["title"])
     monkeypatch.setattr(hometrailer.xbmc, "getCondVisibility", lambda condition: False)  # no busy dialog
     ran = []
-    monkeypatch.setattr(hometrailer, "youtube_ready", lambda: True)
     monkeypatch.setattr(hometrailer.xbmc, "executebuiltin", lambda command, *a: ran.append(command))
 
     class Player:                                                      # PlaybackEvents' counts
@@ -4491,6 +4492,9 @@ def test_home_trailer_plays_after_the_delay_and_stops_with_the_focus(monkeypatch
 
         def isPlaying(self):
             return self.on
+
+        def play(self, path, item, windowed):
+            ran.append(("play", path, windowed))
 
         def start(self):
             self.starts += 1
@@ -4509,7 +4513,7 @@ def test_home_trailer_plays_after_the_delay_and_stops_with_the_focus(monkeypatch
     assert ran == []                                                   # not yet
     now[0] = 5.0
     trailer.tick()
-    assert ran == ['PlayMedia("plugin://yt/1",0,1)'] and home_props.get("btv.trailer") == "1"
+    assert ran == [("play", "plugin://yt/1", True)] and home_props.get("btv.trailer") == "1"
     player.start()                                                     # the trailer plays
     now[0] = 6.0
     trailer.tick()
@@ -4517,7 +4521,7 @@ def test_home_trailer_plays_after_the_delay_and_stops_with_the_focus(monkeypatch
     focus["title"] = ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt2", "")
     now[0] = 7.0
     trailer.tick()
-    assert ran[-1] == "stop" and not home_props.get("btv.trailer")    # focus moved: stopped
+    assert ran[-1] == "PlayerControl(Stop)" and not home_props.get("btv.trailer")  # focus moved
 
     ran.clear()
     focus["title"] = ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1", "plugin://yt/1")
@@ -4560,7 +4564,6 @@ def test_home_trailer_clears_when_playback_quietly_stops(monkeypatch, home_props
     monkeypatch.setattr(hometrailer, "focused_title", lambda: ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1", "plugin://yt/1"))
     monkeypatch.setattr(hometrailer.xbmc, "getCondVisibility", lambda condition: False)
     monkeypatch.setattr(hometrailer.xbmc, "executebuiltin", lambda command, *a: None)
-    monkeypatch.setattr(hometrailer, "youtube_ready", lambda: True)
 
     class Player:
         starts = stops = 0
@@ -4568,6 +4571,9 @@ def test_home_trailer_clears_when_playback_quietly_stops(monkeypatch, home_props
 
         def isPlaying(self):
             return self.on
+
+        def play(self, path, item, windowed):
+            pass
 
     player, now = Player(), [0.0]
     trailer = hometrailer.HomeTrailer(player=player, clock=lambda: now[0])
@@ -4583,22 +4589,25 @@ def test_home_trailer_clears_when_playback_quietly_stops(monkeypatch, home_props
     assert not mute["on"]                                              # sound back
 
 
-def test_home_trailer_waits_for_youtubes_server(monkeypatch, home_props):
-    """A YouTube trailer is found in the background (RunPlugin; BingeTV's YouTube hands the stream
-    back). Without that hand-over (another YouTube) it's played as before, but not while YouTube's
-    stream server isn't answering (Kodi would hang waiting for it): it's tried again shortly."""
+def test_home_trailer_finds_youtubes_ahead_of_the_delay(monkeypatch, home_props):
+    """A YouTube trailer is looked for in the background a few seconds before the delay is up
+    (youtube.py: no YouTube add-on), and plays as MPEG-DASH, in the window, when the delay is up.
+    One found too late for the focus is dropped; one that can't be found plays nothing."""
     from kodi_ui import hometrailer
 
     monkeypatch.setattr(hometrailer.ADDON, "getSettingBool", lambda k: k == "btv_home_trailers")
     monkeypatch.setattr(hometrailer.ADDON, "getSettingInt", lambda k: 5)
-    title = ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1",
-             "plugin://plugin.video.youtube/play/?video_id=abc")
-    monkeypatch.setattr(hometrailer, "focused_title", lambda: title)
+    title = {"t": ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt1",
+                   "plugin://plugin.video.stremiobridge/?action=trailer&video_id=abcdefghijk")}
+    monkeypatch.setattr(hometrailer, "focused_title", lambda: title["t"])
     monkeypatch.setattr(hometrailer.xbmc, "getCondVisibility", lambda condition: False)
-    ran, ready = [], {"up": False}
-    monkeypatch.setattr(hometrailer.xbmc, "executebuiltin", lambda command, *a: ran.append(command))
-    monkeypatch.setattr(hometrailer, "youtube_ready", lambda: ready["up"])
-    monkeypatch.setattr(hometrailer, "wake_youtube", lambda: False)                  # it doesn't wake
+    monkeypatch.setattr(hometrailer.xbmc, "executebuiltin", lambda command, *a: None)
+    looked = []
+
+    class Lookup:                                                      # (no thread)
+        def __init__(self, vid):
+            looked.append(vid)
+            self.url = None
 
     class Player:
         starts = stops = 0
@@ -4608,37 +4617,107 @@ def test_home_trailer_waits_for_youtubes_server(monkeypatch, home_props):
             return False
 
         def play(self, path, item, windowed):
-            self.played.append((path, item.getProperty("BingeTVTrailer"), windowed))
+            self.played.append((path, windowed))
 
-    now = [0.0]
-    player = Player()
-    trailer = hometrailer.HomeTrailer(player=player, clock=lambda: now[0])
+    now, player = [0.0], Player()
+    trailer = hometrailer.HomeTrailer(player=player, clock=lambda: now[0], lookup=Lookup)
     trailer.tick()
+    now[0] = 1.9
+    trailer.tick()
+    assert looked == []
+    now[0] = 2.0                                                       # 3 s ahead of the 5 s delay
+    trailer.tick()
+    assert looked == ["abcdefghijk"]
+    trailer.resolving[1].url = "http://127.0.0.1:1/trailer/abcdefghijk.mpd"  # found
+    now[0] = 4.0
+    trailer.tick()
+    assert player.played == []                                         # not before the delay
     now[0] = 5.0
     trailer.tick()
-    assert ran == ['RunPlugin("plugin://plugin.video.youtube/play/?video_id=abc&screensaver=true")']
-    home_props["bingetv.trailer_stream"] = json.dumps({"path": "https://manifest/x.m3u8", "props": {}, "mime": ""})
-    now[0] = 6.0
-    trailer.tick()
-    assert player.played and player.played[0][0] == "https://manifest/x.m3u8" and player.played[0][2] is True
-    assert home_props.get("btv.trailer") == "1" and not home_props.get("bingetv.trailer_stream")
+    assert player.played == [("http://127.0.0.1:1/trailer/abcdefghijk.mpd", True)]          # in the window
+    assert home_props.get("btv.trailer") == "1"
 
-    # another YouTube: no hand-over; played as before once its server answers
-    ran.clear()
-    trailer = hometrailer.HomeTrailer(player=player, clock=lambda: now[0])
-    now[0] = 20.0
+    player.played.clear()
+    title["t"] = ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt2", "")
+    monkeypatch.setattr(hometrailer, "trailer_for", lambda path, trailer: "zyxwvutsrqp")
+    now[0] = 10.0
+    trailer.tick()                                                     # moved on
+    now[0] = 12.0
     trailer.tick()
-    now[0] = 25.0
-    trailer.tick()                                                      # RunPlugin...
-    now[0] = 34.0
-    trailer.tick()                                                      # ... no answer: server down
-    assert ran[-1].startswith("RunPlugin") and len(ran) == 1
-    ready["up"] = True
-    now[0] = 44.0
+    lookup = trailer.resolving[1]
+    title["t"] = ("plugin://plugin.video.stremiobridge/?action=meta&type=movie&id=tt3", "")
+    now[0] = 13.0
+    trailer.tick()                                                     # moved on again, still looking
+    lookup.url = "http://127.0.0.1:1/trailer/zyxwvutsrqp.mpd"
+    now[0] = 15.0
     trailer.tick()
-    now[0] = 53.0
+    trailer.resolving[1].url = ""                                      # tt3's: not found
+    now[0] = 18.0
     trailer.tick()
-    assert ran[-1] == 'PlayMedia("plugin://plugin.video.youtube/play/?video_id=abc&screensaver=true",0,1)'
+    assert player.played == [] and not trailer.resolving
+
+
+def test_youtube_trailer_formats_and_manifest():
+    """youtube.py picks H.264 up to the height asked for and the default audio track's AAC, and
+    writes them into an MPEG-DASH manifest; video ids come from any of the usual URLs."""
+    from kodi_ui import youtube
+
+    def fmt(itag, mime, **more):
+        return dict(itag=itag, mimeType=mime, url=f"https://gv/{itag}?a=1&b=2", bitrate=1000 + itag,
+                    initRange={"start": "0", "end": "740"}, indexRange={"start": "741", "end": "900"},
+                    approxDurationMs="67525", **more)
+
+    formats = [
+        fmt(137, 'video/mp4; codecs="avc1.640028"', height=1080, width=1920, fps=24),
+        fmt(136, 'video/mp4; codecs="avc1.4d401f"', height=720, width=1280, fps=24),
+        fmt(247, 'video/webm; codecs="vp9"', height=720, width=1280, fps=24),
+        fmt(140, 'audio/mp4; codecs="mp4a.40.2"', audioSampleRate="44100", audioChannels=2,
+            audioTrack={"audioIsDefault": True}),
+        fmt(139, 'audio/mp4; codecs="mp4a.40.5"', audioTrack={"audioIsDefault": False}),
+        dict(itag=18, mimeType='video/mp4; codecs="avc1"', height=360),             # no ranges: not usable
+    ]
+    video, audio = youtube.pick(formats, 720)
+    assert (video["itag"], audio["itag"]) == (136, 140)
+    assert youtube.pick(formats)[0]["itag"] == 137
+    mpd = youtube.manifest(video, audio)
+    assert 'mediaPresentationDuration="PT67.525S"' in mpd and "https://gv/136?a=1&amp;b=2" in mpd
+    assert '<Initialization range="0-740"/>' in mpd and 'codecs="mp4a.40.2"' in mpd
+    with pytest.raises(youtube.YouTubeError):
+        youtube.pick(formats[3:])                                       # no video
+    for url in ("plugin://plugin.video.youtube/play/?video_id=abcdefghijk",
+                "plugin://plugin.video.stremiobridge/?action=trailer&video_id=abcdefghijk",
+                "https://www.youtube.com/watch?v=abcdefghijk", "https://youtu.be/abcdefghijk", "abcdefghijk"):
+        assert youtube.video_id(url) == "abcdefghijk"
+    assert youtube.video_id("https://example.com/trailer.mp4") == ""
+
+
+def test_trailer_server_serves_published_manifests(monkeypatch, home_props, tmp_path):
+    """The service's trailer server answers for the manifests published to it (HEAD too: Kodi
+    looks a video up again when it stops), and nothing else."""
+    import urllib.error
+    import urllib.request
+
+    from kodi_ui import trailerserver
+
+    monkeypatch.setattr(trailerserver.xbmcvfs, "translatePath", lambda p: str(tmp_path / "trailers"))
+    assert trailerserver.publish("abc", "<MPD/>") == ""                 # not running
+    server = trailerserver.TrailerServer()
+    server.start()
+    try:
+        url = trailerserver.publish("abc", "<MPD/>")
+        assert url.endswith("/trailer/abc.mpd")
+        with urllib.request.urlopen(url, timeout=5) as response:
+            assert response.read() == b"<MPD/>" and response.headers["Content-Type"] == "application/dash+xml"
+        with urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=5) as response:
+            assert response.status == 200
+        with pytest.raises(urllib.error.HTTPError):
+            urllib.request.urlopen(url.replace("abc.mpd", "../x.mpd"), timeout=5)
+        for n in range(8):
+            trailerserver.publish(f"v{n}", "<MPD/>")
+        assert len(os.listdir(tmp_path / "trailers")) == trailerserver.KEEP
+    finally:
+        server.stop()
+    assert not home_props.get(trailerserver.PORT)
 
 
 def test_playing_streams_badges_are_published_for_the_osd(monkeypatch, home_props, tmp_path):
@@ -4656,18 +4735,18 @@ def test_playing_streams_badges_are_published_for_the_osd(monkeypatch, home_prop
     assert strip and os.path.exists(strip)
 
 
-def test_steady_focus_marks_a_title_after_two_seconds(monkeypatch, home_props):
-    """BingeTV shows a title's description once it has kept the focus for 2 seconds."""
+def test_steady_focus_marks_a_title_after_a_moment(monkeypatch, home_props):
+    """BingeTV shows a title's description once it has kept the focus for a moment (not while scrolling)."""
     from kodi_ui import hometrailer
 
     monkeypatch.setattr(hometrailer, "busy", lambda: busy["on"])
     now, focus, busy = [0.0], {"path": "a"}, {"on": False}
     steady = hometrailer.SteadyFocus(clock=lambda: now[0], focused=lambda: focus["path"])
     steady.tick()
-    now[0] = 1.5
+    now[0] = 0.2
     steady.tick()
     assert not home_props.get("btv.steady")
-    now[0] = 2.0
+    now[0] = 0.25
     steady.tick()
     assert home_props.get("btv.steady") == "a"
     busy["on"], focus["path"] = True, ""                                  # a trailer loading: kept
@@ -4677,7 +4756,7 @@ def test_steady_focus_marks_a_title_after_two_seconds(monkeypatch, home_props):
     focus["path"] = "b"                                                  # moved on: none until steady again
     steady.tick()
     assert not home_props.get("btv.steady")
-    now[0] = 4.1
+    now[0] = 0.6
     steady.tick()
     assert home_props.get("btv.steady") == "b"
 

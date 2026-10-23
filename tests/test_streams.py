@@ -69,7 +69,7 @@ def test_play_paths():
     assert play_path(plain) == "https://cdn/x.mkv|User-Agent=A%20B&Cookie=a%3D1%26b%3D2"
     assert play_path(plain, headers_in_url=False) == "https://cdn/x.mkv"
     assert play_path(s(url="https://cdn/x.mkv")) == "https://cdn/x.mkv"
-    assert play_path(s(ytId="abc")) == "plugin://plugin.video.youtube/play/?video_id=abc"
+    assert play_path(s(ytId="abc")) == "plugin://plugin.video.stremiobridge/?action=trailer&video_id=abc"
 
     torrent = s(infoHash="ABCDEF", fileIdx=2, behaviorHints={"filename": "a b.mkv"},
                 sources=["tracker:udp://t:80/announce", "dht:ABCDEF"])

@@ -221,7 +221,9 @@ def _stop_current(wait=5.0):
     one while it's still loaded can stall it (on Fire TV the hardware decoder
     is still taken)."""
     player = xbmc.Player()
-    player.stop()
+    # not player.stop(): that holds Python's lock while Kodi closes the video, and every add-on
+    # (YouTube's stream server among them) is stuck until it has
+    xbmc.executebuiltin("PlayerControl(Stop)")
     for _ in range(int(wait * 10)):
         if not player.isPlaying():
             return

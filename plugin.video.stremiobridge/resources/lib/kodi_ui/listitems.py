@@ -16,7 +16,7 @@ _KODI_TYPES = {
 }
 # Types whose items play directly; everything else (series, channel, ...) opens a folder.
 PLAYABLE_TYPES = ("movie", "tv")
-YOUTUBE_PLUGIN = "plugin://plugin.video.youtube/play/?video_id={}"
+TRAILER_PLUGIN = "plugin://plugin.video.stremiobridge/?action=trailer&video_id={}"  # (youtube.py)
 
 
 def preview_items(plugin, previews, state, hide_watched=False):
@@ -115,7 +115,7 @@ def _apply_people(tag, source):
     if source.writer:
         tag.setWriters(list(source.writer))
     if source.trailer:
-        tag.setTrailer(YOUTUBE_PLUGIN.format(source.trailer))
+        tag.setTrailer(TRAILER_PLUGIN.format(source.trailer))
 
 
 def item_menu(plugin, type_, id_, watched, watched_params=None, show_id=None, trailer=""):
@@ -149,7 +149,7 @@ def _apply_meta(item, meta):
     if meta.premiered:
         tag.setPremiered(meta.premiered)
     if meta.trailer:
-        tag.setTrailer(YOUTUBE_PLUGIN.format(meta.trailer))
+        tag.setTrailer(TRAILER_PLUGIN.format(meta.trailer))
     return tag
 
 

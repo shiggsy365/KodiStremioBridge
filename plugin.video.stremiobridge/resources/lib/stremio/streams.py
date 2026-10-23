@@ -8,7 +8,7 @@ from .aggregate import gather
 from .models import Subtitle
 from .record import dataclass, field
 
-YOUTUBE_PLAY = "plugin://plugin.video.youtube/play/?video_id={}"
+YOUTUBE_PLAY = "plugin://plugin.video.stremiobridge/?action=trailer&video_id={}"  # (kodi_ui/youtube.py)
 ELEMENTUM_PLAY = "plugin://plugin.video.elementum/play?uri={}"
 
 # Stream kinds

@@ -5,16 +5,16 @@ without going fullscreen. It stops as soon as the focus moves, Home is left or
 covered, or the trailer ends; and only ever the trailer: playback started in the
 meantime (a title's Play) is left alone.
 
-The trailer is the list item's own (ListItem.Trailer), else its title's metadata's.
+The trailer is the list item's own (ListItem.Trailer), else its title's metadata's. YouTube's
+are found in the background, starting a little before the delay is up (youtube.py: no YouTube
+add-on), and play from the service's trailer server.
 """
 
-import json
 import os
+import threading
 import time
-import urllib.request
 
 import xbmc
-import xbmcaddon
 import xbmcgui
 import xbmcvfs
 
@@ -24,7 +24,7 @@ from .contextmenu import item_target
 PROPERTY = "btv.trailer"
 QUIET_VOLUME = "btv.quietvolume"  # a trailer's mute or unmute: no volume icon for it
 STEADY = "btv.steady"   # a title focused this long (its path): the skin shows its description
-STEADY_AFTER = 1.6     # + the next tick, the skin's fade and drawing: shown at about 2 s
+STEADY_AFTER = 0.25    # + the next tick and the skin's fade: shown at about half a second
 HUB_WINDOW, HUB_LIST = 1150, 400
 ROWS = {base * 10 + n for base in range(910, 915) for n in range(1, 7)}  # Home's row lists
 TICK = 0.25
@@ -72,7 +72,8 @@ def busy():
 
 class SteadyFocus:
     """Marks the title that has kept the focus for STEADY_AFTER seconds (Window(Home).Property(btv.steady)):
-    the skin fades its description in then, rather than flashing every title's on the way past."""
+    the skin fades its description in then, rather than flashing every title's on the way past
+    (a scroll's titles stay focused for less)."""
 
     def __init__(self, clock=time.monotonic, focused=focused_path):
         self.clock = clock
@@ -92,62 +93,39 @@ class SteadyFocus:
 
 
 def trailer_for(path, trailer=""):
-    """A playable trailer URL for one of our title paths, or ""."""
+    """A title's trailer: a URL (its list item's, which may name a YouTube video), a YouTube video
+    id, or ""."""
     if trailer:
         return trailer
     from .details import load_meta
-    from .listitems import YOUTUBE_PLUGIN
 
     _action, params = item_target(path)
     owner = params.get("meta") or params["id"].split(":")[0]
     meta = load_meta(params["type"], owner, quiet=True)
-    return YOUTUBE_PLUGIN.format(meta.trailer) if meta and meta.trailer else ""
+    return meta.trailer if meta and meta.trailer else ""
 
 
-YOUTUBE = "plugin://plugin.video.youtube/"
-RETRY = 10  # seconds before trying a trailer again when YouTube wasn't ready
-RESOLVED = "bingetv.trailer_stream"  # the stream BingeTV's YouTube found for a trailer (JSON)
-RESOLVE_WAIT = 8
+AHEAD = 3            # seconds before the delay is up that a YouTube trailer is looked for
+WINDOW_HEIGHT = 720  # the window's half the screen: no more is needed, and it starts sooner
+RESOLVE_WAIT = 15    # seconds to give YouTube
 
 
-def youtube_ready(timeout=1.5):
-    """Is YouTube's local stream server answering? Its trailers play through it (MPEG-DASH), and
-    when it's asleep (YouTube's service rests it while Kodi is idle) Kodi waits for it on its
-    main thread, 20 s at a time: the whole UI hangs. So a trailer only starts when it answers."""
-    try:
-        port = xbmcaddon.Addon("plugin.video.youtube").getSettingInt("kodion.http.port") or 50152
-    except (RuntimeError, ValueError):
-        port = 50152
-    try:
-        with urllib.request.urlopen(f"http://127.0.0.1:{port}/youtube/ping", timeout=timeout) as response:
-            return response.status < 400
-    except (OSError, ValueError):
-        return False
+class Lookup:
+    """A YouTube trailer's manifest found in a thread of its own (network only)."""
 
+    def __init__(self, vid, publish=None):
+        if publish is None:
+            from .youtube import publish_trailer as publish
+        self.url = None  # "" when not found
+        self.thread = threading.Thread(target=self._run, args=(publish, vid), name="stremiobridge-yt", daemon=True)
+        self.thread.start()
 
-def wake_youtube(wait=4.0, monitor=None):
-    """Ask YouTube's service to start its stream server (as YouTube's own player does: its
-    service IPC, server_wakeup) and wait up to `wait` seconds for it to answer."""
-    jsonrpc("JSONRPC.NotifyAll", sender="plugin.video.youtube", message="service_ipc",
-            data={"target": "server_wakeup", "response_required": False, "force": True})
-    monitor = monitor or xbmc.Monitor()
-    waited = 0.0
-    while waited < wait:
-        if monitor.waitForAbort(0.5):
-            return False
-        waited += 0.5
-        if youtube_ready(timeout=0.5):
-            return True
-    return False
-
-
-def trailer_url(url):
-    """YouTube's "screensaver" playback for a trailer: no history, prompts or suggestions, and
-    (BingeTV's YouTube, patches/addons) a direct stream rather than MPEG-DASH through YouTube's
-    local server, which Kodi can wait on for 20 s, frozen, when the trailer is stopped."""
-    if url.startswith(YOUTUBE) and "screensaver=" not in url:
-        return url + ("&" if "?" in url else "?") + "screensaver=true"
-    return url
+    def _run(self, publish, vid):
+        try:
+            self.url = publish(vid, WINDOW_HEIGHT)
+        except Exception as exc:  # noqa: BLE001
+            log(f"Home trailer: {exc}", xbmc.LOGWARNING)
+            self.url = ""
 
 
 class PlaybackEvents(xbmc.Player):
@@ -173,14 +151,16 @@ class PlaybackEvents(xbmc.Player):
 
 
 class HomeTrailer:
-    def __init__(self, player=None, clock=time.monotonic):
+    def __init__(self, player=None, clock=time.monotonic, lookup=Lookup):
         self.player = player or PlaybackEvents()
         self.clock = clock
+        self.lookup = lookup
         self.focused = None       # the focused title's path
         self.since = 0.0          # ... focused since
         self.tried = None         # the title whose trailer was tried (once per focus)
         self.playing = None       # our trailer: (asked at, starts and stops counted then)
-        self.resolving = None     # a YouTube trailer being found in the background: (title, url, since)
+        self.resolving = None     # a YouTube trailer being found: (title, Lookup, since)
+        self.ready = None         # ... or another trailer, waiting for the delay: (title, url)
         self.muted = False        # we muted Kodi for it (and unmute it after)
 
     def enabled(self):
@@ -189,7 +169,7 @@ class HomeTrailer:
     def tick(self):
         now = self.clock()
         if busy():
-            # Kodi's busy dialog (e.g. while YouTube finds the trailer's stream) isn't leaving Home
+            # Kodi's busy dialog isn't leaving Home
             if self.playing:
                 self._follow(now)
             return
@@ -198,74 +178,60 @@ class HomeTrailer:
         if path != self.focused:
             self.focused, self.since, self.tried = path, now, None
             self.stop()
-        if self.resolving:
-            self._resolve(now)
-            return
         if self.playing:
             self._follow(now)
             return
-        if path is None or self.tried == path or self.player.isPlaying():
+        if path is None or self.player.isPlaying():
             return
-        if now - self.since < ADDON.getSettingInt("btv_trailer_delay"):
+        delay = ADDON.getSettingInt("btv_trailer_delay")
+        if self.tried != path and now - self.since >= max(0, delay - AHEAD):
+            self.tried = path
+            self._find(path, trailer_for(path, title[1]), now)
+        if now - self.since < delay:
             return
-        self.tried = path
-        url = trailer_for(path, title[1])
-        if url and url.startswith(YOUTUBE):
-            # found in the background (YouTube runs as a script, BingeTV's patches/addons hand the
-            # stream back): Kodi's playback of a plugin path would put up its busy dialog, which
-            # takes the remote's keys for the seconds YouTube takes
-            xbmcgui.Window(10000).clearProperty(RESOLVED)
-            xbmc.executebuiltin(f'RunPlugin("{trailer_url(url)}")')
-            self.resolving = (path, url, now)
-            return
-        self._start(path, url, now)
+        if self.resolving:
+            self._resolve(now)
+        elif self.ready and self.ready[0] == path:
+            url, self.ready = self.ready[1], None
+            self._start(path, url, now)
+
+    def _find(self, path, trailer, now):
+        from .youtube import video_id
+
+        vid = video_id(trailer)
+        if vid:
+            self.resolving = (path, self.lookup(vid), now)
+        elif trailer and "://" in trailer:
+            self.ready = (path, trailer)
 
     def _resolve(self, now):
-        path, url, since = self.resolving
-        raw = xbmcgui.Window(10000).getProperty(RESOLVED)
-        if raw:
-            self.resolving = None
-            xbmcgui.Window(10000).clearProperty(RESOLVED)
-            try:
-                stream = json.loads(raw)
-            except ValueError:
-                return
-            if self.focused == path:
-                self._start(path, url, now, stream)
-        elif now - since > RESOLVE_WAIT:  # a YouTube without BingeTV's patch: played as before
-            self.resolving = None
-            if self.focused == path:
-                self._start(path, url, now)
-
-    def _start(self, path, url, now, stream=None):
-        if stream is None and url and url.startswith(YOUTUBE) and not youtube_ready() and not wake_youtube():
-            log("Home trailer: YouTube's stream server isn't answering; trying again shortly")
-            self.tried, self.since = None, now + RETRY - ADDON.getSettingInt("btv_trailer_delay")
+        path, lookup, since = self.resolving
+        if lookup.url is None:
+            if now - since > RESOLVE_WAIT:
+                self.resolving = None
             return
-        if url and focused_title() and focused_title()[0] == path:  # (still: waking YouTube takes a moment)
-            log(f"Home trailer for {path}")
-            url = trailer_url(url)
-            xbmcgui.Window(10000).setProperty(PROPERTY, "1")
-            xbmcgui.Window(10000).clearProperty("stremiobridge.playing.badges")  # not the trailer's
-            self.playing = (now, self.player.starts, self.player.stops)
-            if ADDON.getSettingBool("btv_trailer_muted") and not self._is_muted():
-                self._set_mute(True)
-                self.muted = True
-            if stream:
-                item = xbmcgui.ListItem(path=stream["path"], offscreen=True)
-                props = dict(stream.get("props") or {})
-                if props.get("inputstream"):
-                    # YouTube asks for its HLS streams to be chosen by hand ("manual-osd"); left so,
-                    # InputStream Adaptive's audio stalls on a Fire TV Stick: no sound at all
-                    props["inputstream.adaptive.stream_selection_type"] = "adaptive"
-                item.setProperties(props)
-                item.setProperty("BingeTVTrailer", "true")  # no busy dialog (BingeTV's Kodi, patches/0011)
-                if stream.get("mime"):
-                    item.setMimeType(stream["mime"])
-                    item.setContentLookup(False)
-                self.player.play(stream["path"], item, True)  # True: in a window, not fullscreen
-            else:
-                xbmc.executebuiltin(f'PlayMedia("{url}",0,1)')  # 1: in a window, not fullscreen
+        self.resolving = None
+        if lookup.url and self.focused == path:
+            self._start(path, lookup.url, now, dash=True)
+
+    def _start(self, path, url, now, dash=False):
+        if not (focused_title() and focused_title()[0] == path):
+            return
+        log(f"Home trailer for {path}")
+        xbmcgui.Window(10000).setProperty(PROPERTY, "1")
+        xbmcgui.Window(10000).clearProperty("stremiobridge.playing.badges")  # not the trailer's
+        self.playing = (now, self.player.starts, self.player.stops)
+        if ADDON.getSettingBool("btv_trailer_muted") and not self._is_muted():
+            self._set_mute(True)
+            self.muted = True
+        if dash:
+            from .youtube import playable
+
+            item = playable(url)
+        else:
+            item = xbmcgui.ListItem(path=url, offscreen=True)
+        item.setProperty("BingeTVTrailer", "true")  # no busy dialog (BingeTV's Kodi, patches/0011)
+        self.player.play(url, item, True)  # True: in a window, not fullscreen
 
     def _state(self):
         """``(started, over)`` for our trailer, from the playback events since it was asked for."""
@@ -284,12 +250,15 @@ class HomeTrailer:
 
     def stop(self):
         """Stop our trailer (only ours, also while it's still starting) and hide its window."""
-        self.resolving = None
+        self.resolving = self.ready = None
         if not self.playing:
             return
         _started, over = self._state()
         if not over and self.player.isPlaying():
-            self.player.stop()
+            # not xbmc.Player().stop(): that waits for Kodi to close the trailer holding Python's
+            # lock, and closing it Kodi asks the trailer server (Python, so it couldn't answer)
+            # about it: Kodi's UI frozen for its timeouts, 20 s at a time
+            xbmc.executebuiltin("PlayerControl(Stop)")
         self._clear()
 
     def _clear(self):

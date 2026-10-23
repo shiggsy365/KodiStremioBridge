@@ -15,7 +15,7 @@ from stremio.watchstate import next_episode
 
 from .common import ADDON, L, add_context_menu, get_client, get_registry, get_watchstate, log, notify
 from .listitems import (
-    YOUTUBE_PLUGIN, apply_info_actions, apply_watch, episode_code, episode_item, episode_listitem, mark_item_watched,
+    apply_info_actions, apply_watch, episode_code, episode_item, episode_listitem, mark_item_watched,
     season_item, season_label, single_video_item,
 )
 from .router import route
@@ -324,19 +324,36 @@ def people(plugin, type, id):
 
 @route("play_trailer")
 def play_trailer(plugin, type, id, yt=None):
+    """A title's trailer, full screen (BingeTV's own YouTube playback: youtube.py)."""
+    from .youtube import trailer_item, video_id
+
     if not yt:
         meta = load_meta(type, id, quiet=True)
         yt = meta.trailer if meta else ""
-    if not yt:
+    vid = video_id(yt)
+    if not vid:
         notify(L(30068))
-    elif not xbmc.getCondVisibility("System.HasAddon(plugin.video.youtube)"):
+        return
+    found = trailer_item(vid)
+    if not found:
         notify(L(30069), icon=xbmcgui.NOTIFICATION_WARNING)
-    else:
-        if xbmc.getCondVisibility("Window.IsVisible(movieinformation)"):
-            # Kodi doesn't go full screen over an open dialog: the trailer would play behind it
-            xbmc.executebuiltin("Dialog.Close(movieinformation,true)")
-            xbmc.Monitor().waitForAbort(0.3)
-        xbmc.executebuiltin(f"PlayMedia({YOUTUBE_PLUGIN.format(yt)})")
+        return
+    if xbmc.getCondVisibility("Window.IsVisible(movieinformation)"):
+        # Kodi doesn't go full screen over an open dialog: the trailer would play behind it
+        xbmc.executebuiltin("Dialog.Close(movieinformation,true)")
+        xbmc.Monitor().waitForAbort(0.3)
+    xbmc.Player().play(*found)
+
+
+@route("trailer")
+def trailer(plugin, video_id):
+    """A list item's trailer (ListItem.Trailer, which Kodi plays itself): resolved to the stream."""
+    from .youtube import trailer_item, video_id as parse_id
+
+    found = trailer_item(parse_id(video_id))
+    if not found:
+        notify(L(30069), icon=xbmcgui.NOTIFICATION_WARNING)
+    xbmcplugin.setResolvedUrl(plugin.handle, bool(found), found[1] if found else xbmcgui.ListItem(offscreen=True))
 
 
 def _next_to_watch(meta, state):

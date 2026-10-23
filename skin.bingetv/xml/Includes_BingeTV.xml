@@ -91,7 +91,7 @@
 	</include>
 	<!-- The focused title, in a centred column over the left 35% of the screen: its clear logo (or
 	     title), the episode, chips for its date, length and rating, chips for its genres, and its
-	     description, which fades in once the title has kept the focus for 2 seconds
+	     description, which fades in once the title has kept the focus for half a second
 	     (Window(Home).Property(btv.steady), set by Stremio Bridge's service). -->
 	<include name="BTVTitleInfo">
 		<param name="plot">178</param>
@@ -220,7 +220,7 @@
 					<label>$INFO[ListItem.Plot]</label>
 					<!-- a bare info label to compare with: Kodi resolves a $INFO[] there once, at load -->
 					<visible>String.IsEqual(Window(Home).Property(btv.steady),ListItem.FileNameAndPath)</visible>
-					<animation effect="fade" start="0" end="100" time="250">Visible</animation>
+					<animation effect="fade" start="0" end="100" time="150">Visible</animation>
 				</control>
 			</control>
 		</control>
@@ -580,8 +580,16 @@
 			<visible>Skin.HasSetting(touchmode) + !Window.IsActive(Home)</visible>
 		</control>
 	</include>
+	<!-- Home's page name: the page whose rows are shown (btv.rowbase, set by the menu's buttons) -->
+	<variable name="BTVPageName">
+		<value condition="String.IsEqual(Window(Home).Property(btv.rowbase),911)">$LOCALIZE[342]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.rowbase),912)">$LOCALIZE[20343]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.rowbase),913)">$LOCALIZE[2]</value>
+		<value condition="String.IsEqual(Window(Home).Property(btv.rowbase),914)">Live TV</value>
+		<value>$LOCALIZE[10000]</value>
+	</variable>
 	<include name="BTVTopBar">
-		<param name="title">$LOCALIZE[10000]</param>
+		<param name="title">$VAR[BTVPageName]</param>
 		<param name="down">$INFO[Window(Home).Property(btv.rowbase)]$INFO[Window(Home).Property(btv.row)]</param>
 		<param name="home">SetFocus(9101)</param>
 		<definition>

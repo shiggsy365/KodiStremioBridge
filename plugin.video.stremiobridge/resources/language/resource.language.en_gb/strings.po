@@ -200,7 +200,7 @@ msgid "No trailer available"
 msgstr ""
 
 msgctxt "#30069"
-msgid "Install the YouTube add-on to play trailers"
+msgid "Couldn't play the trailer"
 msgstr ""
 
 msgctxt "#30063"

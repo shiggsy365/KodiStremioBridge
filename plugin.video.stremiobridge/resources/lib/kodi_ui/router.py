@@ -52,7 +52,7 @@ HANDLERS = {
     "bingetv": ("bingetv_restore_offer", "bingetv_update"),
     "browse": ("catalog", "choose_filter", "row_page", "type"),
     "contextmenu": ("context_menu",),
-    "details": ("info_episodes", "info_seasons", "meta", "people", "play_trailer", "season"),
+    "details": ("info_episodes", "info_seasons", "meta", "people", "play_trailer", "season", "trailer"),
     "hubs": ("hub", "hub_create", "hub_genres", "hub_remove", "hub_rename", "organise", "organise_actions",
              "organise_do", "organise_hub"),
     "infodialog": ("extended_info", "info_mark", "info_play", "info_toggle"),

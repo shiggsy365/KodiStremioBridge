@@ -28,7 +28,7 @@ STREAM, META = "stream", "meta"
 SKIP, ENTER, CANCEL = "skip", "enter", "cancel"
 # Add-ons the skin uses when they're there, offered rather than required (the
 # skin's addon.xml lists them as optional): (id, string id of what it's for)
-OPTIONAL_EXTRAS = (("plugin.video.youtube", 30449), ("service.upnext", 30450))
+OPTIONAL_EXTRAS = (("service.upnext", 30450),)  # (YouTube: not needed, kodi_ui/youtube.py)
 
 
 def providers(resource):

@@ -734,12 +734,16 @@ def run():
         log(f"Linked settings not synced: {exc}")
     log("Service started")
     from . import hometrailer
+    from .trailerserver import TrailerServer
 
+    trailers = TrailerServer()  # YouTube trailers' manifests (youtube.py)
+    trailers.start()
     threading.Thread(target=hometrailer.run, name="stremiobridge-trailer", daemon=True).start()
     try:
         _loop(monitor, worker, tracker, follower, home_widgets)
     finally:  # also when Kodi kills the service: no thread may be left running
         worker.stop()
+        trailers.stop()
         log("Service stopped")
 
 
