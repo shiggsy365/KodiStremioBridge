@@ -23,7 +23,6 @@ plugin.video.stremiobridge/        the add-on itself
         │   ├── streaming.py       "More on Netflix / Prime Video / …" lookups
         │   ├── subtitles.py       subtitle fetching, language selection, download
         │   ├── watchstate.py      watched/resume database, Continue Watching, Next Up
-        │   ├── library.py         .strm/.nfo export and library index
         │   ├── cache.py           sqlite response cache with stale fallback
         │   ├── aggregate.py       parallel requests with progress/cancel
         │   ├── history.py         recent searches
@@ -42,7 +41,6 @@ plugin.video.stremiobridge/        the add-on itself
             ├── search.py, searchwindow.py   search menu, search as you type, results window
             ├── watching.py        Continue Watching, Next Up, mark watched, MDBList
             ├── watchlist.py       MDBList watchlist
-            ├── library.py         Kodi library export and watched-state sync
             ├── views.py           default views per list type
             ├── listitems.py       Stremio objects → Kodi ListItems
             ├── manage.py          Manage addons

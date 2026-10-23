@@ -611,43 +611,6 @@
                     </control>
                 </setting>
             </group>
-            <group id="4" label="30260">
-                <setting id="library_setup" type="action" label="30261" help="30262">
-                    <level>0</level>
-                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=library_setup)</data>
-                    <constraints>
-                        <allowempty>true</allowempty>
-                    </constraints>
-                    <control type="button" format="action">
-                        <close>true</close>
-                    </control>
-                    <dependencies>
-                        <dependency type="visible" on="property" name="InfoBool">String.IsEmpty(Window(Home).Property(btv.skin))</dependency>
-                    </dependencies>
-                </setting>
-                <setting id="library_update" type="action" label="30263" help="30275">
-                    <level>0</level>
-                    <data>RunPlugin(plugin://plugin.video.stremiobridge/?action=library_update)</data>
-                    <constraints>
-                        <allowempty>true</allowempty>
-                    </constraints>
-                    <control type="button" format="action">
-                        <close>true</close>
-                    </control>
-                    <dependencies>
-                        <dependency type="visible" on="property" name="InfoBool">String.IsEmpty(Window(Home).Property(btv.skin))</dependency>
-                    </dependencies>
-                </setting>
-                <setting id="library_watchlist" type="boolean" label="30264" help="30265">
-                    <level>0</level>
-                    <default>true</default>
-                    <dependencies>
-                        <dependency type="enable" setting="mdblist_enabled">true</dependency>
-                        <dependency type="visible" on="property" name="InfoBool">String.IsEmpty(Window(Home).Property(btv.skin))</dependency>
-                    </dependencies>
-                    <control type="toggle" />
-                </setting>
-            </group>
             <group id="5" label="30280">
                 <setting id="view_movies" type="string" label="30281" help="30286">
                     <level>0</level>

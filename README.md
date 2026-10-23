@@ -33,7 +33,7 @@ Stremio addons you install. Both need **Kodi 21 Omega or later**.
 | | Stremio Bridge in your skin | Arctic Zephyr Stremio |
 |---|---|---|
 | **For** | Keeping the skin you have, or adding Stremio addons alongside your library and other add-ons | A Kodi set up for streaming from Stremio addons and little else |
-| **Installs** | Stremio Bridge | The skin, with Stremio Bridge; its setup wizard offers YouTube (trailers) and Up Next (next episode) |
+| **Installs** | Stremio Bridge | The skin, with Stremio Bridge; its setup wizard offers Up Next (next episode) |
 | **Browsing** | Stremio Bridge's front page and hubs in Videos → Add-ons, plus widgets you add to your skin | Home rows and Movies and TV Shows hubs, ready filled with your catalogs |
 | **Info, streams, search, player** | Stremio Bridge's own windows, and your skin's player | The skin's pages, in one style throughout |
 | **Setup** | Settings → Addons | A setup wizard on first start |
@@ -51,7 +51,7 @@ Everything in the first column is also in the second: the skin uses Stremio Brid
 - **Proper show pages.** Shows, seasons and episodes, with artwork, cast photos, trailers and
   unaired episodes greyed out. Shows open on the next episode you haven't watched.
 - **Extended info.** An info page with clickable cast (to find their other work), Play/Resume,
-  Trailer, Similar titles, an Overall Rating, Mark watched, and Add to library or watchlist.
+  Trailer, Similar titles, an Overall Rating, Mark watched, and Add to watchlist.
 - **Streams your way.** Everything your stream addons find, fetched in parallel and sorted, on a
   page of cards with badges (resolution, release, Dolby Vision/HDR, audio, channels, streaming
   service, cached) and filters. Or turn on autoplay: it checks streams in order until one works,
@@ -61,8 +61,6 @@ Everything in the first column is also in the second: the skin uses Stremio Brid
   "5 of 10 watched". Mark a movie, episode, season or whole show watched.
 - **Home-screen widgets.** A Widgets folder of ready-made sources that refresh after you watch
   something. Next Page in a widget loads the next page into the same row.
-- **Kodi's library (optional).** Add movies and shows to Kodi's Movies and TV Shows library.
-  Followed shows pick up new episodes daily.
 - **Fits your skin.** Pick a default view for movie, show, season and episode lists from the views
   your skin offers, with previews.
 - **Back up and restore Kodi** (*Settings → Backup*, or the skin's settings): every profile, add-on
@@ -101,8 +99,7 @@ A fork of Arctic: Zephyr - Reloaded, rebuilt around Stremio Bridge (no TMDb Help
 - **Fast on a Fire TV Stick:** images packed into Kodi's texture format, only the views it uses,
   and the old Arctic Zephyr pages it replaced removed.
 
-With this skin, Stremio Bridge's library integration is off: the skin's menus show your catalogs
-directly. Licensed CC BY-NC-SA 3.0 like the original; credits in its `CREDITS.md`.
+The skin's menus show your catalogs directly. Licensed CC BY-NC-SA 3.0 like the original; credits in its `CREDITS.md`.
 
 ## The best setup
 
@@ -222,8 +219,8 @@ Install from the repository, so updates arrive automatically:
      official Kodi repository.
    - **Arctic Zephyr Stremio:** **Add-ons → Install from repository → shiggsy365 Repository → Look
      and feel → Skin → Arctic Zephyr Stremio**, then switch to it when Kodi asks. Stremio Bridge
-     is installed with it; at the end of its setup wizard, tick YouTube (for trailers) and Up Next
-     (for the pop-up between episodes) to install them too, or leave them out for a lighter Kodi.
+     is installed with it; at the end of its setup wizard, tick Up Next (for the pop-up between
+     episodes) to install it too, or leave it out for a lighter Kodi. Trailers need no add-on.
 
 ## Getting started
 
@@ -255,9 +252,6 @@ Add-ons → Stremio Bridge*.
    under **Settings → Metadata**.)
 5. **Views** (optional): **Settings → Views**. Pick the view your skin uses for movie, show,
    season and episode lists.
-6. **Library** (optional): **Settings → Library → Set up library** adds two video sources and
-   restarts Kodi. Then, in **Videos → Files**, set the content of "Stremio Bridge Movies" to Movies
-   and "Stremio Bridge TV" to TV shows, once. Add titles with *Add to library*.
 
 Your addons and settings are stored in `special://profile/addon_data/plugin.video.stremiobridge/`.
 Configured addon URLs often contain account tokens, so Stremio Bridge never writes them, or stream

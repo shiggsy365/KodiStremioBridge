@@ -21,11 +21,10 @@ from mdblist import MDBListError, overall_rating
 
 from .common import (
     ADDON, L, add_context_menu, busy, choose_from_menu, clock_text, get_client, get_mdblist, get_watchstate,
-    library_enabled, log, notify, refresh_when_idle, skin_active,
+    log, notify, refresh_when_idle, skin_active,
 )
 from .details import INFO_WINDOW, SEASONS_READY, load_show, play_trailer
-from .library import LIBRARY_TYPES, in_library
-from .watchlist import change_watchlist, on_watchlist
+from .watchlist import WATCHLIST_TYPES, change_watchlist, on_watchlist
 from .listitems import (
     GENRE_SEPARATOR, PLAYABLE_TYPES, apply_info_actions, apply_watch, episode_code, episode_listitem,
     mark_item_watched, meta_item, season_label,
@@ -35,8 +34,8 @@ from .watching import mark_watched
 
 XML = "stremiobridge-info.xml"
 CAST_LIST, ACTIONS = 50, 9000
-PLAY, STREAMS, TRAILER, SAME_DIRECTOR, WATCHED, SIMILAR, LIBRARY, WATCHLIST = (
-    "play", "streams", "trailer", "director", "watched", "similar", "library", "watchlist")
+PLAY, STREAMS, TRAILER, SAME_DIRECTOR, WATCHED, SIMILAR, WATCHLIST = (
+    "play", "streams", "trailer", "director", "watched", "similar", "watchlist")
 ACCENT = "FF12A0C7"
 DETAIL_ROWS = 8  # one-line rows in the details box (see the skin XML)
 
@@ -63,8 +62,6 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
     can_similar = False
     overall = None  # (score 0-100, number of sources)
     toggle_watched = None
-    in_library = None      # None: not offered for this type; else True/False
-    toggle_library = None
     on_watchlist = None    # None: no MDBList; else True/False
     toggle_watchlist = None
     choice = None
@@ -104,7 +101,6 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
         available += [SAME_DIRECTOR] if meta.director else []
         available += [WATCHED]
         available += [SIMILAR] if self.can_similar else []
-        available += [LIBRARY] if self.in_library is not None else []
         available += [WATCHLIST] if self.on_watchlist is not None else []
         self._actions = available
         items = []
@@ -121,8 +117,6 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
             return (L(30221), "play") if self.playable else (L(30222), "seasons")
         if action == WATCHED:
             return (L(30191), "unwatched") if self.watched else (L(30190), "watched")
-        if action == LIBRARY:
-            return (L(30267), "library_remove") if self.in_library else (L(30266), "library_add")
         if action == WATCHLIST:
             return (L(30302), "watchlist_remove") if self.on_watchlist else (L(30301), "watchlist_add")
         return {STREAMS: (L(30366), "streams"), TRAILER: (L(30223), "trailer"), SAME_DIRECTOR: (L(30224), "director"),
@@ -195,9 +189,6 @@ class InfoDialog(xbmcgui.WindowXMLDialog):
         elif action == WATCHLIST and self.toggle_watchlist and self.toggle_watchlist(not self.on_watchlist):
             self.on_watchlist = not self.on_watchlist
             self._restyle(WATCHLIST)
-        elif action == LIBRARY and self.toggle_library and self.toggle_library(not self.in_library):
-            self.in_library = not self.in_library
-            self._restyle(LIBRARY)
         elif action == WATCHED and self.toggle_watched and self.toggle_watched(not self.watched):
             self.watched = not self.watched
             self.watched_changed = not self.watched_changed
@@ -483,10 +474,7 @@ def extended_info(plugin, type, id, video=None, season=None):
         aired = {(v.season, v.episode) for v in meta.videos if v.season and v.is_released(today)}
         dialog.watched = bool(aired) and aired <= state.watched_episodes(meta.id)
         dialog.toggle_watched = lambda watched: mark_watched(type, meta.id, watched)
-    if type in LIBRARY_TYPES:
-        if library_enabled():
-            dialog.in_library = in_library(type, meta.id)
-            dialog.toggle_library = lambda add: _toggle_library(plugin, type, meta.id, add)
+    if type in WATCHLIST_TYPES:
         dialog.on_watchlist = on_watchlist(type, meta.id)
         dialog.toggle_watchlist = lambda add: change_watchlist(type, meta.id, add)
     dialog.doModal()
@@ -512,14 +500,6 @@ def extended_info(plugin, type, id, video=None, season=None):
         return play_with_resume_choice(plugin, type, video_id, meta.id if video_id != meta.id else None,
                                        pick=action == "streams")
     return True
-
-
-def _toggle_library(plugin, type_, id_, add):
-    """Add/remove from the library while the dialog stays open; True if it worked."""
-    from .library import library_add, library_remove
-
-    (library_add if add else library_remove)(plugin, type_, id_)
-    return in_library(type_, id_) == add
 
 
 def play_with_resume_choice(plugin, type_, video_id, meta_id=None, pick=False):

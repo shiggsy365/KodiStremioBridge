@@ -57,10 +57,6 @@ def select_opens_info():
     return ADDON.getSettingInt("select_action") == 0
 
 
-def library_enabled():
-    return not skin_active()
-
-
 def profile_dir():
     return xbmcvfs.translatePath(ADDON.getAddonInfo("profile"))
 
@@ -151,18 +147,6 @@ def parse_announcement(data):
         return PlaybackEntry.from_json(data["entry"]), float(data.get("offset") or 0)
     except (TypeError, KeyError, ValueError):
         return None
-
-
-def get_library():
-    """The "My Library" export: one per profile for the life of the process
-    (a reused interpreter outlives a profile switch)."""
-    root = os.path.join(profile_dir(), "Library")
-    key = ("library", root)
-    if key not in _shared:
-        from stremio.library import Library
-
-        _shared[key] = Library(root, lambda type_, id_, meta=None: plugin_url("play", type=type_, id=id_, meta=meta))
-    return _shared[key]
 
 
 def jsonrpc(method, **params):

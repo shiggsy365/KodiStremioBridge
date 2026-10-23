@@ -397,14 +397,10 @@ def mark_watched(type_, id_, watched, meta_id=None, season=None):
 
 
 def apply_watched(entries, watched):
-    """Store watched state for `entries` and pass it on: MDBList, Kodi's library
-    copies, and widgets."""
+    """Store watched state for `entries` and pass it on: MDBList and widgets."""
     state = get_watchstate()
     state.set_watched(entries, watched)
     _push_to_mdblist(state, entries, watched)
-    from .library import sync_library_watched  # library imports this module
-
-    sync_library_watched(state)
     notify_widgets()
 
 

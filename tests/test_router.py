@@ -404,8 +404,7 @@ def test_context_menus(server, listing, settings, monkeypatch):
     call("catalog", addon=common.get_registry().all()[0].key, type="movie", id="top")
     commands = [cmd for _, cmd in menus[-1]]
     assert "action=set_watched" in commands[0] and "action=extended_info&type=movie&id=tt1" in commands[1]
-    assert commands[2].endswith("action=library_add&type=movie&id=tt1)")
-    assert commands[3].endswith("action=play_trailer&type=movie&id=tt1&yt=yt1)")
+    assert commands[2].endswith("action=play_trailer&type=movie&id=tt1&yt=yt1)")
 
     state = common.get_watchstate()
     state.set_watched([PlaybackEntry(video_id="tt5:1:2", type="series", meta_id="tt5", season=1, episode=2)], True)
@@ -1202,7 +1201,7 @@ def test_upnext_signal(server, settings, monkeypatch):
     played = []
     monkeypatch.setattr(service.xbmc, "executebuiltin", lambda cmd, *a: played.append(cmd))
     notice = jsonlib.dumps([base64.b64encode(jsonlib.dumps(data["play_info"]).encode()).decode()])
-    monitor = service.LibraryMonitor(worker=None)
+    monitor = service.ServiceMonitor(worker=None)
     monitor.onNotification("upnextprovider.SIGNAL", "Other.plugin.video.stremiobridge_play_action", notice)
     common.get_watchstate().record(PlaybackEntry(video_id="tt5:2:1", type="series", meta_id="tt5", season=2,
                                                  episode=1), 600, 3000)
@@ -1291,11 +1290,11 @@ def test_extended_info_renders(server, settings, info_dialog, monkeypatch):
     controls, props = info_dialog["controls"], info_dialog["props"]
     assert info_dialog["dialog"]._cast_names == ["Annabelle Wallis", "Jacob Tremblay"] and len(controls[50].items) == 2
     dialog = info_dialog["dialog"]
-    assert dialog._actions == ["play", "trailer", "director", "watched", "similar", "library"]
+    assert dialog._actions == ["play", "trailer", "director", "watched", "similar"]
     assert [dialog._look(a) for a in dialog._actions] == [
         ("#30221", "play"), ("#30223", "trailer"), ("#30224", "director"), ("#30190", "watched"),
-        ("#30226", "similar"), ("#30266", "library_add")]
-    assert len(controls[infodialog.ACTIONS].items) == 6
+        ("#30226", "similar")]
+    assert len(controls[infodialog.ACTIONS].items) == 5
     details = [props[f"detail{i}"] for i in range(1, 9) if props[f"detail{i}"]]
     assert props["detail8"] == ""                             # unused rows are blank
     assert "Janus Metz" in details[0] and "Sam Chalsen / Nelson Greaves" in details[1]
@@ -1808,129 +1807,6 @@ def test_search_rows_page_on_scroll(server, settings, search_ui):
 
 
 # ------------------------------------------------------------------ library
-
-@pytest.fixture
-def kodi_library(tmp_path, monkeypatch):
-    """A fake Kodi video library (JSON-RPC), sources.xml and builtins."""
-    from kodi_ui import library
-
-    state = {"movies": [], "episodes": [], "set": [], "builtins": []}
-    special = {"special://profile/sources.xml": str(tmp_path / "sources.xml")}
-    real_profile = common.profile_dir()
-
-    def translate(path):
-        if path in special:
-            return special[path]
-        prefix = "special://profile/addon_data/plugin.video.stremiobridge/"
-        return os.path.join(real_profile, path[len(prefix):]) if path.startswith(prefix) else path
-
-    def jsonrpc(method, **params):
-        if method == "VideoLibrary.GetMovies":
-            return {"movies": state["movies"]}
-        if method == "VideoLibrary.GetEpisodes":
-            return {"episodes": state["episodes"]}
-        if method in ("VideoLibrary.SetMovieDetails", "VideoLibrary.SetEpisodeDetails"):
-            state["set"].append((method, params))
-            return "OK"
-        if method == "VideoLibrary.GetMovieDetails":
-            item = next(m for m in state["movies"] if m["movieid"] == params["movieid"])
-            return {"moviedetails": {"file": item["file"]}}
-        return {}
-
-    monkeypatch.setattr(library.xbmcvfs, "translatePath", translate)
-    monkeypatch.setattr(library, "jsonrpc", jsonrpc)
-    monkeypatch.setattr(library.ADDON, "getAddonInfo",
-                        lambda key: "plugin.video.stremiobridge" if key == "id" else "")
-    monkeypatch.setattr(library.xbmc, "executebuiltin",
-                        lambda cmd, *a: "busydialog" in cmd or state["builtins"].append(cmd))
-    monkeypatch.setattr(common, "_shared", {})
-    monkeypatch.setattr(common, "ADDON_ID", "plugin.video.stremiobridge")
-    state["sources"] = special["special://profile/sources.xml"]
-    return state
-
-
-def test_library_setup_writes_sources(settings, kodi_library, monkeypatch):
-    from kodi_ui import library
-
-    monkeypatch.setattr(xbmcgui.Dialog, "ok", lambda *a: True)
-    monkeypatch.setattr(xbmcgui.Dialog, "yesno", lambda *a: False)        # don't restart
-    with open(kodi_library["sources"], "w") as f:
-        f.write('<sources><video><default pathversion="1"/><source><name>Films</name>'
-                '<path pathversion="1">/media/films/</path></source></video><music/></sources>')
-    assert not library.sources_configured()
-    call("library_setup", handle=-1)
-    assert library.sources_configured()
-    text = open(kodi_library["sources"]).read()
-    assert "/media/films/" in text and text.count("<source>") == 3 and "Stremio Bridge TV" in text
-    call("library_setup", handle=-1)                                      # idempotent
-    assert open(kodi_library["sources"]).read().count("<source>") == 3
-
-
-def test_library_add_remove_and_watched_sync(server, settings, kodi_library, monkeypatch):
-    from kodi_ui import library
-
-    install(server)
-    library.add_sources()
-    server.routes["/meta/movie/tt1.json"] = {"meta": {"id": "tt1", "type": "movie", "name": "Alien", "releaseInfo": "1979"}}
-    server.routes["/meta/series/tt5.json"] = SHOW
-    monkeypatch.setattr(xbmcgui.Dialog, "notification", lambda *a, **k: None)
-
-    call("library_add", handle=-1, type="movie", id="tt1")
-    call("library_add", handle=-1, type="series", id="tt5")
-    lib = common.get_library()
-    episodes = lib.get("series", "tt5")["episodes"]
-    assert lib.contains("movie", "tt1") and sorted(episodes) == ["tt5:0:1", "tt5:1:1", "tt5:2:1"]  # aired only
-    assert any(cmd.startswith("UpdateLibrary(video,special://profile/addon_data/plugin.video.stremiobridge/"
-                              "Library/Movies/Alien (1979)/") for cmd in kodi_library["builtins"])
-
-    # Kodi scanned them; our watch state is pushed to its copies.
-    movie_file = [p for p, ids in lib.file_map().items() if ids[0] == "tt1"][0]
-    kodi_library["movies"] = [{"movieid": 7, "file": movie_file, "playcount": 0, "resume": {"position": 0}}]
-    common.get_watchstate().record(PlaybackEntry(video_id="tt1", type="movie"), 900, 6000)
-    assert library.sync_library_watched() == 1
-    assert kodi_library["set"][-1] == ("VideoLibrary.SetMovieDetails",
-                                       {"movieid": 7, "playcount": 0, "resume": {"position": 900.0, "total": 6000.0}})
-    kodi_library["movies"][0]["resume"] = {"position": 900}
-    assert library.sync_library_watched() == 0                            # already in step
-
-    # Kodi's own "Mark as watched" on the library copy comes back to us.
-    library.on_library_update({"item": {"id": 7, "type": "movie"}, "playcount": 1})
-    assert common.get_watchstate().get("tt1").watched
-
-    call("library_remove", handle=-1, type="movie", id="tt1")
-    assert not lib.contains("movie", "tt1") and "CleanLibrary(video,false)" in kodi_library["builtins"]
-
-
-def test_library_update_and_watchlist(server, settings, kodi_library, monkeypatch):
-    from kodi_ui import library
-
-    install(server)
-    server.routes["/meta/movie/tt1.json"] = {"meta": {"id": "tt1", "type": "movie", "name": "Alien"}}
-    server.routes["/meta/movie/tt2.json"] = {"meta": {"id": "tt2", "type": "movie", "name": "Aliens"}}
-    server.routes["/meta/series/tt5.json"] = SHOW
-    watchlist = [{"type": "movie", "id": "tt1", "title": "Alien", "year": 1979, "ids": {"imdb": "tt1"}}]
-
-    class FakeMDBList:
-        def watchlist(self):
-            return list(watchlist)
-
-    monkeypatch.setattr(library, "get_mdblist", lambda: FakeMDBList())
-    settings["library_watchlist"] = True
-    library.add_title("movie", "tt2")                                     # added by hand
-    summary = library.update_library()
-    lib = common.get_library()
-    assert summary["added"] == 1 and lib.get("movie", "tt1")["source"] == "watchlist"
-
-    watchlist.clear()                                                      # taken off the watchlist
-    summary = library.update_library()
-    assert summary["removed"] == 1 and not lib.contains("movie", "tt1") and lib.contains("movie", "tt2")
-
-    library.add_title("series", "tt5")
-    assert library.update_library()["episodes"] == 0                       # nothing new has aired
-
-
-
-# ------------------------------------------------------------------ default views
 
 def test_skin_views_are_read_from_the_skin(tmp_path, monkeypatch):
     from kodi_ui import views
@@ -3915,17 +3791,6 @@ def test_setup_wizard_offers_missing_optional_extras(monkeypatch):
     offered.clear()
     wizard._offer_extras()
     assert offered == []                                         # nothing missing: nothing asked
-
-
-def test_library_is_per_profile(monkeypatch, tmp_path):
-    """A reused interpreter (reuselanguageinvoker) outlives a profile switch."""
-    monkeypatch.setattr(common, "_shared", {})
-    profile = {"dir": str(tmp_path / "a")}
-    monkeypatch.setattr(common, "profile_dir", lambda: profile["dir"])
-    first = common.get_library()
-    assert common.get_library() is first
-    profile["dir"] = str(tmp_path / "b")
-    assert common.get_library() is not first
 
 
 def test_watchlist_membership_refreshes(monkeypatch):

@@ -56,7 +56,6 @@ HANDLERS = {
     "hubs": ("hub", "hub_create", "hub_genres", "hub_remove", "hub_rename", "organise", "organise_actions",
              "organise_do", "organise_hub"),
     "infodialog": ("extended_info", "info_mark", "info_play", "info_toggle"),
-    "library": ("library_add", "library_remove", "library_setup", "library_update"),
     "manage": ("add_addon", "addon_actions", "addon_catalogs", "addon_details", "manage", "move_addon",
                "refresh_addon", "remove_addon", "set_catalog_pref", "toggle_addon"),
     "homerows": ("home_rows",),

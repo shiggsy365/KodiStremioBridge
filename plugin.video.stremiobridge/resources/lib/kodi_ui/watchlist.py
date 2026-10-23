@@ -1,6 +1,5 @@
-"""Your MDBList watchlist in Kodi: a Watchlist list (front page / widget),
-Add to / Remove from watchlist, and, with "Add my MDBList watchlist to the
-library", the matching library change straight away."""
+"""Your MDBList watchlist in Kodi: a Watchlist list (front page / widget), and
+Add to / Remove from watchlist."""
 
 import time
 
@@ -8,15 +7,12 @@ import xbmcgui
 import xbmcplugin
 
 from mdblist import MDBListError, watchlist_previews
-from stremio.library import WATCHLIST
 from stremio.models import MetaPreview, external_ids
 
 from .common import (
-    ADDON, L, busy, get_cache, get_library, get_mdblist, get_watchstate, log, notify, notify_widgets,
-    refresh_container,
+    L, busy, get_cache, get_mdblist, get_watchstate, log, notify, notify_widgets, refresh_container,
 )
 from .details import load_meta
-from .library import add_title, clean, scan, sources_configured
 from .listitems import preview_items
 from .router import route
 from .views import end_listing, set_content
@@ -98,8 +94,7 @@ def watchlist_view(plugin):
 
 
 def change_watchlist(type_, id_, add):
-    """Add/remove on MDBList (and the library, if it follows the watchlist).
-    True if it worked."""
+    """Add/remove on MDBList. True if it worked."""
     client = get_mdblist()
     if client is None:
         notify(L(30212), icon=xbmcgui.NOTIFICATION_WARNING)
@@ -115,25 +110,10 @@ def change_watchlist(type_, id_, add):
             return False
         watchlist_items(client, refresh=True)
         _membership.clear()
-        if ADDON.getSettingBool("library_watchlist"):
-            _follow_in_library(type_, id_, add, meta)
     name = meta.name if meta else id_
     notify(L(30303 if add else 30304, name=name))
     notify_widgets(watch_only=True)
     return True
-
-
-def _follow_in_library(type_, id_, add, meta):
-    library = get_library()
-    if add and not library.contains(type_, id_) and sources_configured():
-        folder = add_title(type_, id_, source=WATCHLIST, meta=meta)
-        if folder:
-            scan(folder)
-    elif not add:
-        entry = library.get(type_, id_)
-        if entry and entry["source"] == WATCHLIST:
-            library.remove(type_, id_)
-            clean()
 
 
 @route("watchlist_add")

@@ -332,32 +332,12 @@ def after_playback(status):
     refresh_when_idle()
     if status == WATCHED:
         sync_mdblist()
-    sync_library()
 
 
 def sync_mdblist(force=False):
     from .watching import run_mdblist_sync
 
-    summary = run_mdblist_sync(force=force)
-    if summary and (summary["added"] or summary["removed"] or summary["resumes"]):
-        sync_library()
-
-
-def sync_library():
-    """Bring Kodi's library copies of exported titles in line with our watch state."""
-    from .common import library_enabled
-    from .library import sync_library_watched
-
-    if library_enabled():
-        sync_library_watched()
-
-
-def update_library():
-    from .common import library_enabled
-    from .library import update_library as update
-
-    if library_enabled():
-        update()
+    run_mdblist_sync(force=force)
 
 
 # ------------------------------------------------------------------ Kodi's own "Mark as watched"
@@ -515,9 +495,8 @@ class HomeWidgets:
             rebuild_menus()
 
 
-class LibraryMonitor(xbmc.Monitor):
-    """Reacts to Kodi's library: its own watched changes on our exported items,
-    and finished scans (newly added items get our watched state)."""
+class ServiceMonitor(xbmc.Monitor):
+    """Settings changes, and Up Next's "play the next episode"."""
 
     def __init__(self, worker):
         super().__init__()
@@ -531,17 +510,7 @@ class LibraryMonitor(xbmc.Monitor):
         sync()  # the skin's options, IPTV Simple, Dispatcharr Bridge
 
     def onNotification(self, sender, method, data):
-        if method == "VideoLibrary.OnUpdate":
-            from .library import on_library_update
-
-            try:
-                payload = json.loads(data or "{}")
-            except ValueError:
-                return
-            self.worker.submit(on_library_update, payload)
-        elif method == "VideoLibrary.OnScanFinished":
-            self.worker.submit(sync_library)
-        elif method == UPNEXT_PLAY and sender == "upnextprovider.SIGNAL":
+        if method == UPNEXT_PLAY and sender == "upnextprovider.SIGNAL":
             play_from_upnext(data)
 
 
@@ -626,7 +595,6 @@ def signal_upnext(entry):
 
 # ---------------------------------------------------------------- main loop
 
-LIBRARY_UPDATE_EVERY = 24 * 3600
 PREWARM_EVERY = 30 * 60
 PREFETCH_RESUMED = 20  # Continue Watching titles whose info pages are read ahead (the most recent)
 
@@ -715,7 +683,7 @@ def refresh_skin_hubs():
 
 def run():
     worker = Worker()
-    monitor = LibraryMonitor(worker)
+    monitor = ServiceMonitor(worker)
     tracker = Tracker(worker)
     follower = KodiWatchedFollower(worker)
     from .keymap import apply_keymap
@@ -753,7 +721,6 @@ def _loop(monitor, worker, tracker, follower, home_widgets):
     from .splash import apply_splash
 
     next_sync = time.time() + 60             # first syncs shortly after Kodi starts
-    next_library = time.time() + 120
     next_prewarm = time.time() + 180
     next_skin_hubs = time.time() + 20
     next_update = time.time() + 120          # BingeTV: is a newer one out? (about weekly: bingetv.py)
@@ -775,9 +742,6 @@ def _loop(monitor, worker, tracker, follower, home_widgets):
         if time.time() >= next_sync:
             next_sync = time.time() + max(1, ADDON.getSettingInt("mdblist_sync_hours")) * 3600
             worker.submit(sync_mdblist)
-        if time.time() >= next_library:
-            next_library = time.time() + LIBRARY_UPDATE_EVERY
-            worker.submit(update_library)
         if time.time() >= next_update:
             next_update = time.time() + 3600
             if not xbmc.Player().isPlaying():  # its own thread: the question waits for an answer

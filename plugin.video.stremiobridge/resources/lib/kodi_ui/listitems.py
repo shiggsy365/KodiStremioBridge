@@ -132,9 +132,6 @@ def item_menu(plugin, type_, id_, watched, watched_params=None, show_id=None, tr
     episode = id_ if show_id and id_ != show_id else None  # an episode: its own page, within the show's
     if not skin_active():  # with our skin, Kodi's own Information entry shows the same page
         menu.append((L(30220), plugin.run_url("extended_info", type=type_, id=owner, video=episode)))
-    from .library import library_menu  # library imports details, which imports this module
-
-    menu += library_menu(plugin, type_, owner)
     from .watchlist import watchlist_menu
 
     menu += watchlist_menu(plugin, type_, owner)
@@ -316,8 +313,7 @@ def apply_title_actions(item, plugin, type_, id_, watched, video=None, season=No
     `season`): Play, Streams, Mark watched, Watchlist and Similar. `browse`
     (None: unless it's a movie) makes the in-page show browser its default panel.
     Without `header`, Watchlist and Similar are left out (they're the title's)."""
-    from .library import LIBRARY_TYPES  # library and watchlist import details, which imports this module
-    from .watchlist import on_watchlist
+    from .watchlist import WATCHLIST_TYPES, on_watchlist  # watchlist imports details, which imports this module
 
     item.setProperty("stremiobridge.type", type_)
     item.setProperty("stremiobridge.id", id_)
@@ -339,7 +335,7 @@ def apply_title_actions(item, plugin, type_, id_, watched, video=None, season=No
         return
     if get_mdblist() is not None:
         item.setProperty("stremiobridge.similar", "true")
-    listed = on_watchlist(type_, id_) if type_ in LIBRARY_TYPES else None
+    listed = on_watchlist(type_, id_) if type_ in WATCHLIST_TYPES else None
     if listed is not None:
         item.setProperty("stremiobridge.watchlist", "true" if listed else "")
         item.setProperty("stremiobridge.watchlist_action", plugin.url_for(

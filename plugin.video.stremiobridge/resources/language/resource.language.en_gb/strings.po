@@ -701,70 +701,6 @@ msgstr ""
 
 # Library
 
-msgctxt "#30260"
-msgid "Library"
-msgstr ""
-
-msgctxt "#30261"
-msgid "Set up library"
-msgstr ""
-
-msgctxt "#30262"
-msgid "Adds this add-on's library folders to Kodi's video sources. After a restart, set their content once: Movies > The Movie Database, TV > a TV scraper."
-msgstr ""
-
-msgctxt "#30263"
-msgid "Update library now"
-msgstr ""
-
-msgctxt "#30264"
-msgid "Add my MDBList watchlist to the library"
-msgstr ""
-
-msgctxt "#30265"
-msgid "Titles on your MDBList watchlist are added to the library, and removed when you take them off the watchlist. Titles you add yourself are never removed."
-msgstr ""
-
-msgctxt "#30266"
-msgid "Add to library"
-msgstr ""
-
-msgctxt "#30267"
-msgid "Remove from library"
-msgstr ""
-
-msgctxt "#30268"
-msgid "Added to library: {name}"
-msgstr ""
-
-msgctxt "#30269"
-msgid "Removed from library: {name}"
-msgstr ""
-
-msgctxt "#30270"
-msgid "The folders \"Stremio Bridge Movies\" and \"Stremio Bridge TV\" were added as video sources. After Kodi restarts: Videos > Files > open the context menu on each > Set content. Movies: \"Movies\" with The Movie Database. TV: \"TV shows\" with a TV scraper. Answer Yes to scanning."
-msgstr ""
-
-msgctxt "#30271"
-msgid "Kodi needs a restart to see the new sources. Restart now?"
-msgstr ""
-
-msgctxt "#30272"
-msgid "Library: {added} added, {removed} removed, {episodes} new episodes"
-msgstr ""
-
-msgctxt "#30273"
-msgid "The library isn't set up yet. Set it up now?"
-msgstr ""
-
-msgctxt "#30274"
-msgid "The library folders are already Kodi sources. If titles don't appear, check each source's content is set (Videos > Files > context menu > Set content)."
-msgstr ""
-
-msgctxt "#30275"
-msgid "Adds newly aired episodes of shows in the library and syncs the MDBList watchlist. This also runs once a day."
-msgstr ""
-
 # Watch state
 
 msgctxt "#30180"
@@ -1113,10 +1049,6 @@ msgctxt "#30112"
 msgid "Write detailed request information to the Kodi log."
 msgstr ""
 
-msgctxt "#30378"
-msgid "Library integration is off with this skin: its menus and widgets show your catalogs directly."
-msgstr ""
-
 msgctxt "#30380"
 msgid "Setup"
 msgstr ""
@@ -1331,10 +1263,6 @@ msgstr ""
 
 msgctxt "#30448"
 msgid "Optional extras: tick what to install"
-msgstr ""
-
-msgctxt "#30449"
-msgid "YouTube: plays trailers"
 msgstr ""
 
 msgctxt "#30450"
